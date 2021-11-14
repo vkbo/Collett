@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Install Dependencies
         run: |
-          apt install cmake
+          sudo apt install cmake
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
