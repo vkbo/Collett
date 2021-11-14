@@ -3,7 +3,7 @@ Collett – Main GUI Class
 ========================
 
 This file is a part of Collett
-Copyright 2021, Veronica Berglyd Olsen
+Copyright 2020–2021, Veronica Berglyd Olsen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,12 +20,49 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "guimain.h"
+#include "settings.h"
 
+#include <QApplication>
 #include <QCloseEvent>
 
 namespace Collett {
 
-GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {}
+GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
+
+    // Assemble Main Window
+    m_splitMain = new QSplitter(Qt::Horizontal, this);
+    m_splitMain->setContentsMargins(4, 4, 4, 4);
+    m_splitMain->setOpaqueResize(false);
+
+    // Apply Settings
+    CollettSettings *mainConf = CollettSettings::instance();
+    resize(mainConf->mainWindowSize());
+
+    // Finalise
+    setWindowTitle(
+        tr("%1 %2 Version %3").arg(qApp->applicationName(), "–", qApp->applicationVersion())
+    );
+
+    return;
+}
+
+/*
+    GUI Functions
+    =============
+*/
+
+bool GuiMain::closeMain() {
+
+    // Save Settings
+    CollettSettings *mainConf = CollettSettings::instance();
+    if (!this->isFullScreen()) {
+        mainConf->setMainWindowSize(this->size());
+        mainConf->setMainSplitSizes(m_splitMain->sizes());
+    }
+    mainConf->flushSettings();
+
+    return true;
+}
 
 /*
     Events
@@ -33,7 +70,11 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {}
 */
 
 void GuiMain::closeEvent(QCloseEvent *event) {
-    event->accept();
+    if (closeMain()) {
+        event->accept();
+    } else {
+        event->ignore();
+    }
 }
 
 } // namespace Collett

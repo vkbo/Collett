@@ -1,6 +1,6 @@
 /*
-Collett – Main GUI Class
-========================
+Collett – Main Settings Class
+=============================
 
 This file is a part of Collett
 Copyright 2020–2021, Veronica Berglyd Olsen
@@ -19,37 +19,43 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUIMAIN_H
-#define GUIMAIN_H
+#ifndef COLLETTSETTINGS_H
+#define COLLETTSETTINGS_H
 
 #include "collett.h"
 
-#include <QMainWindow>
+#include <QList>
 #include <QObject>
-#include <QWidget>
-#include <QSplitter>
+#include <QScopedPointer>
+#include <QSize>
 
 namespace Collett {
 
-class GuiMain : public QMainWindow
+class CollettSettingsPrivate;
+class CollettSettings : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(CollettSettings)
 
 public:
-    GuiMain(QWidget *parent=nullptr);
-    ~GuiMain() {};
-
-    bool closeMain();
+    static CollettSettings *instance();
+    ~CollettSettings();
 
 private:
+    QScopedPointer<CollettSettingsPrivate> d_ptr;
+    CollettSettings();
 
-    // GUI Widgets
-    QSplitter *m_splitMain;
+public:
+    void flushSettings();
 
-    // Events
-    void closeEvent(QCloseEvent*);
+    // Setters
+    void setMainWindowSize(const QSize size);
+    void setMainSplitSizes(const QList<int> &sizes);
 
+    // Getters
+    QSize      mainWindowSize() const;
+    QList<int> mainSplitSizes() const;
 };
 } // namespace Collett
 
-#endif // GUIMAIN_H
+#endif // COLLETTSETTINGS_H

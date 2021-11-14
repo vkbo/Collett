@@ -2,6 +2,14 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="nb_NO">
 <context>
+    <name>Collett::GuiMain</name>
+    <message>
+        <location filename="../src/guimain.cpp" line="43"/>
+        <source>%1 %2 Version %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>main</name>
     <message>
         <location filename="../src/main.cpp" line="44"/>

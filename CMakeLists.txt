@@ -2,7 +2,7 @@
 # ==========================
 #
 # This file is a part of Collett
-# Copyright 2021, Veronica Berglyd Olsen
+# Copyright 2020–2021, Veronica Berglyd Olsen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -77,8 +77,9 @@ include_directories(
 
 # Source Files
 list(APPEND SRC_FILES
-    src/main
     src/guimain
+    src/main
+    src/settings
 )
 
 # Resource Files
