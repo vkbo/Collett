@@ -78,6 +78,7 @@ include_directories(
 # Source Files
 list(APPEND SRC_FILES
     src/main
+    src/guimain
 )
 
 # Resource Files
