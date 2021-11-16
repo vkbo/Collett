@@ -55,14 +55,14 @@ public:
 };
 
 /*
-    Public Class Contruction/Deconstruction
-    =======================================
+    Public Class Contruction/Destruction
+    ====================================
 */
 
 CollettSettings *CollettSettingsPrivate::instance = nullptr;
 
 CollettSettings *CollettSettings::instance() {
-    if (nullptr == CollettSettingsPrivate::instance) {
+    if (CollettSettingsPrivate::instance == nullptr) {
         CollettSettingsPrivate::instance = new CollettSettings();
         qDebug() << "CollettSettings instance created";
     }
@@ -120,7 +120,6 @@ void CollettSettings::flushSettings() {
 void CollettSettings::setMainWindowSize(const QSize size) {
     Q_D(CollettSettings);
     d->m_mainWindowSize = size;
-    return;
 }
 
 void CollettSettings::setMainSplitSizes(const QList<int> &sizes) {

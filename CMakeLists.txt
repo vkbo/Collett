@@ -1,3 +1,4 @@
+#
 # Collett – CMake Build File
 # ==========================
 #
@@ -16,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
 cmake_minimum_required(VERSION 3.14)
 
 # Version
@@ -90,5 +91,6 @@ set(QRC_FILES
 # =======
 
 qt_add_executable(Collett ${SRC_FILES} ${QRC_FILES} ${TS_FILES})
-target_link_libraries(Collett PRIVATE Qt::Widgets)
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")
+target_link_libraries(Collett PRIVATE Qt::Widgets)
+target_compile_definitions(Collett PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")

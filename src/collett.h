@@ -23,7 +23,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #define COLLETT_H
 
 #define COL_VERSION_STR  "0.0.1-alpha0"
-#define COL_VERSION_HEX  0x000001a0
-#define COL_VERSION_DATE "2020-11-14"
+#define COL_VERSION_NUM  0x000001a0
+#define COL_VERSION_DATE "2021-11-14"
 
 #endif // COLLETT_H
