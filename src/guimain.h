@@ -23,6 +23,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #define GUIMAIN_H
 
 #include "collett.h"
+#include "mainmenu.h"
+#include "maintoolbar.h"
+#include "statusbar.h"
+#include "storytree.h"
+#include "doceditor.h"
 
 #include <QMainWindow>
 #include <QObject>
@@ -43,8 +48,18 @@ public:
 
 private:
 
+    // Collett Widgets
+    GuiMainMenu    *m_mainMenu;
+    GuiMainToolBar *m_mainToolBar;
+    GuiStoryTree   *m_storyTree;
+    GuiMainStatus  *m_mainStatus;
+
+    GuiDocEditor *m_editOne;
+    GuiDocEditor *m_editTwo;
+
     // GUI Widgets
     QSplitter *m_splitMain;
+    QSplitter *m_splitEdit;
 
     // Events
     void closeEvent(QCloseEvent*);
