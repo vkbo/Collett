@@ -81,7 +81,6 @@ include_directories(
 # Source Files
 list(APPEND SRC_FILES
     src/editor/doceditor
-    src/gui/mainmenu
     src/gui/maintoolbar
     src/gui/statusbar
     src/gui/storytree

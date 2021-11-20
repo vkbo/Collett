@@ -21,7 +21,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "guimain.h"
 #include "settings.h"
-#include "mainmenu.h"
 #include "maintoolbar.h"
 #include "statusbar.h"
 #include "storytree.h"
@@ -35,32 +34,25 @@ namespace Collett {
 GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
     // Collett Widgets
-    m_mainMenu    = new GuiMainMenu(this);
     m_mainToolBar = new GuiMainToolBar(this);
     m_storyTree   = new GuiStoryTree(this);
     m_mainStatus  = new GuiMainStatus(this);
-    m_editOne     = new GuiDocEditor(this);
-    m_editTwo     = new GuiDocEditor(this);
+    m_docEditor   = new GuiDocEditor(this);
 
     // Assemble Main Window
-    this->setMenuBar(this->m_mainMenu);
-    this->setStatusBar(this->m_mainStatus);
-
-    m_splitEdit = new QSplitter(Qt::Horizontal, this);
-    m_splitEdit->addWidget(m_editOne);
-    m_splitEdit->addWidget(m_editTwo);
-
     m_splitMain = new QSplitter(Qt::Horizontal, this);
     m_splitMain->setContentsMargins(4, 4, 4, 4);
     m_splitMain->setOpaqueResize(false);
     m_splitMain->addWidget(m_storyTree);
-    m_splitMain->addWidget(m_splitEdit);
+    m_splitMain->addWidget(m_docEditor);
 
     this->setCentralWidget(m_splitMain);
+    this->setStatusBar(this->m_mainStatus);
 
     // Apply Settings
     CollettSettings *mainConf = CollettSettings::instance();
     resize(mainConf->mainWindowSize());
+    m_splitMain->setSizes(mainConf->mainSplitSizes());
 
     // Finalise
     setWindowTitle(
