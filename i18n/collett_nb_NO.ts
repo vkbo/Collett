@@ -23,14 +23,32 @@
     </message>
 </context>
 <context>
+    <name>Collett::GuiMainToolBar</name>
+    <message>
+        <location filename="../src/gui/maintoolbar.cpp" line="39"/>
+        <source>No Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/maintoolbar.cpp" line="42"/>
+        <source>Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/maintoolbar.cpp" line="46"/>
+        <source>Menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Collett::GuiTreeToolBar</name>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="33"/>
+        <location filename="../src/gui/treetoolbar.cpp" line="38"/>
         <source>Story</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="34"/>
+        <location filename="../src/gui/treetoolbar.cpp" line="40"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>

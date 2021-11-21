@@ -24,6 +24,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QToolBar>
+#include <QLabel>
+#include <QString>
 
 namespace Collett {
 
@@ -34,6 +36,11 @@ class GuiMainToolBar : public QToolBar
 public:
     GuiMainToolBar(QWidget *parent=nullptr);
     ~GuiMainToolBar() {};
+
+    void setProjectName(const QString &name);
+
+private:
+    QLabel *m_projectName;
 
 };
 } // namespace Collett

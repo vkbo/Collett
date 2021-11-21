@@ -23,11 +23,31 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QToolBar>
+#include <QWidget>
+#include <QSizePolicy>
 
 namespace Collett {
 
 GuiMainToolBar::GuiMainToolBar(QWidget *parent)
     : QToolBar(parent)
-{}
+{
+    QWidget *stretch1 = new QWidget();
+    QWidget *stretch2 = new QWidget();
+    stretch1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    stretch2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    m_projectName = new QLabel(tr("No Project"));
+
+    this->setOrientation(Qt::Horizontal);
+    this->addAction(tr("Project"));
+    this->addWidget(stretch1);
+    this->addWidget(m_projectName);
+    this->addWidget(stretch2);
+    this->addAction(tr("Menu"));
+}
+
+void GuiMainToolBar::setProjectName(const QString &name) {
+    m_projectName->setText(name);
+}
 
 } // namespace Collett

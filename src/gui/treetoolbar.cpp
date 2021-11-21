@@ -23,14 +23,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QToolBar>
+#include <QWidget>
+#include <QSizePolicy>
 
 namespace Collett {
 
 GuiTreeToolBar::GuiTreeToolBar(QWidget *parent)
     : QToolBar(parent)
 {
+    QWidget *stretch = new QWidget(this);
+    stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     this->setOrientation(Qt::Vertical);
     this->addAction(tr("Story"));
+    this->addWidget(stretch);
     this->addAction(tr("Settings"));
 }
 
