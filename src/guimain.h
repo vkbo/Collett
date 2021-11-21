@@ -24,6 +24,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "collett.h"
 #include "maintoolbar.h"
+#include "treetoolbar.h"
 #include "statusbar.h"
 #include "storytree.h"
 #include "doceditor.h"
@@ -49,6 +50,7 @@ private:
 
     // Collett Widgets
     GuiMainToolBar *m_mainToolBar;
+    GuiTreeToolBar *m_treeToolBar;
     GuiStoryTree   *m_storyTree;
     GuiDocEditor   *m_docEditor;
     GuiMainStatus  *m_mainStatus;

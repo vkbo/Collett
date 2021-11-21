@@ -85,6 +85,7 @@ list(APPEND SRC_FILES
     src/gui/maintoolbar
     src/gui/statusbar
     src/gui/storytree
+    src/gui/treetoolbar
     src/project/storyitem
     src/project/storymodel
     src/guimain
