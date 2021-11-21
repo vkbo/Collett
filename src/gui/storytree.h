@@ -23,11 +23,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #define GUISTORYTREE_H
 
 #include <QObject>
-#include <QListView>
+#include <QTreeView>
 
 namespace Collett {
 
-class GuiStoryTree : public QListView
+class GuiStoryTree : public QTreeView
 {
     Q_OBJECT
 

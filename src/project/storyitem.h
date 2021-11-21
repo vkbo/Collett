@@ -1,6 +1,6 @@
 /*
-Collett – GUI Story Tree Class
-==============================
+Collett – Project Story Item Class
+==================================
 
 This file is a part of Collett
 Copyright 2021, Veronica Berglyd Olsen
@@ -19,18 +19,35 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "storytree.h"
-#include "storymodel.h"
+#ifndef COLLETTSTORYITEM_H
+#define COLLETTSTORYITEM_H
 
-#include <QObject>
-#include <QTreeView>
+#include <QVector>
+#include <QVariant>
 
 namespace Collett {
 
-GuiStoryTree::GuiStoryTree(QWidget *parent)
-    : QTreeView(parent)
+class CollettStoryItem
 {
-    this->setModel(new CollettStoryModel("", this));
-}
+public:
+    explicit CollettStoryItem(const QVector<QVariant> &data, CollettStoryItem *parentItem=nullptr);
+    ~CollettStoryItem();
 
+    void appendChild(CollettStoryItem *child);
+
+    CollettStoryItem *child(int row);
+    int childCount() const;
+    int columnCount() const;
+    QVariant data(int column) const;
+    int row() const;
+    CollettStoryItem *parentItem();
+
+private:
+    QVector<CollettStoryItem*> m_childItems;
+    QVector<QVariant> m_itemData;
+    CollettStoryItem *m_parentItem;
+
+};
 } // namespace Collett
+
+#endif // COLLETTSTORYITEM_H

@@ -75,6 +75,7 @@ qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 include_directories(
     src/editor
     src/gui
+    src/project
     src
 )
 
@@ -84,6 +85,8 @@ list(APPEND SRC_FILES
     src/gui/maintoolbar
     src/gui/statusbar
     src/gui/storytree
+    src/project/storyitem
+    src/project/storymodel
     src/guimain
     src/main
     src/settings
