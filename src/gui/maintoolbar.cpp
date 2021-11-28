@@ -25,6 +25,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include <QToolBar>
 #include <QWidget>
 #include <QSizePolicy>
+#include <QAction>
+#include <QMenu>
 
 namespace Collett {
 
@@ -39,7 +41,7 @@ GuiMainToolBar::GuiMainToolBar(QWidget *parent)
     m_projectName = new QLabel(tr("No Project"));
 
     this->setOrientation(Qt::Horizontal);
-    this->addAction(tr("Project"));
+    this->buildProjectMenu();
     this->addWidget(stretch1);
     this->addWidget(m_projectName);
     this->addWidget(stretch2);
@@ -48,6 +50,34 @@ GuiMainToolBar::GuiMainToolBar(QWidget *parent)
 
 void GuiMainToolBar::setProjectName(const QString &name) {
     m_projectName->setText(name);
+}
+
+/*
+    Build Functions
+    ===============
+*/
+
+void GuiMainToolBar::buildProjectMenu() {
+
+    // Menu
+    m_projectMenu = new QMenu(this);
+
+    // New Project
+    m_newProject = m_projectMenu->addAction(tr("New Project"));
+
+    // Open Project
+    m_openProject = m_projectMenu->addAction(tr("Open Project"));
+
+    // Save Project
+    m_saveProject = m_projectMenu->addAction(tr("Save Project"));
+
+    // Assemble
+    m_projectButton = new QToolButton(this);
+    m_projectButton->setText(tr("Project"));
+    m_projectButton->setMenu(m_projectMenu);
+    m_projectButton->setPopupMode(QToolButton::InstantPopup);
+    this->addWidget(m_projectButton);
+
 }
 
 } // namespace Collett

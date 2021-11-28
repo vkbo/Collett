@@ -26,6 +26,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include <QToolBar>
 #include <QLabel>
 #include <QString>
+#include <QAction>
+#include <QMenu>
+#include <QToolButton>
 
 namespace Collett {
 
@@ -41,6 +44,15 @@ public:
 
 private:
     QLabel *m_projectName;
+
+    // Main Actions
+    QToolButton *m_projectButton;
+    QMenu       *m_projectMenu;
+    QAction     *m_newProject;
+    QAction     *m_openProject;
+    QAction     *m_saveProject;
+
+    void buildProjectMenu();
 
 };
 } // namespace Collett
