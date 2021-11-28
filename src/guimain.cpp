@@ -25,7 +25,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include "maintoolbar.h"
 #include "treetoolbar.h"
 #include "statusbar.h"
-#include "storytreeview.h"
+#include "storytree.h"
 #include "doceditor.h"
 
 #include <QApplication>
@@ -41,7 +41,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     // Collett Widgets
     m_mainToolBar   = new GuiMainToolBar(this);
     m_treeToolBar   = new GuiTreeToolBar(this);
-    m_storyTreeView = new GuiStoryTreeView(this);
+    m_storyTreeView = new GuiStoryTree(this);
     m_mainStatus    = new GuiMainStatus(this);
     m_docEditor     = new GuiDocEditor(this);
 
@@ -94,6 +94,8 @@ bool GuiMain::closeProject() {
 */
 
 bool GuiMain::closeMain() {
+
+    m_data->saveProject();
 
     // Save Settings
     CollettSettings *mainConf = CollettSettings::instance();

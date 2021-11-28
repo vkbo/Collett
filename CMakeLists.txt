@@ -84,12 +84,11 @@ list(APPEND SRC_FILES
     src/editor/doceditor
     src/gui/maintoolbar
     src/gui/statusbar
-    src/gui/storytreeview
+    src/gui/storytree
     src/gui/treetoolbar
     src/project/project
     src/project/storyitem
     src/project/storymodel
-    src/project/storytree
     src/data
     src/guimain
     src/main

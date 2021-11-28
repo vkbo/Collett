@@ -42,11 +42,9 @@ public:
     ~CollettDataPrivate() {
         qDebug() << "Deconstructing: CollettDataPrivate";
         delete m_project;
-        delete m_storyModel;
     };
 
-    Project    *m_project;
-    StoryModel *m_storyModel;
+    Project *m_project;
 
     bool m_hasProject = false;
 };
@@ -84,8 +82,6 @@ bool CollettData::openProject(const QString &path) {
     bool status = d->m_project->openProject();
     d->m_hasProject = d->m_project->hasProject();
 
-    d->m_storyModel = new StoryModel(d->m_project);
-
     return status;
 }
 
@@ -113,7 +109,7 @@ StoryModel *CollettData::storyModel() {
     Q_D(CollettData);
 
     if (d->m_hasProject) {
-        return d->m_storyModel;
+        return d->m_project->storyModel();
     } else {
         return nullptr;
     }

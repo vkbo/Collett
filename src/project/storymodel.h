@@ -22,13 +22,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #ifndef COLLETT_STORYMODEL_H
 #define COLLETT_STORYMODEL_H
 
-#include "project.h"
 #include "storyitem.h"
 
 #include <QObject>
 #include <QString>
-#include <QAbstractItemModel>
 #include <QModelIndex>
+#include <QAbstractItemModel>
 
 namespace Collett {
 
@@ -37,7 +36,7 @@ class StoryModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit StoryModel(Project *project, QObject *parent=nullptr);
+    explicit StoryModel(QObject *parent=nullptr);
     ~StoryModel();
 
     QVariant data(const QModelIndex &index, int role) const override;
@@ -49,7 +48,6 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
-    Project   *m_project;
     StoryItem *m_rootItem;
 
 };

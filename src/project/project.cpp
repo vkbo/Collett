@@ -21,12 +21,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "collett.h"
 #include "project.h"
+#include "storymodel.h"
 
-#include <QString>
-#include <QFileInfo>
 #include <QDir>
 #include <QFile>
+#include <QString>
+#include <QFileInfo>
 #include <QIODevice>
+#include <QByteArray>
+#include <QTextStream>
 
 namespace Collett {
 
@@ -35,6 +38,8 @@ Project::Project(const QString &path) {
     this->clearError();
     m_hasProject = false;
     m_pathValid = false;
+
+    m_storyModel = new StoryModel(this);
 
     QFileInfo fObj(path);
     if (!fObj.exists()) {
@@ -59,17 +64,9 @@ Project::Project(const QString &path) {
     m_projectFile = projFile;
     m_contentPath = QDir(m_projectPath.path() + "/content");
 
-    qInfo() << "Loading Project:" << m_projectPath.path();
-
-    // Check the main project file
-    if (!this->loadProjectFile()) {
-        setError(tr("Not a Collett project: %1").arg(projFile.path()));
-        return;
-    }
-
     // Verify that the needed project folders exist
     if (!m_contentPath.exists()) {
-        if (m_contentPath.mkdir("content")) {
+        if (m_projectPath.mkdir("content")) {
             qDebug() << "Created folder:" << m_contentPath.path();
         } else {
             setError(tr("Could not create folder: %1").arg(m_contentPath.path()));
@@ -85,6 +82,7 @@ Project::Project(const QString &path) {
 }
 
 Project::~Project() {
+    delete m_storyModel;
 }
 
 /*
@@ -93,11 +91,31 @@ Project::~Project() {
 */
 
 bool Project::openProject() {
-    return true;
+
+    qInfo() << "Loading Project:" << m_projectPath.path();
+    if (!m_pathValid) {
+        qWarning() << "Cannot load project from this path";
+        return false;
+    }
+
+    bool mainFile = loadProjectFile();
+
+    m_hasProject = mainFile;
+
+    return m_hasProject;
 }
 
 bool Project::saveProject() {
-    return true;
+
+    qInfo() << "Saving Project:" << m_projectPath.path();
+    if (!m_hasProject) {
+        qWarning() << "No project open, nothing to save";
+        return false;
+    }
+
+    bool mainFile = saveProjectFile();
+
+    return mainFile;
 }
 
 /*
@@ -109,15 +127,21 @@ bool Project::hasProject() const {
     return m_hasProject;
 }
 
+StoryModel *Project::storyModel() {
+    return m_storyModel;
+}
+
 /*
-    Handler Functions
+    Main Project File
     =================
 */
 
 bool Project::loadProjectFile() {
 
-    QFile prjFile(m_projectFile.path());
+    bool hasCol = false;
+    bool hasPro = false;
 
+    QFile prjFile(m_projectFile.path());
     if (prjFile.open(QIODevice::ReadOnly)) {
         QString line;
         QTextStream inStream(&prjFile);
@@ -125,13 +149,32 @@ bool Project::loadProjectFile() {
             line = inStream.readLine();
             if (line.startsWith("Collett ")) {
                 m_collettVersion = line.remove(0, 8);
+                hasCol = true;
             } else if (line.startsWith("Project ")) {
                 m_projectVersion = line.remove(0, 8);
+                hasPro = true;
             }
         }
         prjFile.close();
         qInfo() << "File Collett Version:" << m_collettVersion;
         qInfo() << "File Project Version:" << m_projectVersion;
+        return hasCol & hasPro;
+    } else {
+        return false;
+    }
+}
+
+bool Project::saveProjectFile() {
+
+    QByteArray colLine = "Collett " + QByteArray(COL_VERSION_STR);
+    QByteArray proLine = "Project 0.1";
+
+    QFile prjFile(m_projectFile.path());
+    if (prjFile.open(QIODevice::WriteOnly)) {
+        QTextStream outData(&prjFile);
+        outData << "Collett " << QString(COL_VERSION_STR) << Qt::endl;
+        outData << "Project 0.1" << Qt::endl;
+        prjFile.close();
         return true;
     } else {
         return false;

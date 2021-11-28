@@ -56,6 +56,20 @@
     </message>
 </context>
 <context>
+    <name>Collett::Project</name>
+    <message>
+        <location filename="../src/project/project.cpp" line="46"/>
+        <location filename="../src/project/project.cpp" line="58"/>
+        <source>Project not found at: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/project.cpp" line="72"/>
+        <source>Could not create folder: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Collett::StoryModel</name>
     <message>
         <location filename="../src/project/storymodel.cpp" line="40"/>

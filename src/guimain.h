@@ -27,7 +27,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include "maintoolbar.h"
 #include "treetoolbar.h"
 #include "statusbar.h"
-#include "storytreeview.h"
+#include "storytree.h"
 #include "doceditor.h"
 
 #include <QMainWindow>
@@ -58,7 +58,7 @@ private:
     // Collett Widgets
     GuiMainToolBar   *m_mainToolBar;
     GuiTreeToolBar   *m_treeToolBar;
-    GuiStoryTreeView *m_storyTreeView;
+    GuiStoryTree *m_storyTreeView;
     GuiDocEditor     *m_docEditor;
     GuiMainStatus    *m_mainStatus;
 

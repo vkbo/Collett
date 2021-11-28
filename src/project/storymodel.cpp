@@ -34,8 +34,8 @@ namespace Collett {
     Example: https://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
 */
 
-StoryModel::StoryModel(Project *project, QObject *parent)
-    : QAbstractItemModel(parent), m_project(project)
+StoryModel::StoryModel(QObject *parent)
+    : QAbstractItemModel(parent)
 {
     m_rootItem = new StoryItem({tr("Title"), tr("Words")});
     m_rootItem->appendChild(new StoryItem({"Title Page", 100}, m_rootItem));

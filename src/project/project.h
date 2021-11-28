@@ -23,11 +23,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #define COLLETT_PROJECT_H
 
 #include "collett.h"
-#include "storytree.h"
+#include "storymodel.h"
 
+#include <QDir>
 #include <QObject>
 #include <QString>
-#include <QDir>
 
 namespace Collett {
 
@@ -46,6 +46,7 @@ public:
     // Getters
     bool hasProject() const;
     bool hasError() const;
+    StoryModel *storyModel();
 
     // Error Handling
     void    clearError();
@@ -67,10 +68,11 @@ private:
     QString m_projectVersion = "";
 
     // Content
-    StoryTree *m_storyTree;
+    StoryModel *m_storyModel;
 
-    // Handler Functions
+    // Main Project File
     bool loadProjectFile();
+    bool saveProjectFile();
 
     // Error Handling
     void setError(const QString &error);
