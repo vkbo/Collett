@@ -19,23 +19,17 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUISTORYTREE_H
-#define GUISTORYTREE_H
+#include "storytreeview.h"
+#include "storymodel.h"
 
 #include <QObject>
 #include <QTreeView>
 
 namespace Collett {
 
-class GuiStoryTree : public QTreeView
+GuiStoryTreeView::GuiStoryTreeView(QWidget *parent)
+    : QTreeView(parent)
 {
-    Q_OBJECT
+}
 
-public:
-    GuiStoryTree(QWidget *parent=nullptr);
-    ~GuiStoryTree() {};
-
-};
 } // namespace Collett
-
-#endif // GUISTORYTREE_H

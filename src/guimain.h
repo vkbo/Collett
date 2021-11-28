@@ -23,16 +23,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #define GUIMAIN_H
 
 #include "collett.h"
+#include "data.h"
 #include "maintoolbar.h"
 #include "treetoolbar.h"
 #include "statusbar.h"
-#include "storytree.h"
+#include "storytreeview.h"
 #include "doceditor.h"
 
 #include <QMainWindow>
 #include <QObject>
 #include <QWidget>
 #include <QSplitter>
+#include <QString>
 
 namespace Collett {
 
@@ -44,16 +46,21 @@ public:
     GuiMain(QWidget *parent=nullptr);
     ~GuiMain() {};
 
+    void openProject(const QString &path);
+    bool saveProject();
+    bool closeProject();
+
     bool closeMain();
 
 private:
+    CollettData *m_data;
 
     // Collett Widgets
-    GuiMainToolBar *m_mainToolBar;
-    GuiTreeToolBar *m_treeToolBar;
-    GuiStoryTree   *m_storyTree;
-    GuiDocEditor   *m_docEditor;
-    GuiMainStatus  *m_mainStatus;
+    GuiMainToolBar   *m_mainToolBar;
+    GuiTreeToolBar   *m_treeToolBar;
+    GuiStoryTreeView *m_storyTreeView;
+    GuiDocEditor     *m_docEditor;
+    GuiMainStatus    *m_mainStatus;
 
     // GUI Widgets
     QSplitter *m_splitMain;

@@ -1,6 +1,6 @@
 /*
-Collett – Project Story Item Class
-==================================
+Collett – Core Data Class
+=========================
 
 This file is a part of Collett
 Copyright 2020–2021, Veronica Berglyd Olsen
@@ -19,35 +19,42 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETTSTORYITEM_H
-#define COLLETTSTORYITEM_H
+#ifndef COLLETT_DATA_H
+#define COLLETT_DATA_H
 
-#include <QVector>
-#include <QVariant>
+#include "collett.h"
+#include "project.h"
+#include "storymodel.h"
+
+#include <QWidget>
+#include <QObject>
+#include <QString>
+#include <QDir>
 
 namespace Collett {
 
-class StoryItem
+class CollettDataPrivate;
+class CollettData : public QObject
 {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(CollettData)
+
 public:
-    explicit StoryItem(const QVector<QVariant> &data, StoryItem *parentItem=nullptr);
-    ~StoryItem();
-
-    void appendChild(StoryItem *child);
-
-    StoryItem *child(int row);
-    int childCount() const;
-    int columnCount() const;
-    QVariant data(int column) const;
-    int row() const;
-    StoryItem *parentItem();
+    static CollettData *instance();
+    ~CollettData();
 
 private:
-    QVector<StoryItem*> m_childItems;
-    QVector<QVariant> m_itemData;
-    StoryItem *m_parentItem;
+    QScopedPointer<CollettDataPrivate> d_ptr;
+    CollettData();
+
+public:
+    bool openProject(const QString &path);
+    bool saveProject();
+
+    Project    *project();
+    StoryModel *storyModel();
 
 };
 } // namespace Collett
 
-#endif // COLLETTSTORYITEM_H
+#endif // COLLETT_DATA_H

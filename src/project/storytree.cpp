@@ -1,6 +1,6 @@
 /*
-Collett – GUI Story Tree Class
-==============================
+Collett – Project Tree Class
+============================
 
 This file is a part of Collett
 Copyright 2020–2021, Veronica Berglyd Olsen
@@ -20,17 +20,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "storytree.h"
-#include "storymodel.h"
 
 #include <QObject>
-#include <QTreeView>
 
 namespace Collett {
 
-GuiStoryTree::GuiStoryTree(QWidget *parent)
-    : QTreeView(parent)
-{
-    this->setModel(new CollettStoryModel("", this));
+StoryTree::StoryTree(QObject *parent) : QObject(parent) {
+}
+
+StoryTree::~StoryTree() {
 }
 
 } // namespace Collett

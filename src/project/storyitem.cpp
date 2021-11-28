@@ -26,42 +26,42 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Collett {
 
-CollettStoryItem::CollettStoryItem(const QVector<QVariant> &data, CollettStoryItem *parent)
+StoryItem::StoryItem(const QVector<QVariant> &data, StoryItem *parent)
     : m_itemData(data), m_parentItem(parent)
 {}
 
-CollettStoryItem::~CollettStoryItem() {
+StoryItem::~StoryItem() {
     qDeleteAll(m_childItems);
 }
 
-void CollettStoryItem::appendChild(CollettStoryItem *item) {
+void StoryItem::appendChild(StoryItem *item) {
     m_childItems.append(item);
 }
 
-CollettStoryItem *CollettStoryItem::child(int row) {
+StoryItem *StoryItem::child(int row) {
     if (row < 0 || row >= m_childItems.size()) {
         return nullptr;
     }
     return m_childItems.at(row);
 }
 
-int CollettStoryItem::childCount() const {
+int StoryItem::childCount() const {
     return m_childItems.count();
 }
 
-int CollettStoryItem::row() const {
+int StoryItem::row() const {
     if (m_parentItem) {
-        return m_parentItem->m_childItems.indexOf(const_cast<CollettStoryItem*>(this));
+        return m_parentItem->m_childItems.indexOf(const_cast<StoryItem*>(this));
     } else {
         return 0;
     }
 }
 
-int CollettStoryItem::columnCount() const {
+int StoryItem::columnCount() const {
     return m_itemData.count();
 }
 
-QVariant CollettStoryItem::data(int column) const {
+QVariant StoryItem::data(int column) const {
     if (column < 0 || column >= m_itemData.size()) {
         return QVariant();
     } else {
@@ -69,7 +69,7 @@ QVariant CollettStoryItem::data(int column) const {
     }
 }
 
-CollettStoryItem *CollettStoryItem::parentItem() {
+StoryItem *StoryItem::parentItem() {
     return m_parentItem;
 }
 

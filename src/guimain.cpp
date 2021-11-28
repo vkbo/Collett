@@ -20,11 +20,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "guimain.h"
+#include "data.h"
 #include "settings.h"
 #include "maintoolbar.h"
 #include "treetoolbar.h"
 #include "statusbar.h"
-#include "storytree.h"
+#include "storytreeview.h"
 #include "doceditor.h"
 
 #include <QApplication>
@@ -34,18 +35,21 @@ namespace Collett {
 
 GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
+    // Create Main Data Object
+    m_data = CollettData::instance();
+
     // Collett Widgets
-    m_mainToolBar = new GuiMainToolBar(this);
-    m_treeToolBar = new GuiTreeToolBar(this);
-    m_storyTree   = new GuiStoryTree(this);
-    m_mainStatus  = new GuiMainStatus(this);
-    m_docEditor   = new GuiDocEditor(this);
+    m_mainToolBar   = new GuiMainToolBar(this);
+    m_treeToolBar   = new GuiTreeToolBar(this);
+    m_storyTreeView = new GuiStoryTreeView(this);
+    m_mainStatus    = new GuiMainStatus(this);
+    m_docEditor     = new GuiDocEditor(this);
 
     // Assemble Main Window
     m_splitMain = new QSplitter(Qt::Horizontal, this);
     m_splitMain->setContentsMargins(4, 4, 4, 4);
     m_splitMain->setOpaqueResize(false);
-    m_splitMain->addWidget(m_storyTree);
+    m_splitMain->addWidget(m_storyTreeView);
     m_splitMain->addWidget(m_docEditor);
 
     this->addToolBar(Qt::TopToolBarArea, m_mainToolBar);
@@ -65,6 +69,24 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
     return;
 }
+
+/*
+    Project Functions
+    =================
+*/
+
+void GuiMain::openProject(const QString &path) {
+    m_data->openProject(path);
+    m_storyTreeView->setModel(m_data->storyModel());
+};
+
+bool GuiMain::saveProject() {
+    return m_data->saveProject();
+}
+
+bool GuiMain::closeProject() {
+    return true;
+};
 
 /*
     GUI Functions
