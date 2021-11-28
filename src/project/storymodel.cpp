@@ -35,7 +35,7 @@ namespace Collett {
 */
 
 StoryModel::StoryModel(Project *project, QObject *parent)
-    : m_project(project), QAbstractItemModel(parent)
+    : QAbstractItemModel(parent), m_project(project)
 {
     m_rootItem = new StoryItem({tr("Title"), tr("Words")});
     m_rootItem->appendChild(new StoryItem({"Title Page", 100}, m_rootItem));

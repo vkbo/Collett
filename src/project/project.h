@@ -23,9 +23,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #define COLLETT_PROJECT_H
 
 #include "collett.h"
+#include "storytree.h"
 
 #include <QObject>
 #include <QString>
+#include <QDir>
 
 namespace Collett {
 
@@ -38,7 +40,6 @@ public:
     ~Project();
 
     // Class Methods
-    void clearError();
     bool openProject();
     bool saveProject();
 
@@ -46,10 +47,33 @@ public:
     bool hasProject() const;
     bool hasError() const;
 
+    // Error Handling
+    void    clearError();
+    QString lastError() const;
+
 private:
     bool    m_hasProject;
     bool    m_hasError;
     QString m_lastError;
+
+    // Project Paths
+    QDir m_projectPath;
+    QDir m_projectFile;
+    QDir m_contentPath;
+    bool m_pathValid;
+
+    // Project Meta
+    QString m_collettVersion = "";
+    QString m_projectVersion = "";
+
+    // Content
+    StoryTree *m_storyTree;
+
+    // Handler Functions
+    bool loadProjectFile();
+
+    // Error Handling
+    void setError(const QString &error);
 
 };
 } // namespace Collett
