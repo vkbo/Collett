@@ -61,6 +61,7 @@ private:
     QDir m_projectPath;
     QDir m_projectFile;
     QDir m_contentPath;
+    QDir m_dataPath;
     bool m_pathValid;
 
     // Project Meta
@@ -70,9 +71,11 @@ private:
     // Content
     StoryModel *m_storyModel;
 
-    // Main Project File
+    // Project Files
     bool loadProjectFile();
     bool saveProjectFile();
+    bool loadStoryFile();
+    bool saveStoryFile();
 
     // Error Handling
     void setError(const QString &error);

@@ -30,6 +30,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include <QIODevice>
 #include <QByteArray>
 #include <QTextStream>
+#include <QJsonDocument>
 
 namespace Collett {
 
@@ -63,6 +64,7 @@ Project::Project(const QString &path) {
     m_projectPath = projDir;
     m_projectFile = projFile;
     m_contentPath = QDir(m_projectPath.path() + "/content");
+    m_dataPath    = QDir(m_projectPath.path() + "/data");
 
     // Verify that the needed project folders exist
     if (!m_contentPath.exists()) {
@@ -73,12 +75,19 @@ Project::Project(const QString &path) {
             return;
         }
     }
+    if (!m_dataPath.exists()) {
+        if (m_projectPath.mkdir("data")) {
+            qDebug() << "Created folder:" << m_dataPath.path();
+        } else {
+            setError(tr("Could not create folder: %1").arg(m_dataPath.path()));
+            return;
+        }
+    }
 
     m_pathValid = true;
 
     qDebug() << "Project Path:" << m_projectPath.path();
     qDebug() << "Project File:" << m_projectFile.path();
-    qDebug() << "Content Path:" << m_contentPath.path();
 }
 
 Project::~Project() {
@@ -114,8 +123,9 @@ bool Project::saveProject() {
     }
 
     bool mainFile = saveProjectFile();
+    bool storyFile = saveStoryFile();
 
-    return mainFile;
+    return mainFile & storyFile;
 }
 
 /*
@@ -132,8 +142,8 @@ StoryModel *Project::storyModel() {
 }
 
 /*
-    Main Project File
-    =================
+    Project Files
+    =============
 */
 
 bool Project::loadProjectFile() {
@@ -179,6 +189,25 @@ bool Project::saveProjectFile() {
     } else {
         return false;
     }
+}
+
+bool Project::loadStoryFile() {
+    return true;
+}
+
+bool Project::saveStoryFile() {
+
+    QFile storyFile(m_dataPath.filePath(COL_STORY_FILE_NAME));
+    if (!storyFile.open(QIODevice::WriteOnly)) {
+        qWarning() << "Could not open story file";
+        return false;
+    }
+    
+    QJsonDocument doc(m_storyModel->toJsonObject());
+    storyFile.write(doc.toJson());
+    storyFile.close();
+
+    return true;
 }
 
 /*

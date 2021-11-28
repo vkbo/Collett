@@ -27,5 +27,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #define COL_VERSION_DATE "2021-11-14"
 
 #define COL_PROJECT_FILE_NAME "project.collett"
+#define COL_STORY_FILE_NAME   "story.json"
+#define COL_NOTES_FILE_NAME   "notes.json"
+
+#define COL_STORY_TREE_COL_COUNT 2
 
 #endif // COLLETT_H

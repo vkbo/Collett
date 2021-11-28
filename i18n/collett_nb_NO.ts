@@ -58,13 +58,14 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="46"/>
-        <location filename="../src/project/project.cpp" line="58"/>
+        <location filename="../src/project/project.cpp" line="47"/>
+        <location filename="../src/project/project.cpp" line="59"/>
         <source>Project not found at: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/project.cpp" line="72"/>
+        <location filename="../src/project/project.cpp" line="74"/>
+        <location filename="../src/project/project.cpp" line="82"/>
         <source>Could not create folder: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -72,12 +73,12 @@
 <context>
     <name>Collett::StoryModel</name>
     <message>
-        <location filename="../src/project/storymodel.cpp" line="40"/>
-        <source>Title</source>
+        <location filename="../src/project/storymodel.cpp" line="154"/>
+        <source>Label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storymodel.cpp" line="40"/>
+        <location filename="../src/project/storymodel.cpp" line="158"/>
         <source>Words</source>
         <translation type="unfinished"></translation>
     </message>

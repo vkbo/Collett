@@ -19,24 +19,67 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "collett.h"
 #include "storyitem.h"
 
+#include <QUuid>
 #include <QVector>
 #include <QVariant>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QJsonObject>
 
 namespace Collett {
 
-StoryItem::StoryItem(const QVector<QVariant> &data, StoryItem *parent)
-    : m_itemData(data), m_parentItem(parent)
-{}
+StoryItem::StoryItem(const QString &label, StoryItem *parent)
+    : m_parentItem(parent)
+{
+    m_handle = QUuid::createUuid();
+    m_label  = label;
+    m_wCount = 0;
+}
 
 StoryItem::~StoryItem() {
     qDeleteAll(m_childItems);
 }
 
+/*
+    Item Structure
+    ==============
+*/
+
 void StoryItem::appendChild(StoryItem *item) {
     m_childItems.append(item);
 }
+
+QJsonObject StoryItem::toJsonObject() {
+
+    QJsonObject item;
+    QJsonArray children;
+
+    for (qsizetype i=0; i<m_childItems.size(); ++i) {
+        children.append(m_childItems.at(i)->toJsonObject());
+    }
+
+    if (m_parentItem == nullptr) {
+        item["handle"] = "ROOT";
+        item["xItems"] = children;
+    } else {
+        item["handle"] = m_handle.toString(QUuid::WithoutBraces);
+        item["label"]  = m_label;
+        item["wCount"] = m_wCount;
+        if (children.size() > 0) {
+            item["xItems"] = children;
+        }
+    }
+
+    return item;
+}
+
+/*
+    Model Access
+    ============
+*/
 
 StoryItem *StoryItem::child(int row) {
     if (row < 0 || row >= m_childItems.size()) {
@@ -58,14 +101,23 @@ int StoryItem::row() const {
 }
 
 int StoryItem::columnCount() const {
-    return m_itemData.count();
+    return COL_STORY_TREE_COL_COUNT;
 }
 
 QVariant StoryItem::data(int column) const {
-    if (column < 0 || column >= m_itemData.size()) {
+    switch (column)
+    {
+    case 0:
+        return QVariant(m_label);
+        break;
+
+    case 1:
+        return QVariant(m_wCount);
+        break;
+    
+    default:
         return QVariant();
-    } else {
-        return m_itemData.at(column);
+        break;
     }
 }
 

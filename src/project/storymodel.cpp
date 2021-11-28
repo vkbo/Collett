@@ -23,6 +23,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include "storyitem.h"
 
 #include <QObject>
+#include <QString>
+#include <QJsonObject>
+#include <QModelIndex>
 #include <QAbstractItemModel>
 
 namespace Collett {
@@ -37,14 +40,28 @@ namespace Collett {
 StoryModel::StoryModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_rootItem = new StoryItem({tr("Title"), tr("Words")});
-    m_rootItem->appendChild(new StoryItem({"Title Page", 100}, m_rootItem));
-    m_rootItem->appendChild(new StoryItem({"Chapter 1", 150}, m_rootItem));
+    m_rootItem = new StoryItem("");
+    m_rootItem->appendChild(new StoryItem("Title Page", m_rootItem));
+    m_rootItem->appendChild(new StoryItem("Chapter 1", m_rootItem));
 }
 
 StoryModel::~StoryModel() {
     delete m_rootItem;
 }
+
+/*
+    Class Methods
+    =============
+*/
+
+QJsonObject StoryModel::toJsonObject() {
+    return m_rootItem->toJsonObject();
+}
+
+/*
+    Model Access
+    ============
+*/
 
 QModelIndex StoryModel::index(int row, int column, const QModelIndex &parent) const {
 
@@ -132,7 +149,19 @@ Qt::ItemFlags StoryModel::flags(const QModelIndex &index) const {
 QVariant StoryModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        return m_rootItem->data(section);
+        switch (section) {
+        case 0:
+            return QVariant(tr("Label"));
+            break;
+
+        case 1:
+            return QVariant(tr("Words"));
+            break;
+        
+        default:
+            return QVariant();
+            break;
+        }
     } else {
         return QVariant();
     }

@@ -26,6 +26,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QString>
+#include <QJsonObject>
 #include <QModelIndex>
 #include <QAbstractItemModel>
 
@@ -39,6 +40,10 @@ public:
     explicit StoryModel(QObject *parent=nullptr);
     ~StoryModel();
 
+    // Class Methods
+    QJsonObject toJsonObject();
+
+    // Model Access
     QVariant data(const QModelIndex &index, int role) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
