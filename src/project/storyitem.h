@@ -43,6 +43,10 @@ public:
     void setLabel(const QString &label);
     void setWordCount(int count);
 
+    // Getters
+    int wordCount();
+    int childWordCounts();
+
     // Model Access
     int row() const;
     int childCount() const;

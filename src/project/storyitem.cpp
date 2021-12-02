@@ -61,12 +61,13 @@ QJsonObject StoryItem::toJsonObject() {
         children.append(m_childItems.at(i)->toJsonObject());
     }
 
-    if (m_parentItem == nullptr) {
+    if (!m_parentItem) {
         item["handle"] = "ROOT";
         item["xItems"] = children;
     } else {
         item["handle"] = m_handle.toString(QUuid::WithoutBraces);
         item["label"]  = m_label;
+        item["order"]  = row();
         item["wCount"] = m_wCount;
         if (children.size() > 0) {
             item["xItems"] = children;
@@ -77,6 +78,37 @@ QJsonObject StoryItem::toJsonObject() {
 }
 
 /*
+    Setters
+    =======
+*/
+
+void StoryItem::setLabel(const QString &label) {
+    m_label = label;
+}
+
+
+void StoryItem::setWordCount(int count) {
+    m_wCount = count > 0 ? count : 0;
+}
+
+/*
+    Getters
+    =======
+*/
+
+int StoryItem::wordCount() {
+    return m_wCount;
+}
+
+int StoryItem::childWordCounts() {
+    int tCount = 0;
+    for (StoryItem* child : m_childItems) {
+        tCount += child->childWordCounts();
+    }
+    return tCount;
+}
+
+/*
     Model Access
     ============
 */
@@ -84,8 +116,9 @@ QJsonObject StoryItem::toJsonObject() {
 StoryItem *StoryItem::child(int row) {
     if (row < 0 || row >= m_childItems.size()) {
         return nullptr;
+    } else {
+        return m_childItems.at(row);
     }
-    return m_childItems.at(row);
 }
 
 int StoryItem::childCount() const {
@@ -105,8 +138,7 @@ int StoryItem::columnCount() const {
 }
 
 QVariant StoryItem::data(int column) const {
-    switch (column)
-    {
+    switch (column) {
     case 0:
         return QVariant(m_label);
         break;
