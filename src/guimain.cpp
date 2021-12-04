@@ -39,17 +39,17 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_data = CollettData::instance();
 
     // Collett Widgets
-    m_mainToolBar   = new GuiMainToolBar(this);
-    m_treeToolBar   = new GuiTreeToolBar(this);
-    m_storyTreeView = new GuiStoryTree(this);
-    m_mainStatus    = new GuiMainStatus(this);
-    m_docEditor     = new GuiDocEditor(this);
+    m_mainToolBar = new GuiMainToolBar(this);
+    m_treeToolBar = new GuiTreeToolBar(this);
+    m_storyTree   = new GuiStoryTree(this);
+    m_mainStatus  = new GuiMainStatus(this);
+    m_docEditor   = new GuiDocEditor(this);
 
     // Assemble Main Window
     m_splitMain = new QSplitter(Qt::Horizontal, this);
     m_splitMain->setContentsMargins(4, 4, 4, 4);
     m_splitMain->setOpaqueResize(false);
-    m_splitMain->addWidget(m_storyTreeView);
+    m_splitMain->addWidget(m_storyTree);
     m_splitMain->addWidget(m_docEditor);
 
     this->addToolBar(Qt::TopToolBarArea, m_mainToolBar);
@@ -77,7 +77,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
 void GuiMain::openProject(const QString &path) {
     m_data->openProject(path);
-    m_storyTreeView->setModel(m_data->storyModel());
+    m_storyTree->setModel(m_data->storyModel());
     m_mainToolBar->setProjectName(m_data->project()->projectName());
 };
 

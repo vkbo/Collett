@@ -56,11 +56,11 @@ private:
     CollettData *m_data;
 
     // Collett Widgets
-    GuiMainToolBar   *m_mainToolBar;
-    GuiTreeToolBar   *m_treeToolBar;
-    GuiStoryTree *m_storyTreeView;
-    GuiDocEditor     *m_docEditor;
-    GuiMainStatus    *m_mainStatus;
+    GuiMainToolBar *m_mainToolBar;
+    GuiTreeToolBar *m_treeToolBar;
+    GuiStoryTree   *m_storyTree;
+    GuiDocEditor   *m_docEditor;
+    GuiMainStatus  *m_mainStatus;
 
     // GUI Widgets
     QSplitter *m_splitMain;
