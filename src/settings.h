@@ -51,10 +51,12 @@ public:
     // Setters
     void setMainWindowSize(const QSize size);
     void setMainSplitSizes(const QList<int> &sizes);
+    void setStoryTreeColSizes(const QList<int> &sizes);
 
     // Getters
     QSize      mainWindowSize() const;
     QList<int> mainSplitSizes() const;
+    QList<int> storyTreeColSizes() const;
 };
 } // namespace Collett
 

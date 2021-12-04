@@ -104,6 +104,7 @@ bool GuiMain::closeMain() {
         mainConf->setMainWindowSize(this->size());
         mainConf->setMainSplitSizes(m_splitMain->sizes());
     }
+    m_storyTree->saveTreeState();
     mainConf->flushSettings();
 
     return true;

@@ -35,6 +35,10 @@ public:
     GuiStoryTree(QWidget *parent=nullptr);
     ~GuiStoryTree() {};
 
+    // Class Methods
+    void restoreTreeState();
+    void saveTreeState();
+
 };
 } // namespace Collett
 

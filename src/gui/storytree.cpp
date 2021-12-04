@@ -19,9 +19,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "collett.h"
+#include "settings.h"
 #include "storytree.h"
 #include "storymodel.h"
 
+#include <QList>
 #include <QObject>
 #include <QTreeView>
 
@@ -30,6 +33,31 @@ namespace Collett {
 GuiStoryTree::GuiStoryTree(QWidget *parent)
     : QTreeView(parent)
 {
+}
+
+/**
+ * Class Methods
+ * =============
+ */
+
+void GuiStoryTree::restoreTreeState() {
+    CollettSettings *mainConf = CollettSettings::instance();
+
+    QList<int> columns = mainConf->storyTreeColSizes();
+    for (int i=0; i<COL_STORY_TREE_COL_COUNT; ++i) {
+        int width = columns.at(i);
+        this->setColumnWidth(i, width > 25 ? width : 25);
+    }
+}
+
+void GuiStoryTree::saveTreeState() {
+    CollettSettings *mainConf = CollettSettings::instance();
+
+    QList<int> columns;
+    for (int i=0; i<COL_STORY_TREE_COL_COUNT; ++i) {
+        columns.append(this->columnWidth(i));
+    }
+    mainConf->setStoryTreeColSizes(columns);
 }
 
 } // namespace Collett
