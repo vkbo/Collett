@@ -31,14 +31,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Collett {
 
+class ProjectPrivate;
 class Project : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(Project)
 
 public:
     Project(const QString &path);
     ~Project();
 
+private:
+    QScopedPointer<ProjectPrivate> d_ptr;
+
+public:
     // Class Methods
     bool openProject();
     bool saveProject();
@@ -71,9 +77,11 @@ private:
     // Content
     StoryModel *m_storyModel;
 
-    // Project Files
+    // File Load & Save
     bool loadProjectFile();
     bool saveProjectFile();
+    bool loadSettingsFile();
+    bool saveSettingsFile();
     bool loadStoryFile();
     bool saveStoryFile();
 

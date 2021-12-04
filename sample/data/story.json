@@ -2,13 +2,15 @@
     "handle": "ROOT",
     "xItems": [
         {
-            "handle": "5487e205-3957-4d80-b76d-0720f9972948",
+            "handle": "b32008d7-5b44-43a6-ace3-a7343b2ad496",
             "label": "Title Page",
+            "order": 0,
             "wCount": 0
         },
         {
-            "handle": "0baa14de-53b8-44c1-b60a-1ccde2efb76b",
+            "handle": "ff608d47-2fac-4d48-9a9c-13d787bc76c2",
             "label": "Chapter 1",
+            "order": 1,
             "wCount": 0
         }
     ]

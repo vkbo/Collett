@@ -26,6 +26,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QFile>
 #include <QString>
+#include <QDateTime>
 #include <QFileInfo>
 #include <QIODevice>
 #include <QByteArray>
@@ -34,7 +35,34 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Collett {
 
-Project::Project(const QString &path) {
+/**
+ * Project Private Class
+ * =====================
+ */
+
+class ProjectPrivate
+{
+public:
+    ProjectPrivate() {};
+    ~ProjectPrivate() {};
+
+    // Project
+    QString m_projectName = "New Project";
+    QString m_bookTitle = "New Project";
+
+    // Meta
+    QDateTime m_createdTime = QDateTime::currentDateTime();
+};
+
+/**
+ * Project Class Constructor/Destructor
+ * ====================================
+ */
+
+Project::Project(const QString &path)
+    : d_ptr(new ProjectPrivate())
+{
+    Q_D(Project);
 
     this->clearError();
     m_hasProject = false;
@@ -94,10 +122,10 @@ Project::~Project() {
     delete m_storyModel;
 }
 
-/*
-    Class Methods
-    =============
-*/
+/**
+ * Class Methods
+ * =============
+ */
 
 bool Project::openProject() {
 
@@ -123,15 +151,16 @@ bool Project::saveProject() {
     }
 
     bool mainFile = saveProjectFile();
+    bool settFile = saveSettingsFile();
     bool storyFile = saveStoryFile();
 
-    return mainFile & storyFile;
+    return mainFile & settFile & storyFile;
 }
 
-/*
-    Project Getters
-    ===============
-*/
+/**
+ * Project Getters
+ * ===============
+ */
 
 bool Project::hasProject() const {
     return m_hasProject;
@@ -141,10 +170,11 @@ StoryModel *Project::storyModel() {
     return m_storyModel;
 }
 
-/*
-    Project Files
-    =============
-*/
+/**
+ * Project File
+ * ============
+ * Load and save functions for the project.collett file.
+ */
 
 bool Project::loadProjectFile() {
 
@@ -191,29 +221,81 @@ bool Project::saveProjectFile() {
     }
 }
 
+/**
+ * Settings FIle
+ * =============
+ * Load and save functions for the data/project.json file.
+ *
+ * This file contains all the meta data and options for the Collett project,
+ * except for the project content itself (the documents).
+ */
+
+bool Project::loadSettingsFile() {
+    return true;
+}
+
+bool Project::saveSettingsFile() {
+    Q_D(Project);
+
+    QJsonObject jData, jMeta, jProject, jSettings;
+
+    jMeta["created"] = d->m_createdTime.toString(Qt::ISODate);
+    jMeta["updated"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+
+    jProject["bookTitle"] = d->m_bookTitle;
+    jProject["projectName"] = d->m_projectName;
+
+    jData["meta"] = jMeta;
+    jData["project"] = jProject;
+    jData["settings"] = jSettings;
+
+    QFile file(m_dataPath.filePath(COL_SETTINGS_FILE_NAME));
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Could not open settings file";
+        return false;
+    }
+
+    QJsonDocument doc(jData);
+    file.write(doc.toJson());
+    file.close();
+
+    return true;
+}
+
+/**
+ * Story File
+ * ==========
+ * Load and save functions for the data/story.json file.
+ *
+ * This file contains the structure of StoryItems contained in the StoryModel.
+ * The structure is contained as child items under a single root item, and is
+ * saved to a QJsonDocument by recursively calling the StoryItem->toJsonObject
+ * function.
+`*/
+
 bool Project::loadStoryFile() {
     return true;
 }
 
 bool Project::saveStoryFile() {
 
-    QFile storyFile(m_dataPath.filePath(COL_STORY_FILE_NAME));
-    if (!storyFile.open(QIODevice::WriteOnly)) {
+    QFile file(m_dataPath.filePath(COL_STORY_FILE_NAME));
+    if (!file.open(QIODevice::WriteOnly)) {
         qWarning() << "Could not open story file";
         return false;
     }
-    
+
     QJsonDocument doc(m_storyModel->toJsonObject());
-    storyFile.write(doc.toJson());
-    storyFile.close();
+    file.write(doc.toJson());
+    file.close();
 
     return true;
 }
 
-/*
-    Error Handling
-    ==============
-*/
+/**
+ * Error Handling
+ * ==============
+ */
 
 bool Project::hasError() const {
     return m_hasError;

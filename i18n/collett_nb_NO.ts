@@ -58,14 +58,14 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="47"/>
-        <location filename="../src/project/project.cpp" line="59"/>
+        <location filename="../src/project/project.cpp" line="75"/>
+        <location filename="../src/project/project.cpp" line="87"/>
         <source>Project not found at: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/project.cpp" line="74"/>
-        <location filename="../src/project/project.cpp" line="82"/>
+        <location filename="../src/project/project.cpp" line="102"/>
+        <location filename="../src/project/project.cpp" line="110"/>
         <source>Could not create folder: %1</source>
         <translation type="unfinished"></translation>
     </message>
