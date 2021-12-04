@@ -50,9 +50,15 @@ public:
     bool saveProject();
 
     // Getters
+    QString projectName() const;
+    QString bookTitle() const;
     bool hasProject() const;
     bool hasError() const;
     StoryModel *storyModel();
+
+    // Setters
+    void setProjectName(const QString &name);
+    void setBookTitle(const QString &title);
 
     // Error Handling
     void    clearError();

@@ -78,6 +78,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 void GuiMain::openProject(const QString &path) {
     m_data->openProject(path);
     m_storyTreeView->setModel(m_data->storyModel());
+    m_mainToolBar->setProjectName(m_data->project()->projectName());
 };
 
 bool GuiMain::saveProject() {

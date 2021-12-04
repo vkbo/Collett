@@ -162,12 +162,37 @@ bool Project::saveProject() {
  * ===============
  */
 
+QString Project::projectName() const {
+    Q_D(const Project);
+    return d->m_projectName;
+}
+
+QString Project::bookTitle() const {
+    Q_D(const Project);
+    return d->m_bookTitle;
+}
+
 bool Project::hasProject() const {
     return m_hasProject;
 }
 
 StoryModel *Project::storyModel() {
     return m_storyModel;
+}
+
+/**
+ * Project Setters
+ * ===============
+ */
+
+void Project::setProjectName(const QString &name) {
+    Q_D(Project);
+    d->m_projectName = name.simplified();
+}
+
+void Project::setBookTitle(const QString &title) {
+    Q_D(Project);
+    d->m_bookTitle = title.simplified();
 }
 
 /**
