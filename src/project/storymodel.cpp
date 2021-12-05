@@ -40,9 +40,14 @@ namespace Collett {
 StoryModel::StoryModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_rootItem = new StoryItem("");
+    m_rootItem = new StoryItem("Story");
     m_rootItem->appendChild(new StoryItem("Title Page", m_rootItem));
     m_rootItem->appendChild(new StoryItem("Chapter 1", m_rootItem));
+    m_rootItem->appendChild(new StoryItem("Chapter 2", m_rootItem));
+    m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.1", m_rootItem->child(1)));
+    m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.2", m_rootItem->child(1)));
+    m_rootItem->child(2)->appendChild(new StoryItem("Scene 2.1", m_rootItem->child(2)));
+    m_rootItem->child(2)->appendChild(new StoryItem("Scene 2.2", m_rootItem->child(2)));
 }
 
 StoryModel::~StoryModel() {

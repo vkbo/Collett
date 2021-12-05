@@ -22,7 +22,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include "collett.h"
 #include "settings.h"
 #include "storytree.h"
-#include "storymodel.h"
 
 #include <QList>
 #include <QObject>
@@ -33,6 +32,7 @@ namespace Collett {
 GuiStoryTree::GuiStoryTree(QWidget *parent)
     : QTreeView(parent)
 {
+    this->setItemsExpandable(true);
 }
 
 /**

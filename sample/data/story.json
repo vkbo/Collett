@@ -2,16 +2,50 @@
     "handle": "ROOT",
     "xItems": [
         {
-            "handle": "b32008d7-5b44-43a6-ace3-a7343b2ad496",
+            "handle": "e9f1d0c5-52ef-48ed-a4d5-fc32261f324c",
             "label": "Title Page",
             "order": 0,
             "wCount": 0
         },
         {
-            "handle": "ff608d47-2fac-4d48-9a9c-13d787bc76c2",
+            "handle": "f966c694-5bb0-4473-a7d6-b86b73e48ab6",
             "label": "Chapter 1",
             "order": 1,
-            "wCount": 0
+            "wCount": 0,
+            "xItems": [
+                {
+                    "handle": "c05bedfb-9582-4ae0-98c0-ee5dac3c3beb",
+                    "label": "Scene 1.1",
+                    "order": 0,
+                    "wCount": 0
+                },
+                {
+                    "handle": "0abd883b-c8d9-4e12-8e60-166afbebca1c",
+                    "label": "Scene 1.2",
+                    "order": 1,
+                    "wCount": 0
+                }
+            ]
+        },
+        {
+            "handle": "e7f21b59-b97b-43e8-ad26-125433540c2b",
+            "label": "Chapter 2",
+            "order": 2,
+            "wCount": 0,
+            "xItems": [
+                {
+                    "handle": "77b729be-c8d1-4aa9-aa17-c3b5d09b5942",
+                    "label": "Scene 2.1",
+                    "order": 0,
+                    "wCount": 0
+                },
+                {
+                    "handle": "56a5d35c-9eec-4b4a-9ce2-38fa42e22504",
+                    "label": "Scene 2.2",
+                    "order": 1,
+                    "wCount": 0
+                }
+            ]
         }
     ]
 }

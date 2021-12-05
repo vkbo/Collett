@@ -73,12 +73,12 @@
 <context>
     <name>Collett::StoryModel</name>
     <message>
-        <location filename="../src/project/storymodel.cpp" line="154"/>
+        <location filename="../src/project/storymodel.cpp" line="159"/>
         <source>Label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storymodel.cpp" line="158"/>
+        <location filename="../src/project/storymodel.cpp" line="163"/>
         <source>Words</source>
         <translation type="unfinished"></translation>
     </message>

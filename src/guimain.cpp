@@ -28,8 +28,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include "storytree.h"
 #include "doceditor.h"
 
-#include <QApplication>
 #include <QCloseEvent>
+#include <QApplication>
 
 namespace Collett {
 
@@ -78,6 +78,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 void GuiMain::openProject(const QString &path) {
     m_data->openProject(path);
     m_storyTree->setModel(m_data->storyModel());
+    m_storyTree->restoreTreeState();
     m_mainToolBar->setProjectName(m_data->project()->projectName());
 };
 
@@ -86,6 +87,7 @@ bool GuiMain::saveProject() {
 }
 
 bool GuiMain::closeProject() {
+    m_storyTree->saveTreeState();
     return true;
 };
 
