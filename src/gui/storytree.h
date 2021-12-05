@@ -22,6 +22,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #ifndef GUI_STORYTREE_H
 #define GUI_STORYTREE_H
 
+#include "storymodel.h"
+
+#include <QPoint>
 #include <QObject>
 #include <QTreeView>
 
@@ -34,6 +37,16 @@ class GuiStoryTree : public QTreeView
 public:
     GuiStoryTree(QWidget *parent=nullptr);
     ~GuiStoryTree() {};
+
+    // Setters
+    void setTreeModel(StoryModel *model);
+
+private slots:
+    void doOpenContextMenu(const QPoint &pos);
+    void doAddChild(const QModelIndex &index, int action);
+
+private:
+    StoryModel *m_model = nullptr;
 
 };
 } // namespace Collett

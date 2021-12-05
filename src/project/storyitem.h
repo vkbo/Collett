@@ -29,10 +29,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Collett {
 
-class StoryItem
+class StoryItem : public QObject
 {
+    Q_OBJECT
+
 public:
-    explicit StoryItem(const QString &label, StoryItem *parentItem=nullptr);
+    enum ItemType{
+        Root      = 0x01,
+        Book      = 0x02,
+        Partition = 0x04,
+        Chapter   = 0x08,
+        Scene     = 0x10,
+        Page      = 0x20
+    };
+
+    explicit StoryItem(const QString &label, ItemType type, StoryItem *parentItem=nullptr);
     ~StoryItem();
 
     // Structure
@@ -44,8 +55,13 @@ public:
     void setWordCount(int count);
 
     // Getters
-    int wordCount();
-    int childWordCounts();
+    ItemType type() const;
+    int wordCount() const;
+    int childWordCounts() const;
+    QString localTypeName() const;
+
+    // Class Methods
+    bool allowedChild(ItemType type) const;
 
     // Model Access
     int row() const;
@@ -59,9 +75,10 @@ private:
     StoryItem          *m_parentItem;
 
     // Values
-    QUuid   m_handle;
-    QString m_label;
-    int     m_wCount;
+    QUuid    m_handle;
+    QString  m_label;
+    ItemType m_type;
+    int      m_wCount;
 
 };
 } // namespace Collett

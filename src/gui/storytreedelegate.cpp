@@ -49,6 +49,7 @@ GuiStoryTreeDelegate::GuiStoryTreeDelegate(QWidget *parent)
 void GuiStoryTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
     QVariantList data = index.data(Qt::DisplayRole).toList();
+    Q_ASSERT(data.size() == 3);
 
     if (option.state & QStyle::State_Selected) {
         painter->fillRect(option.rect, qApp->palette().color(QPalette::Highlight));
@@ -63,7 +64,7 @@ void GuiStoryTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     QFont typeFont = m_headFont;
     typeFont.setWeight(QFont::Bold);
 
-    QString textT = "Document";
+    QString textT = data.at(2).toString();
     QString textW = loc.toString(data.at(1).toInt());
     QString textL = QFontMetrics(m_mainFont).elidedText(data.at(0).toString(), Qt::ElideRight, option.rect.width());
 

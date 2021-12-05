@@ -30,44 +30,53 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Collett {
 
-/*
-    StoryModel
-    ----------
-    The data model of the project's stroy content.
-    Example: https://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
+/**
+ * StoryModel
+ * ==========
+ * The data model of the project's stroy content.
+ * Example: https://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
 */
 
 StoryModel::StoryModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_rootItem = new StoryItem("Story");
-    m_rootItem->appendChild(new StoryItem("Title Page", m_rootItem));
-    m_rootItem->appendChild(new StoryItem("Chapter 1", m_rootItem));
-    m_rootItem->appendChild(new StoryItem("Chapter 2", m_rootItem));
-    m_rootItem->appendChild(new StoryItem("Veeeeeeeeeeery long title on this element here", m_rootItem));
-    m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.1", m_rootItem->child(1)));
-    m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.2", m_rootItem->child(1)));
-    m_rootItem->child(2)->appendChild(new StoryItem("Scene 2.1", m_rootItem->child(2)));
-    m_rootItem->child(2)->appendChild(new StoryItem("Scene 2.2", m_rootItem->child(2)));
+    m_rootItem = new StoryItem("Story", StoryItem::Root);
+    m_rootItem->appendChild(new StoryItem("Title Page", StoryItem::Page, m_rootItem));
+    m_rootItem->appendChild(new StoryItem("Chapter 1", StoryItem::Chapter, m_rootItem));
+    m_rootItem->appendChild(new StoryItem("Chapter 2", StoryItem::Chapter, m_rootItem));
+    m_rootItem->appendChild(new StoryItem("Very long title on this element here", StoryItem::Page, m_rootItem));
+    m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.1", StoryItem::Scene, m_rootItem->child(1)));
+    m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.2", StoryItem::Scene, m_rootItem->child(1)));
+    m_rootItem->child(2)->appendChild(new StoryItem("Scene 2.1", StoryItem::Scene, m_rootItem->child(2)));
+    m_rootItem->child(2)->appendChild(new StoryItem("Scene 2.2", StoryItem::Scene, m_rootItem->child(2)));
 }
 
 StoryModel::~StoryModel() {
     delete m_rootItem;
 }
 
-/*
-    Class Methods
-    =============
-*/
+/**
+ * Class Getters
+ * =============
+ */
+
+StoryItem *StoryModel::rootItem() const {
+    return m_rootItem;
+}
+
+/**
+ * Class Methods
+ * =============
+ */
 
 QJsonObject StoryModel::toJsonObject() {
     return m_rootItem->toJsonObject();
 }
 
-/*
-    Model Access
-    ============
-*/
+/**
+ * Model Access
+ * ============
+ */
 
 QModelIndex StoryModel::index(int row, int column, const QModelIndex &parent) const {
 

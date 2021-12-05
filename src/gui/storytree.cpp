@@ -20,15 +20,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "collett.h"
-#include "settings.h"
+#include "storyitem.h"
 #include "storytree.h"
+#include "storymodel.h"
 #include "storytreedelegate.h"
 
-#include <QList>
-#include <QObject>
+#include <QMenu>
+#include <QPoint>
+#include <QWidget>
 #include <QTreeView>
+#include <QModelIndex>
 
 namespace Collett {
+
+/**
+ * Story Tree Contructor/Destructor
+ * ================================
+ */
 
 GuiStoryTree::GuiStoryTree(QWidget *parent)
     : QTreeView(parent)
@@ -36,6 +44,73 @@ GuiStoryTree::GuiStoryTree(QWidget *parent)
     this->setItemDelegate(new GuiStoryTreeDelegate(this));
     this->setHeaderHidden(true);
     this->setAlternatingRowColors(true);
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(doOpenContextMenu(QPoint)));
+}
+
+/**
+ * Class Setters
+ * =============
+ */
+
+void GuiStoryTree::setTreeModel(StoryModel *model) {
+    m_model = model;
+    this->setModel(m_model);
+}
+
+/**
+ * Class Private Slots
+ * ===================
+ */
+
+void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
+
+    QModelIndex index = this->indexAt(pos);
+    StoryItem *item;
+    if (index.isValid()) {
+        item = static_cast<StoryItem*>(index.internalPointer());
+    } else {
+        item = m_model->rootItem();
+    }
+    if (!item) {
+        return;
+    }
+
+    qDebug() << "Opening StoryTree context menu";
+
+    QMenu contextMenu;
+
+    QMenu *addChild = new QMenu(index.isValid() ? tr("Add Child Item") : tr("Append Item"));
+    if (item->allowedChild(StoryItem::Book)) {
+        QAction *newAction = addChild->addAction(tr("New Book"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book);});
+    }
+    if (item->allowedChild(StoryItem::Partition)) {
+        QAction *newAction = addChild->addAction(tr("New Partition"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition);});
+    }
+    if (item->allowedChild(StoryItem::Chapter)) {
+        QAction *newAction = addChild->addAction(tr("New Chapter"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter);});
+    }
+    if (item->allowedChild(StoryItem::Scene)) {
+        QAction *newAction = addChild->addAction(tr("New Scene"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene);});
+    }
+    if (item->allowedChild(StoryItem::Page)) {
+        QAction *newAction = addChild->addAction(tr("New Page"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page);});
+    }
+    if (!addChild->isEmpty()) {
+        contextMenu.addMenu(addChild);
+    }
+
+    contextMenu.exec(QWidget::mapToGlobal(pos));
+}
+
+void GuiStoryTree::doAddChild(const QModelIndex &index, int type) {
+    qDebug() << type;
 }
 
 } // namespace Collett

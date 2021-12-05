@@ -32,11 +32,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Collett {
 
-StoryItem::StoryItem(const QString &label, StoryItem *parent)
+StoryItem::StoryItem(const QString &label, ItemType type, StoryItem *parent)
     : m_parentItem(parent)
 {
     m_handle = QUuid::createUuid();
     m_label  = label;
+    m_type   = type;
     m_wCount = 1234;
 }
 
@@ -44,10 +45,10 @@ StoryItem::~StoryItem() {
     qDeleteAll(m_childItems);
 }
 
-/*
-    Item Structure
-    ==============
-*/
+/**
+ * Item Structure
+ * ==============
+ */
 
 void StoryItem::appendChild(StoryItem *item) {
     m_childItems.append(item);
@@ -62,12 +63,23 @@ QJsonObject StoryItem::toJsonObject() {
         children.append(m_childItems.at(i)->toJsonObject());
     }
 
+    QString type = "UNKNOWN";
+    switch (m_type) {
+        case StoryItem::Root:      type = "ROOT"; break;
+        case StoryItem::Book:      type = "BOOK"; break;
+        case StoryItem::Partition: type = "PARTITION"; break;
+        case StoryItem::Chapter:   type = "CHAPTER"; break;
+        case StoryItem::Scene:     type = "SCENE"; break;
+        case StoryItem::Page:      type = "PAGE"; break;
+    }
+
     if (!m_parentItem) {
-        item["handle"] = "ROOT";
+        item["type"]   = type;
         item["xItems"] = children;
     } else {
         item["handle"] = m_handle.toString(QUuid::WithoutBraces);
         item["label"]  = m_label;
+        item["type"]   = type;
         item["order"]  = row();
         item["wCount"] = m_wCount;
         if (children.size() > 0) {
@@ -78,10 +90,10 @@ QJsonObject StoryItem::toJsonObject() {
     return item;
 }
 
-/*
-    Setters
-    =======
-*/
+/**
+ * Class Setters
+ * =============
+ */
 
 void StoryItem::setLabel(const QString &label) {
     m_label = label;
@@ -92,16 +104,20 @@ void StoryItem::setWordCount(int count) {
     m_wCount = count > 0 ? count : 0;
 }
 
-/*
-    Getters
-    =======
-*/
+/**
+ * Class Getters
+ * =============
+ */
 
-int StoryItem::wordCount() {
+StoryItem::ItemType StoryItem::type() const {
+    return m_type;
+}
+
+int StoryItem::wordCount() const {
     return m_wCount;
 }
 
-int StoryItem::childWordCounts() {
+int StoryItem::childWordCounts() const {
     int tCount = 0;
     for (StoryItem* child : m_childItems) {
         tCount += child->childWordCounts();
@@ -109,10 +125,41 @@ int StoryItem::childWordCounts() {
     return tCount;
 }
 
-/*
-    Model Access
-    ============
-*/
+QString StoryItem::localTypeName() const {
+    QString type = "";
+    switch (m_type) {
+        case StoryItem::Root:      type = ""; break;
+        case StoryItem::Book:      type = tr("Book"); break;
+        case StoryItem::Partition: type = tr("Partition"); break;
+        case StoryItem::Chapter:   type = tr("Chapter"); break;
+        case StoryItem::Scene:     type = tr("Scene"); break;
+        case StoryItem::Page:      type = tr("Page"); break;
+    }
+    return type;
+}
+
+/**
+ * Class Methods
+ * =============
+ */
+
+bool StoryItem::allowedChild(StoryItem::ItemType type) const {
+    switch (m_type) {
+        //   Map current item's type to incoming type       PSCPBR
+        case StoryItem::ItemType::Root:      return bool(0b111110 & type); break;
+        case StoryItem::ItemType::Book:      return bool(0b111100 & type); break;
+        case StoryItem::ItemType::Partition: return bool(0b111000 & type); break;
+        case StoryItem::ItemType::Chapter:   return bool(0b010000 & type); break;
+        case StoryItem::ItemType::Scene:     return bool(0b000000 & type); break;
+        case StoryItem::ItemType::Page:      return bool(0b000000 & type); break;
+    }
+    return false;
+}
+
+/**
+ * Model Access
+ * ============
+ */
 
 StoryItem *StoryItem::child(int row) {
     if (row < 0 || row >= m_childItems.size()) {
@@ -136,7 +183,7 @@ int StoryItem::row() const {
 
 QVariant StoryItem::data() const {
     QVariantList itemData;
-    itemData << m_label << m_wCount;
+    itemData << m_label << m_wCount << localTypeName();
     return QVariant::fromValue(itemData);
 }
 

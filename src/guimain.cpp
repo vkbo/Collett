@@ -83,7 +83,7 @@ void GuiMain::openProject(const QString &path) {
     m_data->openProject(path);
 
     QItemSelectionModel *m = m_storyTree->selectionModel();
-    m_storyTree->setModel(m_data->storyModel());
+    m_storyTree->setTreeModel(m_data->storyModel());
     delete m;
 
     m_mainToolBar->setProjectName(m_data->project()->projectName());

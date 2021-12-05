@@ -37,8 +37,18 @@ class StoryModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
+    enum AddLocation{
+        AddAbove  = 0x0100,
+        AddBelow  = 0x0200,
+        AddChild  = 0x0400,
+        AddParent = 0x0800
+    };
+
     explicit StoryModel(QObject *parent=nullptr);
     ~StoryModel();
+
+    // Getters
+    StoryItem *rootItem() const;
 
     // Class Methods
     QJsonObject toJsonObject();

@@ -1,51 +1,65 @@
 {
-    "handle": "ROOT",
+    "type": "ROOT",
     "xItems": [
         {
-            "handle": "e9f1d0c5-52ef-48ed-a4d5-fc32261f324c",
+            "handle": "1e49b6cd-bb41-4097-be74-f943f763f92b",
             "label": "Title Page",
             "order": 0,
-            "wCount": 0
+            "type": "PAGE",
+            "wCount": 1234
         },
         {
-            "handle": "f966c694-5bb0-4473-a7d6-b86b73e48ab6",
+            "handle": "498a6dd4-589b-4f1b-860c-f8ce8b118ed0",
             "label": "Chapter 1",
             "order": 1,
-            "wCount": 0,
+            "type": "CHAPTER",
+            "wCount": 1234,
             "xItems": [
                 {
-                    "handle": "c05bedfb-9582-4ae0-98c0-ee5dac3c3beb",
+                    "handle": "2a4c4718-ecbd-4f24-bd33-8dcd20a19c62",
                     "label": "Scene 1.1",
                     "order": 0,
-                    "wCount": 0
+                    "type": "SCENE",
+                    "wCount": 1234
                 },
                 {
-                    "handle": "0abd883b-c8d9-4e12-8e60-166afbebca1c",
+                    "handle": "cb54fb04-9b7e-48c0-8654-623fd146035e",
                     "label": "Scene 1.2",
                     "order": 1,
-                    "wCount": 0
+                    "type": "SCENE",
+                    "wCount": 1234
                 }
             ]
         },
         {
-            "handle": "e7f21b59-b97b-43e8-ad26-125433540c2b",
+            "handle": "757e1723-90a2-4729-82a6-f282097ba15e",
             "label": "Chapter 2",
             "order": 2,
-            "wCount": 0,
+            "type": "CHAPTER",
+            "wCount": 1234,
             "xItems": [
                 {
-                    "handle": "77b729be-c8d1-4aa9-aa17-c3b5d09b5942",
+                    "handle": "e0fd1616-c23f-4826-81a2-d288bbff0014",
                     "label": "Scene 2.1",
                     "order": 0,
-                    "wCount": 0
+                    "type": "SCENE",
+                    "wCount": 1234
                 },
                 {
-                    "handle": "56a5d35c-9eec-4b4a-9ce2-38fa42e22504",
+                    "handle": "eb87c8c2-35e1-4959-88aa-61ff592bfb2c",
                     "label": "Scene 2.2",
                     "order": 1,
-                    "wCount": 0
+                    "type": "SCENE",
+                    "wCount": 1234
                 }
             ]
+        },
+        {
+            "handle": "b0086b20-bbad-47a8-aef5-065d2a37c839",
+            "label": "Very long title on this element here",
+            "order": 3,
+            "type": "PAGE",
+            "wCount": 1234
         }
     ]
 }

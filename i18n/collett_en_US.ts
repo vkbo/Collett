@@ -43,6 +43,44 @@
     </message>
 </context>
 <context>
+    <name>Collett::GuiStoryTree</name>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="84"/>
+        <source>Add Child Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="84"/>
+        <source>Append Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="86"/>
+        <source>New Book</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="90"/>
+        <source>New Partition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="94"/>
+        <source>New Chapter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="98"/>
+        <source>New Scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="102"/>
+        <source>New Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Collett::GuiTreeToolBar</name>
     <message>
         <location filename="../src/gui/treetoolbar.cpp" line="38"/>
@@ -67,6 +105,34 @@
         <location filename="../src/project/project.cpp" line="102"/>
         <location filename="../src/project/project.cpp" line="110"/>
         <source>Could not create folder: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Collett::StoryItem</name>
+    <message>
+        <location filename="../src/project/storyitem.cpp" line="132"/>
+        <source>Book</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/storyitem.cpp" line="133"/>
+        <source>Partition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/storyitem.cpp" line="134"/>
+        <source>Chapter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/storyitem.cpp" line="135"/>
+        <source>Scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/storyitem.cpp" line="136"/>
+        <source>Page</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
