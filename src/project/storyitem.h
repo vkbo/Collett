@@ -50,8 +50,7 @@ public:
     // Model Access
     int row() const;
     int childCount() const;
-    int columnCount() const;
-    QVariant data(int column) const;
+    QVariant data() const;
     StoryItem *child(int row);
     StoryItem *parentItem();
 

@@ -31,6 +31,4 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #define COL_STORY_FILE_NAME    "story.json"
 #define COL_NOTES_FILE_NAME    "notes.json"
 
-#define COL_STORY_TREE_COL_COUNT 2
-
 #endif // COLLETT_H

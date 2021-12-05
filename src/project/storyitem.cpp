@@ -28,6 +28,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QJsonObject>
+#include <QVariantList>
 
 namespace Collett {
 
@@ -36,7 +37,7 @@ StoryItem::StoryItem(const QString &label, StoryItem *parent)
 {
     m_handle = QUuid::createUuid();
     m_label  = label;
-    m_wCount = 0;
+    m_wCount = 1234;
 }
 
 StoryItem::~StoryItem() {
@@ -133,24 +134,10 @@ int StoryItem::row() const {
     }
 }
 
-int StoryItem::columnCount() const {
-    return COL_STORY_TREE_COL_COUNT;
-}
-
-QVariant StoryItem::data(int column) const {
-    switch (column) {
-    case 0:
-        return QVariant(m_label);
-        break;
-
-    case 1:
-        return QVariant(m_wCount);
-        break;
-    
-    default:
-        return QVariant();
-        break;
-    }
+QVariant StoryItem::data() const {
+    QVariantList itemData;
+    itemData << m_label << m_wCount;
+    return QVariant::fromValue(itemData);
 }
 
 StoryItem *StoryItem::parentItem() {

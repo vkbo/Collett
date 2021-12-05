@@ -22,9 +22,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include "collett.h"
 #include "settings.h"
 
-#define CNF_MAIN_WINDOW_SIZE     "GuiMain/windowSize"
-#define CNF_MAIN_SPLIT_SIZES     "GuiMain/mainSplitSizes"
-#define CNF_STORY_TREE_COL_SIZES "GuiStoryTree/columnSizes"
+#define CNF_MAIN_WINDOW_SIZE "GuiMain/windowSize"
+#define CNF_MAIN_SPLIT_SIZES "GuiMain/mainSplitSizes"
 
 #include <QList>
 #include <QSize>
@@ -50,7 +49,6 @@ public:
 
     QSize      m_mainWindowSize;
     QList<int> m_mainSplitSizes;
-    QList<int> m_storyTreeColSizes;
 };
 
 /**
@@ -99,7 +97,6 @@ CollettSettings::CollettSettings()
 
     d->m_mainWindowSize = settings.value(CNF_MAIN_WINDOW_SIZE, QSize(1200, 800)).toSize();
     d->m_mainSplitSizes = variantListToInt(settings.value(CNF_MAIN_SPLIT_SIZES, QVariantList() << 300 << 700).toList());
-    d->m_storyTreeColSizes = variantListToInt(settings.value(CNF_STORY_TREE_COL_SIZES, QVariantList() << 150 << 100).toList());
 
     // Check Values
     if (d->m_mainWindowSize.width() < 400) {
@@ -126,7 +123,6 @@ void CollettSettings::flushSettings() {
 
     settings.setValue(CNF_MAIN_WINDOW_SIZE, d->m_mainWindowSize);
     settings.setValue(CNF_MAIN_SPLIT_SIZES, intListToVariant(d->m_mainSplitSizes));
-    settings.setValue(CNF_STORY_TREE_COL_SIZES, intListToVariant(d->m_storyTreeColSizes));
 
     qDebug() << "CollettSettings values saved";
 
@@ -148,11 +144,6 @@ void CollettSettings::setMainSplitSizes(const QList<int> &sizes) {
     d->m_mainSplitSizes = sizes;
 }
 
-void CollettSettings::setStoryTreeColSizes(const QList<int> &sizes) {
-    Q_D(CollettSettings);
-    d->m_storyTreeColSizes = sizes;
-}
-
 /**
  * Getter Functions
  * ================
@@ -166,11 +157,6 @@ QSize CollettSettings::mainWindowSize() const {
 QList<int> CollettSettings::mainSplitSizes() const {
     Q_D(const CollettSettings);
     return d->m_mainSplitSizes;
-}
-
-QList<int> CollettSettings::storyTreeColSizes() const {
-    Q_D(const CollettSettings);
-    return d->m_storyTreeColSizes;
 }
 
 } // namespace Collett

@@ -44,6 +44,7 @@ StoryModel::StoryModel(QObject *parent)
     m_rootItem->appendChild(new StoryItem("Title Page", m_rootItem));
     m_rootItem->appendChild(new StoryItem("Chapter 1", m_rootItem));
     m_rootItem->appendChild(new StoryItem("Chapter 2", m_rootItem));
+    m_rootItem->appendChild(new StoryItem("Veeeeeeeeeeery long title on this element here", m_rootItem));
     m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.1", m_rootItem->child(1)));
     m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.2", m_rootItem->child(1)));
     m_rootItem->child(2)->appendChild(new StoryItem("Scene 2.1", m_rootItem->child(2)));
@@ -122,11 +123,7 @@ int StoryModel::rowCount(const QModelIndex &parent) const {
 }
 
 int StoryModel::columnCount(const QModelIndex &parent) const {
-    if (parent.isValid()) {
-        return static_cast<StoryItem*>(parent.internalPointer())->columnCount();
-    } else {
-        return m_rootItem->columnCount();
-    }
+    return 1;
 }
 
 QVariant StoryModel::data(const QModelIndex &index, int role) const {
@@ -140,7 +137,7 @@ QVariant StoryModel::data(const QModelIndex &index, int role) const {
 
     StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
 
-    return item->data(index.column());
+    return item->data();
 }
 
 Qt::ItemFlags StoryModel::flags(const QModelIndex &index) const {
@@ -152,24 +149,7 @@ Qt::ItemFlags StoryModel::flags(const QModelIndex &index) const {
 }
 
 QVariant StoryModel::headerData(int section, Qt::Orientation orientation, int role) const {
-
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        switch (section) {
-        case 0:
-            return QVariant(tr("Label"));
-            break;
-
-        case 1:
-            return QVariant(tr("Words"));
-            break;
-        
-        default:
-            return QVariant();
-            break;
-        }
-    } else {
-        return QVariant();
-    }
+    return QVariant();
 }
 
 } // namespace Collett

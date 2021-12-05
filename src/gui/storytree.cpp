@@ -22,6 +22,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 #include "collett.h"
 #include "settings.h"
 #include "storytree.h"
+#include "storytreedelegate.h"
 
 #include <QList>
 #include <QObject>
@@ -32,32 +33,9 @@ namespace Collett {
 GuiStoryTree::GuiStoryTree(QWidget *parent)
     : QTreeView(parent)
 {
-    this->setItemsExpandable(true);
-}
-
-/**
- * Class Methods
- * =============
- */
-
-void GuiStoryTree::restoreTreeState() {
-    CollettSettings *mainConf = CollettSettings::instance();
-
-    QList<int> columns = mainConf->storyTreeColSizes();
-    for (int i=0; i<COL_STORY_TREE_COL_COUNT; ++i) {
-        int width = columns.at(i);
-        this->setColumnWidth(i, width > 25 ? width : 25);
-    }
-}
-
-void GuiStoryTree::saveTreeState() {
-    CollettSettings *mainConf = CollettSettings::instance();
-
-    QList<int> columns;
-    for (int i=0; i<COL_STORY_TREE_COL_COUNT; ++i) {
-        columns.append(this->columnWidth(i));
-    }
-    mainConf->setStoryTreeColSizes(columns);
+    this->setItemDelegate(new GuiStoryTreeDelegate(this));
+    this->setHeaderHidden(true);
+    this->setAlternatingRowColors(true);
 }
 
 } // namespace Collett

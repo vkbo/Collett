@@ -4,7 +4,7 @@
 <context>
     <name>Collett::GuiMain</name>
     <message>
-        <location filename="../src/guimain.cpp" line="67"/>
+        <location filename="../src/guimain.cpp" line="71"/>
         <source>%1 %2 Version %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -67,19 +67,6 @@
         <location filename="../src/project/project.cpp" line="102"/>
         <location filename="../src/project/project.cpp" line="110"/>
         <source>Could not create folder: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Collett::StoryModel</name>
-    <message>
-        <location filename="../src/project/storymodel.cpp" line="159"/>
-        <source>Label</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/storymodel.cpp" line="163"/>
-        <source>Words</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

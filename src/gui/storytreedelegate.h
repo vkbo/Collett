@@ -1,6 +1,6 @@
 /*
-Collett – Main Settings Class
-=============================
+Collett – GUI Story Tree Delegate Class
+=======================================
 
 This file is a part of Collett
 Copyright 2020–2021, Veronica Berglyd Olsen
@@ -19,43 +19,37 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETTSETTINGS_H
-#define COLLETTSETTINGS_H
+#ifndef GUI_STORYTREEDELEGATE_H
+#define GUI_STORYTREEDELEGATE_H
 
-#include "collett.h"
-
-#include <QList>
-#include <QObject>
-#include <QScopedPointer>
 #include <QSize>
+#include <QFont>
+#include <QObject>
+#include <QPainter>
+#include <QModelIndex>
+#include <QStyleOptionViewItem>
+#include <QAbstractItemDelegate>
 
 namespace Collett {
 
-class CollettSettingsPrivate;
-class CollettSettings : public QObject
+class GuiStoryTreeDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(CollettSettings)
 
 public:
-    static CollettSettings *instance();
-    ~CollettSettings();
+    GuiStoryTreeDelegate(QWidget *parent=nullptr);
+    ~GuiStoryTreeDelegate() {};
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:
-    QScopedPointer<CollettSettingsPrivate> d_ptr;
-    CollettSettings();
+    QFont m_headFont;
+    QFont m_mainFont;
+    int m_headHeight;
+    int m_mainHeight;
 
-public:
-    void flushSettings();
-
-    // Setters
-    void setMainWindowSize(const QSize size);
-    void setMainSplitSizes(const QList<int> &sizes);
-
-    // Getters
-    QSize      mainWindowSize() const;
-    QList<int> mainSplitSizes() const;
 };
 } // namespace Collett
 
-#endif // COLLETTSETTINGS_H
+#endif // GUI_STORYTREEDELEGATE_H
