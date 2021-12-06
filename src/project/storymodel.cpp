@@ -40,15 +40,19 @@ namespace Collett {
 StoryModel::StoryModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_rootItem = new StoryItem("Story", StoryItem::Root);
-    m_rootItem->appendChild(new StoryItem("Title Page", StoryItem::Page, m_rootItem));
-    m_rootItem->appendChild(new StoryItem("Chapter 1", StoryItem::Chapter, m_rootItem));
-    m_rootItem->appendChild(new StoryItem("Chapter 2", StoryItem::Chapter, m_rootItem));
-    m_rootItem->appendChild(new StoryItem("Very long title on this element here", StoryItem::Page, m_rootItem));
-    m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.1", StoryItem::Scene, m_rootItem->child(1)));
-    m_rootItem->child(1)->appendChild(new StoryItem("Scene 1.2", StoryItem::Scene, m_rootItem->child(1)));
-    m_rootItem->child(2)->appendChild(new StoryItem("Scene 2.1", StoryItem::Scene, m_rootItem->child(2)));
-    m_rootItem->child(2)->appendChild(new StoryItem("Scene 2.2", StoryItem::Scene, m_rootItem->child(2)));
+    m_rootItem = new StoryItem("Root", StoryItem::Root);
+    
+    StoryItem *bookItem = m_rootItem->addChild("Novel", StoryItem::Book);
+    StoryItem *chp1Item = bookItem->addChild("Chapter 1", StoryItem::Chapter);
+    StoryItem *chp2Item = bookItem->addChild("Chapter 2", StoryItem::Chapter);
+    
+    bookItem->addChild("Title Page", StoryItem::Page, 0);
+    bookItem->addChild("Very long title on this element here", StoryItem::Page);
+
+    chp1Item->addChild("Scene 1.1", StoryItem::Scene);
+    chp1Item->addChild("Scene 1.2", StoryItem::Scene);
+    chp2Item->addChild("Scene 2.1", StoryItem::Scene);
+    chp2Item->addChild("Scene 2.2", StoryItem::Scene);
 }
 
 StoryModel::~StoryModel() {

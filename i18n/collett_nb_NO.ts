@@ -46,37 +46,57 @@
     <name>Collett::GuiStoryTree</name>
     <message>
         <location filename="../src/gui/storytree.cpp" line="84"/>
-        <source>Add Child Item</source>
+        <source>Append</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/storytree.cpp" line="84"/>
-        <source>Append Item</source>
+        <source>Add Inside</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/storytree.cpp" line="86"/>
+        <location filename="../src/gui/storytree.cpp" line="111"/>
+        <location filename="../src/gui/storytree.cpp" line="136"/>
         <source>New Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/storytree.cpp" line="90"/>
+        <location filename="../src/gui/storytree.cpp" line="115"/>
+        <location filename="../src/gui/storytree.cpp" line="140"/>
         <source>New Partition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/storytree.cpp" line="94"/>
+        <location filename="../src/gui/storytree.cpp" line="119"/>
+        <location filename="../src/gui/storytree.cpp" line="144"/>
         <source>New Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/storytree.cpp" line="98"/>
+        <location filename="../src/gui/storytree.cpp" line="123"/>
+        <location filename="../src/gui/storytree.cpp" line="148"/>
         <source>New Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/storytree.cpp" line="102"/>
+        <location filename="../src/gui/storytree.cpp" line="127"/>
+        <location filename="../src/gui/storytree.cpp" line="152"/>
         <source>New Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="109"/>
+        <source>Add Before</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="134"/>
+        <source>Add After</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -111,27 +131,27 @@
 <context>
     <name>Collett::StoryItem</name>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="132"/>
+        <location filename="../src/project/storyitem.cpp" line="138"/>
         <source>Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="133"/>
+        <location filename="../src/project/storyitem.cpp" line="139"/>
         <source>Partition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="134"/>
+        <location filename="../src/project/storyitem.cpp" line="140"/>
         <source>Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="135"/>
+        <location filename="../src/project/storyitem.cpp" line="141"/>
         <source>Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="136"/>
+        <location filename="../src/project/storyitem.cpp" line="142"/>
         <source>Page</source>
         <translation type="unfinished"></translation>
     </message>

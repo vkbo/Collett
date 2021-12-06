@@ -35,6 +35,8 @@ class GuiStoryTree : public QTreeView
     Q_OBJECT
 
 public:
+    enum AddLocation{Before, After, Inside};
+
     GuiStoryTree(QWidget *parent=nullptr);
     ~GuiStoryTree() {};
 
@@ -43,7 +45,7 @@ public:
 
 private slots:
     void doOpenContextMenu(const QPoint &pos);
-    void doAddChild(const QModelIndex &index, int action);
+    void doAddChild(const QModelIndex &index, StoryItem::ItemType action, AddLocation loc);
 
 private:
     StoryModel *m_model = nullptr;

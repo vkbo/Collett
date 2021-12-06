@@ -2,64 +2,73 @@
     "type": "ROOT",
     "xItems": [
         {
-            "handle": "1e49b6cd-bb41-4097-be74-f943f763f92b",
-            "label": "Title Page",
+            "handle": "ed35ba3f-1d27-432d-b723-a51c547b433d",
+            "label": "Novel",
             "order": 0,
-            "type": "PAGE",
-            "wCount": 1234
-        },
-        {
-            "handle": "498a6dd4-589b-4f1b-860c-f8ce8b118ed0",
-            "label": "Chapter 1",
-            "order": 1,
-            "type": "CHAPTER",
+            "type": "BOOK",
             "wCount": 1234,
             "xItems": [
                 {
-                    "handle": "2a4c4718-ecbd-4f24-bd33-8dcd20a19c62",
-                    "label": "Scene 1.1",
+                    "handle": "6d9e1ecf-3583-4b1f-ad81-7a5d890dd0a0",
+                    "label": "Title Page",
                     "order": 0,
-                    "type": "SCENE",
+                    "type": "PAGE",
                     "wCount": 1234
                 },
                 {
-                    "handle": "cb54fb04-9b7e-48c0-8654-623fd146035e",
-                    "label": "Scene 1.2",
+                    "handle": "e39c3c3c-480a-4285-885e-77548f40b656",
+                    "label": "Chapter 1",
                     "order": 1,
-                    "type": "SCENE",
-                    "wCount": 1234
-                }
-            ]
-        },
-        {
-            "handle": "757e1723-90a2-4729-82a6-f282097ba15e",
-            "label": "Chapter 2",
-            "order": 2,
-            "type": "CHAPTER",
-            "wCount": 1234,
-            "xItems": [
-                {
-                    "handle": "e0fd1616-c23f-4826-81a2-d288bbff0014",
-                    "label": "Scene 2.1",
-                    "order": 0,
-                    "type": "SCENE",
-                    "wCount": 1234
+                    "type": "CHAPTER",
+                    "wCount": 1234,
+                    "xItems": [
+                        {
+                            "handle": "bc7a505b-b456-47aa-b4ef-5f5b9de98465",
+                            "label": "Scene 1.1",
+                            "order": 0,
+                            "type": "SCENE",
+                            "wCount": 1234
+                        },
+                        {
+                            "handle": "4aaa1536-f59b-40ef-b020-65fff4eba23d",
+                            "label": "Scene 1.2",
+                            "order": 1,
+                            "type": "SCENE",
+                            "wCount": 1234
+                        }
+                    ]
                 },
                 {
-                    "handle": "eb87c8c2-35e1-4959-88aa-61ff592bfb2c",
-                    "label": "Scene 2.2",
-                    "order": 1,
-                    "type": "SCENE",
+                    "handle": "ae55ad63-3612-453c-870e-80782adab446",
+                    "label": "Chapter 2",
+                    "order": 2,
+                    "type": "CHAPTER",
+                    "wCount": 1234,
+                    "xItems": [
+                        {
+                            "handle": "fc899feb-1d80-4ff1-92d4-ad4d7afee98e",
+                            "label": "Scene 2.1",
+                            "order": 0,
+                            "type": "SCENE",
+                            "wCount": 1234
+                        },
+                        {
+                            "handle": "9caeff45-ac98-4359-b985-10bee704678d",
+                            "label": "Scene 2.2",
+                            "order": 1,
+                            "type": "SCENE",
+                            "wCount": 1234
+                        }
+                    ]
+                },
+                {
+                    "handle": "6176be7b-6c8e-4a26-92a7-0732b603a8db",
+                    "label": "Very long title on this element here",
+                    "order": 3,
+                    "type": "PAGE",
                     "wCount": 1234
                 }
             ]
-        },
-        {
-            "handle": "b0086b20-bbad-47a8-aef5-065d2a37c839",
-            "label": "Very long title on this element here",
-            "order": 3,
-            "type": "PAGE",
-            "wCount": 1234
         }
     ]
 }

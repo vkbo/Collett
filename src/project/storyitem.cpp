@@ -50,8 +50,14 @@ StoryItem::~StoryItem() {
  * ==============
  */
 
-void StoryItem::appendChild(StoryItem *item) {
-    m_childItems.append(item);
+StoryItem *StoryItem::addChild(const QString &label, ItemType type, qsizetype pos) {
+    StoryItem *item = new StoryItem(label, type, this);
+    if (pos >= 0 && pos < m_childItems.size()) {
+        m_childItems.insert(pos, item);
+    } else {
+        m_childItems.append(item);
+    }
+    return item;
 }
 
 QJsonObject StoryItem::toJsonObject() {
@@ -145,15 +151,23 @@ QString StoryItem::localTypeName() const {
 
 bool StoryItem::allowedChild(StoryItem::ItemType type) const {
     switch (m_type) {
-        //   Map current item's type to incoming type       PSCPBR
-        case StoryItem::ItemType::Root:      return bool(0b111110 & type); break;
-        case StoryItem::ItemType::Book:      return bool(0b111100 & type); break;
-        case StoryItem::ItemType::Partition: return bool(0b111000 & type); break;
-        case StoryItem::ItemType::Chapter:   return bool(0b010000 & type); break;
-        case StoryItem::ItemType::Scene:     return bool(0b000000 & type); break;
-        case StoryItem::ItemType::Page:      return bool(0b000000 & type); break;
+        //   Map item's type to incoming type     PSCPBR
+        case StoryItem::Root:      return bool(0b000010 & type); break;
+        case StoryItem::Book:      return bool(0b111100 & type); break;
+        case StoryItem::Partition: return bool(0b111000 & type); break;
+        case StoryItem::Chapter:   return bool(0b010000 & type); break;
+        case StoryItem::Scene:     return bool(0b000000 & type); break;
+        case StoryItem::Page:      return bool(0b000000 & type); break;
     }
     return false;
+}
+
+bool StoryItem::allowedSibling(StoryItem::ItemType type) const {
+    if (m_parentItem) {
+        return m_parentItem->allowedChild(type);
+    } else {
+        return false;
+    }
 }
 
 /**

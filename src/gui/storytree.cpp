@@ -81,36 +81,86 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
 
     QMenu contextMenu;
 
-    QMenu *addChild = new QMenu(index.isValid() ? tr("Add Child Item") : tr("Append Item"));
+    QMenu *addChild = new QMenu(index.isValid() ? tr("Add Inside") : tr("Append"));
     if (item->allowedChild(StoryItem::Book)) {
         QAction *newAction = addChild->addAction(tr("New Book"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book);});
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book, GuiStoryTree::Inside);});
     }
     if (item->allowedChild(StoryItem::Partition)) {
         QAction *newAction = addChild->addAction(tr("New Partition"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition);});
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition, GuiStoryTree::Inside);});
     }
     if (item->allowedChild(StoryItem::Chapter)) {
         QAction *newAction = addChild->addAction(tr("New Chapter"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter);});
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter, GuiStoryTree::Inside);});
     }
     if (item->allowedChild(StoryItem::Scene)) {
         QAction *newAction = addChild->addAction(tr("New Scene"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene);});
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene, GuiStoryTree::Inside);});
     }
     if (item->allowedChild(StoryItem::Page)) {
         QAction *newAction = addChild->addAction(tr("New Page"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page);});
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page, GuiStoryTree::Inside);});
     }
     if (!addChild->isEmpty()) {
         contextMenu.addMenu(addChild);
     }
 
+    QMenu *addBefore = new QMenu(tr("Add Before"));
+    if (item->allowedSibling(StoryItem::Book)) {
+        QAction *newAction = addBefore->addAction(tr("New Book"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book, GuiStoryTree::Before);});
+    }
+    if (item->allowedSibling(StoryItem::Partition)) {
+        QAction *newAction = addBefore->addAction(tr("New Partition"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition, GuiStoryTree::Before);});
+    }
+    if (item->allowedSibling(StoryItem::Chapter)) {
+        QAction *newAction = addBefore->addAction(tr("New Chapter"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter, GuiStoryTree::Before);});
+    }
+    if (item->allowedSibling(StoryItem::Scene)) {
+        QAction *newAction = addBefore->addAction(tr("New Scene"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene, GuiStoryTree::Before);});
+    }
+    if (item->allowedSibling(StoryItem::Page)) {
+        QAction *newAction = addBefore->addAction(tr("New Page"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page, GuiStoryTree::Before);});
+    }
+    if (!addBefore->isEmpty()) {
+        contextMenu.addMenu(addBefore);
+    }
+
+    QMenu *addAfter = new QMenu(tr("Add After"));
+    if (item->allowedSibling(StoryItem::Book)) {
+        QAction *newAction = addAfter->addAction(tr("New Book"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book, GuiStoryTree::After);});
+    }
+    if (item->allowedSibling(StoryItem::Partition)) {
+        QAction *newAction = addAfter->addAction(tr("New Partition"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition, GuiStoryTree::After);});
+    }
+    if (item->allowedSibling(StoryItem::Chapter)) {
+        QAction *newAction = addAfter->addAction(tr("New Chapter"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter, GuiStoryTree::After);});
+    }
+    if (item->allowedSibling(StoryItem::Scene)) {
+        QAction *newAction = addAfter->addAction(tr("New Scene"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene, GuiStoryTree::After);});
+    }
+    if (item->allowedSibling(StoryItem::Page)) {
+        QAction *newAction = addAfter->addAction(tr("New Page"));
+        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page, GuiStoryTree::After);});
+    }
+    if (!addAfter->isEmpty()) {
+        contextMenu.addMenu(addAfter);
+    }
+
     contextMenu.exec(QWidget::mapToGlobal(pos));
 }
 
-void GuiStoryTree::doAddChild(const QModelIndex &index, int type) {
-    qDebug() << type;
+void GuiStoryTree::doAddChild(const QModelIndex &index, StoryItem::ItemType action, AddLocation loc) {
+    qDebug() << action << loc;
 }
 
 } // namespace Collett

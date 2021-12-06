@@ -47,7 +47,7 @@ public:
     ~StoryItem();
 
     // Structure
-    void appendChild(StoryItem *child);
+    StoryItem *addChild(const QString &label, ItemType type, qsizetype pos=-1);
     QJsonObject toJsonObject();
 
     // Setters
@@ -62,6 +62,7 @@ public:
 
     // Class Methods
     bool allowedChild(ItemType type) const;
+    bool allowedSibling(ItemType type) const;
 
     // Model Access
     int row() const;
