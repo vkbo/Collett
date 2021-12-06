@@ -81,79 +81,79 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
 
     QMenu contextMenu;
 
-    QMenu *addChild = new QMenu(index.isValid() ? tr("Add Inside") : tr("Append"));
-    if (item->allowedChild(StoryItem::Book)) {
-        QAction *newAction = addChild->addAction(tr("New Book"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book, GuiStoryTree::Inside);});
-    }
-    if (item->allowedChild(StoryItem::Partition)) {
-        QAction *newAction = addChild->addAction(tr("New Partition"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition, GuiStoryTree::Inside);});
-    }
-    if (item->allowedChild(StoryItem::Chapter)) {
-        QAction *newAction = addChild->addAction(tr("New Chapter"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter, GuiStoryTree::Inside);});
-    }
+    QMenu *scMenu = new QMenu(tr("Add Scene"));
     if (item->allowedChild(StoryItem::Scene)) {
-        QAction *newAction = addChild->addAction(tr("New Scene"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene, GuiStoryTree::Inside);});
+        QAction *inAction = scMenu->addAction(tr("Inside"));
+        connect(inAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene, GuiStoryTree::Inside);});
     }
+    if (item->allowedSibling(StoryItem::Scene)) {
+        QAction *bfAction = scMenu->addAction(tr("Before"));
+        connect(bfAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene, GuiStoryTree::Before);});
+        QAction *afAction = scMenu->addAction(tr("After"));
+        connect(afAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene, GuiStoryTree::After);});
+    }
+    if (!scMenu->isEmpty()) {
+        contextMenu.addMenu(scMenu);
+    }
+
+    QMenu *chMenu = new QMenu(tr("Add Chapter"));
+    if (item->allowedChild(StoryItem::Chapter)) {
+        QAction *inAction = chMenu->addAction(tr("Inside"));
+        connect(inAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter, GuiStoryTree::Inside);});
+    }
+    if (item->allowedSibling(StoryItem::Chapter)) {
+        QAction *bfAction = chMenu->addAction(tr("Before"));
+        connect(bfAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter, GuiStoryTree::Before);});
+        QAction *afAction = chMenu->addAction(tr("After"));
+        connect(afAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter, GuiStoryTree::After);});
+    }
+    if (!chMenu->isEmpty()) {
+        contextMenu.addMenu(chMenu);
+    }
+
+    QMenu *ptMenu = new QMenu(tr("Add Partition"));
+    if (item->allowedChild(StoryItem::Partition)) {
+        QAction *inAction = ptMenu->addAction(tr("Inside"));
+        connect(inAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition, GuiStoryTree::Inside);});
+    }
+    if (item->allowedSibling(StoryItem::Partition)) {
+        QAction *bfAction = ptMenu->addAction(tr("Before"));
+        connect(bfAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition, GuiStoryTree::Before);});
+        QAction *afAction = ptMenu->addAction(tr("After"));
+        connect(afAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition, GuiStoryTree::After);});
+    }
+    if (!ptMenu->isEmpty()) {
+        contextMenu.addMenu(ptMenu);
+    }
+
+    QMenu *bkMenu = new QMenu(tr("Add Book"));
+    if (item->allowedChild(StoryItem::Book)) {
+        QAction *inAction = bkMenu->addAction(index.isValid() ? tr("Inside") : tr("Here"));
+        connect(inAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book, GuiStoryTree::Inside);});
+    }
+    if (item->allowedSibling(StoryItem::Book)) {
+        QAction *bfAction = bkMenu->addAction(tr("Before"));
+        connect(bfAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book, GuiStoryTree::Before);});
+        QAction *afAction = bkMenu->addAction(tr("After"));
+        connect(afAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book, GuiStoryTree::After);});
+    }
+    if (!bkMenu->isEmpty()) {
+        contextMenu.addMenu(bkMenu);
+    }
+
+    QMenu *pgMenu = new QMenu(tr("Add Page"));
     if (item->allowedChild(StoryItem::Page)) {
-        QAction *newAction = addChild->addAction(tr("New Page"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page, GuiStoryTree::Inside);});
-    }
-    if (!addChild->isEmpty()) {
-        contextMenu.addMenu(addChild);
-    }
-
-    QMenu *addBefore = new QMenu(tr("Add Before"));
-    if (item->allowedSibling(StoryItem::Book)) {
-        QAction *newAction = addBefore->addAction(tr("New Book"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book, GuiStoryTree::Before);});
-    }
-    if (item->allowedSibling(StoryItem::Partition)) {
-        QAction *newAction = addBefore->addAction(tr("New Partition"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition, GuiStoryTree::Before);});
-    }
-    if (item->allowedSibling(StoryItem::Chapter)) {
-        QAction *newAction = addBefore->addAction(tr("New Chapter"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter, GuiStoryTree::Before);});
-    }
-    if (item->allowedSibling(StoryItem::Scene)) {
-        QAction *newAction = addBefore->addAction(tr("New Scene"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene, GuiStoryTree::Before);});
+        QAction *inAction = pgMenu->addAction(tr("Inside"));
+        connect(inAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page, GuiStoryTree::Inside);});
     }
     if (item->allowedSibling(StoryItem::Page)) {
-        QAction *newAction = addBefore->addAction(tr("New Page"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page, GuiStoryTree::Before);});
+        QAction *bfAction = pgMenu->addAction(tr("Before"));
+        connect(bfAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page, GuiStoryTree::Before);});
+        QAction *afAction = pgMenu->addAction(tr("After"));
+        connect(afAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page, GuiStoryTree::After);});
     }
-    if (!addBefore->isEmpty()) {
-        contextMenu.addMenu(addBefore);
-    }
-
-    QMenu *addAfter = new QMenu(tr("Add After"));
-    if (item->allowedSibling(StoryItem::Book)) {
-        QAction *newAction = addAfter->addAction(tr("New Book"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Book, GuiStoryTree::After);});
-    }
-    if (item->allowedSibling(StoryItem::Partition)) {
-        QAction *newAction = addAfter->addAction(tr("New Partition"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Partition, GuiStoryTree::After);});
-    }
-    if (item->allowedSibling(StoryItem::Chapter)) {
-        QAction *newAction = addAfter->addAction(tr("New Chapter"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Chapter, GuiStoryTree::After);});
-    }
-    if (item->allowedSibling(StoryItem::Scene)) {
-        QAction *newAction = addAfter->addAction(tr("New Scene"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Scene, GuiStoryTree::After);});
-    }
-    if (item->allowedSibling(StoryItem::Page)) {
-        QAction *newAction = addAfter->addAction(tr("New Page"));
-        connect(newAction, &QAction::triggered, [this, index]{doAddChild(index, StoryItem::Page, GuiStoryTree::After);});
-    }
-    if (!addAfter->isEmpty()) {
-        contextMenu.addMenu(addAfter);
+    if (!pgMenu->isEmpty()) {
+        contextMenu.addMenu(pgMenu);
     }
 
     contextMenu.exec(QWidget::mapToGlobal(pos));

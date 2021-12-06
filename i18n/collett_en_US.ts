@@ -46,57 +46,59 @@
     <name>Collett::GuiStoryTree</name>
     <message>
         <location filename="../src/gui/storytree.cpp" line="84"/>
-        <source>Append</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="84"/>
-        <source>Add Inside</source>
+        <source>Add Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/storytree.cpp" line="86"/>
-        <location filename="../src/gui/storytree.cpp" line="111"/>
-        <location filename="../src/gui/storytree.cpp" line="136"/>
-        <source>New Book</source>
+        <location filename="../src/gui/storytree.cpp" line="101"/>
+        <location filename="../src/gui/storytree.cpp" line="116"/>
+        <location filename="../src/gui/storytree.cpp" line="131"/>
+        <location filename="../src/gui/storytree.cpp" line="146"/>
+        <source>Inside</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/storytree.cpp" line="90"/>
-        <location filename="../src/gui/storytree.cpp" line="115"/>
-        <location filename="../src/gui/storytree.cpp" line="140"/>
-        <source>New Partition</source>
+        <location filename="../src/gui/storytree.cpp" line="105"/>
+        <location filename="../src/gui/storytree.cpp" line="120"/>
+        <location filename="../src/gui/storytree.cpp" line="135"/>
+        <location filename="../src/gui/storytree.cpp" line="150"/>
+        <source>Before</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/storytree.cpp" line="94"/>
-        <location filename="../src/gui/storytree.cpp" line="119"/>
-        <location filename="../src/gui/storytree.cpp" line="144"/>
-        <source>New Chapter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="98"/>
-        <location filename="../src/gui/storytree.cpp" line="123"/>
-        <location filename="../src/gui/storytree.cpp" line="148"/>
-        <source>New Scene</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="102"/>
-        <location filename="../src/gui/storytree.cpp" line="127"/>
+        <location filename="../src/gui/storytree.cpp" line="92"/>
+        <location filename="../src/gui/storytree.cpp" line="107"/>
+        <location filename="../src/gui/storytree.cpp" line="122"/>
+        <location filename="../src/gui/storytree.cpp" line="137"/>
         <location filename="../src/gui/storytree.cpp" line="152"/>
-        <source>New Page</source>
+        <source>After</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/storytree.cpp" line="109"/>
-        <source>Add Before</source>
+        <location filename="../src/gui/storytree.cpp" line="99"/>
+        <source>Add Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/storytree.cpp" line="134"/>
-        <source>Add After</source>
+        <location filename="../src/gui/storytree.cpp" line="114"/>
+        <source>Add Partition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="129"/>
+        <source>Add Book</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="131"/>
+        <source>Here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/storytree.cpp" line="144"/>
+        <source>Add Page</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
