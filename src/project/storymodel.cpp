@@ -1,22 +1,22 @@
 /*
-Collett – Project Model Class
-=============================
-
-This file is a part of Collett
-Copyright 2020–2021, Veronica Berglyd Olsen
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+** Collett – Project Model Class
+** =============================
+** 
+** This file is a part of Collett
+** Copyright 2020–2021, Veronica Berglyd Olsen
+** 
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+** 
+** This program is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+** General Public License for more details.
+** 
+** You should have received a copy of the GNU General Public License
+** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "storymodel.h"
@@ -30,12 +30,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Collett {
 
-/**
- * StoryModel
- * ==========
- * The data model of the project's stroy content.
+/**!
+ * @brief Construct a new Story Model object.
+ * 
+ * The data model of the project's story content.
  * Example: https://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
-*/
+ * 
+ * @param parent the parent object.
+ */
 
 StoryModel::StoryModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -60,21 +62,63 @@ StoryModel::~StoryModel() {
 }
 
 /**
+ * Class Methods
+ * =============
+ */
+
+/**!
+ * @brief Build a JSON object of the model.
+ * 
+ * Collect the story tree into a nested JSON object. This is a wrapper around
+ * @sa StoryItem::toJsonObject function, which will build the entire tree
+ * recursively.
+ * 
+ * @return a JSON object.
+ */
+QJsonObject StoryModel::toJsonObject() {
+    return m_rootItem->toJsonObject();
+}
+
+/**!
+ * @brief Create and add a new child item.
+ * 
+ * Add a new item relative to the item @a relativeTo, with type @a type and a
+ * location @a loc. The location can be Inside, in which case it is appended to
+ * the end of the list of @a relativeTo child items; or Before or After, in which
+ * case it is added directly above or below the @a relativeTo item.
+ * 
+ * @param relativeTo the item to add a new item relative to.
+ * @param type       the type of the new item.
+ * @param loc        the relative location of where to add the new item.
+ * @return true if the item was successfully added, otherwise false.
+ */
+bool StoryModel::addItem(StoryItem *relativeTo, StoryItem::ItemType type, AddLocation loc) {
+    if (!relativeTo) {
+        return false;
+    }
+    StoryItem *target = relativeTo;
+    int pos = relativeTo->childCount();
+    if (loc == AddLocation::Before || loc == AddLocation::After) {
+        target = relativeTo->parentItem();
+        pos = relativeTo->row() + (loc == AddLocation::After ? 1 : 0);
+    }
+    if (!target) {
+        return false;
+    }
+    qDebug() << target->row() << pos;
+    emit beginInsertRows(createIndex(target->row(), 0, target), pos, pos);
+    StoryItem *item = target->addChild(tr("New %1").arg(StoryItem::typeToString(type)), type, pos);
+    emit endInsertRows();
+    return item != nullptr;
+}
+
+/**
  * Class Getters
  * =============
  */
 
 StoryItem *StoryModel::rootItem() const {
     return m_rootItem;
-}
-
-/**
- * Class Methods
- * =============
- */
-
-QJsonObject StoryModel::toJsonObject() {
-    return m_rootItem->toJsonObject();
 }
 
 /**
