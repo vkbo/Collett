@@ -121,6 +121,35 @@ StoryItem *StoryModel::rootItem() const {
     return m_rootItem;
 }
 
+StoryItem *StoryModel::storyItem(const QModelIndex &index) {
+    if (index.isValid()) {
+        return static_cast<StoryItem*>(index.internalPointer());
+    } else {
+        return nullptr;
+    }
+}
+
+QString StoryModel::itemName(const QModelIndex &index) {
+    if (index.isValid()) {
+        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        return item->name();
+    } else {
+        return "";
+    }
+}
+
+/**
+ * Model Edit
+ * ==========
+ */
+
+void StoryModel::setItemName(const QModelIndex &index, const QString &name) {
+    if (index.isValid()) {
+        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        item->setName(name);
+    }
+}
+
 /**
  * Model Access
  * ============

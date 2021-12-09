@@ -27,9 +27,12 @@
 
 #include <QMenu>
 #include <QPoint>
+#include <QAction>
 #include <QWidget>
 #include <QTreeView>
 #include <QModelIndex>
+#include <QInputDialog>
+#include <QKeySequence>
 
 namespace Collett {
 
@@ -49,8 +52,15 @@ GuiStoryTree::GuiStoryTree(QWidget *parent)
     this->setItemDelegate(new GuiStoryTreeDelegate(this));
     this->setHeaderHidden(true);
     this->setAlternatingRowColors(true);
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
 
+    // Item Actions
+    m_editItem = new QAction(tr("Rename"), this);
+    m_editItem->setShortcut(QKeySequence("F2"));
+    connect(m_editItem, SIGNAL(triggered(bool)), this, SLOT(doEditName(bool)));
+    this->addAction(m_editItem);
+
+    // Connect the Context Menu
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(doOpenContextMenu(QPoint)));
 }
 
@@ -93,6 +103,15 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
     qDebug() << "Opening StoryTree context menu";
 
     QMenu contextMenu;
+
+    // Item Options
+    // ------------
+
+    contextMenu.addAction(m_editItem);
+    contextMenu.addSeparator();
+
+    // New Items
+    // ---------
 
     QMenu *scMenu = new QMenu(tr("Add Scene"));
     if (item->allowedChild(StoryItem::Scene)) {
@@ -170,6 +189,32 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
     }
 
     contextMenu.exec(QWidget::mapToGlobal(pos));
+}
+
+/**!
+ * @brief Slot triggered by the rename option in the context menu.
+ *
+ * @param bool unused.
+ */
+void GuiStoryTree::doEditName(bool checked) {
+    Q_UNUSED(checked);
+
+    QModelIndexList sel = this->selectedIndexes();
+    if (sel.size() < 1) {
+        qDebug() << "No item selected";
+        return;
+    }
+
+    QString oldName = m_model->itemName(sel.at(0));
+    qDebug() << "Requested rename of item" << oldName;
+
+    bool ok;
+    QString newName = QInputDialog::getText(
+        this, tr("Rename Story Item"), tr("New name:"), QLineEdit::Normal, oldName, &ok
+    );
+    if (ok && !newName.isEmpty()) {
+        m_model->setItemName(sel.at(0), newName);
+    }
 }
 
 /**!

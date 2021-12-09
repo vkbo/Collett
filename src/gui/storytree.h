@@ -26,8 +26,11 @@
 #include "storymodel.h"
 
 #include <QPoint>
+#include <QAction>
 #include <QObject>
+#include <QWidget>
 #include <QTreeView>
+#include <QModelIndex>
 
 namespace Collett {
 
@@ -46,11 +49,14 @@ public:
     void setTreeModel(StoryModel *model);
 
 private slots:
+    void doEditName(bool checked);
     void doOpenContextMenu(const QPoint &pos);
     void doAddChild(StoryItem *item, StoryItem::ItemType type, StoryModel::AddLocation loc);
 
 private:
     StoryModel *m_model = nullptr;
+
+    QAction *m_editItem;
 
 };
 } // namespace Collett

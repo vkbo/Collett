@@ -50,6 +50,12 @@ public:
     // Class Getters
 
     StoryItem *rootItem() const;
+    StoryItem *storyItem(const QModelIndex &index);
+    QString itemName(const QModelIndex &index);
+
+    // Model Edit
+
+    void setItemName(const QModelIndex &index, const QString &name);
 
     // Model Access
 

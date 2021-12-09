@@ -36,24 +36,25 @@ class StoryItem : public QObject
 public:
     enum ItemType{Root, Book, Partition, Chapter, Scene, Page};
 
-    explicit StoryItem(const QString &label, ItemType type, StoryItem *parentItem=nullptr);
+    explicit StoryItem(const QString &name, ItemType type, StoryItem *parentItem=nullptr);
     ~StoryItem();
 
     // Class Methods
 
-    StoryItem *addChild(const QString &label, ItemType type, int pos=-1);
+    StoryItem *addChild(const QString &name, ItemType type, int pos=-1);
     QJsonObject toJsonObject();
     bool allowedChild(ItemType type) const;
     bool allowedSibling(ItemType type) const;
 
     // Class Setters
 
-    void setLabel(const QString &label);
+    void setName(const QString &name);
     void setWordCount(int count);
 
     // Class Getters
 
     ItemType type() const;
+    QString name() const;
     int wordCount() const;
     int childWordCounts() const;
 
@@ -76,7 +77,7 @@ private:
     // Member Values
 
     QUuid    m_handle;
-    QString  m_label;
+    QString  m_name;
     ItemType m_type;
     int      m_wCount;
 

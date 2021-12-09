@@ -39,11 +39,11 @@ namespace Collett {
  * @param type  the type of the new item.
  * @param parent the parent of the new item, optional.
  */
-StoryItem::StoryItem(const QString &label, ItemType type, StoryItem *parent)
+StoryItem::StoryItem(const QString &name, ItemType type, StoryItem *parent)
     : m_parentItem(parent)
 {
     m_handle = QUuid::createUuid();
-    m_label  = label;
+    m_name   = name;
     m_type   = type;
     m_wCount = 1234;
 }
@@ -62,18 +62,18 @@ StoryItem::~StoryItem() {
  *
  * Add a child item to the current item.
  *
- * @param label a label to describe the item.
- * @param type  the type of the item.
- * @param pos   the insert position in the child vector. If out of range, the
- *              item is appended.
- * @return      A pointer to the newly added item.
+ * @param name a label to describe the item.
+ * @param type the type of the item.
+ * @param pos  the insert position in the child vector. If out of range, the
+ *             item is appended.
+ * @return     A pointer to the newly added item.
  */
-StoryItem *StoryItem::addChild(const QString &label, ItemType type, int pos) {
+StoryItem *StoryItem::addChild(const QString &name, ItemType type, int pos) {
     if (!this->allowedChild(type)) {
         return nullptr;
     }
 
-    StoryItem *item = new StoryItem(label, type, this);
+    StoryItem *item = new StoryItem(name, type, this);
     if (pos >= 0 && pos < m_childItems.size()) {
         m_childItems.insert((qsizetype)pos, item);
     } else {
@@ -114,7 +114,7 @@ QJsonObject StoryItem::toJsonObject() {
         item["xItems"] = children;
     } else {
         item["handle"] = m_handle.toString(QUuid::WithoutBraces);
-        item["label"]  = m_label;
+        item["name"]   = m_name;
         item["type"]   = type;
         item["order"]  = row();
         item["wCount"] = m_wCount;
@@ -177,8 +177,8 @@ bool StoryItem::allowedSibling(StoryItem::ItemType type) const {
  * =============
  */
 
-void StoryItem::setLabel(const QString &label) {
-    m_label = label;
+void StoryItem::setName(const QString &name) {
+    m_name = name;
 }
 
 
@@ -193,6 +193,10 @@ void StoryItem::setWordCount(int count) {
 
 StoryItem::ItemType StoryItem::type() const {
     return m_type;
+}
+
+QString StoryItem::name() const {
+    return m_name;
 }
 
 int StoryItem::wordCount() const {
@@ -261,7 +265,7 @@ int StoryItem::row() const {
 
 QVariant StoryItem::data() const {
     QVariantList itemData;
-    itemData << m_label << m_wCount << typeToString(m_type);
+    itemData << m_name << m_wCount << typeToString(m_type);
     return QVariant::fromValue(itemData);
 }
 
