@@ -1,20 +1,20 @@
 /*
 ** Collett – Project Story Item Class
 ** ==================================
-** 
+**
 ** This file is a part of Collett
 ** Copyright 2020–2021, Veronica Berglyd Olsen
-** 
+**
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
-** 
+**
 ** This program is distributed in the hope that it will be useful, but
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public License
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
@@ -34,7 +34,7 @@ namespace Collett {
 
 /**!
  * @brief Construct a new StoryItem object.
- * 
+ *
  * @param label the label of the new item.
  * @param type  the type of the new item.
  * @param parent the parent of the new item, optional.
@@ -59,9 +59,9 @@ StoryItem::~StoryItem() {
 
 /**!
  * @brief Class Method
- * 
+ *
  * Add a child item to the current item.
- * 
+ *
  * @param label a label to describe the item.
  * @param type  the type of the item.
  * @param pos   the insert position in the child vector. If out of range, the
@@ -84,10 +84,10 @@ StoryItem *StoryItem::addChild(const QString &label, ItemType type, int pos) {
 
 /**!
  * @brief Class method.
- * 
+ *
  * Pack all member values into a JSON object. This function is recursive, and
  * should only be called on the root item.
- * 
+ *
  * @return a JSON object.
  */
 QJsonObject StoryItem::toJsonObject() {
@@ -128,11 +128,11 @@ QJsonObject StoryItem::toJsonObject() {
 
 /**!
  * @brief Check for allowed child item types of current item.
- * 
+ *
  * This function determines which child item types an item of a given type is
  * allowed to hold in its list of child elements. This is the authoritative
  * function determining these rules.
- * 
+ *
  * @param  type the item type to check against.
  * @return true if the item type is allowed, false if not.
  */
@@ -157,10 +157,10 @@ bool StoryItem::allowedChild(StoryItem::ItemType type) const {
 
 /**!
  * @brief Check for allowed sibling item types of current item.
- * 
+ *
  * This function uses the @sa allowedChild function against the parent item to
  * validate the request.
- * 
+ *
  * @param  type the item type to check against.
  * @return true if the item type is allowed, false if not.
  */
@@ -214,10 +214,10 @@ int StoryItem::childWordCounts() const {
 
 /**!
  * @brief Static method to convert type enum to string.
- * 
+ *
  * A static method that will translate the ItemType enum into a localised string
  * that can be displayed on the GUI.
- * 
+ *
  * @param  type the type to translate.
  * @return a string with the localised name of the type.
  */

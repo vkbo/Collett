@@ -1,20 +1,20 @@
 /*
 ** Collett – Project Model Class
 ** =============================
-** 
+**
 ** This file is a part of Collett
 ** Copyright 2020–2021, Veronica Berglyd Olsen
-** 
+**
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
-** 
+**
 ** This program is distributed in the hope that it will be useful, but
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public License
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
@@ -32,10 +32,10 @@ namespace Collett {
 
 /**!
  * @brief Construct a new Story Model object.
- * 
+ *
  * The data model of the project's story content.
  * Example: https://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
- * 
+ *
  * @param parent the parent object.
  */
 
@@ -43,11 +43,11 @@ StoryModel::StoryModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
     m_rootItem = new StoryItem("Root", StoryItem::Root);
-    
+
     StoryItem *bookItem = m_rootItem->addChild("Novel", StoryItem::Book);
     StoryItem *chp1Item = bookItem->addChild("Chapter 1", StoryItem::Chapter);
     StoryItem *chp2Item = bookItem->addChild("Chapter 2", StoryItem::Chapter);
-    
+
     bookItem->addChild("Title Page", StoryItem::Page, 0);
     bookItem->addChild("Very long title on this element here", StoryItem::Page);
 
@@ -68,11 +68,11 @@ StoryModel::~StoryModel() {
 
 /**!
  * @brief Build a JSON object of the model.
- * 
+ *
  * Collect the story tree into a nested JSON object. This is a wrapper around
  * @sa StoryItem::toJsonObject function, which will build the entire tree
  * recursively.
- * 
+ *
  * @return a JSON object.
  */
 QJsonObject StoryModel::toJsonObject() {
@@ -81,12 +81,12 @@ QJsonObject StoryModel::toJsonObject() {
 
 /**!
  * @brief Create and add a new child item.
- * 
+ *
  * Add a new item relative to the item @a relativeTo, with type @a type and a
  * location @a loc. The location can be Inside, in which case it is appended to
  * the end of the list of @a relativeTo child items; or Before or After, in which
  * case it is added directly above or below the @a relativeTo item.
- * 
+ *
  * @param relativeTo the item to add a new item relative to.
  * @param type       the type of the new item.
  * @param loc        the relative location of where to add the new item.

@@ -1,20 +1,20 @@
 /*
 ** Collett – GUI Story Tree Class
 ** ==============================
-** 
+**
 ** This file is a part of Collett
 ** Copyright 2020–2021, Veronica Berglyd Olsen
-** 
+**
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
-** 
+**
 ** This program is distributed in the hope that it will be useful, but
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public License
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
@@ -40,7 +40,7 @@ namespace Collett {
 
 /**!
  * @brief Construct a new Gui Story Tree object
- * 
+ *
  * @param parent the parent widget.
  */
 GuiStoryTree::GuiStoryTree(QWidget *parent)
@@ -71,10 +71,10 @@ void GuiStoryTree::setTreeModel(StoryModel *model) {
 
 /**!
  * @brief Slot to open a context menu on the tree.
- * 
+ *
  * The context menu is generated on the fly and opened at the position of the
  * cursor.
- * 
+ *
  * @param pos the position of the cursor.
  */
 void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
@@ -174,9 +174,9 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
 
 /**!
  * @brief Slot triggered by the context menu on the tree.
- * 
+ *
  * The slot will forward the call to create a new story item to the model.
- * 
+ *
  * @param item the item to add a child relative to.
  * @param type the type of item to add.
  * @param loc  the relative location of where to add the new item.
