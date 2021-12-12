@@ -45,7 +45,9 @@ public:
     // Class Methods
 
     QJsonObject toJsonObject();
+    bool fromJsonObject(const QJsonObject &json);
     bool addItem(StoryItem *relativeTo, StoryItem::ItemType type, AddLocation loc);
+    bool isEmpty();
 
     // Class Getters
 

@@ -22,8 +22,11 @@
 #include "storymodel.h"
 #include "storyitem.h"
 
+#include <QUuid>
 #include <QObject>
 #include <QString>
+#include <QJsonArray>
+#include <QJsonValue>
 #include <QJsonObject>
 #include <QModelIndex>
 #include <QAbstractItemModel>
@@ -42,19 +45,7 @@ namespace Collett {
 StoryModel::StoryModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_rootItem = new StoryItem("Root", StoryItem::Root);
-
-    StoryItem *bookItem = m_rootItem->addChild("Novel", StoryItem::Book);
-    StoryItem *chp1Item = bookItem->addChild("Chapter 1", StoryItem::Chapter);
-    StoryItem *chp2Item = bookItem->addChild("Chapter 2", StoryItem::Chapter);
-
-    bookItem->addChild("Title Page", StoryItem::Page, 0);
-    bookItem->addChild("Very long title on this element here", StoryItem::Page);
-
-    chp1Item->addChild("Scene 1.1", StoryItem::Scene);
-    chp1Item->addChild("Scene 1.2", StoryItem::Scene);
-    chp2Item->addChild("Scene 2.1", StoryItem::Scene);
-    chp2Item->addChild("Scene 2.2", StoryItem::Scene);
+    m_rootItem = new StoryItem(QUuid(), "Root", StoryItem::Root);
 }
 
 StoryModel::~StoryModel() {
@@ -77,6 +68,50 @@ StoryModel::~StoryModel() {
  */
 QJsonObject StoryModel::toJsonObject() {
     return m_rootItem->toJsonObject();
+}
+
+bool StoryModel::fromJsonObject(const QJsonObject &json) {
+
+    if (m_rootItem->childCount() > 0) {
+        qWarning() << "Cannot initialise a non-empty model";
+        return false;
+    }
+
+    if (json.isEmpty()) {
+        qWarning() << "StoryItem Root: No data in JSON object";
+        return false;
+    }
+    if (!json.contains("type")) {
+        qWarning() << "StoryItem Root: Not a valid story item JSON object";
+        return false;
+    }
+
+    StoryItem::ItemType type = StoryItem::typeFromString(json["type"].toString());
+    if (type != StoryItem::Root) {
+        qWarning() << "StoryItem Root: No ROOT item found in JSON object";
+        return false;
+    }
+
+    if (!json.contains("xItems")) {
+        qDebug() << "StoryItem Root: No items found in JSON object";
+        return false;
+    }
+    if (!json["xItems"].isArray()) {
+        qWarning() << "StoryItem Root: xItems value is not a JSON array";
+        return false;
+    }
+
+    emit beginResetModel();
+    for (const QJsonValue &value : json["xItems"].toArray()) {
+        if (value.isObject()) {
+            m_rootItem->addChild(value.toObject());
+        } else {
+            qWarning() << "StoryItem Root: Child item is not a JSON object";
+        }
+    }
+    emit endResetModel();
+
+    return true;
 }
 
 /**!
@@ -110,6 +145,15 @@ bool StoryModel::addItem(StoryItem *relativeTo, StoryItem::ItemType type, AddLoc
     StoryItem *item = target->addChild(tr("New %1").arg(StoryItem::typeToString(type)), type, pos);
     emit endInsertRows();
     return item != nullptr;
+}
+
+/**!
+ * @brief Check if the model is empty.
+ *
+ * @return true if there is no root item, otherwise false
+ */
+bool StoryModel::isEmpty() {
+    return m_rootItem == nullptr;
 }
 
 /**

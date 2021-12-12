@@ -39,13 +39,14 @@ namespace Collett {
  * @param type  the type of the new item.
  * @param parent the parent of the new item, optional.
  */
-StoryItem::StoryItem(const QString &name, ItemType type, StoryItem *parent)
+StoryItem::StoryItem(const QUuid &uuid, const QString &name, ItemType type, StoryItem *parent)
     : m_parentItem(parent)
 {
-    m_handle = QUuid::createUuid();
+    m_childItems = QVector<StoryItem*>{};
+    m_handle = uuid;
     m_name   = name;
     m_type   = type;
-    m_wCount = 1234;
+    m_wCount = 0;
 }
 
 StoryItem::~StoryItem() {
@@ -73,12 +74,66 @@ StoryItem *StoryItem::addChild(const QString &name, ItemType type, int pos) {
         return nullptr;
     }
 
-    StoryItem *item = new StoryItem(name, type, this);
+    StoryItem *item = new StoryItem(QUuid::createUuid(), name, type, this);
     if (pos >= 0 && pos < m_childItems.size()) {
         m_childItems.insert((qsizetype)pos, item);
     } else {
         m_childItems.append(item);
     }
+    return item;
+}
+
+StoryItem *StoryItem::addChild(const QJsonObject &json) {
+
+    if (json.isEmpty()) {
+        return nullptr;
+    }
+
+    QUuid    handle = QUuid();
+    QString  name   = "";
+    ItemType type   = StoryItem::Invalid;
+    int      wCount = 0;
+
+    if (json.contains("handle")) {
+        handle = QUuid(json["handle"].toString());
+    }
+    if (json.contains("name")) {
+        name = json["name"].toString();
+    }
+    if (json.contains("type")) {
+        type = StoryItem::typeFromString(json["type"].toString());
+    }
+    if (json.contains("wCount")) {
+        wCount = json["wCount"].toInt();
+    }
+
+    if (type == StoryItem::Invalid) {
+        qWarning() << "Invalid story item type encountered";
+        return nullptr;
+    }
+    if (type == StoryItem::Root) {
+        qWarning() << "Only one Root story item is allowed";
+        return nullptr;
+    }
+
+    qDebug() << "Adding item with handle" << handle.toString(QUuid::WithoutBraces);
+    
+    StoryItem *item = new StoryItem(handle, name, type, this);
+    item->setWordCount(wCount);
+    m_childItems.append(item);
+
+    if (json.contains("xItems")) {
+        if (json["xItems"].isArray()) {
+            for (const QJsonValue &value : json["xItems"].toArray()) {
+                if (value.isObject()) {
+                    item->addChild(value.toObject());
+                } else {
+                    qWarning() << "StoryItem: Child item is not a JSON object";
+                }
+            }
+        }
+    }
+
     return item;
 }
 
@@ -107,6 +162,9 @@ QJsonObject StoryItem::toJsonObject() {
         case StoryItem::Chapter:   type = "CHAPTER"; break;
         case StoryItem::Scene:     type = "SCENE"; break;
         case StoryItem::Page:      type = "PAGE"; break;
+        case StoryItem::Invalid:
+            return QJsonObject();
+            break;
     }
 
     if (!m_parentItem) {
@@ -234,8 +292,28 @@ QString StoryItem::typeToString(ItemType type) {
         case StoryItem::Chapter:   name = tr("Chapter"); break;
         case StoryItem::Scene:     name = tr("Scene"); break;
         case StoryItem::Page:      name = tr("Page"); break;
+        case StoryItem::Invalid:   name = ""; break;
     }
     return name;
+}
+
+StoryItem::ItemType StoryItem::typeFromString(const QString &value) {
+    QString upper = value.toUpper();
+    if (upper == "ROOT") {
+        return StoryItem::Root;
+    } else if (upper == "BOOK") {
+        return StoryItem::Book;
+    } else if (upper == "PARTITION") {
+        return StoryItem::Partition;
+    } else if (upper == "CHAPTER") {
+        return StoryItem::Chapter;
+    } else if (upper == "SCENE") {
+        return StoryItem::Scene;
+    } else if (upper == "PAGE") {
+        return StoryItem::Page;
+    } else {
+        return StoryItem::Invalid;
+    }
 }
 
 /**

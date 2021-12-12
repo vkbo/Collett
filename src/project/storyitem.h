@@ -34,15 +34,17 @@ class StoryItem : public QObject
     Q_OBJECT
 
 public:
-    enum ItemType{Root, Book, Partition, Chapter, Scene, Page};
+    enum ItemType{Invalid, Root, Book, Partition, Chapter, Scene, Page};
 
-    explicit StoryItem(const QString &name, ItemType type, StoryItem *parentItem=nullptr);
+    explicit StoryItem(const QUuid &uuid, const QString &name, ItemType type, StoryItem *parentItem=nullptr);
     ~StoryItem();
 
     // Class Methods
 
     StoryItem *addChild(const QString &name, ItemType type, int pos=-1);
+    StoryItem *addChild(const QJsonObject &json);
     QJsonObject toJsonObject();
+    static StoryItem* fromJsonObject(const QJsonObject &json, StoryItem *parentItem=nullptr);
     bool allowedChild(ItemType type) const;
     bool allowedSibling(ItemType type) const;
 
@@ -61,6 +63,7 @@ public:
     // Static Methods
 
     static QString typeToString(ItemType type);
+    static ItemType typeFromString(const QString &value);
 
     // Model Access
 

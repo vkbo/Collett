@@ -148,27 +148,27 @@
 <context>
     <name>Collett::StoryItem</name>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="232"/>
+        <location filename="../src/project/storyitem.cpp" line="290"/>
         <source>Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="233"/>
+        <location filename="../src/project/storyitem.cpp" line="291"/>
         <source>Partition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="234"/>
+        <location filename="../src/project/storyitem.cpp" line="292"/>
         <source>Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="235"/>
+        <location filename="../src/project/storyitem.cpp" line="293"/>
         <source>Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="236"/>
+        <location filename="../src/project/storyitem.cpp" line="294"/>
         <source>Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -176,7 +176,7 @@
 <context>
     <name>Collett::StoryModel</name>
     <message>
-        <location filename="../src/project/storymodel.cpp" line="110"/>
+        <location filename="../src/project/storymodel.cpp" line="157"/>
         <source>New %1</source>
         <translation type="unfinished"></translation>
     </message>
