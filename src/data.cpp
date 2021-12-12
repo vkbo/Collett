@@ -41,12 +41,32 @@ public:
     CollettDataPrivate() {};
     ~CollettDataPrivate() {
         qDebug() << "Deconstructing: CollettDataPrivate";
-        delete m_project;
+        m_project.reset();
     };
 
-    Project *m_project;
+    bool isValid() const {
+        if (m_project.isNull()) {
+            return false;
+        } else {
+            return m_project.data()->isValid();
+        }
+    }
 
-    bool m_hasProject = false;
+    Project *project() const {
+        return m_project.data();
+    }
+
+    void newProject(const QString &path) {
+        m_project.reset(new Project(path));
+    }
+
+    void clearProject() {
+        m_project.reset(nullptr);
+    }
+
+private:
+    QScopedPointer<Project> m_project;
+
 };
 
 /**
@@ -78,38 +98,50 @@ CollettData::~CollettData() {}
 bool CollettData::openProject(const QString &path) {
     Q_D(CollettData);
 
-    d->m_project = new Project(path);
-    bool status = d->m_project->openProject();
-    d->m_hasProject = d->m_project->hasProject();
+    d->newProject(path);
+    if (!d->project()->hasError()) {
+        d->project()->openProject();
+    }
+    if (!d->project()->isValid()) {
+        d->clearProject();
+        return false;
+    }
 
-    return status;
+    return true;
 }
 
 bool CollettData::saveProject() {
     Q_D(CollettData);
-
-    if (d->m_hasProject) {
-        return d->m_project->saveProject();
+    if (d->isValid()) {
+        return d->project()->saveProject();
     } else {
         return false;
     }
 }
 
-Project *CollettData::project() {
-    Q_D(CollettData);
+/**
+ * Public Class Getters
+ * ====================
+ */
 
-    if (d->m_hasProject) {
-        return d->m_project;
+bool CollettData::hasProject() const {
+    Q_D(const CollettData);
+    return d->isValid();
+}
+
+QVariant CollettData::projectValue(const QString &key) const {
+    Q_D(const CollettData);
+    if (d->isValid()) {
+        return d->project()->projectValue(key);
     } else {
-        return nullptr;
+        return QVariant();
     }
 }
 
 StoryModel *CollettData::storyModel() {
     Q_D(CollettData);
-
-    if (d->m_hasProject) {
-        return d->m_project->storyModel();
+    if (d->isValid()) {
+        return d->project()->storyModel();
     } else {
         return nullptr;
     }

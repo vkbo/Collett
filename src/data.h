@@ -26,10 +26,10 @@
 #include "project.h"
 #include "storymodel.h"
 
-#include <QWidget>
 #include <QObject>
 #include <QString>
-#include <QDir>
+#include <QWidget>
+#include <QVariant>
 
 namespace Collett {
 
@@ -48,10 +48,15 @@ private:
     CollettData();
 
 public:
+    // Class Methods
+
     bool openProject(const QString &path);
     bool saveProject();
 
-    Project    *project();
+    // Class Getters
+
+    bool hasProject() const;
+    QVariant projectValue(const QString &key) const;
     StoryModel *storyModel();
 
 };

@@ -2,35 +2,35 @@
     "type": "ROOT",
     "xItems": [
         {
-            "handle": "095f8c2e-89df-4611-a592-d5752adcdcbf",
-            "name": "Sample Novel",
+            "handle": "e709ba3f-3141-4b4b-95df-4a8d3e91a8ba",
+            "name": "Novel",
             "order": 0,
             "type": "BOOK",
             "wCount": 1234,
             "xItems": [
                 {
-                    "handle": "4cbbd3f1-0c15-48ab-8cf0-512dd5d28b29",
+                    "handle": "c2290a95-ca41-4181-89f2-18cb610ab716",
                     "name": "Title Page",
                     "order": 0,
                     "type": "PAGE",
                     "wCount": 1234
                 },
                 {
-                    "handle": "2484aee2-80a4-47c8-bae9-04c7b4780aa7",
+                    "handle": "af3dc4a4-5f66-462d-b63b-9c4d7a7dec77",
                     "name": "Chapter 1",
                     "order": 1,
                     "type": "CHAPTER",
                     "wCount": 1234,
                     "xItems": [
                         {
-                            "handle": "7361ce56-9035-4a33-a825-0220c3364496",
+                            "handle": "63913842-121f-43ed-8d9c-b3e2432599ab",
                             "name": "Scene 1.1",
                             "order": 0,
                             "type": "SCENE",
                             "wCount": 1234
                         },
                         {
-                            "handle": "09a42313-3345-46ed-b272-8c56117b9428",
+                            "handle": "7e5a1a98-d1a3-44a1-ab4e-2b5d21d92201",
                             "name": "Scene 1.2",
                             "order": 1,
                             "type": "SCENE",
@@ -39,21 +39,21 @@
                     ]
                 },
                 {
-                    "handle": "f0af1424-89bc-4ec8-87d5-a985d1603b04",
+                    "handle": "61fc6238-87cf-4b78-b2c7-a430776a2b7a",
                     "name": "Chapter 2",
                     "order": 2,
                     "type": "CHAPTER",
                     "wCount": 1234,
                     "xItems": [
                         {
-                            "handle": "8878261c-2082-4ceb-bdfe-22ccb09ffa87",
+                            "handle": "f3993444-4e43-4ace-bfdb-55ca659ca914",
                             "name": "Scene 2.1",
                             "order": 0,
                             "type": "SCENE",
                             "wCount": 1234
                         },
                         {
-                            "handle": "04925f10-f6ea-453c-9c7b-b898c4ea22eb",
+                            "handle": "ab6ba4f4-5658-4ff0-941d-2e0c687fe88d",
                             "name": "Scene 2.2",
                             "order": 1,
                             "type": "SCENE",
@@ -62,7 +62,7 @@
                     ]
                 },
                 {
-                    "handle": "fcee8ed9-c2a0-4560-9e3b-afe7f2438525",
+                    "handle": "f1dffe99-3583-4f9c-9f0b-1a8f323b0670",
                     "name": "Very long title on this element here",
                     "order": 3,
                     "type": "PAGE",

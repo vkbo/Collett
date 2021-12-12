@@ -28,6 +28,7 @@
 #include <QDir>
 #include <QObject>
 #include <QString>
+#include <QVariant>
 
 namespace Collett {
 
@@ -46,30 +47,34 @@ private:
 
 public:
     // Class Methods
+
     bool openProject();
     bool saveProject();
 
-    // Getters
-    QString projectName() const;
-    QString bookTitle() const;
-    bool hasProject() const;
-    bool hasError() const;
-    StoryModel *storyModel();
+    // Class Setters
 
-    // Setters
     void setProjectName(const QString &name);
     void setBookTitle(const QString &title);
 
+    // Class Getters
+
+    QVariant projectValue(const QString &key) const;
+    bool isValid() const;
+    StoryModel *storyModel();
+
     // Error Handling
-    void    clearError();
+
+    bool hasError() const;
+    void clearError();
     QString lastError() const;
 
 private:
-    bool    m_hasProject;
+    bool    m_isValid;
     bool    m_hasError;
     QString m_lastError;
 
     // Project Paths
+
     QDir m_projectPath;
     QDir m_projectFile;
     QDir m_contentPath;
@@ -77,13 +82,16 @@ private:
     bool m_pathValid;
 
     // Project Meta
+
     QString m_collettVersion = "";
     QString m_projectVersion = "";
 
     // Content
+
     StoryModel *m_storyModel;
 
     // File Load & Save
+
     bool loadProjectFile();
     bool saveProjectFile();
     bool loadSettingsFile();
@@ -92,6 +100,7 @@ private:
     bool saveStoryFile();
 
     // Error Handling
+
     void setError(const QString &error);
 
 };

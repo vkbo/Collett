@@ -32,6 +32,7 @@
 #include <QByteArray>
 #include <QTextStream>
 #include <QJsonDocument>
+#include <QJsonParseError>
 
 namespace Collett {
 
@@ -65,9 +66,8 @@ Project::Project(const QString &path)
     Q_D(Project);
 
     this->clearError();
-    m_hasProject = false;
+    m_isValid = false;
     m_pathValid = false;
-
     m_storyModel = new StoryModel(this);
 
     QFileInfo fObj(path);
@@ -135,17 +135,22 @@ bool Project::openProject() {
         return false;
     }
 
-    bool mainFile = loadProjectFile();
+    bool main = loadProjectFile();
+    if (main) {
+        bool settings = loadSettingsFile();
+        bool story = loadStoryFile();
+        m_isValid = settings & story;
+    } else {
+        m_isValid = false;
+    }
 
-    m_hasProject = mainFile;
-
-    return m_hasProject;
+    return m_isValid;
 }
 
 bool Project::saveProject() {
 
     qInfo() << "Saving Project:" << m_projectPath.path();
-    if (!m_hasProject) {
+    if (!m_isValid) {
         qWarning() << "No project open, nothing to save";
         return false;
     }
@@ -158,31 +163,8 @@ bool Project::saveProject() {
 }
 
 /**
- * Project Getters
- * ===============
- */
-
-QString Project::projectName() const {
-    Q_D(const Project);
-    return d->m_projectName;
-}
-
-QString Project::bookTitle() const {
-    Q_D(const Project);
-    return d->m_bookTitle;
-}
-
-bool Project::hasProject() const {
-    return m_hasProject;
-}
-
-StoryModel *Project::storyModel() {
-    return m_storyModel;
-}
-
-/**
- * Project Setters
- * ===============
+ * Class Setters
+ * =============
  */
 
 void Project::setProjectName(const QString &name) {
@@ -193,6 +175,28 @@ void Project::setProjectName(const QString &name) {
 void Project::setBookTitle(const QString &title) {
     Q_D(Project);
     d->m_bookTitle = title.simplified();
+}
+
+/**
+ * Class Getters
+ * =============
+ */
+
+QVariant Project::projectValue(const QString &key) const {
+    Q_D(const Project);
+    if (key == "projectName") {
+        return QVariant(d->m_projectName);
+    } else {
+        return QVariant();
+    }
+}
+
+bool Project::isValid() const {
+    return m_isValid;
+}
+
+StoryModel *Project::storyModel() {
+    return m_storyModel;
 }
 
 /**
@@ -299,7 +303,27 @@ bool Project::saveSettingsFile() {
 `*/
 
 bool Project::loadStoryFile() {
-    return true;
+
+    QFile file(m_dataPath.filePath(COL_STORY_FILE_NAME));
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Could not open story file";
+        return false;
+    }
+
+    QJsonParseError *error = new QJsonParseError();
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), error);
+    if (error->error != QJsonParseError::NoError) {
+        qWarning() << "Could not parse story file";
+        qWarning() << error->errorString();
+        return false;
+    }
+
+    if (doc.isObject()) {
+        return m_storyModel->fromJsonObject(doc.object());
+    } else {
+        qWarning() << "Unexpected content of story file";
+        return false;
+    }
 }
 
 bool Project::saveStoryFile() {

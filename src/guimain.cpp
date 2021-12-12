@@ -80,13 +80,17 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
  */
 
 void GuiMain::openProject(const QString &path) {
+
     m_data->openProject(path);
+    if (!m_data->hasProject()) {
+        return;
+    }
 
     QItemSelectionModel *m = m_storyTree->selectionModel();
     m_storyTree->setTreeModel(m_data->storyModel());
     delete m;
 
-    m_mainToolBar->setProjectName(m_data->project()->projectName());
+    m_mainToolBar->setProjectName(m_data->projectValue("projectName").toString());
 };
 
 bool GuiMain::saveProject() {
