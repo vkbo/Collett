@@ -41,7 +41,6 @@ namespace Collett {
  *
  * @param parent the parent object.
  */
-
 StoryModel::StoryModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
@@ -70,6 +69,15 @@ QJsonObject StoryModel::toJsonObject() {
     return m_rootItem->toJsonObject();
 }
 
+/**!
+ * @brief Load story model from JSON object.
+ * 
+ * This function loads the root element data, validates it, and calls the
+ * addChild method of StoryItem on each child element defined within it.
+ * 
+ * @param json the JSON object to be loaded into the model.
+ * @return true if data was loaded successfully, false if an error occurred.
+ */
 bool StoryModel::fromJsonObject(const QJsonObject &json) {
 
     if (m_rootItem->childCount() > 0) {

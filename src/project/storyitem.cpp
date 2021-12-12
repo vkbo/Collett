@@ -35,8 +35,8 @@ namespace Collett {
 /**!
  * @brief Construct a new StoryItem object.
  *
- * @param label the label of the new item.
- * @param type  the type of the new item.
+ * @param label  the label of the new item.
+ * @param type   the type of the new item.
  * @param parent the parent of the new item, optional.
  */
 StoryItem::StoryItem(const QUuid &uuid, const QString &name, ItemType type, StoryItem *parent)
@@ -59,15 +59,16 @@ StoryItem::~StoryItem() {
  */
 
 /**!
- * @brief Class Method
- *
- * Add a child item to the current item.
+ * @brief Add a child item to the current item from user input.
+ * 
+ * Used for adding a new child item from user input. The item's UUID is generated
+ * automatically. All other values are set to their defaults.
  *
  * @param name a label to describe the item.
  * @param type the type of the item.
  * @param pos  the insert position in the child vector. If out of range, the
  *             item is appended.
- * @return     A pointer to the newly added item.
+ * @return a pointer to the newly added item.
  */
 StoryItem *StoryItem::addChild(const QString &name, ItemType type, int pos) {
     if (!this->allowedChild(type)) {
@@ -83,6 +84,16 @@ StoryItem *StoryItem::addChild(const QString &name, ItemType type, int pos) {
     return item;
 }
 
+/**!
+ * @brief Add a child item to the current item from JSON input.
+ * 
+ * Used for adding a new child item when loading data from a JSON file. Values
+ * used for the constructor are validated. Other values will be reset to defaults
+ * if they cannot be processed.
+ * 
+ * @param json the JSON object read from file.
+ * @return a pointer to the newly added item.
+ */
 StoryItem *StoryItem::addChild(const QJsonObject &json) {
 
     if (json.isEmpty()) {
@@ -116,7 +127,20 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
         return nullptr;
     }
 
+    if (handle.isNull()) {
+        qWarning() << "Cannot add story item with invalid handle";
+        return nullptr;
+    }
+
+    if (name.isEmpty()) {
+        name = tr("Unnamed");
+    }
+
     qDebug() << "Adding item with handle" << handle.toString(QUuid::WithoutBraces);
+    if (!this->allowedChild(type)) {
+        qWarning() << "This item cannot be added as a child of this parent";
+        return nullptr;
+    }
     
     StoryItem *item = new StoryItem(handle, name, type, this);
     item->setWordCount(wCount);
