@@ -48,6 +48,7 @@ StoryModel::StoryModel(QObject *parent)
 }
 
 StoryModel::~StoryModel() {
+    qDebug() << "Destructor: StoryModel";
     delete m_rootItem;
 }
 

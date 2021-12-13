@@ -108,6 +108,7 @@ CollettSettings::CollettSettings()
 }
 
 CollettSettings::~CollettSettings() {
+    qDebug() << "Destructor: CollettSettings";
     flushSettings();
 }
 

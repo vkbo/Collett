@@ -119,6 +119,7 @@ Project::Project(const QString &path)
 }
 
 Project::~Project() {
+    qDebug() << "Destructor: Project";
     delete m_storyModel;
 }
 

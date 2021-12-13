@@ -52,6 +52,7 @@ public:
 
     bool openProject(const QString &path);
     bool saveProject();
+    void closeProject();
 
     // Class Getters
 

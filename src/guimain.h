@@ -44,7 +44,7 @@ class GuiMain : public QMainWindow
 
 public:
     GuiMain(QWidget *parent=nullptr);
-    ~GuiMain() {};
+    ~GuiMain();
 
     void openProject(const QString &path);
     bool saveProject();

@@ -74,6 +74,11 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     return;
 }
 
+GuiMain::~GuiMain() {
+    qDebug() << "Destructor: GuiMain";
+    delete m_data;
+}
+
 /**
  * Project Functions
  * =================
@@ -109,6 +114,7 @@ bool GuiMain::closeProject() {
 bool GuiMain::closeMain() {
 
     m_data->saveProject();
+    m_data->closeProject();
 
     // Save Settings
     CollettSettings *mainConf = CollettSettings::instance();

@@ -40,7 +40,7 @@ public:
 
     CollettDataPrivate() {};
     ~CollettDataPrivate() {
-        qDebug() << "Deconstructing: CollettDataPrivate";
+        qDebug() << "Destructor: CollettDataPrivate";
         m_project.reset();
     };
 
@@ -88,7 +88,9 @@ CollettData::CollettData() : d_ptr(new CollettDataPrivate()) {
     Q_D(CollettData);
 }
 
-CollettData::~CollettData() {}
+CollettData::~CollettData() {
+    qDebug() << "Destructor: CollettData";
+}
 
 /**
  * Public Class Methods
@@ -117,6 +119,11 @@ bool CollettData::saveProject() {
     } else {
         return false;
     }
+}
+
+void CollettData::closeProject() {
+    Q_D(CollettData);
+    d->clearProject();
 }
 
 /**
