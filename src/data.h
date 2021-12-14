@@ -30,24 +30,19 @@
 #include <QString>
 #include <QWidget>
 #include <QVariant>
+#include <QScopedPointer>
 
 namespace Collett {
 
-class CollettDataPrivate;
 class CollettData : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(CollettData)
 
 public:
     static CollettData *instance();
     ~CollettData();
-
-private:
-    QScopedPointer<CollettDataPrivate> d_ptr;
     CollettData();
 
-public:
     // Class Methods
 
     bool openProject(const QString &path);
@@ -57,8 +52,12 @@ public:
     // Class Getters
 
     bool hasProject() const;
-    QVariant projectValue(const QString &key) const;
+    Project *project();
     StoryModel *storyModel();
+
+private:
+    static CollettData *staticInstance;
+    QScopedPointer<Project> m_project;
 
 };
 } // namespace Collett

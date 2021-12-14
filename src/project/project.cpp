@@ -37,38 +37,17 @@
 namespace Collett {
 
 /**
- * Project Private Class
- * =====================
+ * Class Constructor/Destructor
+ * ============================
  */
 
-class ProjectPrivate
-{
-public:
-    ProjectPrivate() {};
-    ~ProjectPrivate() {};
-
-    // Project
-    QString m_projectName = "New Project";
-    QString m_bookTitle = "New Project";
-
-    // Meta
-    QDateTime m_createdTime = QDateTime::currentDateTime();
-};
-
-/**
- * Project Class Constructor/Destructor
- * ====================================
- */
-
-Project::Project(const QString &path)
-    : d_ptr(new ProjectPrivate())
-{
-    Q_D(Project);
+Project::Project(const QString &path) {
 
     this->clearError();
     m_isValid = false;
     m_pathValid = false;
     m_storyModel = new StoryModel(this);
+    m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
 
     QFileInfo fObj(path);
     if (!fObj.exists()) {
@@ -169,13 +148,7 @@ bool Project::saveProject() {
  */
 
 void Project::setProjectName(const QString &name) {
-    Q_D(Project);
-    d->m_projectName = name.simplified();
-}
-
-void Project::setBookTitle(const QString &title) {
-    Q_D(Project);
-    d->m_bookTitle = title.simplified();
+    m_projectName = name.simplified();
 }
 
 /**
@@ -183,13 +156,8 @@ void Project::setBookTitle(const QString &title) {
  * =============
  */
 
-QVariant Project::projectValue(const QString &key) const {
-    Q_D(const Project);
-    if (key == "projectName") {
-        return QVariant(d->m_projectName);
-    } else {
-        return QVariant();
-    }
+QString Project::projectName() const {
+    return m_projectName;
 }
 
 bool Project::isValid() const {
@@ -265,15 +233,13 @@ bool Project::loadSettingsFile() {
 }
 
 bool Project::saveSettingsFile() {
-    Q_D(Project);
 
     QJsonObject jData, jMeta, jProject, jSettings;
 
-    jMeta["created"] = d->m_createdTime.toString(Qt::ISODate);
+    jMeta["created"] = m_createdTime;
     jMeta["updated"] = QDateTime::currentDateTime().toString(Qt::ISODate);
 
-    jProject["bookTitle"] = d->m_bookTitle;
-    jProject["projectName"] = d->m_projectName;
+    jProject["projectName"] = m_projectName;
 
     jData["meta"] = jMeta;
     jData["project"] = jProject;

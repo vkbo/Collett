@@ -23,89 +23,45 @@
 #include "project.h"
 #include "storymodel.h"
 
+#include <QString>
 #include <QWidget>
-#include <QDir>
+#include <QVariant>
 
 namespace Collett {
 
 /**
- * Private Class Declaration
- * =========================
+ * Class Constructor/Destructor/Instance
+ * =====================================
  */
 
-class CollettDataPrivate
-{
-public:
-    static CollettData *instance;
-
-    CollettDataPrivate() {};
-    ~CollettDataPrivate() {
-        qDebug() << "Destructor: CollettDataPrivate";
-        m_project.reset();
-    };
-
-    bool isValid() const {
-        if (m_project.isNull()) {
-            return false;
-        } else {
-            return m_project.data()->isValid();
-        }
-    }
-
-    Project *project() const {
-        return m_project.data();
-    }
-
-    void newProject(const QString &path) {
-        m_project.reset(new Project(path));
-    }
-
-    void clearProject() {
-        m_project.reset(nullptr);
-    }
-
-private:
-    QScopedPointer<Project> m_project;
-
-};
-
-/**
- * Public Class Contruction/Deconstruction
- * =======================================
- */
-
-CollettData *CollettDataPrivate::instance = nullptr;
-
+CollettData *CollettData::staticInstance = nullptr;
 CollettData *CollettData::instance() {
-    if (CollettDataPrivate::instance == nullptr) {
-        CollettDataPrivate::instance = new CollettData();
-        qDebug() << "CollettData instance created";
+    if (staticInstance == nullptr) {
+        staticInstance = new CollettData();
+        qDebug() << "Constructor: CollettData";
     }
-    return CollettDataPrivate::instance;
+    return staticInstance;
 }
 
-CollettData::CollettData() : d_ptr(new CollettDataPrivate()) {
-    Q_D(CollettData);
-}
-
+CollettData::CollettData() {}
 CollettData::~CollettData() {
     qDebug() << "Destructor: CollettData";
+    m_project.reset();
 }
 
 /**
- * Public Class Methods
- * ====================
+ * Class Methods
+ * =============
  */
 
 bool CollettData::openProject(const QString &path) {
-    Q_D(CollettData);
 
-    d->newProject(path);
-    if (!d->project()->hasError()) {
-        d->project()->openProject();
+    m_project.reset(new Project(path));
+    if (!m_project.data()->hasError()) {
+        m_project.data()->openProject();
     }
-    if (!d->project()->isValid()) {
-        d->clearProject();
+    if (!m_project.data()->isValid()) {
+        m_project.reset(nullptr);
         return false;
     }
 
@@ -113,42 +69,41 @@ bool CollettData::openProject(const QString &path) {
 }
 
 bool CollettData::saveProject() {
-    Q_D(CollettData);
-    if (d->isValid()) {
-        return d->project()->saveProject();
+    if (hasProject()) {
+        return m_project.data()->saveProject();
     } else {
         return false;
     }
 }
 
 void CollettData::closeProject() {
-    Q_D(CollettData);
-    d->clearProject();
+    m_project.reset(nullptr);
 }
 
 /**
- * Public Class Getters
- * ====================
+ * Class Getters
+ * =============
  */
 
 bool CollettData::hasProject() const {
-    Q_D(const CollettData);
-    return d->isValid();
+    if (m_project.isNull()) {
+        return false;
+    } else {
+        return m_project.data()->isValid();
+    }
 }
 
-QVariant CollettData::projectValue(const QString &key) const {
-    Q_D(const CollettData);
-    if (d->isValid()) {
-        return d->project()->projectValue(key);
+Project *CollettData::project() {
+    if (hasProject()) {
+        return m_project.data();
     } else {
-        return QVariant();
+        return nullptr;
     }
 }
 
 StoryModel *CollettData::storyModel() {
-    Q_D(CollettData);
-    if (d->isValid()) {
-        return d->project()->storyModel();
+    if (hasProject()) {
+        return m_project.data()->storyModel();
     } else {
         return nullptr;
     }

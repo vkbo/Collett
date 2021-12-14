@@ -95,7 +95,7 @@ void GuiMain::openProject(const QString &path) {
     m_storyTree->setTreeModel(m_data->storyModel());
     delete m;
 
-    m_mainToolBar->setProjectName(m_data->projectValue("projectName").toString());
+    m_mainToolBar->setProjectName(m_data->project()->projectName());
 };
 
 bool GuiMain::saveProject() {

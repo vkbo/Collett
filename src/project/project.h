@@ -28,24 +28,17 @@
 #include <QDir>
 #include <QObject>
 #include <QString>
-#include <QVariant>
 
 namespace Collett {
 
-class ProjectPrivate;
 class Project : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Project)
 
 public:
     Project(const QString &path);
     ~Project();
 
-private:
-    QScopedPointer<ProjectPrivate> d_ptr;
-
-public:
     // Class Methods
 
     bool openProject();
@@ -54,11 +47,10 @@ public:
     // Class Setters
 
     void setProjectName(const QString &name);
-    void setBookTitle(const QString &title);
 
     // Class Getters
 
-    QVariant projectValue(const QString &key) const;
+    QString projectName() const;
     bool isValid() const;
     StoryModel *storyModel();
 
@@ -85,6 +77,11 @@ private:
 
     QString m_collettVersion = "";
     QString m_projectVersion = "";
+    QString m_createdTime = "";
+
+    // Project Details
+
+    QString m_projectName = "New Project";
 
     // Content
 
