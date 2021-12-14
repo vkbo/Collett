@@ -76,6 +76,7 @@ include_directories(
     src/editor
     src/gui
     src/project
+    src/tools
     src
 )
 
@@ -90,6 +91,7 @@ list(APPEND SRC_FILES
     src/project/project
     src/project/storyitem
     src/project/storymodel
+    src/tools/datautils
     src/data
     src/guimain
     src/main

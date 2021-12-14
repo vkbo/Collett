@@ -1,11 +1,10 @@
 {
     "meta": {
-        "created": "2021-12-06T00:18:31",
-        "updated": "2021-12-06T00:18:49"
+        "created": "2021-12-14T22:24:25",
+        "updated": "2021-12-14T22:44:03"
     },
     "project": {
-        "bookTitle": "New Project",
-        "projectName": "New Project"
+        "projectName": "Sample Project"
     },
     "settings": {
     }

@@ -22,6 +22,7 @@
 #include "collett.h"
 #include "project.h"
 #include "storymodel.h"
+#include "datautils.h"
 
 #include <QDir>
 #include <QFile>
@@ -229,6 +230,33 @@ bool Project::saveProjectFile() {
  */
 
 bool Project::loadSettingsFile() {
+
+    QFile file(m_dataPath.filePath(COL_SETTINGS_FILE_NAME));
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Could not open settings file";
+        return false;
+    }
+
+    QJsonParseError *error = new QJsonParseError();
+    QJsonDocument json = QJsonDocument::fromJson(file.readAll(), error);
+    if (error->error != QJsonParseError::NoError) {
+        qWarning() << "Could not parse story file";
+        qWarning() << error->errorString();
+        return false;
+    }
+
+    if (!json.isObject()) {
+        qWarning() << "Unexpected content of settings file";
+        return false;
+    }
+    QJsonObject jData = json.object();
+    QJsonObject jMeta = jData["meta"].toObject();
+    QJsonObject jProject = jData["project"].toObject();
+    QJsonObject jSettings = jData["settings"].toObject();
+
+    m_createdTime = DataUtils::getJsonString(jMeta, "created", "Unknown");
+    m_projectName = DataUtils::getJsonString(jProject, "projectName", tr("Unnamed Project"));
+
     return true;
 }
 
