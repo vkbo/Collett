@@ -73,6 +73,7 @@ qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 
 # Source Folders
 include_directories(
+    src/core
     src/editor
     src/gui
     src/project
@@ -82,6 +83,8 @@ include_directories(
 
 # Source Files
 list(APPEND SRC_FILES
+    src/core/data
+    src/core/storage
     src/editor/doceditor
     src/gui/maintoolbar
     src/gui/statusbar
@@ -92,7 +95,6 @@ list(APPEND SRC_FILES
     src/project/storyitem
     src/project/storymodel
     src/tools/datautils
-    src/data
     src/guimain
     src/main
     src/settings
