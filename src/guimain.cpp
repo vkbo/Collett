@@ -124,6 +124,9 @@ bool GuiMain::closeMain() {
     }
     mainConf->flushSettings();
 
+    CollettIcons::destroy();
+    CollettSettings::destroy();
+
     return true;
 }
 

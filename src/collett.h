@@ -26,9 +26,4 @@
 #define COL_VERSION_NUM  0x000001a0
 #define COL_VERSION_DATE "2021-11-14"
 
-#define COL_PROJECT_FILE_NAME  "project.collett"
-#define COL_SETTINGS_FILE_NAME "project.json"
-#define COL_STORY_FILE_NAME    "story.json"
-#define COL_NOTES_FILE_NAME    "notes.json"
-
 #endif // COLLETT_H

@@ -131,9 +131,9 @@ StoryModel *Project::storyModel() {
 }
 
 /**
- * Settings FIle
+ * Settings File
  * =============
- * Load and save functions for the data/project.json file.
+ * Load and save functions for the project/project.json file.
  *
  * This file contains all the meta data and options for the Collett project,
  * except for the project content itself (the documents).
@@ -180,7 +180,7 @@ bool Project::saveSettingsFile() {
 /**
  * Story File
  * ==========
- * Load and save functions for the data/story.json file.
+ * Load and save functions for the project/story.json file.
  *
  * This file contains the structure of StoryItems contained in the StoryModel.
  * The structure is contained as child items under a single root item, and is
