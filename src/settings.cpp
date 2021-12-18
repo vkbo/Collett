@@ -82,9 +82,15 @@ CollettSettings *CollettSettingsPrivate::instance = nullptr;
 CollettSettings *CollettSettings::instance() {
     if (CollettSettingsPrivate::instance == nullptr) {
         CollettSettingsPrivate::instance = new CollettSettings();
-        qDebug() << "CollettSettings instance created";
+        qDebug() << "Constructor: CollettSettings";
     }
     return CollettSettingsPrivate::instance;
+}
+
+void CollettSettings::destroy() {
+    if (CollettSettingsPrivate::instance != nullptr) {
+        delete CollettSettingsPrivate::instance;
+    }
 }
 
 CollettSettings::CollettSettings()
@@ -109,7 +115,6 @@ CollettSettings::CollettSettings()
 
 CollettSettings::~CollettSettings() {
     qDebug() << "Destructor: CollettSettings";
-    flushSettings();
 }
 
 /**

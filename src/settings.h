@@ -39,6 +39,7 @@ class CollettSettings : public QObject
 
 public:
     static CollettSettings *instance();
+    static void destroy();
     ~CollettSettings();
 
 private:
