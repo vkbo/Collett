@@ -22,17 +22,56 @@
 #ifndef COLLETT_STORAGE_H
 #define COLLETT_STORAGE_H
 
+#include <QDir>
+#include <QUuid>
 #include <QObject>
+#include <QString>
+#include <QJsonObject>
 
 namespace Collett {
 
-class CollettStorage : public QObject
+class Storage : public QObject
 {
     Q_OBJECT
 
 public:
-    ~CollettStorage();
-    CollettStorage();
+    enum Mode{Folder, Archive};
+
+    explicit Storage(const QString &path, Mode mode, bool compact=false);
+    ~Storage();
+
+    // Class Methods
+
+    bool loadFile(const QString &fileName, QJsonObject &fileData);
+    bool loadFile(const QUuid &fileUuid, QJsonObject &fileData);
+    bool saveFile(const QString &fileName, const QJsonObject &fileData);
+    bool saveFile(const QUuid &fileUuid, const QJsonObject &fileData);
+    bool loadProjectFile();
+    bool saveProjectFile();
+
+    bool isValid();
+    QString projectPath() const;
+    bool hasError();
+    QString lastError() const;
+
+    // Static Methods
+
+    static QString getJsonString(const QJsonObject &object, const QString &key, QString def);
+
+private:
+    bool readJson(const QString &filePath, QJsonObject &fileData);
+    bool writeJson(const QString &filePath, const QJsonObject &fileData);
+    bool ensureFolder(const QString &folder);
+
+    QDir m_rootPath;
+    Mode m_saveMode;
+    bool m_compactJson;
+
+    QString m_collettVersion = "";
+    QString m_projectVersion = "";
+
+    bool m_isValid = false;
+    QString m_lastError = "";
 
 };
 } // namespace Collett

@@ -23,6 +23,7 @@
 #define COLLETT_PROJECT_H
 
 #include "collett.h"
+#include "storage.h"
 #include "storymodel.h"
 
 #include <QDir>
@@ -43,6 +44,7 @@ public:
 
     bool openProject();
     bool saveProject();
+    bool isValid() const;
 
     // Class Setters
 
@@ -51,27 +53,17 @@ public:
     // Class Getters
 
     QString projectName() const;
-    bool isValid() const;
     StoryModel *storyModel();
 
     // Error Handling
 
     bool hasError() const;
-    void clearError();
     QString lastError() const;
 
 private:
     bool    m_isValid;
-    bool    m_hasError;
     QString m_lastError;
-
-    // Project Paths
-
-    QDir m_projectPath;
-    QDir m_projectFile;
-    QDir m_contentPath;
-    QDir m_dataPath;
-    bool m_pathValid;
+    Storage *m_store;
 
     // Project Meta
 
@@ -89,16 +81,10 @@ private:
 
     // File Load & Save
 
-    bool loadProjectFile();
-    bool saveProjectFile();
     bool loadSettingsFile();
     bool saveSettingsFile();
     bool loadStoryFile();
     bool saveStoryFile();
-
-    // Error Handling
-
-    void setError(const QString &error);
 
 };
 } // namespace Collett

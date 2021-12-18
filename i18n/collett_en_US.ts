@@ -133,20 +133,37 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="55"/>
-        <location filename="../src/project/project.cpp" line="67"/>
-        <source>Project not found at: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/project.cpp" line="82"/>
-        <location filename="../src/project/project.cpp" line="90"/>
-        <source>Could not create folder: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/project.cpp" line="258"/>
+        <location filename="../src/project/project.cpp" line="155"/>
         <source>Unnamed Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Collett::Storage</name>
+    <message>
+        <location filename="../src/core/storage.cpp" line="55"/>
+        <source>Could not find or create project storage folder: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/storage.cpp" line="200"/>
+        <location filename="../src/core/storage.cpp" line="228"/>
+        <source>Could not open file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/storage.cpp" line="208"/>
+        <source>Could not parse file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/storage.cpp" line="215"/>
+        <source>Unexpected content of file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/storage.cpp" line="251"/>
+        <source>Could not create folder: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
