@@ -51,7 +51,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-Wall -g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 set(CMAKE_PREFIX_PATH "lib/qt6")
 
 set(QT_DEFAULT_MAJOR_VERSION 6)
-find_package(Qt6 COMPONENTS Core Widgets LinguistTools REQUIRED)
+find_package(Qt6 COMPONENTS Core Widgets LinguistTools Svg REQUIRED)
 if(Qt6Core_FOUND)
     message(STATUS "Found Qt6Core Version: ${Qt6Core_VERSION}")
 endif()
@@ -83,7 +83,9 @@ include_directories(
 # Source Files
 list(APPEND SRC_FILES
     src/core/data
+    src/core/icons
     src/core/storage
+    src/core/svgiconengine
     src/editor/doceditor
     src/gui/maintoolbar
     src/gui/statusbar
@@ -107,5 +109,5 @@ set(QRC_FILES
 
 qt_add_executable(Collett ${SRC_FILES} ${QRC_FILES} ${TS_FILES})
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")
-target_link_libraries(Collett PRIVATE Qt::Widgets)
+target_link_libraries(Collett PRIVATE Qt::Widgets Qt::Svg)
 target_compile_definitions(Collett PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
