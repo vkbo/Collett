@@ -45,14 +45,19 @@ public:
 private:
     QLabel *m_projectName;
 
-    // Main Actions
+    // Project Menu
     QToolButton *m_projectButton;
     QMenu       *m_projectMenu;
     QAction     *m_newProject;
     QAction     *m_openProject;
     QAction     *m_saveProject;
 
+    // DropDown Menu
+    QToolButton *m_moreButton;
+    QMenu       *m_moreMenu;
+
     void buildProjectMenu();
+    void buildMoreMenu();
 
 };
 } // namespace Collett

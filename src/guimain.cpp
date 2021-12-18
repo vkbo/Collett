@@ -19,14 +19,15 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "guimain.h"
 #include "data.h"
-#include "settings.h"
+#include "doceditor.h"
+#include "guimain.h"
+#include "icons.h"
 #include "maintoolbar.h"
-#include "treetoolbar.h"
+#include "settings.h"
 #include "statusbar.h"
 #include "storytree.h"
-#include "doceditor.h"
+#include "treetoolbar.h"
 
 #include <QString>
 #include <QWidget>

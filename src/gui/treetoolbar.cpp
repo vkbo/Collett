@@ -20,10 +20,11 @@
 */
 
 #include "treetoolbar.h"
+#include "icons.h"
 
 #include <QObject>
-#include <QToolBar>
 #include <QWidget>
+#include <QToolBar>
 #include <QSizePolicy>
 
 namespace Collett {
@@ -34,10 +35,12 @@ GuiTreeToolBar::GuiTreeToolBar(QWidget *parent)
     QWidget *stretch = new QWidget(this);
     stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+    CollettIcons *icons = CollettIcons::instance();
+
     this->setOrientation(Qt::Vertical);
-    this->addAction(tr("Story"));
+    this->addAction(icons->icon("book"), tr("Story"));
     this->addWidget(stretch);
-    this->addAction(tr("Settings"));
+    this->addAction(icons->icon("settings"), tr("Settings"));
 }
 
 } // namespace Collett

@@ -4,7 +4,7 @@
 <context>
     <name>Collett::GuiMain</name>
     <message>
-        <location filename="../src/guimain.cpp" line="71"/>
+        <location filename="../src/guimain.cpp" line="72"/>
         <source>%1 %2 Version %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12,32 +12,32 @@
 <context>
     <name>Collett::GuiMainToolBar</name>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="41"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="42"/>
         <source>No Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="66"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="69"/>
         <source>New Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="69"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="72"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="72"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="75"/>
         <source>Save Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="76"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="79"/>
         <source>Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="48"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="96"/>
         <source>Menu</source>
         <translation type="unfinished"></translation>
     </message>
@@ -120,12 +120,12 @@
 <context>
     <name>Collett::GuiTreeToolBar</name>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="38"/>
+        <location filename="../src/gui/treetoolbar.cpp" line="41"/>
         <source>Story</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="40"/>
+        <location filename="../src/gui/treetoolbar.cpp" line="43"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>

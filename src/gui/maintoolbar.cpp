@@ -20,6 +20,7 @@
 */
 
 #include "maintoolbar.h"
+#include "icons.h"
 
 #include <QObject>
 #include <QToolBar>
@@ -45,7 +46,7 @@ GuiMainToolBar::GuiMainToolBar(QWidget *parent)
     this->addWidget(stretch1);
     this->addWidget(m_projectName);
     this->addWidget(stretch2);
-    this->addAction(tr("Menu"));
+    this->buildMoreMenu();
 }
 
 void GuiMainToolBar::setProjectName(const QString &name) {
@@ -58,6 +59,8 @@ void GuiMainToolBar::setProjectName(const QString &name) {
  */
 
 void GuiMainToolBar::buildProjectMenu() {
+
+    CollettIcons *icons = CollettIcons::instance();
 
     // Menu
     m_projectMenu = new QMenu(this);
@@ -74,9 +77,27 @@ void GuiMainToolBar::buildProjectMenu() {
     // Assemble
     m_projectButton = new QToolButton(this);
     m_projectButton->setText(tr("Project"));
+    m_projectButton->setIcon(icons->icon("archive"));
     m_projectButton->setMenu(m_projectMenu);
     m_projectButton->setPopupMode(QToolButton::InstantPopup);
     this->addWidget(m_projectButton);
+
+}
+
+void GuiMainToolBar::buildMoreMenu() {
+
+    CollettIcons *icons = CollettIcons::instance();
+
+    // Menu
+    m_moreMenu = new QMenu(this);
+
+    // Assemble
+    m_moreButton = new QToolButton(this);
+    m_moreButton->setText(tr("Menu"));
+    m_moreButton->setIcon(icons->icon("more"));
+    m_moreButton->setMenu(m_moreMenu);
+    m_moreButton->setPopupMode(QToolButton::InstantPopup);
+    this->addWidget(m_moreButton);
 
 }
 
