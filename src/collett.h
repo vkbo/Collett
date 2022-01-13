@@ -32,6 +32,7 @@ namespace Collett {
 
     const QLatin1String ColNsCollett = QLatin1String("urn:collett:names:collettdoc:xmlns:collett:1.0");
     const QLatin1String ColNsConfig  = QLatin1String("urn:collett:names:collettdoc:xmlns:config:1.0");
+    const QLatin1String ColNsItem    = QLatin1String("urn:collett:names:collettdoc:xmlns:item:1.0");
     const QLatin1String ColNsMeta    = QLatin1String("urn:collett:names:collettdoc:xmlns:meta:1.0");
     const QLatin1String ColNsStyle   = QLatin1String("urn:collett:names:collettdoc:xmlns:style:1.0");
     const QLatin1String ColNsText    = QLatin1String("urn:collett:names:collettdoc:xmlns:text:1.0");

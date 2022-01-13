@@ -116,10 +116,11 @@ bool Project::saveProject() {
 
     QXmlStreamWriter xmlWriter(&outFile);
     xmlWriter.setAutoFormatting(true);
-    xmlWriter.setAutoFormattingIndent(1);
+    xmlWriter.setAutoFormattingIndent(2);
     xmlWriter.writeStartDocument();
     xmlWriter.writeNamespace(Collett::ColNsCollett, "collett");
     xmlWriter.writeNamespace(Collett::ColNsConfig, "config");
+    xmlWriter.writeNamespace(Collett::ColNsItem, "item");
     xmlWriter.writeNamespace(Collett::ColNsMeta, "meta");
     xmlWriter.writeNamespace(Collett::ColNsStyle, "style");
     xmlWriter.writeNamespace(Collett::ColNsText, "text");
@@ -133,13 +134,14 @@ bool Project::saveProject() {
     writeMetaXML(xmlWriter);
     writeSettingsXML(xmlWriter);
     writeStylesXML(xmlWriter);
+    writeStructureXML(xmlWriter);
     writeContentXML(xmlWriter);
     writeExtraXML(xmlWriter);
 
     // Close XML File
 
-    xmlWriter.writeEndElement(); // Close: project
-    xmlWriter.writeEndDocument(); // Close: Document
+    xmlWriter.writeEndElement(); // project
+    xmlWriter.writeEndDocument(); // Document
     outFile.close();
 
     return main & settings & story;
@@ -263,7 +265,7 @@ void Project::writeMetaXML(QXmlStreamWriter &xmlWriter) {
     xmlWriter.writeCharacters(QDateTime::currentDateTime().toString(Qt::ISODate));
     xmlWriter.writeEndElement();
 
-    xmlWriter.writeEndElement(); // Close: meta
+    xmlWriter.writeEndElement(); // meta
 
     return;
 }
@@ -271,7 +273,7 @@ void Project::writeMetaXML(QXmlStreamWriter &xmlWriter) {
 void Project::writeSettingsXML(QXmlStreamWriter &xmlWriter) {
 
     xmlWriter.writeStartElement(Collett::ColNsCollett, "settings");
-    xmlWriter.writeEndElement(); // Close: settings
+    xmlWriter.writeEndElement(); // settings
 
     return;
 }
@@ -279,7 +281,18 @@ void Project::writeSettingsXML(QXmlStreamWriter &xmlWriter) {
 void Project::writeStylesXML(QXmlStreamWriter &xmlWriter) {
 
     xmlWriter.writeStartElement(Collett::ColNsCollett, "styles");
-    xmlWriter.writeEndElement(); // Close: styles
+    xmlWriter.writeEndElement(); // styles
+
+    return;
+}
+
+void Project::writeStructureXML(QXmlStreamWriter &xmlWriter) {
+
+    xmlWriter.writeStartElement(Collett::ColNsCollett, "structure");
+
+    m_storyModel->writeXML(xmlWriter);
+
+    xmlWriter.writeEndElement(); // structure
 
     return;
 }
@@ -289,12 +302,12 @@ void Project::writeContentXML(QXmlStreamWriter &xmlWriter) {
     xmlWriter.writeStartElement(Collett::ColNsCollett, "content");
 
     xmlWriter.writeStartElement(Collett::ColNsCollett, "story");
-    xmlWriter.writeEndElement(); // Close: story
+    xmlWriter.writeEndElement(); // story
 
     xmlWriter.writeStartElement(Collett::ColNsCollett, "notes");
-    xmlWriter.writeEndElement(); // Close: notes
+    xmlWriter.writeEndElement(); // notes
 
-    xmlWriter.writeEndElement(); // Close: content
+    xmlWriter.writeEndElement(); // content
 
     return;
 }
@@ -302,7 +315,7 @@ void Project::writeContentXML(QXmlStreamWriter &xmlWriter) {
 void Project::writeExtraXML(QXmlStreamWriter &xmlWriter) {
 
     xmlWriter.writeStartElement(Collett::ColNsCollett, "extra");
-    xmlWriter.writeEndElement(); // Close: extra
+    xmlWriter.writeEndElement(); // extra
 
     return;
 }

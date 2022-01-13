@@ -26,6 +26,7 @@
 #include <QVector>
 #include <QVariant>
 #include <QJsonObject>
+#include <QXmlStreamWriter>
 
 namespace Collett {
 
@@ -45,6 +46,7 @@ public:
     StoryItem *addChild(const QJsonObject &json);
     QJsonObject toJsonObject();
     static StoryItem* fromJsonObject(const QJsonObject &json, StoryItem *parentItem=nullptr);
+    void writeXML(QXmlStreamWriter &xmlWriter);
     bool allowedChild(ItemType type) const;
     bool allowedSibling(ItemType type) const;
 

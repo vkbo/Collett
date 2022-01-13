@@ -28,6 +28,7 @@
 #include <QString>
 #include <QJsonObject>
 #include <QModelIndex>
+#include <QXmlStreamWriter>
 #include <QAbstractItemModel>
 
 namespace Collett {
@@ -46,6 +47,7 @@ public:
 
     QJsonObject toJsonObject();
     bool fromJsonObject(const QJsonObject &json);
+    void writeXML(QXmlStreamWriter &xmlWriter);
     bool addItem(StoryItem *relativeTo, StoryItem::ItemType type, AddLocation loc);
     bool isEmpty();
 

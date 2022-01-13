@@ -29,6 +29,7 @@
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QModelIndex>
+#include <QXmlStreamWriter>
 #include <QAbstractItemModel>
 
 namespace Collett {
@@ -121,6 +122,10 @@ bool StoryModel::fromJsonObject(const QJsonObject &json) {
     emit endResetModel();
 
     return true;
+}
+
+void StoryModel::writeXML(QXmlStreamWriter &xmlWriter) {
+    m_rootItem->writeXML(xmlWriter);
 }
 
 /**!

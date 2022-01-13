@@ -93,6 +93,7 @@ private:
     void writeMetaXML(QXmlStreamWriter &xmlWriter);
     void writeSettingsXML(QXmlStreamWriter &xmlWriter);
     void writeStylesXML(QXmlStreamWriter &xmlWriter);
+    void writeStructureXML(QXmlStreamWriter &xmlWriter);
     void writeContentXML(QXmlStreamWriter &xmlWriter);
     void writeExtraXML(QXmlStreamWriter &xmlWriter);
 
