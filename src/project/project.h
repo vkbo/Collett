@@ -29,6 +29,7 @@
 #include <QDir>
 #include <QObject>
 #include <QString>
+#include <QXmlStreamWriter>
 
 namespace Collett {
 
@@ -71,8 +72,9 @@ private:
     QString m_projectVersion = "";
     QString m_createdTime = "";
 
-    // Project Details
+    // Project Settings
 
+    QString m_projectFile = "New Project.collett";
     QString m_projectName = "New Project";
 
     // Content
@@ -85,6 +87,14 @@ private:
     bool saveSettingsFile();
     bool loadStoryFile();
     bool saveStoryFile();
+
+    // XML Writers
+
+    void writeMetaXML(QXmlStreamWriter &xmlWriter);
+    void writeSettingsXML(QXmlStreamWriter &xmlWriter);
+    void writeStylesXML(QXmlStreamWriter &xmlWriter);
+    void writeContentXML(QXmlStreamWriter &xmlWriter);
+    void writeExtraXML(QXmlStreamWriter &xmlWriter);
 
 };
 } // namespace Collett

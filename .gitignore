@@ -1,2 +1,8 @@
 # Third Party
 /lib
+
+# Build Products
+docs/**/*.pdf
+
+# Temp Files
+.~*#

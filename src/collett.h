@@ -26,4 +26,18 @@
 #define COL_VERSION_NUM  0x000001a0
 #define COL_VERSION_DATE "2021-11-14"
 
+#include <QLatin1String>
+
+namespace Collett {
+
+    const QLatin1String ColNsCollett = QLatin1String("urn:collett:names:collettdoc:xmlns:collett:1.0");
+    const QLatin1String ColNsConfig  = QLatin1String("urn:collett:names:collettdoc:xmlns:config:1.0");
+    const QLatin1String ColNsMeta    = QLatin1String("urn:collett:names:collettdoc:xmlns:meta:1.0");
+    const QLatin1String ColNsStyle   = QLatin1String("urn:collett:names:collettdoc:xmlns:style:1.0");
+    const QLatin1String ColNsText    = QLatin1String("urn:collett:names:collettdoc:xmlns:text:1.0");
+
+    const QLatin1String XmlNsDC      = QLatin1String("http://purl.org/dc/elements/1.1/");
+
+} // namespace Collett
+
 #endif // COLLETT_H

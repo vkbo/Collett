@@ -32,8 +32,10 @@
 #include <QIODevice>
 #include <QByteArray>
 #include <QTextStream>
+#include <QApplication>
 #include <QJsonDocument>
 #include <QJsonParseError>
+#include <QXmlStreamWriter>
 
 namespace Collett {
 
@@ -100,6 +102,45 @@ bool Project::saveProject() {
     bool main = m_store->saveProjectFile();
     bool settings = saveSettingsFile();
     bool story = saveStoryFile();
+
+    // Open XML File
+
+    QDir projPath(m_store->projectPath());
+    QString projFile = projPath.filePath(m_projectFile);
+    QFile outFile(projFile);
+    if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        m_lastError = tr("Could not write project file: %1").arg(projFile);
+        qWarning() << "Could not write project file:" << projFile;
+        return false;
+    }
+
+    QXmlStreamWriter xmlWriter(&outFile);
+    xmlWriter.setAutoFormatting(true);
+    xmlWriter.setAutoFormattingIndent(1);
+    xmlWriter.writeStartDocument();
+    xmlWriter.writeNamespace(Collett::ColNsCollett, "collett");
+    xmlWriter.writeNamespace(Collett::ColNsConfig, "config");
+    xmlWriter.writeNamespace(Collett::ColNsMeta, "meta");
+    xmlWriter.writeNamespace(Collett::ColNsStyle, "style");
+    xmlWriter.writeNamespace(Collett::ColNsText, "text");
+    xmlWriter.writeNamespace(Collett::XmlNsDC, "dc");
+    xmlWriter.writeStartElement(Collett::ColNsCollett, "project");
+    xmlWriter.writeAttribute(Collett::ColNsMeta, "file-version", "1.0-draft");
+    xmlWriter.writeAttribute(Collett::ColNsMeta, "app-version", qApp->applicationVersion());
+
+    // Write Data
+
+    writeMetaXML(xmlWriter);
+    writeSettingsXML(xmlWriter);
+    writeStylesXML(xmlWriter);
+    writeContentXML(xmlWriter);
+    writeExtraXML(xmlWriter);
+
+    // Close XML File
+
+    xmlWriter.writeEndElement(); // Close: project
+    xmlWriter.writeEndDocument(); // Close: Document
+    outFile.close();
 
     return main & settings & story;
 }
@@ -203,6 +244,67 @@ bool Project::saveStoryFile() {
         return false;
     }
     return true;
+}
+
+/**
+ * XML Writers
+ * ===========
+ */
+
+void Project::writeMetaXML(QXmlStreamWriter &xmlWriter) {
+
+    xmlWriter.writeStartElement(Collett::ColNsCollett, "meta");
+
+    xmlWriter.writeStartElement(Collett::XmlNsDC, "created");
+    xmlWriter.writeCharacters(m_createdTime);
+    xmlWriter.writeEndElement();
+
+    xmlWriter.writeStartElement(Collett::XmlNsDC, "date");
+    xmlWriter.writeCharacters(QDateTime::currentDateTime().toString(Qt::ISODate));
+    xmlWriter.writeEndElement();
+
+    xmlWriter.writeEndElement(); // Close: meta
+
+    return;
+}
+
+void Project::writeSettingsXML(QXmlStreamWriter &xmlWriter) {
+
+    xmlWriter.writeStartElement(Collett::ColNsCollett, "settings");
+    xmlWriter.writeEndElement(); // Close: settings
+
+    return;
+}
+
+void Project::writeStylesXML(QXmlStreamWriter &xmlWriter) {
+
+    xmlWriter.writeStartElement(Collett::ColNsCollett, "styles");
+    xmlWriter.writeEndElement(); // Close: styles
+
+    return;
+}
+
+void Project::writeContentXML(QXmlStreamWriter &xmlWriter) {
+
+    xmlWriter.writeStartElement(Collett::ColNsCollett, "content");
+
+    xmlWriter.writeStartElement(Collett::ColNsCollett, "story");
+    xmlWriter.writeEndElement(); // Close: story
+
+    xmlWriter.writeStartElement(Collett::ColNsCollett, "notes");
+    xmlWriter.writeEndElement(); // Close: notes
+
+    xmlWriter.writeEndElement(); // Close: content
+
+    return;
+}
+
+void Project::writeExtraXML(QXmlStreamWriter &xmlWriter) {
+
+    xmlWriter.writeStartElement(Collett::ColNsCollett, "extra");
+    xmlWriter.writeEndElement(); // Close: extra
+
+    return;
 }
 
 /**
