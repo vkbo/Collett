@@ -59,19 +59,6 @@ StoryModel::~StoryModel() {
  */
 
 /**!
- * @brief Build a JSON object of the model.
- *
- * Collect the story tree into a nested JSON object. This is a wrapper around
- * @sa StoryItem::toJsonObject function, which will build the entire tree
- * recursively.
- *
- * @return a JSON object.
- */
-QJsonObject StoryModel::toJsonObject() {
-    return m_rootItem->toJsonObject();
-}
-
-/**!
  * @brief Load story model from JSON object.
  * 
  * This function loads the root element data, validates it, and calls the

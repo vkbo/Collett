@@ -74,7 +74,7 @@ private:
 
     // Project Settings
 
-    QString m_projectFile = "New Project.collett";
+    QString m_projectFile = "sample.collett";
     QString m_projectName = "New Project";
 
     // Content
@@ -84,9 +84,7 @@ private:
     // File Load & Save
 
     bool loadSettingsFile();
-    bool saveSettingsFile();
     bool loadStoryFile();
-    bool saveStoryFile();
 
     // XML Writers
 

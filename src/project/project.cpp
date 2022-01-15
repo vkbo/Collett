@@ -99,10 +99,6 @@ bool Project::saveProject() {
         return false;
     }
 
-    bool main = m_store->saveProjectFile();
-    bool settings = saveSettingsFile();
-    bool story = saveStoryFile();
-
     // Open XML File
 
     QDir projPath(m_store->projectPath());
@@ -141,10 +137,10 @@ bool Project::saveProject() {
     // Close XML File
 
     xmlWriter.writeEndElement(); // project
-    xmlWriter.writeEndDocument(); // Document
+    xmlWriter.writeEndDocument();
     outFile.close();
 
-    return main & settings & story;
+    return true;
 }
 
 bool Project::isValid() const {
@@ -200,26 +196,6 @@ bool Project::loadSettingsFile() {
     return true;
 }
 
-bool Project::saveSettingsFile() {
-
-    QJsonObject jData, jMeta, jProject, jSettings;
-
-    jMeta["created"] = m_createdTime;
-    jMeta["updated"] = QDateTime::currentDateTime().toString(Qt::ISODate);
-
-    jProject["projectName"] = m_projectName;
-
-    jData["meta"] = jMeta;
-    jData["project"] = jProject;
-    jData["settings"] = jSettings;
-
-    if (!m_store->saveFile("project", jData)) {
-        m_lastError = m_store->lastError();
-        return false;
-    }
-    return true;
-}
-
 /**
  * Story File
  * ==========
@@ -238,14 +214,6 @@ bool Project::loadStoryFile() {
         return false;
     }
     return m_storyModel->fromJsonObject(jData);
-}
-
-bool Project::saveStoryFile() {
-    if (!m_store->saveFile("story", m_storyModel->toJsonObject())) {
-        m_lastError = m_store->lastError();
-        return false;
-    }
-    return true;
 }
 
 /**

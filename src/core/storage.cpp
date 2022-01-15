@@ -84,18 +84,6 @@ bool Storage::loadFile(const QUuid &fileUuid, QJsonObject &fileData) {
     return true;
 }
 
-bool Storage::saveFile(const QString &fileName, const QJsonObject &fileData) {
-    if (!ensureFolder("project")) {
-        return false;
-    }
-    QString filePath = QDir(m_rootPath.path() + "/project").filePath(fileName + ".json");
-    return writeJson(filePath, fileData);
-}
-
-bool Storage::saveFile(const QUuid &fileUuid, const QJsonObject &fileData) {
-    return true;
-}
-
 bool Storage::loadProjectFile() {
 
     if (!m_isValid) {
@@ -218,21 +206,6 @@ bool Storage::readJson(const QString &filePath, QJsonObject &fileData) {
     }
 
     fileData = json.object();
-    return true;
-}
-
-bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData) {
-
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly)) {
-        m_lastError = tr("Could not open file: %1").arg(filePath);
-        qWarning() << "Could not open file:" << filePath;
-        return false;
-    }
-
-    QJsonDocument doc(fileData);
-    file.write(doc.toJson());
-    file.close();
     return true;
 }
 

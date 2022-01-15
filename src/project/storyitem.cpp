@@ -45,7 +45,7 @@ StoryItem::StoryItem(const QUuid &uuid, const QString &name, ItemType type, Stor
 {
     m_childItems = QVector<StoryItem*>{};
     m_handle = uuid;
-    m_name   = name;
+    m_name   = name.simplified();
     m_type   = type;
     m_wCount = 0;
 }
@@ -162,53 +162,6 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
     return item;
 }
 
-/**!
- * @brief Class method.
- *
- * Pack all member values into a JSON object. This function is recursive, and
- * should only be called on the root item.
- *
- * @return a JSON object.
- */
-QJsonObject StoryItem::toJsonObject() {
-
-    QJsonObject item;
-    QJsonArray children;
-
-    for (qsizetype i=0; i<m_childItems.size(); ++i) {
-        children.append(m_childItems.at(i)->toJsonObject());
-    }
-
-    QString type = "UNKNOWN";
-    switch (m_type) {
-        case StoryItem::Root:      type = "ROOT"; break;
-        case StoryItem::Book:      type = "BOOK"; break;
-        case StoryItem::Partition: type = "PARTITION"; break;
-        case StoryItem::Chapter:   type = "CHAPTER"; break;
-        case StoryItem::Scene:     type = "SCENE"; break;
-        case StoryItem::Page:      type = "PAGE"; break;
-        case StoryItem::Invalid:
-            return QJsonObject();
-            break;
-    }
-
-    if (!m_parentItem) {
-        item["type"]   = type;
-        item["xItems"] = children;
-    } else {
-        item["handle"] = m_handle.toString(QUuid::WithoutBraces);
-        item["name"]   = m_name;
-        item["type"]   = type;
-        item["order"]  = row();
-        item["wCount"] = m_wCount;
-        if (children.size() > 0) {
-            item["xItems"] = children;
-        }
-    }
-
-    return item;
-}
-
 void StoryItem::writeXML(QXmlStreamWriter &xmlWriter) {
 
     if (!m_parentItem) {
@@ -310,7 +263,7 @@ bool StoryItem::allowedSibling(StoryItem::ItemType type) const {
  */
 
 void StoryItem::setName(const QString &name) {
-    m_name = name;
+    m_name = name.simplified();
 }
 
 

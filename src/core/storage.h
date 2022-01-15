@@ -44,8 +44,6 @@ public:
 
     bool loadFile(const QString &fileName, QJsonObject &fileData);
     bool loadFile(const QUuid &fileUuid, QJsonObject &fileData);
-    bool saveFile(const QString &fileName, const QJsonObject &fileData);
-    bool saveFile(const QUuid &fileUuid, const QJsonObject &fileData);
     bool loadProjectFile();
     bool saveProjectFile();
 
@@ -60,7 +58,6 @@ public:
 
 private:
     bool readJson(const QString &filePath, QJsonObject &fileData);
-    bool writeJson(const QString &filePath, const QJsonObject &fileData);
     bool ensureFolder(const QString &folder);
 
     QDir m_rootPath;

@@ -44,7 +44,6 @@ public:
 
     StoryItem *addChild(const QString &name, ItemType type, int pos=-1);
     StoryItem *addChild(const QJsonObject &json);
-    QJsonObject toJsonObject();
     static StoryItem* fromJsonObject(const QJsonObject &json, StoryItem *parentItem=nullptr);
     void writeXML(QXmlStreamWriter &xmlWriter);
     bool allowedChild(ItemType type) const;
