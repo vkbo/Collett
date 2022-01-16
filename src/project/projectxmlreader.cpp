@@ -25,6 +25,14 @@
 #include <QString>
 #include <QXmlStreamReader>
 
+#ifdef DEBUG
+#define XML_DEBUG(m, x)(qDebug("%s <%s> at %d:%d", m, qPrintable(x.qualifiedName().toString()), int(x.lineNumber()), int(x.columnNumber())))
+#else
+#define XML_DEBUG(m, x)
+#endif
+#define XML_WARN_GEN(m, x)(qWarning("%s at %d:%d", m, int(x.lineNumber()), int(x.columnNumber())))
+#define XML_WARN_ELEM(m, x)(qWarning("%s <%s> at %d:%d", m, qPrintable(x.qualifiedName().toString()), int(x.lineNumber()), int(x.columnNumber())))
+
 namespace Collett {
 
 ProjectXmlReader::ProjectXmlReader(Project *project)
@@ -62,10 +70,15 @@ bool ProjectXmlReader::readProjectFile() {
     }
 
     QXmlStreamReader xml(&inFile);
+    xml.setNamespaceProcessing(true);
+
     int docStatus = 0b0000;
     while (!xml.atEnd()) {
-
         switch (xml.readNext()) {
+
+        case QXmlStreamReader::Invalid:
+            XML_WARN_GEN("Invalid content", xml);
+            break;
 
         case QXmlStreamReader::StartDocument:
             docStatus |= 0b0001;
@@ -76,40 +89,62 @@ bool ProjectXmlReader::readProjectFile() {
             break;
 
         case QXmlStreamReader::StartElement:
-            qDebug() << xml.lineNumber() << "Opening" << xml.qualifiedName();
-            if (xml.qualifiedName() == QLatin1String("collett:project")) {
+            XML_DEBUG("Element", xml);
+            if (xml.qualifiedName() == QStringLiteral("collett:project")) {
                 docStatus |= 0b0100;
+            } else if (xml.qualifiedName() == QStringLiteral("collett:meta")) {
+                if (!readMetaXML(xml))
+                    xml.raiseError("Could not parse <collett:meta> section");
+            } else if (xml.qualifiedName() == QStringLiteral("collett:settings")) {
+                if (!readSettingsXML(xml))
+                    xml.raiseError("Could not parse <collett:settings> section");
+            } else if (xml.qualifiedName() == QStringLiteral("collett:styles")) {
+                if (!readStylesXML(xml))
+                    xml.raiseError("Could not parse <collett:styles> section");
+            } else if (xml.qualifiedName() == QStringLiteral("collett:structure")) {
+                if (!readStructureXML(xml))
+                    xml.raiseError("Could not parse <collett:structure> section");
+            } else if (xml.qualifiedName() == QStringLiteral("collett:content")) {
+                if (!readContentXML(xml))
+                    xml.raiseError("Could not parse <collett:content> section");
+            } else if (xml.qualifiedName() == QStringLiteral("collett:extra")) {
+                if (!readExtraXML(xml))
+                    xml.raiseError("Could not parse <collett:extra> section");
+            } else {
+                XML_WARN_ELEM("Unknown", xml);
             }
-            else if (xml.qualifiedName() == QLatin1String("collett:meta")) {
-
-            } 
             break;
 
         case QXmlStreamReader::EndElement:
-            qDebug() << xml.lineNumber() << "Closing" << xml.qualifiedName();
-            if (xml.qualifiedName() == QLatin1String("collett:project")) {
+            if (xml.qualifiedName() == QStringLiteral("collett:project")) {
                 docStatus |= 0b1000;
             } else {
-                qWarning() << "XML element" << xml.qualifiedName() << "was not fully parsed";
+                XML_WARN_ELEM("Skipped", xml);
             }
             break;
 
         case QXmlStreamReader::Characters:
             if (!xml.isWhitespace()) {
-                qWarning() << "Unparsed text content on line" << xml.lineNumber() << ">" << xml.text();
+                XML_WARN_GEN("Ignored content", xml);
             }
             break;
 
+        case QXmlStreamReader::Comment:
+        case QXmlStreamReader::DTD:
+        case QXmlStreamReader::EntityReference:
+        case QXmlStreamReader::ProcessingInstruction:
+            XML_WARN_GEN("Ignored content", xml);
+            break;
+
         default:
-            qWarning() << "Unexpected XML content on line" << xml.lineNumber();
+            XML_WARN_GEN("Unknown content", xml);
             break;
         }
     }
     if (xml.hasError()) {
+        qWarning() << xml.errorString();
+        return false;
     }
-
-    qDebug() << "Document status:" << docStatus;
-    inFile.close();
 
     return docStatus == 0b1111;
 }
@@ -119,11 +154,304 @@ bool ProjectXmlReader::readProjectFile() {
  * ===============
  */
 
-void ProjectXmlReader::readMetaXML(QXmlStreamReader &xml) {
+bool ProjectXmlReader::readMetaXML(QXmlStreamReader &xml) {
 
-    Q_ASSERT(xml.qualifiedName() == QLatin1String("project:meta"));
+    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:meta"));
 
-    return;
+    while (!xml.atEnd()) {
+        switch(xml.readNext()) {
+
+        case QXmlStreamReader::StartDocument:
+        case QXmlStreamReader::EndDocument:
+        case QXmlStreamReader::Invalid:
+            XML_WARN_GEN("Invalid content", xml);
+            break;
+
+        case QXmlStreamReader::StartElement:
+            XML_DEBUG("Element", xml);
+            if (xml.qualifiedName() == QStringLiteral("dc:created")) {
+                qDebug() << xml.readElementText();
+            } else if (xml.qualifiedName() == QStringLiteral("dc:date")) {
+                qDebug() << xml.readElementText();
+            } else {
+                XML_WARN_ELEM("Unknown", xml);
+            }
+            break;
+
+        case QXmlStreamReader::EndElement:
+            if (xml.qualifiedName() == QLatin1String("collett:meta")) {
+                XML_DEBUG("Closing", xml);
+                return true;
+            } else {
+                XML_WARN_ELEM("Skipped", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Characters:
+            if (!xml.isWhitespace()) {
+                XML_WARN_GEN("Ignored content", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Comment:
+        case QXmlStreamReader::DTD:
+        case QXmlStreamReader::EntityReference:
+        case QXmlStreamReader::ProcessingInstruction:
+            XML_WARN_GEN("Ignored content", xml);
+            break;
+
+        default:
+            XML_WARN_GEN("Unknown content", xml);
+            break;
+        }
+    }
+
+    return false;
+}
+
+bool ProjectXmlReader::readSettingsXML(QXmlStreamReader &xml) {
+
+    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:settings"));
+
+    while (!xml.atEnd()) {
+        switch(xml.readNext()) {
+
+        case QXmlStreamReader::StartDocument:
+        case QXmlStreamReader::EndDocument:
+        case QXmlStreamReader::Invalid:
+            XML_WARN_GEN("Invalid content", xml);
+            break;
+
+        case QXmlStreamReader::StartElement:
+            XML_DEBUG("Element", xml);
+            XML_WARN_ELEM("Unknown", xml);
+            break;
+
+        case QXmlStreamReader::EndElement:
+            if (xml.qualifiedName() == QLatin1String("collett:settings")) {
+                XML_DEBUG("Closing", xml);
+                return true;
+            } else {
+                XML_WARN_ELEM("Skipped", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Characters:
+            if (!xml.isWhitespace()) {
+                XML_WARN_GEN("Ignored content", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Comment:
+        case QXmlStreamReader::DTD:
+        case QXmlStreamReader::EntityReference:
+        case QXmlStreamReader::ProcessingInstruction:
+            XML_WARN_GEN("Ignored content", xml);
+            break;
+
+        default:
+            XML_WARN_GEN("Unknown content", xml);
+            break;
+        }
+    }
+
+    return false;
+}
+
+bool ProjectXmlReader::readStylesXML(QXmlStreamReader &xml) {
+
+    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:styles"));
+
+    while (!xml.atEnd()) {
+        switch(xml.readNext()) {
+
+        case QXmlStreamReader::StartDocument:
+        case QXmlStreamReader::EndDocument:
+        case QXmlStreamReader::Invalid:
+            XML_WARN_GEN("Invalid content", xml);
+            break;
+
+        case QXmlStreamReader::StartElement:
+            XML_DEBUG("Element", xml);
+            XML_WARN_ELEM("Unknown", xml);
+            break;
+
+        case QXmlStreamReader::EndElement:
+            if (xml.qualifiedName() == QLatin1String("collett:styles")) {
+                XML_DEBUG("Closing", xml);
+                return true;
+            } else {
+                XML_WARN_ELEM("Skipped", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Characters:
+            if (!xml.isWhitespace()) {
+                XML_WARN_GEN("Ignored content", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Comment:
+        case QXmlStreamReader::DTD:
+        case QXmlStreamReader::EntityReference:
+        case QXmlStreamReader::ProcessingInstruction:
+            XML_WARN_GEN("Ignored content", xml);
+            break;
+
+        default:
+            XML_WARN_GEN("Unknown content", xml);
+            break;
+        }
+    }
+
+    return false;
+}
+
+bool ProjectXmlReader::readStructureXML(QXmlStreamReader &xml) {
+
+    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:structure"));
+
+    while (!xml.atEnd()) {
+        switch(xml.readNext()) {
+
+        case QXmlStreamReader::StartDocument:
+        case QXmlStreamReader::EndDocument:
+        case QXmlStreamReader::Invalid:
+            XML_WARN_GEN("Invalid content", xml);
+            break;
+
+        case QXmlStreamReader::StartElement:
+            XML_DEBUG("Element", xml);
+            XML_WARN_ELEM("Unknown", xml);
+            break;
+
+        case QXmlStreamReader::EndElement:
+            if (xml.qualifiedName() == QLatin1String("collett:structure")) {
+                XML_DEBUG("Closing", xml);
+                return true;
+            } else {
+                XML_WARN_ELEM("Skipped", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Characters:
+            if (!xml.isWhitespace()) {
+                XML_WARN_GEN("Ignored content", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Comment:
+        case QXmlStreamReader::DTD:
+        case QXmlStreamReader::EntityReference:
+        case QXmlStreamReader::ProcessingInstruction:
+            XML_WARN_GEN("Ignored content", xml);
+            break;
+
+        default:
+            XML_WARN_GEN("Unknown content", xml);
+            break;
+        }
+    }
+
+    return false;
+}
+
+bool ProjectXmlReader::readContentXML(QXmlStreamReader &xml) {
+
+    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:content"));
+
+    while (!xml.atEnd()) {
+        switch(xml.readNext()) {
+
+        case QXmlStreamReader::StartDocument:
+        case QXmlStreamReader::EndDocument:
+        case QXmlStreamReader::Invalid:
+            XML_WARN_GEN("Invalid content", xml);
+            break;
+
+        case QXmlStreamReader::StartElement:
+            XML_DEBUG("Element", xml);
+            XML_WARN_ELEM("Unknown", xml);
+            break;
+
+        case QXmlStreamReader::EndElement:
+            if (xml.qualifiedName() == QLatin1String("collett:content")) {
+                XML_DEBUG("Closing", xml);
+                return true;
+            } else {
+                XML_WARN_ELEM("Skipped", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Characters:
+            if (!xml.isWhitespace()) {
+                XML_WARN_GEN("Ignored content", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Comment:
+        case QXmlStreamReader::DTD:
+        case QXmlStreamReader::EntityReference:
+        case QXmlStreamReader::ProcessingInstruction:
+            XML_WARN_GEN("Ignored content", xml);
+            break;
+
+        default:
+            XML_WARN_GEN("Unknown content", xml);
+            break;
+        }
+    }
+
+    return false;
+}
+
+bool ProjectXmlReader::readExtraXML(QXmlStreamReader &xml) {
+
+    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:extra"));
+
+    while (!xml.atEnd()) {
+        switch(xml.readNext()) {
+
+        case QXmlStreamReader::StartDocument:
+        case QXmlStreamReader::EndDocument:
+        case QXmlStreamReader::Invalid:
+            XML_WARN_GEN("Invalid content", xml);
+            break;
+
+        case QXmlStreamReader::StartElement:
+            XML_DEBUG("Element", xml);
+            XML_WARN_ELEM("Unknown", xml);
+            break;
+
+        case QXmlStreamReader::EndElement:
+            if (xml.qualifiedName() == QLatin1String("collett:extra")) {
+                XML_DEBUG("Closing", xml);
+                return true;
+            } else {
+                XML_WARN_ELEM("Skipped", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Characters:
+            if (!xml.isWhitespace()) {
+                XML_WARN_GEN("Ignored content", xml);
+            }
+            break;
+
+        case QXmlStreamReader::Comment:
+        case QXmlStreamReader::DTD:
+        case QXmlStreamReader::EntityReference:
+        case QXmlStreamReader::ProcessingInstruction:
+            XML_WARN_GEN("Ignored content", xml);
+            break;
+
+        default:
+            XML_WARN_GEN("Unknown content", xml);
+            break;
+        }
+    }
+
+    return false;
 }
 
 

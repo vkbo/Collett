@@ -156,13 +156,6 @@ void ProjectXmlWriter::writeStructureXML(QXmlStreamWriter &xml) {
 void ProjectXmlWriter::writeContentXML(QXmlStreamWriter &xml) {
 
     xml.writeStartElement(Collett::ColNsCollett, QStringLiteral("content"));
-
-    xml.writeStartElement(Collett::ColNsCollett, QStringLiteral("story"));
-    xml.writeEndElement(); // story
-
-    xml.writeStartElement(Collett::ColNsCollett, QStringLiteral("notes"));
-    xml.writeEndElement(); // notes
-
     xml.writeEndElement(); // content
 
     return;

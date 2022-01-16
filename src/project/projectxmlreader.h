@@ -45,7 +45,14 @@ private:
     Project *m_project;
     QString m_lastError;
 
-    void readMetaXML(QXmlStreamReader &xxmlmlReader);
+    bool readMetaXML(QXmlStreamReader &xml);
+    bool readSettingsXML(QXmlStreamReader &xml);
+    bool readStylesXML(QXmlStreamReader &xml);
+    bool readStructureXML(QXmlStreamReader &xml);
+    bool readContentXML(QXmlStreamReader &xml);
+    bool readExtraXML(QXmlStreamReader &xml);
+
+    void recurseStory(StoryItem *item, QXmlStreamReader &xml);
 
 };
 } // namespace Collett

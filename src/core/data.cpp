@@ -64,9 +64,10 @@ bool CollettData::openProject(const QString &path) {
     if (!m_project.data()->hasError()) {
         ProjectXmlReader prjReader(m_project.data());
         success = prjReader.readProjectFile();
-        m_project.data()->openProject();
+        // m_project.data()->openProject();
     }
-    if (!m_project.data()->isValid()) {
+    // if (!m_project.data()->isValid()) {
+    if (!success) {
         m_project.reset(nullptr);
         return false;
     }
@@ -76,8 +77,8 @@ bool CollettData::openProject(const QString &path) {
 
 bool CollettData::saveProject() {
     if (hasProject()) {
-        ProjectXmlWriter prjWriter(m_project.data());
-        return prjWriter.writeProjectFile();
+        // ProjectXmlWriter prjWriter(m_project.data());
+        return true; // prjWriter.writeProjectFile();
     } else {
         return false;
     }

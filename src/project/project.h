@@ -32,6 +32,7 @@
 
 namespace Collett {
 
+class ProjectXmlReader;
 class Project : public QObject
 {
     Q_OBJECT
@@ -89,6 +90,8 @@ private:
 
     bool loadSettingsFile();
     bool loadStoryFile();
+
+    friend class ProjectXmlReader;
 
 };
 } // namespace Collett

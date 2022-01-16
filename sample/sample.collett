@@ -37,9 +37,6 @@
       </collett:item>
     </collett:tree>
   </collett:structure>
-  <collett:content>
-    <collett:story/>
-    <collett:notes/>
-  </collett:content>
+  <collett:content/>
   <collett:extra/>
 </collett:project>
