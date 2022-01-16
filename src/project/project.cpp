@@ -35,8 +35,6 @@
 #include <QApplication>
 #include <QJsonDocument>
 #include <QJsonParseError>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace Collett {
 
@@ -89,69 +87,6 @@ bool Project::openProject() {
     } else {
         m_isValid = false;
     }
-
-    // Open XML File
-
-    QDir projPath(m_store->projectPath());
-    QString projFile = projPath.filePath(m_projectFile);
-    QFile inFile(projFile);
-    if (!inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        m_lastError = tr("Could not read project file: %1").arg(projFile);
-        qWarning() << "Could not read project file:" << projFile;
-        return false;
-    }
-
-    QXmlStreamReader xmlReader(&inFile);
-    int docStatus = 0b0000;
-    while (!xmlReader.atEnd()) {
-
-        switch (xmlReader.readNext()) {
-
-        case QXmlStreamReader::StartDocument:
-            docStatus |= 0b0001;
-            break;
-
-        case QXmlStreamReader::EndDocument:
-            docStatus |= 0b0010;
-            break;
-
-        case QXmlStreamReader::StartElement:
-            qDebug() << xmlReader.lineNumber() << "Opening" << xmlReader.qualifiedName();
-            if (xmlReader.qualifiedName() == QLatin1String("collett:project")) {
-                docStatus |= 0b0100;
-            }
-            else if (xmlReader.qualifiedName() == QLatin1String("collett:meta")) {
-
-            } 
-            break;
-
-        case QXmlStreamReader::EndElement:
-            qDebug() << xmlReader.lineNumber() << "Closing" << xmlReader.qualifiedName();
-            if (xmlReader.qualifiedName() == QLatin1String("collett:project")) {
-                docStatus |= 0b1000;
-            } else {
-                qWarning() << "XML element" << xmlReader.qualifiedName() << "was not fully parsed";
-            }
-            break;
-
-        case QXmlStreamReader::Characters:
-            if (!xmlReader.isWhitespace()) {
-                qWarning() << "Unparsed text content on line" << xmlReader.lineNumber() << ">" << xmlReader.text();
-            }
-            break;
-
-        default:
-            qWarning() << "Unexpected XML content on line" << xmlReader.lineNumber();
-            break;
-        }
-    }
-    if (xmlReader.hasError()) {
-    }
-
-    qDebug() << "Document status:" << docStatus;
-    m_isValid = docStatus == 0b1111;
-
-    inFile.close();
 
     return m_isValid;
 }
@@ -235,18 +170,6 @@ bool Project::loadStoryFile() {
         return false;
     }
     return m_storyModel->fromJsonObject(jData);
-}
-
-/**
- * XML Readers
- * ===========
- */
-
-void Project::readMetaXML(QXmlStreamReader &xmlReader) {
-
-    Q_ASSERT(xmlReader.qualifiedName() == QLatin1String("project:meta"));
-
-    return;
 }
 
 /**

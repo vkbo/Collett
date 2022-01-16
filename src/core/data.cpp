@@ -22,6 +22,7 @@
 #include "data.h"
 #include "project.h"
 #include "storymodel.h"
+#include "projectxmlreader.h"
 #include "projectxmlwriter.h"
 
 #include <QString>
@@ -57,8 +58,12 @@ CollettData::~CollettData() {
 
 bool CollettData::openProject(const QString &path) {
 
+    bool success = false;
+
     m_project.reset(new Project(path));
     if (!m_project.data()->hasError()) {
+        ProjectXmlReader prjReader(m_project.data());
+        success = prjReader.readProjectFile();
         m_project.data()->openProject();
     }
     if (!m_project.data()->isValid()) {
@@ -66,7 +71,7 @@ bool CollettData::openProject(const QString &path) {
         return false;
     }
 
-    return true;
+    return success;
 }
 
 bool CollettData::saveProject() {

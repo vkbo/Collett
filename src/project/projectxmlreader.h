@@ -23,19 +23,29 @@
 #define COLLETT_PROJECT_XML_READER_H
 
 #include "collett.h"
+#include "project.h"
 
+#include <QObject>
 #include <QString>
+#include <QXmlStreamReader>
 
 namespace Collett {
 
-class ProjectXmlReader
+class ProjectXmlReader : public QObject
 {
+    Q_OBJECT
 
 public:
-    ProjectXmlReader();
+    ProjectXmlReader(Project *project);
     ~ProjectXmlReader();
 
-    bool readProjectFile(const QString &path);
+    bool readProjectFile();
+
+private:
+    Project *m_project;
+    QString m_lastError;
+
+    void readMetaXML(QXmlStreamReader &xxmlmlReader);
 
 };
 } // namespace Collett

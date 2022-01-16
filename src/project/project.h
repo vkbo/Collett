@@ -29,8 +29,6 @@
 #include <QDir>
 #include <QObject>
 #include <QString>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace Collett {
 
@@ -91,10 +89,6 @@ private:
 
     bool loadSettingsFile();
     bool loadStoryFile();
-
-    // XML Readers
-
-    void readMetaXML(QXmlStreamReader &xmlReader);
 
 };
 } // namespace Collett

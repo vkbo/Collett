@@ -133,13 +133,26 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="99"/>
-        <source>Could not read project file: %1</source>
+        <location filename="../src/project/project.cpp" line="150"/>
+        <source>Unnamed Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Collett::ProjectXmlReader</name>
+    <message>
+        <location filename="../src/project/projectxmlreader.cpp" line="46"/>
+        <source>Could not read project file. Path is not a file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/project.cpp" line="215"/>
-        <source>Unnamed Project</source>
+        <location filename="../src/project/projectxmlreader.cpp" line="52"/>
+        <source>Could not read project file. Path is not readable: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/projectxmlreader.cpp" line="59"/>
+        <source>Could not read project file: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
