@@ -45,7 +45,6 @@ public:
     bool loadFile(const QString &fileName, QJsonObject &fileData);
     bool loadFile(const QUuid &fileUuid, QJsonObject &fileData);
     bool loadProjectFile();
-    bool saveProjectFile();
 
     bool isValid();
     QString projectPath() const;

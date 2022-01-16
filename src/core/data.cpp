@@ -22,6 +22,7 @@
 #include "data.h"
 #include "project.h"
 #include "storymodel.h"
+#include "projectxmlwriter.h"
 
 #include <QString>
 #include <QWidget>
@@ -70,7 +71,8 @@ bool CollettData::openProject(const QString &path) {
 
 bool CollettData::saveProject() {
     if (hasProject()) {
-        return m_project.data()->saveProject();
+        ProjectXmlWriter prjWriter(m_project.data());
+        return prjWriter.writeProjectFile();
     } else {
         return false;
     }

@@ -46,7 +46,6 @@ public:
     // Class Methods
 
     bool fromJsonObject(const QJsonObject &json);
-    void writeXML(QXmlStreamWriter &xmlWriter);
     bool addItem(StoryItem *relativeTo, StoryItem::ItemType type, AddLocation loc);
     bool isEmpty();
 

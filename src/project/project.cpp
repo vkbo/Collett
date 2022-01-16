@@ -35,6 +35,7 @@
 #include <QApplication>
 #include <QJsonDocument>
 #include <QJsonParseError>
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 namespace Collett {
@@ -49,6 +50,7 @@ Project::Project(const QString &path) {
     m_isValid = false;
     m_storyModel = new StoryModel(this);
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
+    m_projectPath = path;
 
     // If the path is a file, go one level up
     QFileInfo fObj(path);
@@ -88,59 +90,70 @@ bool Project::openProject() {
         m_isValid = false;
     }
 
-    return m_isValid;
-}
-
-bool Project::saveProject() {
-
-    qInfo() << "Saving Project:" << m_store->projectPath();
-    if (!m_isValid) {
-        qWarning() << "No project open, nothing to save";
-        return false;
-    }
-
     // Open XML File
 
     QDir projPath(m_store->projectPath());
     QString projFile = projPath.filePath(m_projectFile);
-    QFile outFile(projFile);
-    if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        m_lastError = tr("Could not write project file: %1").arg(projFile);
-        qWarning() << "Could not write project file:" << projFile;
+    QFile inFile(projFile);
+    if (!inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        m_lastError = tr("Could not read project file: %1").arg(projFile);
+        qWarning() << "Could not read project file:" << projFile;
         return false;
     }
 
-    QXmlStreamWriter xmlWriter(&outFile);
-    xmlWriter.setAutoFormatting(true);
-    xmlWriter.setAutoFormattingIndent(2);
-    xmlWriter.writeStartDocument();
-    xmlWriter.writeNamespace(Collett::ColNsCollett, "collett");
-    xmlWriter.writeNamespace(Collett::ColNsConfig, "config");
-    xmlWriter.writeNamespace(Collett::ColNsItem, "item");
-    xmlWriter.writeNamespace(Collett::ColNsMeta, "meta");
-    xmlWriter.writeNamespace(Collett::ColNsStyle, "style");
-    xmlWriter.writeNamespace(Collett::ColNsText, "text");
-    xmlWriter.writeNamespace(Collett::XmlNsDC, "dc");
-    xmlWriter.writeStartElement(Collett::ColNsCollett, "project");
-    xmlWriter.writeAttribute(Collett::ColNsMeta, "file-version", "1.0-draft");
-    xmlWriter.writeAttribute(Collett::ColNsMeta, "app-version", qApp->applicationVersion());
+    QXmlStreamReader xmlReader(&inFile);
+    int docStatus = 0b0000;
+    while (!xmlReader.atEnd()) {
 
-    // Write Data
+        switch (xmlReader.readNext()) {
 
-    writeMetaXML(xmlWriter);
-    writeSettingsXML(xmlWriter);
-    writeStylesXML(xmlWriter);
-    writeStructureXML(xmlWriter);
-    writeContentXML(xmlWriter);
-    writeExtraXML(xmlWriter);
+        case QXmlStreamReader::StartDocument:
+            docStatus |= 0b0001;
+            break;
 
-    // Close XML File
+        case QXmlStreamReader::EndDocument:
+            docStatus |= 0b0010;
+            break;
 
-    xmlWriter.writeEndElement(); // project
-    xmlWriter.writeEndDocument();
-    outFile.close();
+        case QXmlStreamReader::StartElement:
+            qDebug() << xmlReader.lineNumber() << "Opening" << xmlReader.qualifiedName();
+            if (xmlReader.qualifiedName() == QLatin1String("collett:project")) {
+                docStatus |= 0b0100;
+            }
+            else if (xmlReader.qualifiedName() == QLatin1String("collett:meta")) {
 
-    return true;
+            } 
+            break;
+
+        case QXmlStreamReader::EndElement:
+            qDebug() << xmlReader.lineNumber() << "Closing" << xmlReader.qualifiedName();
+            if (xmlReader.qualifiedName() == QLatin1String("collett:project")) {
+                docStatus |= 0b1000;
+            } else {
+                qWarning() << "XML element" << xmlReader.qualifiedName() << "was not fully parsed";
+            }
+            break;
+
+        case QXmlStreamReader::Characters:
+            if (!xmlReader.isWhitespace()) {
+                qWarning() << "Unparsed text content on line" << xmlReader.lineNumber() << ">" << xmlReader.text();
+            }
+            break;
+
+        default:
+            qWarning() << "Unexpected XML content on line" << xmlReader.lineNumber();
+            break;
+        }
+    }
+    if (xmlReader.hasError()) {
+    }
+
+    qDebug() << "Document status:" << docStatus;
+    m_isValid = docStatus == 0b1111;
+
+    inFile.close();
+
+    return m_isValid;
 }
 
 bool Project::isValid() const {
@@ -160,6 +173,14 @@ void Project::setProjectName(const QString &name) {
  * Class Getters
  * =============
  */
+
+QString Project::createdTime() const {
+    return m_createdTime;
+}
+
+QString Project::projectPath() const {
+    return m_projectPath;
+}
 
 QString Project::projectName() const {
     return m_projectName;
@@ -217,73 +238,13 @@ bool Project::loadStoryFile() {
 }
 
 /**
- * XML Writers
+ * XML Readers
  * ===========
  */
 
-void Project::writeMetaXML(QXmlStreamWriter &xmlWriter) {
+void Project::readMetaXML(QXmlStreamReader &xmlReader) {
 
-    xmlWriter.writeStartElement(Collett::ColNsCollett, "meta");
-
-    xmlWriter.writeStartElement(Collett::XmlNsDC, "created");
-    xmlWriter.writeCharacters(m_createdTime);
-    xmlWriter.writeEndElement();
-
-    xmlWriter.writeStartElement(Collett::XmlNsDC, "date");
-    xmlWriter.writeCharacters(QDateTime::currentDateTime().toString(Qt::ISODate));
-    xmlWriter.writeEndElement();
-
-    xmlWriter.writeEndElement(); // meta
-
-    return;
-}
-
-void Project::writeSettingsXML(QXmlStreamWriter &xmlWriter) {
-
-    xmlWriter.writeStartElement(Collett::ColNsCollett, "settings");
-    xmlWriter.writeEndElement(); // settings
-
-    return;
-}
-
-void Project::writeStylesXML(QXmlStreamWriter &xmlWriter) {
-
-    xmlWriter.writeStartElement(Collett::ColNsCollett, "styles");
-    xmlWriter.writeEndElement(); // styles
-
-    return;
-}
-
-void Project::writeStructureXML(QXmlStreamWriter &xmlWriter) {
-
-    xmlWriter.writeStartElement(Collett::ColNsCollett, "structure");
-
-    m_storyModel->writeXML(xmlWriter);
-
-    xmlWriter.writeEndElement(); // structure
-
-    return;
-}
-
-void Project::writeContentXML(QXmlStreamWriter &xmlWriter) {
-
-    xmlWriter.writeStartElement(Collett::ColNsCollett, "content");
-
-    xmlWriter.writeStartElement(Collett::ColNsCollett, "story");
-    xmlWriter.writeEndElement(); // story
-
-    xmlWriter.writeStartElement(Collett::ColNsCollett, "notes");
-    xmlWriter.writeEndElement(); // notes
-
-    xmlWriter.writeEndElement(); // content
-
-    return;
-}
-
-void Project::writeExtraXML(QXmlStreamWriter &xmlWriter) {
-
-    xmlWriter.writeStartElement(Collett::ColNsCollett, "extra");
-    xmlWriter.writeEndElement(); // extra
+    Q_ASSERT(xmlReader.qualifiedName() == QLatin1String("project:meta"));
 
     return;
 }

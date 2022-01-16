@@ -29,6 +29,7 @@
 #include <QDir>
 #include <QObject>
 #include <QString>
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 namespace Collett {
@@ -44,15 +45,19 @@ public:
     // Class Methods
 
     bool openProject();
-    bool saveProject();
     bool isValid() const;
 
     // Class Setters
 
     void setProjectName(const QString &name);
 
-    // Class Getters
+    // Class Getters (Meta)
 
+    QString createdTime() const;
+
+    // Class Getters (Settings)
+
+    QString projectPath() const;
     QString projectName() const;
     StoryModel *storyModel();
 
@@ -74,6 +79,7 @@ private:
 
     // Project Settings
 
+    QString m_projectPath;
     QString m_projectFile = "sample.collett";
     QString m_projectName = "New Project";
 
@@ -86,14 +92,9 @@ private:
     bool loadSettingsFile();
     bool loadStoryFile();
 
-    // XML Writers
+    // XML Readers
 
-    void writeMetaXML(QXmlStreamWriter &xmlWriter);
-    void writeSettingsXML(QXmlStreamWriter &xmlWriter);
-    void writeStylesXML(QXmlStreamWriter &xmlWriter);
-    void writeStructureXML(QXmlStreamWriter &xmlWriter);
-    void writeContentXML(QXmlStreamWriter &xmlWriter);
-    void writeExtraXML(QXmlStreamWriter &xmlWriter);
+    void readMetaXML(QXmlStreamReader &xmlReader);
 
 };
 } // namespace Collett

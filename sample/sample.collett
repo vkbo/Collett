@@ -2,7 +2,7 @@
 <collett:project xmlns:collett="urn:collett:names:collettdoc:xmlns:collett:1.0" xmlns:config="urn:collett:names:collettdoc:xmlns:config:1.0" xmlns:item="urn:collett:names:collettdoc:xmlns:item:1.0" xmlns:meta="urn:collett:names:collettdoc:xmlns:meta:1.0" xmlns:style="urn:collett:names:collettdoc:xmlns:style:1.0" xmlns:text="urn:collett:names:collettdoc:xmlns:text:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" meta:file-version="1.0-draft" meta:app-version="0.0.1-alpha0">
   <collett:meta>
     <dc:created>2021-12-14T22:24:25</dc:created>
-    <dc:date>2022-01-15T16:21:34</dc:date>
+    <dc:date>2022-01-16T17:01:40</dc:date>
   </collett:meta>
   <collett:settings/>
   <collett:styles/>

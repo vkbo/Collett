@@ -30,6 +30,7 @@
 
 namespace Collett {
 
+class ProjectXmlWriter;
 class StoryItem : public QObject
 {
     Q_OBJECT
@@ -45,7 +46,6 @@ public:
     StoryItem *addChild(const QString &name, ItemType type, int pos=-1);
     StoryItem *addChild(const QJsonObject &json);
     static StoryItem* fromJsonObject(const QJsonObject &json, StoryItem *parentItem=nullptr);
-    void writeXML(QXmlStreamWriter &xmlWriter);
     bool allowedChild(ItemType type) const;
     bool allowedSibling(ItemType type) const;
 
@@ -84,6 +84,8 @@ private:
     QString  m_name;
     ItemType m_type;
     int      m_wCount;
+
+    friend class ProjectXmlWriter;
 
 };
 } // namespace Collett

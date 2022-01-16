@@ -162,55 +162,6 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
     return item;
 }
 
-void StoryItem::writeXML(QXmlStreamWriter &xmlWriter) {
-
-    if (!m_parentItem) {
-        xmlWriter.writeStartElement(Collett::ColNsCollett, "tree");
-        xmlWriter.writeAttribute(Collett::ColNsItem, "class", "story");
-
-    } else {
-        xmlWriter.writeStartElement(Collett::ColNsCollett, "item");
-
-        switch (m_type) {
-            case StoryItem::Root:
-                xmlWriter.writeAttribute(Collett::ColNsItem, "type", "root");
-                break;
-            case StoryItem::Book:
-                xmlWriter.writeAttribute(Collett::ColNsItem, "type", "book");
-                break;
-            case StoryItem::Partition:
-                xmlWriter.writeAttribute(Collett::ColNsItem, "type", "partition");
-                break;
-            case StoryItem::Chapter:
-                xmlWriter.writeAttribute(Collett::ColNsItem, "type", "chapter");
-                break;
-            case StoryItem::Scene:
-                xmlWriter.writeAttribute(Collett::ColNsItem, "type", "scene");
-                break;
-            case StoryItem::Page:
-                xmlWriter.writeAttribute(Collett::ColNsItem, "type", "page");
-                break;
-            default:
-                return;
-                break;
-        }
-
-        xmlWriter.writeAttribute(Collett::ColNsItem, "handle", m_handle.toString(QUuid::WithoutBraces));
-        xmlWriter.writeAttribute(Collett::ColNsItem, "order", QString().setNum(row()));
-        xmlWriter.writeAttribute(Collett::ColNsItem, "words", QString().setNum(m_wCount));
-
-        xmlWriter.writeStartElement(Collett::ColNsItem, "name");
-        xmlWriter.writeCharacters(m_name);
-        xmlWriter.writeEndElement(); // name
-    }
-
-    for (qsizetype i=0; i<m_childItems.size(); ++i) {
-        m_childItems.at(i)->writeXML(xmlWriter);
-    }
-
-    xmlWriter.writeEndElement(); // root or item
-}
-
 /**!
  * @brief Check for allowed child item types of current item.
  *

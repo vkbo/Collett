@@ -111,10 +111,6 @@ bool StoryModel::fromJsonObject(const QJsonObject &json) {
     return true;
 }
 
-void StoryModel::writeXML(QXmlStreamWriter &xmlWriter) {
-    m_rootItem->writeXML(xmlWriter);
-}
-
 /**!
  * @brief Create and add a new child item.
  *

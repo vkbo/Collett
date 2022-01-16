@@ -133,8 +133,31 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="155"/>
+        <location filename="../src/project/project.cpp" line="99"/>
+        <source>Could not read project file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/project.cpp" line="215"/>
         <source>Unnamed Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Collett::ProjectXmlWriter</name>
+    <message>
+        <location filename="../src/project/projectxmlwriter.cpp" line="50"/>
+        <source>Could not write project file. Path is a folder: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/projectxmlwriter.cpp" line="56"/>
+        <source>Could not write project file. Path is not writable: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/projectxmlwriter.cpp" line="63"/>
+        <source>Could not write project file: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -146,23 +169,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="200"/>
-        <location filename="../src/core/storage.cpp" line="228"/>
+        <location filename="../src/core/storage.cpp" line="167"/>
         <source>Could not open file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="208"/>
+        <location filename="../src/core/storage.cpp" line="175"/>
         <source>Could not parse file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="215"/>
+        <location filename="../src/core/storage.cpp" line="182"/>
         <source>Unexpected content of file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="251"/>
+        <location filename="../src/core/storage.cpp" line="203"/>
         <source>Could not create folder: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -170,32 +192,32 @@
 <context>
     <name>Collett::StoryItem</name>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="136"/>
+        <location filename="../src/project/storyitem.cpp" line="137"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="314"/>
+        <location filename="../src/project/storyitem.cpp" line="268"/>
         <source>Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="315"/>
+        <location filename="../src/project/storyitem.cpp" line="269"/>
         <source>Partition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="316"/>
+        <location filename="../src/project/storyitem.cpp" line="270"/>
         <source>Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="317"/>
+        <location filename="../src/project/storyitem.cpp" line="271"/>
         <source>Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="318"/>
+        <location filename="../src/project/storyitem.cpp" line="272"/>
         <source>Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -203,7 +225,7 @@
 <context>
     <name>Collett::StoryModel</name>
     <message>
-        <location filename="../src/project/storymodel.cpp" line="154"/>
+        <location filename="../src/project/storymodel.cpp" line="142"/>
         <source>New %1</source>
         <translation type="unfinished"></translation>
     </message>

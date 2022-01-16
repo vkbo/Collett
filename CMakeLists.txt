@@ -93,6 +93,8 @@ list(APPEND SRC_FILES
     src/gui/storytreedelegate
     src/gui/treetoolbar
     src/project/project
+    src/project/projectxmlreader
+    src/project/projectxmlwriter
     src/project/storyitem
     src/project/storymodel
     src/guimain

@@ -116,27 +116,6 @@ bool Storage::loadProjectFile() {
     }
 }
 
-bool Storage::saveProjectFile() {
-
-    if (!m_isValid) {
-        return false;
-    }
-
-    QByteArray colLine = "Collett " + QByteArray(COL_VERSION_STR);
-    QByteArray proLine = "Project 0.1";
-
-    QFile prjFile(m_rootPath.filePath("project.collett"));
-    if (prjFile.open(QIODevice::WriteOnly)) {
-        QTextStream outData(&prjFile);
-        outData << "Collett " << QString(COL_VERSION_STR) << Qt::endl;
-        outData << "Project 0.1" << Qt::endl;
-        prjFile.close();
-        return true;
-    } else {
-        return false;
-    }
-}
-
 bool Storage::isValid() {
     return m_isValid;
 }
