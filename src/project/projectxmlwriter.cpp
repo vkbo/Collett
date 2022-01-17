@@ -207,13 +207,10 @@ void ProjectXmlWriter::recurseStory(StoryItem *item, QXmlStreamWriter &xml) {
                 break;
         }
 
+        xml.writeAttribute(Collett::ColNsItem, QStringLiteral("name"), item->m_name);
         xml.writeAttribute(Collett::ColNsItem, QStringLiteral("handle"), item->m_handle.toString(QUuid::WithoutBraces));
         xml.writeAttribute(Collett::ColNsItem, QStringLiteral("order"), QString().setNum(item->row()));
         xml.writeAttribute(Collett::ColNsItem, QStringLiteral("words"), QString().setNum(item->m_wCount));
-
-        xml.writeStartElement(Collett::ColNsItem, QStringLiteral("name"));
-        xml.writeCharacters(item->m_name);
-        xml.writeEndElement(); // name
     }
 
     for (qsizetype i=0; i<item->m_childItems.size(); ++i) {

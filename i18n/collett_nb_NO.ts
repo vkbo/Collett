@@ -141,17 +141,17 @@
 <context>
     <name>Collett::ProjectXmlReader</name>
     <message>
-        <location filename="../src/project/projectxmlreader.cpp" line="46"/>
+        <location filename="../src/project/projectxmlreader.cpp" line="56"/>
         <source>Could not read project file. Path is not a file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/projectxmlreader.cpp" line="52"/>
+        <location filename="../src/project/projectxmlreader.cpp" line="62"/>
         <source>Could not read project file. Path is not readable: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/projectxmlreader.cpp" line="59"/>
+        <location filename="../src/project/projectxmlreader.cpp" line="69"/>
         <source>Could not read project file: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -205,32 +205,33 @@
 <context>
     <name>Collett::StoryItem</name>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="137"/>
+        <location filename="../src/project/storyitem.cpp" line="53"/>
+        <location filename="../src/project/storyitem.cpp" line="141"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="268"/>
+        <location filename="../src/project/storyitem.cpp" line="272"/>
         <source>Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="269"/>
+        <location filename="../src/project/storyitem.cpp" line="273"/>
         <source>Partition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="270"/>
+        <location filename="../src/project/storyitem.cpp" line="274"/>
         <source>Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="271"/>
+        <location filename="../src/project/storyitem.cpp" line="275"/>
         <source>Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="272"/>
+        <location filename="../src/project/storyitem.cpp" line="276"/>
         <source>Page</source>
         <translation type="unfinished"></translation>
     </message>

@@ -26,7 +26,6 @@
 #include <QVector>
 #include <QVariant>
 #include <QJsonObject>
-#include <QXmlStreamWriter>
 
 namespace Collett {
 

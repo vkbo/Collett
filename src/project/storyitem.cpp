@@ -48,6 +48,10 @@ StoryItem::StoryItem(const QUuid &uuid, const QString &name, ItemType type, Stor
     m_name   = name.simplified();
     m_type   = type;
     m_wCount = 0;
+
+    if (m_name.isEmpty()) {
+        m_name = tr("Unnamed");
+    }
 }
 
 StoryItem::~StoryItem() {
@@ -276,18 +280,18 @@ QString StoryItem::typeToString(ItemType type) {
 }
 
 StoryItem::ItemType StoryItem::typeFromString(const QString &value) {
-    QString upper = value.toUpper();
-    if (upper == "ROOT") {
+    QString upper = value.toLower();
+    if (upper == "root") {
         return StoryItem::Root;
-    } else if (upper == "BOOK") {
+    } else if (upper == "book") {
         return StoryItem::Book;
-    } else if (upper == "PARTITION") {
+    } else if (upper == "partition") {
         return StoryItem::Partition;
-    } else if (upper == "CHAPTER") {
+    } else if (upper == "chapter") {
         return StoryItem::Chapter;
-    } else if (upper == "SCENE") {
+    } else if (upper == "scene") {
         return StoryItem::Scene;
-    } else if (upper == "PAGE") {
+    } else if (upper == "page") {
         return StoryItem::Page;
     } else {
         return StoryItem::Invalid;

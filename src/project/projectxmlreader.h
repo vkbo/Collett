@@ -52,7 +52,8 @@ private:
     bool readContentXML(QXmlStreamReader &xml);
     bool readExtraXML(QXmlStreamReader &xml);
 
-    void recurseStory(StoryItem *item, QXmlStreamReader &xml);
+    bool readStoryTreeXML(QXmlStreamReader &xml);
+    bool recurseStory(StoryItem *parent, QXmlStreamReader &xml);
 
 };
 } // namespace Collett
