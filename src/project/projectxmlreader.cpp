@@ -139,6 +139,7 @@ bool ProjectXmlReader::readProjectFile() {
         qWarning() << xml.errorString();
         return false;
     }
+    m_project->m_isValid = docStatus == 0b1111;
 
     return docStatus == 0b1111;
 }
@@ -461,7 +462,7 @@ bool ProjectXmlReader::recurseStory(StoryItem *parent, QXmlStreamReader &xml) {
         return false;
     }
 
-    StoryItem *item = parent->addChild(name, type);
+    StoryItem *item = parent->addChild(handle, name, type, words);
     if (!item) {
         xml.raiseError(QString("Failed to add item on line %1").arg(xml.lineNumber()));
         return false;
@@ -470,7 +471,8 @@ bool ProjectXmlReader::recurseStory(StoryItem *parent, QXmlStreamReader &xml) {
         qWarning() << "Order mismatch for" << handle.toString(QUuid::WithoutBraces)
                    << "between XML and data model" << item->row() << "!=" << order;
     }
-    item->setWordCount(words);
+
+    qDebug() << "Loaded item" << attr.value(QStringLiteral("item:handle")).toString() << handle.toString(QUuid::WithoutBraces);
 
     while (!xml.atEnd()) {
         switch(xml.readNext()) {

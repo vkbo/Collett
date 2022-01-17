@@ -43,6 +43,7 @@ public:
     // Class Methods
 
     StoryItem *addChild(const QString &name, ItemType type, int pos=-1);
+    StoryItem *addChild(const QUuid &uuid, const QString &name, ItemType type, int words);
     StoryItem *addChild(const QJsonObject &json);
     static StoryItem* fromJsonObject(const QJsonObject &json, StoryItem *parentItem=nullptr);
     bool allowedChild(ItemType type) const;

@@ -89,6 +89,17 @@ StoryItem *StoryItem::addChild(const QString &name, ItemType type, int pos) {
     return item;
 }
 
+StoryItem *StoryItem::addChild(const QUuid &uuid, const QString &name, ItemType type, int words) {
+    if (!this->allowedChild(type)) {
+        return nullptr;
+    }
+
+    StoryItem *item = new StoryItem(uuid, name, type, this);
+    item->setWordCount(words);
+    m_childItems.append(item);
+    return item;
+}
+
 /**!
  * @brief Add a child item to the current item from JSON input.
  * 
