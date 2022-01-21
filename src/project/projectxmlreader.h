@@ -24,7 +24,10 @@
 
 #include "collett.h"
 #include "project.h"
+#include "storyitem.h"
 
+#include <QHash>
+#include <QStack>
 #include <QObject>
 #include <QString>
 #include <QXmlStreamReader>
@@ -44,16 +47,22 @@ public:
 private:
     Project *m_project;
     QString m_lastError;
+    QString m_docVersion;
+    QString m_docEncoding;
 
-    bool readMetaXML(QXmlStreamReader &xml);
-    bool readSettingsXML(QXmlStreamReader &xml);
-    bool readStylesXML(QXmlStreamReader &xml);
-    bool readStructureXML(QXmlStreamReader &xml);
-    bool readContentXML(QXmlStreamReader &xml);
-    bool readExtraXML(QXmlStreamReader &xml);
+    bool parseProlog(QXmlStreamReader &xml);
+    bool parseRoot(QXmlStreamReader &xml);
 
-    bool readStoryTreeXML(QXmlStreamReader &xml);
-    bool recurseStory(StoryItem *parent, QXmlStreamReader &xml);
+    bool parseValues(QXmlStreamReader &xml, QStack<QString> &tagStack, QHash<QString, QString> &tagData);
+    bool parseStructure(QXmlStreamReader &xml, QStack<QString> &tagStack);
+
+    bool recurseStory(StoryItem *parent, QXmlStreamReader &xml, QStack<QString> &tagStack);
+
+    // bool readStylesXML(QXmlStreamReader &xml);
+    // bool readContentXML(QXmlStreamReader &xml);
+    // bool readExtraXML(QXmlStreamReader &xml);
+
+    // bool readStoryTreeXML(QXmlStreamReader &xml);
 
 };
 } // namespace Collett

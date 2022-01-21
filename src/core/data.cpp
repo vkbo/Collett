@@ -64,6 +64,7 @@ bool CollettData::openProject(const QString &path) {
     if (!m_project.data()->hasError()) {
         ProjectXmlReader prjReader(m_project.data());
         success = prjReader.readProjectFile();
+        m_project.data()->report();
         // m_project.data()->openProject();
     }
     // if (!m_project.data()->isValid()) {

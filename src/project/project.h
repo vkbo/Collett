@@ -27,6 +27,7 @@
 #include "storymodel.h"
 
 #include <QDir>
+#include <QHash>
 #include <QObject>
 #include <QString>
 
@@ -45,6 +46,10 @@ public:
 
     bool openProject();
     bool isValid() const;
+    void report() {
+        qDebug() << "Meta:" << m_projectMeta;
+        qDebug() << "Settings:" << m_projectSettings;
+    };
 
     // Class Setters
 
@@ -69,6 +74,9 @@ private:
     bool    m_isValid;
     QString m_lastError;
     Storage *m_store;
+
+    QHash<QString, QString> m_projectMeta;
+    QHash<QString, QString> m_projectSettings;
 
     // Project Meta
 

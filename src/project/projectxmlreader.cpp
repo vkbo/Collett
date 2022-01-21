@@ -22,7 +22,10 @@
 #include "collett.h"
 #include "projectxmlreader.h"
 
+#include <stack>
+
 #include <QUuid>
+#include <QStack>
 #include <QString>
 #include <QXmlStreamReader>
 #include <QXmlStreamAttributes>
@@ -41,6 +44,8 @@ ProjectXmlReader::ProjectXmlReader(Project *project)
     : m_project(project)
 {
     m_lastError = "";
+    m_docVersion = "";
+    m_docEncoding = "";
 }
 
 ProjectXmlReader::~ProjectXmlReader() {
@@ -74,74 +79,199 @@ bool ProjectXmlReader::readProjectFile() {
     QXmlStreamReader xml(&inFile);
     xml.setNamespaceProcessing(true);
 
-    int docStatus = 0b0000;
+    bool status = parseProlog(xml) && parseRoot(xml);
+
+    if (!status) qWarning() << m_lastError;
+
+    return status;
+}
+
+/**
+ * Root Readers
+ * ============
+ */
+
+bool ProjectXmlReader::parseProlog(QXmlStreamReader &xml) {
+
     while (!xml.atEnd()) {
-        switch (xml.readNext()) {
 
+        xml.readNext();
+        if (xml.hasError()) {
+            qWarning() << xml.errorString();
+            m_lastError = xml.errorString();
+            return false;
+        }
+
+        switch (xml.tokenType()) {
         case QXmlStreamReader::StartDocument:
-            docStatus |= 0b0001;
+            m_docVersion = xml.documentVersion().toString();
+            m_docEncoding = xml.documentEncoding().toString();
+            qDebug() << "XML Version:" << m_docVersion;
+            qDebug() << "XML Encoding:" << m_docEncoding;
             break;
 
-        case QXmlStreamReader::EndDocument:
-            docStatus |= 0b0010;
+        case QXmlStreamReader::Comment:
+            // Comments are ignored
             break;
 
+        case QXmlStreamReader::DTD:
+            xml.raiseError("The Collett XML parser did not expect a DTD element");
+            return false;
+            break;
+
+        case QXmlStreamReader::ProcessingInstruction:
+            xml.raiseError("The Collett XML parser did not expect a processing instruction");
+            return false;
+            break;
+
+        default:
+            // If the token is none of the above, prolog processing is done.
+            return true;
+        }
+    }
+
+    return true;
+}
+
+bool ProjectXmlReader::parseRoot(QXmlStreamReader &xml) {
+
+    Q_ASSERT(xml.isStartElement());
+
+    if (xml.qualifiedName() != QStringLiteral("collett:project")) {
+        XML_WARN_ELEM("Unexpected", xml);
+        return false;
+    }
+
+    QStack<QString> tagStack;
+
+    while (!xml.atEnd() && !xml.hasError()) {
+
+        switch (xml.tokenType()) {
         case QXmlStreamReader::StartElement:
-            XML_DEBUG("Parsing", xml);
+            tagStack.push(xml.qualifiedName().toString());
+            qDebug() << "Stack:" << tagStack;
+
+            // Parse the element
             if (xml.qualifiedName() == QStringLiteral("collett:project")) {
-                docStatus |= 0b0100;
+                qInfo() << "Begin parsing project XML";
+
             } else if (xml.qualifiedName() == QStringLiteral("collett:meta")) {
-                if (!readMetaXML(xml))
+                qDebug() << "Begin parsing project XML meta section";
+                if (!parseValues(xml, tagStack, m_project->m_projectMeta))
                     xml.raiseError("Could not parse <collett:meta> section");
+
             } else if (xml.qualifiedName() == QStringLiteral("collett:settings")) {
-                if (!readSettingsXML(xml))
+                qDebug() << "Begin parsing project XML settings section";
+                if (!parseValues(xml, tagStack, m_project->m_projectSettings))
                     xml.raiseError("Could not parse <collett:settings> section");
+
             } else if (xml.qualifiedName() == QStringLiteral("collett:styles")) {
-                if (!readStylesXML(xml))
-                    xml.raiseError("Could not parse <collett:styles> section");
             } else if (xml.qualifiedName() == QStringLiteral("collett:structure")) {
-                if (!readStructureXML(xml))
+                qDebug() << "Begin parsing project XML structure section";
+                if (!parseStructure(xml, tagStack))
                     xml.raiseError("Could not parse <collett:structure> section");
+
             } else if (xml.qualifiedName() == QStringLiteral("collett:content")) {
-                if (!readContentXML(xml))
-                    xml.raiseError("Could not parse <collett:content> section");
             } else if (xml.qualifiedName() == QStringLiteral("collett:extra")) {
-                if (!readExtraXML(xml))
-                    xml.raiseError("Could not parse <collett:extra> section");
             } else {
-                XML_WARN_ELEM("Unknown", xml);
+                XML_WARN_ELEM("Unexpected", xml);
             }
             break;
 
         case QXmlStreamReader::EndElement:
-            if (xml.qualifiedName() == QStringLiteral("collett:project")) {
-                docStatus |= 0b1000;
-            } else {
-                XML_WARN_ELEM("Skipped", xml);
+            if (tagStack.empty() || xml.qualifiedName() != tagStack.top()) {
+                xml.raiseError("Unexpected end element");
+                XML_WARN_ELEM("Unexpected", xml);
+                return false;
             }
+            tagStack.pop();
+            qDebug() << "Stack:" << tagStack;
             break;
 
         case QXmlStreamReader::Characters:
-            if (!xml.isWhitespace()) XML_WARN_GEN("Ignored", xml);
+            if (!xml.isWhitespace()) {
+                if (!xml.text().toString().trimmed().isEmpty()) {
+                    qDebug() << "Text:" << xml.text().toString();
+                }
+            }
             break;
 
-        case QXmlStreamReader::Invalid:
-            XML_WARN_GEN("Invalid", xml);
+        case QXmlStreamReader::Comment:
+            // Comments are ignored
             break;
 
         default:
-            XML_WARN_GEN("Ignored", xml);
-            break;
+            xml.raiseError("Unexpected element");
+            return false;
         }
+
+        xml.readNext();
     }
 
     if (xml.hasError()) {
         qWarning() << xml.errorString();
+        m_lastError = xml.errorString();
+        xml.readNext();
         return false;
     }
-    m_project->m_isValid = docStatus == 0b1111;
 
-    return docStatus == 0b1111;
+    if (!tagStack.empty()) {
+        m_lastError = "Tag mismatch";
+        return false;
+    }
+
+    return true;
+}
+
+bool ProjectXmlReader::parseValues(QXmlStreamReader &xml, QStack<QString> &tagStack, QHash<QString, QString> &tagData) {
+
+    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == tagStack.top());
+
+    qsizetype inSize = tagStack.size();
+    QString topTag = tagStack.top();
+
+    while (!xml.atEnd() && !xml.hasError()) {
+
+        xml.readNext();
+
+        switch (xml.tokenType()) {
+        case QXmlStreamReader::StartElement:
+            tagStack.push(xml.qualifiedName().toString());
+            qDebug() << "Stack:" << tagStack;
+            break;
+
+        case QXmlStreamReader::EndElement:
+            if (tagStack.empty() || xml.qualifiedName() != tagStack.top()) {
+                xml.raiseError("Unexpected end element");
+                XML_WARN_ELEM("Unexpected", xml);
+                return false;
+            }
+            if (tagStack.size() == inSize && tagStack.top() == topTag) {
+                tagStack.pop();
+                return true;
+            }
+            tagStack.pop();
+            qDebug() << "Stack:" << tagStack;
+            break;
+
+        case QXmlStreamReader::Characters:
+            if (!xml.isWhitespace()) {
+                qDebug() << "Key:" << tagStack.top() << "Value:" << xml.text().toString();
+                tagData.insert(tagStack.top(), xml.text().toString());
+            }
+            break;
+
+        case QXmlStreamReader::Comment:
+            // Comments are ignored
+            break;
+
+        default:
+            xml.raiseError("Unexpected element");
+            return false;
+        }
+    }
+
+    return false;
 }
 
 /**
@@ -149,245 +279,68 @@ bool ProjectXmlReader::readProjectFile() {
  * ===============
  */
 
-bool ProjectXmlReader::readMetaXML(QXmlStreamReader &xml) {
-
-    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:meta"));
-
-    while (!xml.atEnd()) {
-        switch(xml.readNext()) {
-
-        case QXmlStreamReader::StartElement:
-            if (xml.qualifiedName() == QStringLiteral("dc:created")) {
-                XML_DEBUG("Parsing", xml);
-                qDebug() << xml.readElementText();
-            } else if (xml.qualifiedName() == QStringLiteral("dc:date")) {
-                XML_DEBUG("Parsing", xml);
-                qDebug() << xml.readElementText();
-            } else {
-                XML_WARN_ELEM("Unknown", xml);
-            }
-            break;
-
-        case QXmlStreamReader::EndElement:
-            if (xml.qualifiedName() == QLatin1String("collett:meta")) {
-                XML_DEBUG("Closing", xml);
-                return true;
-            } else {
-                XML_WARN_ELEM("Skipped", xml);
-            }
-            break;
-
-        case QXmlStreamReader::Characters:
-            if (!xml.isWhitespace()) XML_WARN_GEN("Ignored", xml);
-            break;
-
-        case QXmlStreamReader::Invalid:
-            XML_WARN_GEN("Invalid", xml);
-            break;
-
-        default:
-            XML_WARN_GEN("Ignored", xml);
-            break;
-        }
-    }
-
-    return false;
-}
-
-bool ProjectXmlReader::readSettingsXML(QXmlStreamReader &xml) {
-
-    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:settings"));
-
-    while (!xml.atEnd()) {
-        switch(xml.readNext()) {
-
-        case QXmlStreamReader::StartElement:
-            XML_DEBUG("Parsing", xml);
-            XML_WARN_ELEM("Unknown", xml);
-            break;
-
-        case QXmlStreamReader::EndElement:
-            if (xml.qualifiedName() == QLatin1String("collett:settings")) {
-                XML_DEBUG("Closing", xml);
-                return true;
-            } else {
-                XML_WARN_ELEM("Skipped", xml);
-            }
-            break;
-
-        case QXmlStreamReader::Characters:
-            if (!xml.isWhitespace()) XML_WARN_GEN("Ignored", xml);
-            break;
-
-        case QXmlStreamReader::Invalid:
-            XML_WARN_GEN("Invalid", xml);
-            break;
-
-        default:
-            XML_WARN_GEN("Ignored", xml);
-            break;
-        }
-    }
-
-    return false;
-}
-
-bool ProjectXmlReader::readStylesXML(QXmlStreamReader &xml) {
-
-    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:styles"));
-
-    while (!xml.atEnd()) {
-        switch(xml.readNext()) {
-
-        case QXmlStreamReader::StartElement:
-            XML_DEBUG("Parsing", xml);
-            XML_WARN_ELEM("Unknown", xml);
-            break;
-
-        case QXmlStreamReader::EndElement:
-            if (xml.qualifiedName() == QLatin1String("collett:styles")) {
-                XML_DEBUG("Closing", xml);
-                return true;
-            } else {
-                XML_WARN_ELEM("Skipped", xml);
-            }
-            break;
-
-        case QXmlStreamReader::Characters:
-            if (!xml.isWhitespace()) XML_WARN_GEN("Ignored", xml);
-            break;
-
-        case QXmlStreamReader::Invalid:
-            XML_WARN_GEN("Invalid", xml);
-            break;
-
-        default:
-            XML_WARN_GEN("Ignored", xml);
-            break;
-        }
-    }
-
-    return false;
-}
-
-bool ProjectXmlReader::readStructureXML(QXmlStreamReader &xml) {
+bool ProjectXmlReader::parseStructure(QXmlStreamReader &xml, QStack<QString> &tagStack) {
 
     Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:structure"));
 
+    qsizetype inSize = tagStack.size();
+
+    bool inStory = false;
+
     while (!xml.atEnd()) {
-        switch(xml.readNext()) {
+
+        xml.readNext();
+
+        switch (xml.tokenType()) {
 
         case QXmlStreamReader::StartElement:
+            tagStack.push(xml.qualifiedName().toString());
+            qDebug() << "Stack:" << tagStack;
+
             if (xml.qualifiedName() == QStringLiteral("collett:tree")) {
                 QXmlStreamAttributes attr = xml.attributes();
                 if (attr.value(QStringLiteral("item:class")) == QStringLiteral("story")) {
                     XML_DEBUG("Parsing", xml);
-                    if (!readStoryTreeXML(xml))
-                        xml.raiseError("Could not parse <collett:tree> section");
+                    inStory = true;
                 } else {
                     XML_WARN_ELEM("Unknown", xml);
                 }
+            } else if (xml.qualifiedName() == QStringLiteral("collett:item") && inStory) {
+                if (!recurseStory(m_project->storyModel()->rootItem(), xml, tagStack))
+                    xml.raiseError("Could not parse <collett:item> section");
             } else {
                 XML_WARN_ELEM("Unknown", xml);
             }
             break;
 
         case QXmlStreamReader::EndElement:
-            if (xml.qualifiedName() == QLatin1String("collett:structure")) {
-                XML_DEBUG("Closing", xml);
-                return true;
-            } else {
-                XML_WARN_ELEM("Skipped", xml);
+            if (tagStack.empty() || xml.qualifiedName() != tagStack.top()) {
+                xml.raiseError("Unexpected end element");
+                XML_WARN_ELEM("Unexpected", xml);
+                return false;
             }
+            if (tagStack.size() == inSize && tagStack.top() == QStringLiteral("collett:structure")) {
+                tagStack.pop();
+                return true;
+            }
+            if (tagStack.top() == QStringLiteral("collett:tree")) {
+                inStory = false;
+            }
+            tagStack.pop();
+            qDebug() << "Stack:" << tagStack;
             break;
 
         case QXmlStreamReader::Characters:
             if (!xml.isWhitespace()) XML_WARN_GEN("Ignored", xml);
             break;
 
-        case QXmlStreamReader::Invalid:
-            XML_WARN_GEN("Invalid", xml);
+        case QXmlStreamReader::Comment:
+            // Comments are ignored
             break;
 
         default:
-            XML_WARN_GEN("Ignored", xml);
-            break;
-        }
-    }
-
-    return false;
-}
-
-bool ProjectXmlReader::readContentXML(QXmlStreamReader &xml) {
-
-    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:content"));
-
-    while (!xml.atEnd()) {
-        switch(xml.readNext()) {
-
-        case QXmlStreamReader::StartElement:
-            XML_DEBUG("Parsing", xml);
-            XML_WARN_ELEM("Unknown", xml);
-            break;
-
-        case QXmlStreamReader::EndElement:
-            if (xml.qualifiedName() == QLatin1String("collett:content")) {
-                XML_DEBUG("Closing", xml);
-                return true;
-            } else {
-                XML_WARN_ELEM("Skipped", xml);
-            }
-            break;
-
-        case QXmlStreamReader::Characters:
-            if (!xml.isWhitespace()) XML_WARN_GEN("Ignored", xml);
-            break;
-
-        case QXmlStreamReader::Invalid:
-            XML_WARN_GEN("Invalid", xml);
-            break;
-
-        default:
-            XML_WARN_GEN("Ignored", xml);
-            break;
-        }
-    }
-
-    return false;
-}
-
-bool ProjectXmlReader::readExtraXML(QXmlStreamReader &xml) {
-
-    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:extra"));
-
-    while (!xml.atEnd()) {
-        switch(xml.readNext()) {
-
-        case QXmlStreamReader::StartElement:
-            XML_DEBUG("Parsing", xml);
-            XML_WARN_ELEM("Unknown", xml);
-            break;
-
-        case QXmlStreamReader::EndElement:
-            if (xml.qualifiedName() == QLatin1String("collett:extra")) {
-                XML_DEBUG("Closing", xml);
-                return true;
-            } else {
-                XML_WARN_ELEM("Skipped", xml);
-            }
-            break;
-
-        case QXmlStreamReader::Characters:
-            if (!xml.isWhitespace()) XML_WARN_GEN("Ignored", xml);
-            break;
-
-        case QXmlStreamReader::Invalid:
-            XML_WARN_GEN("Invalid", xml);
-            break;
-
-        default:
-            XML_WARN_GEN("Ignored", xml);
-            break;
+            xml.raiseError("Unexpected element");
+            return false;
         }
     }
 
@@ -399,54 +352,12 @@ bool ProjectXmlReader::readExtraXML(QXmlStreamReader &xml) {
  * ===========================
  */
 
-bool ProjectXmlReader::readStoryTreeXML(QXmlStreamReader &xml) {
-
-    Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:tree"));
-
-    while (!xml.atEnd()) {
-        switch(xml.readNext()) {
-
-        case QXmlStreamReader::StartElement:
-            if (xml.qualifiedName() == QLatin1String("collett:item")) {
-                XML_DEBUG("Parsing", xml);
-                if (!recurseStory(m_project->storyModel()->rootItem(), xml))
-                    xml.raiseError("Could not parse <collett:item> section");
-            } else {
-                XML_WARN_ELEM("Unknown", xml);
-            }
-            break;
-
-        case QXmlStreamReader::EndElement:
-            if (xml.qualifiedName() == QLatin1String("collett:tree")) {
-                XML_DEBUG("Closing", xml);
-                return true;
-            } else {
-                XML_WARN_ELEM("Skipped", xml);
-            }
-            break;
-
-        case QXmlStreamReader::Characters:
-            if (!xml.isWhitespace()) XML_WARN_GEN("Ignored", xml);
-            break;
-
-        case QXmlStreamReader::Invalid:
-            XML_WARN_GEN("Invalid", xml);
-            break;
-
-        default:
-            XML_WARN_GEN("Ignored", xml);
-            break;
-        }
-    }
-
-    return false;
-}
-
-bool ProjectXmlReader::recurseStory(StoryItem *parent, QXmlStreamReader &xml) {
+bool ProjectXmlReader::recurseStory(StoryItem *parent, QXmlStreamReader &xml, QStack<QString> &tagStack) {
 
     Q_ASSERT(xml.isStartElement() && xml.qualifiedName() == QStringLiteral("collett:item"));
 
     QXmlStreamAttributes attr = xml.attributes();
+
     StoryItem::ItemType type = StoryItem::typeFromString(attr.value(QStringLiteral("item:type")).toString());
     QString name = attr.value(QStringLiteral("item:name")).toString().simplified();
     QUuid handle = QUuid(attr.value(QStringLiteral("item:handle")).toString());
@@ -475,12 +386,18 @@ bool ProjectXmlReader::recurseStory(StoryItem *parent, QXmlStreamReader &xml) {
     qDebug() << "Loaded item" << attr.value(QStringLiteral("item:handle")).toString() << handle.toString(QUuid::WithoutBraces);
 
     while (!xml.atEnd()) {
-        switch(xml.readNext()) {
+
+        xml.readNext();
+
+        switch (xml.tokenType()) {
 
         case QXmlStreamReader::StartElement:
-            if (xml.qualifiedName() == QLatin1String("collett:item")) {
+            tagStack.push(xml.qualifiedName().toString());
+            qDebug() << "Stack:" << tagStack;
+
+            if (xml.qualifiedName() == QStringLiteral("collett:item")) {
                 XML_DEBUG("Parsing", xml);
-                if (!recurseStory(item, xml))
+                if (!recurseStory(item, xml, tagStack))
                     xml.raiseError("Could not parse <collett:item> section");
             } else {
                 XML_WARN_ELEM("Unknown", xml);
@@ -488,7 +405,14 @@ bool ProjectXmlReader::recurseStory(StoryItem *parent, QXmlStreamReader &xml) {
             break;
 
         case QXmlStreamReader::EndElement:
-            if (xml.qualifiedName() == QLatin1String("collett:item")) {
+            if (tagStack.empty() || xml.qualifiedName() != tagStack.top()) {
+                xml.raiseError("Unexpected end element");
+                XML_WARN_ELEM("Unexpected", xml);
+                return false;
+            }
+            tagStack.pop();
+            qDebug() << "Stack:" << tagStack;
+            if (xml.qualifiedName() == QStringLiteral("collett:item")) {
                 XML_DEBUG("Closing", xml);
                 return true;
             } else {
@@ -500,13 +424,13 @@ bool ProjectXmlReader::recurseStory(StoryItem *parent, QXmlStreamReader &xml) {
             if (!xml.isWhitespace()) XML_WARN_GEN("Ignored", xml);
             break;
 
-        case QXmlStreamReader::Invalid:
-            XML_WARN_GEN("Invalid", xml);
+        case QXmlStreamReader::Comment:
+            // Comments are ignored
             break;
 
         default:
-            XML_WARN_GEN("Ignored", xml);
-            break;
+            xml.raiseError("Unexpected element");
+            return false;
         }
     }
 
