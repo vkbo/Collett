@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QString>
 #include <QJsonObject>
+#include <QLatin1String>
 
 namespace Collett {
 
@@ -56,7 +57,7 @@ public:
 
     // Static Methods
 
-    static QString getJsonString(const QJsonObject &object, const QString &key, QString def);
+    static QString getJsonString(const QJsonObject &object, const QLatin1String &key, QString def);
 
 private:
     bool readJson(const QString &filePath, QJsonObject &fileData);

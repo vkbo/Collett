@@ -33,6 +33,7 @@
 #include <QByteArray>
 #include <QTextStream>
 #include <QJsonDocument>
+#include <QLatin1String>
 #include <QJsonParseError>
 
 namespace Collett {
@@ -81,7 +82,7 @@ bool Project::openProject() {
     if (main) {
         bool settings = loadSettingsFile();
         bool story = loadStoryFile();
-        m_isValid = settings & story;
+        m_isValid = settings && story;
     } else {
         m_isValid = false;
     }
@@ -101,7 +102,7 @@ bool Project::saveProject() {
     bool settings = saveSettingsFile();
     bool story = saveStoryFile();
 
-    return main & settings & story;
+    return main && settings && story;
 }
 
 bool Project::isValid() const {
@@ -147,12 +148,12 @@ bool Project::loadSettingsFile() {
         return false;
     }
 
-    QJsonObject jMeta = jData["meta"].toObject();
-    QJsonObject jProject = jData["project"].toObject();
-    QJsonObject jSettings = jData["settings"].toObject();
+    QJsonObject jMeta = jData[QLatin1String("c:meta")].toObject();
+    QJsonObject jProject = jData[QLatin1String("c:project")].toObject();
+    QJsonObject jSettings = jData[QLatin1String("c:settings")].toObject();
 
-    m_createdTime = Storage::getJsonString(jMeta, "created", "Unknown");
-    m_projectName = Storage::getJsonString(jProject, "projectName", tr("Unnamed Project"));
+    m_createdTime = Storage::getJsonString(jMeta, QLatin1String("m:created"), "Unknown");
+    m_projectName = Storage::getJsonString(jProject, QLatin1String("u:project-name"), tr("Unnamed Project"));
 
     return true;
 }
@@ -161,14 +162,14 @@ bool Project::saveSettingsFile() {
 
     QJsonObject jData, jMeta, jProject, jSettings;
 
-    jMeta["created"] = m_createdTime;
-    jMeta["updated"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+    jMeta[QLatin1String("m:created")] = m_createdTime;
+    jMeta[QLatin1String("m:updated")] = QDateTime::currentDateTime().toString(Qt::ISODate);
 
-    jProject["projectName"] = m_projectName;
+    jProject[QLatin1String("u:project-name")] = m_projectName;
 
-    jData["meta"] = jMeta;
-    jData["project"] = jProject;
-    jData["settings"] = jSettings;
+    jData[QLatin1String("c:meta")] = jMeta;
+    jData[QLatin1String("c:project")] = jProject;
+    jData[QLatin1String("c:settings")] = jSettings;
 
     if (!m_store->saveFile("project", jData)) {
         m_lastError = m_store->lastError();

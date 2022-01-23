@@ -29,6 +29,7 @@
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QModelIndex>
+#include <QLatin1String>
 #include <QAbstractItemModel>
 
 namespace Collett {
@@ -90,28 +91,28 @@ bool StoryModel::fromJsonObject(const QJsonObject &json) {
         qWarning() << "StoryItem Root: No data in JSON object";
         return false;
     }
-    if (!json.contains("type")) {
+    if (!json.contains(QLatin1String("u:type"))) {
         qWarning() << "StoryItem Root: Not a valid story item JSON object";
         return false;
     }
 
-    StoryItem::ItemType type = StoryItem::typeFromString(json["type"].toString());
+    StoryItem::ItemType type = StoryItem::typeFromString(json[QLatin1String("u:type")].toString());
     if (type != StoryItem::Root) {
         qWarning() << "StoryItem Root: No ROOT item found in JSON object";
         return false;
     }
 
-    if (!json.contains("xItems")) {
+    if (!json.contains(QLatin1String("x:items"))) {
         qDebug() << "StoryItem Root: No items found in JSON object";
         return false;
     }
-    if (!json["xItems"].isArray()) {
-        qWarning() << "StoryItem Root: xItems value is not a JSON array";
+    if (!json[QLatin1String("x:items")].isArray()) {
+        qWarning() << "StoryItem Root: x:items value is not a JSON array";
         return false;
     }
 
     emit beginResetModel();
-    for (const QJsonValue &value : json["xItems"].toArray()) {
+    for (const QJsonValue &value : json[QLatin1String("x:items")].toArray()) {
         if (value.isObject()) {
             m_rootItem->addChild(value.toObject());
         } else {

@@ -181,7 +181,7 @@ QString Storage::lastError() const {
  * @param def    the default value to return in case the key does not exist.
  * @return the value or the default as a string.
  */
-QString Storage::getJsonString(const QJsonObject &object, const QString &key, QString def) {
+QString Storage::getJsonString(const QJsonObject &object, const QLatin1String &key, QString def) {
     if (object.contains(key)) {
         return object.value(key).toString();
     } else {
