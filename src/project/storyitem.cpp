@@ -29,6 +29,7 @@
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QVariantList>
+#include <QLatin1String>
 
 namespace Collett {
 
@@ -105,17 +106,17 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
     ItemType type   = StoryItem::Invalid;
     int      wCount = 0;
 
-    if (json.contains("handle")) {
-        handle = QUuid(json["handle"].toString());
+    if (json.contains(QLatin1String("m:handle"))) {
+        handle = QUuid(json[QLatin1String("m:handle")].toString());
     }
-    if (json.contains("name")) {
-        name = json["name"].toString();
+    if (json.contains(QLatin1String("u:name"))) {
+        name = json[QLatin1String("u:name")].toString();
     }
-    if (json.contains("type")) {
-        type = StoryItem::typeFromString(json["type"].toString());
+    if (json.contains(QLatin1String("u:type"))) {
+        type = StoryItem::typeFromString(json[QLatin1String("u:type")].toString());
     }
-    if (json.contains("wCount")) {
-        wCount = json["wCount"].toInt();
+    if (json.contains(QLatin1String("m:words"))) {
+        wCount = json[QLatin1String("m:words")].toInt();
     }
 
     if (type == StoryItem::Invalid) {
@@ -146,9 +147,9 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
     item->setWordCount(wCount);
     m_childItems.append(item);
 
-    if (json.contains("xItems")) {
-        if (json["xItems"].isArray()) {
-            for (const QJsonValue &value : json["xItems"].toArray()) {
+    if (json.contains(QLatin1String("x:items"))) {
+        if (json[QLatin1String("x:items")].isArray()) {
+            for (const QJsonValue &value : json[QLatin1String("x:items")].toArray()) {
                 if (value.isObject()) {
                     item->addChild(value.toObject());
                 } else {
@@ -178,30 +179,30 @@ QJsonObject StoryItem::toJsonObject() {
         children.append(m_childItems.at(i)->toJsonObject());
     }
 
-    QString type = "UNKNOWN";
+    QLatin1String type;
     switch (m_type) {
-        case StoryItem::Root:      type = "ROOT"; break;
-        case StoryItem::Book:      type = "BOOK"; break;
-        case StoryItem::Partition: type = "PARTITION"; break;
-        case StoryItem::Chapter:   type = "CHAPTER"; break;
-        case StoryItem::Scene:     type = "SCENE"; break;
-        case StoryItem::Page:      type = "PAGE"; break;
+        case StoryItem::Root:      type = QLatin1String("ROOT"); break;
+        case StoryItem::Book:      type = QLatin1String("BOOK"); break;
+        case StoryItem::Partition: type = QLatin1String("PARTITION"); break;
+        case StoryItem::Chapter:   type = QLatin1String("CHAPTER"); break;
+        case StoryItem::Scene:     type = QLatin1String("SCENE"); break;
+        case StoryItem::Page:      type = QLatin1String("PAGE"); break;
         case StoryItem::Invalid:
             return QJsonObject();
             break;
     }
 
     if (!m_parentItem) {
-        item["type"]   = type;
-        item["xItems"] = children;
+        item[QLatin1String("u:type")]  = type;
+        item[QLatin1String("x:items")] = children;
     } else {
-        item["handle"] = m_handle.toString(QUuid::WithoutBraces);
-        item["name"]   = m_name;
-        item["type"]   = type;
-        item["order"]  = row();
-        item["wCount"] = m_wCount;
+        item[QLatin1String("m:handle")] = m_handle.toString(QUuid::WithoutBraces);
+        item[QLatin1String("m:order")]  = row();
+        item[QLatin1String("m:words")]  = m_wCount;
+        item[QLatin1String("u:name")]   = m_name;
+        item[QLatin1String("u:type")]   = type;
         if (children.size() > 0) {
-            item["xItems"] = children;
+            item[QLatin1String("x:items")] = children;
         }
     }
 

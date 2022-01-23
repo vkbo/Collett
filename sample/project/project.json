@@ -1,11 +1,11 @@
 {
-    "meta": {
-        "created": "2021-12-14T22:24:25",
-        "updated": "2021-12-18T18:18:56"
+    "c:meta": {
+        "m:created": "2021-12-14T22:24:25",
+        "m:updated": "2022-01-23T17:54:31"
     },
-    "project": {
-        "projectName": "Sample Project"
+    "c:project": {
+        "u:project-name": "Sample Project"
     },
-    "settings": {
+    "c:settings": {
     }
 }
