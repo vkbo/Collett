@@ -4,52 +4,52 @@
 <context>
     <name>Collett::GuiEditToolBar</name>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="40"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="41"/>
         <source>Bold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="41"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="42"/>
         <source>Italic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="42"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="43"/>
         <source>Underline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="43"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="44"/>
         <source>Strikethrough</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="47"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="53"/>
         <source>Align Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="48"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="54"/>
         <source>Align Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="49"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="55"/>
         <source>Align Centre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="50"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="56"/>
         <source>Align Justify</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="54"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="65"/>
         <source>Indent Paragraph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="55"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="66"/>
         <source>Outdent Paragraph</source>
         <translation type="unfinished"></translation>
     </message>
@@ -186,7 +186,7 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="155"/>
+        <location filename="../src/project/project.cpp" line="156"/>
         <source>Unnamed Project</source>
         <translation type="unfinished"></translation>
     </message>
@@ -223,32 +223,32 @@
 <context>
     <name>Collett::StoryItem</name>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="136"/>
+        <location filename="../src/project/storyitem.cpp" line="137"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="314"/>
+        <location filename="../src/project/storyitem.cpp" line="315"/>
         <source>Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="315"/>
+        <location filename="../src/project/storyitem.cpp" line="316"/>
         <source>Partition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="316"/>
+        <location filename="../src/project/storyitem.cpp" line="317"/>
         <source>Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="317"/>
+        <location filename="../src/project/storyitem.cpp" line="318"/>
         <source>Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/storyitem.cpp" line="318"/>
+        <location filename="../src/project/storyitem.cpp" line="319"/>
         <source>Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -256,7 +256,7 @@
 <context>
     <name>Collett::StoryModel</name>
     <message>
-        <location filename="../src/project/storymodel.cpp" line="154"/>
+        <location filename="../src/project/storymodel.cpp" line="155"/>
         <source>New %1</source>
         <translation type="unfinished"></translation>
     </message>
