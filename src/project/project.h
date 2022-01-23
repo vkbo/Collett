@@ -54,6 +54,7 @@ public:
 
     QString projectName() const;
     StoryModel *storyModel();
+    Storage *store();
 
     // Error Handling
 
@@ -61,8 +62,8 @@ public:
     QString lastError() const;
 
 private:
-    bool    m_isValid;
-    QString m_lastError;
+    bool     m_isValid;
+    QString  m_lastError;
     Storage *m_store;
 
     // Project Meta

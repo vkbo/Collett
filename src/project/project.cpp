@@ -131,6 +131,10 @@ StoryModel *Project::storyModel() {
     return m_storyModel;
 }
 
+Storage *Project::store() {
+    return m_store;
+}
+
 /**
  * Settings File
  * =============

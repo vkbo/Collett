@@ -22,15 +22,105 @@
 #include "collett.h"
 #include "textedit.h"
 
+#include <QUuid>
 #include <QObject>
 #include <QWidget>
 #include <QTextEdit>
+#include <QJsonArray>
+#include <QTextBlock>
+#include <QJsonObject>
+#include <QStringList>
 
 namespace Collett {
 
 GuiTextEdit::GuiTextEdit(QWidget *parent)
     : QTextEdit(parent)
-{}
+{
+}
+
+/**
+ * Methods
+ * =======
+ */
+
+QJsonObject GuiTextEdit::toJsonObject() {
+
+    QJsonObject json;
+    QJsonArray jsonBlocks;
+
+    QTextBlock block = this->document()->firstBlock();
+    while(block.isValid()) {
+        QJsonObject jsonBlock;
+        QJsonArray jsonFrags;
+        QStringList jsonBlockFmt;
+
+        QTextBlockFormat blockFormat = block.blockFormat();
+        bool isPlainText = true;
+
+        // Block Type
+        if (blockFormat.headingLevel() > 0) {
+            jsonBlockFmt << QString().setNum(blockFormat.headingLevel()).prepend("h");
+        } else {
+            jsonBlockFmt << "p";
+        }
+
+        // Block Alignment
+        switch (blockFormat.alignment()) {
+            case Qt::AlignLeading:  jsonBlockFmt << "al"; break;
+            case Qt::AlignHCenter:  jsonBlockFmt << "ac"; break;
+            case Qt::AlignTrailing: jsonBlockFmt << "at"; break;
+            default: break;
+        }
+
+        // Write Format
+        jsonBlock.insert(QLatin1String("u:fmt"), jsonBlockFmt.join(":"));
+
+        // Write Text
+        QTextBlock::Iterator blockIt = block.begin();
+        for (; !blockIt.atEnd(); ++blockIt) {
+
+            QJsonObject jsonFrag;
+            QTextFragment blockFrag = blockIt.fragment();
+            QTextCharFormat fragFmt = blockFrag.charFormat();
+
+            QStringList jsonFragFmt;
+
+            if (fragFmt.fontWeight() > QFont::Medium) jsonFragFmt << "b";
+            if (fragFmt.fontItalic()) jsonFragFmt << "i";
+            if (fragFmt.fontUnderline()) jsonFragFmt << "u";
+            if (fragFmt.fontStrikeOut()) jsonFragFmt << "s";
+            
+            if (jsonFragFmt.size() > 0) {
+                jsonFrag.insert(QLatin1String("u:fmt"), jsonFragFmt.join(":"));
+                isPlainText = false;
+            }
+            jsonFrag.insert(QLatin1String("u:txt"), blockFrag.text());
+            jsonFrags.append(jsonFrag);
+
+            if (jsonFrags.size() > 1) {
+                isPlainText = false;
+            }
+        }
+
+        if (isPlainText) {
+            jsonBlock.insert(QLatin1String("u:txt"), block.text());
+        } else {
+            jsonBlock.insert(QLatin1String("x:txt"), jsonFrags);
+        }
+
+        // Finish & Next
+        jsonBlocks.append(jsonBlock);
+        block = block.next();
+    }
+    json.insert(QLatin1String("x:content"), jsonBlocks);
+
+    return json;
+}
+
+/**
+ * Public Slots
+ * ============
+ */
 
 void GuiTextEdit::applyDocAction(DocAction action) {
 

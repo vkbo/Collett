@@ -29,6 +29,7 @@
 #include "storytree.h"
 #include "treetoolbar.h"
 
+#include <QUuid>
 #include <QString>
 #include <QWidget>
 #include <QCloseEvent>
@@ -95,6 +96,10 @@ void GuiMain::openProject(const QString &path) {
     QItemSelectionModel *m = m_storyTree->selectionModel();
     m_storyTree->setTreeModel(m_data->storyModel());
     delete m;
+
+    // hardcoded for now
+    m_docEditor->openDocument(QUuid("7e5a1a98-d1a3-44a1-ab4e-2b5d21d92201"));
+    m_docEditor->saveDocument();
 
     m_mainToolBar->setProjectName(m_data->project()->projectName());
 };

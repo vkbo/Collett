@@ -23,10 +23,12 @@
 #define GUI_TEXTEDIT_H
 
 #include "collett.h"
+#include "data.h"
 
 #include <QObject>
 #include <QWidget>
 #include <QTextEdit>
+#include <QJsonObject>
 
 namespace Collett {
 
@@ -37,6 +39,8 @@ class GuiTextEdit : public QTextEdit
 public:
     GuiTextEdit(QWidget *parent=nullptr);
     ~GuiTextEdit() {};
+
+    QJsonObject toJsonObject();
 
 public slots:
     void applyDocAction(DocAction action);

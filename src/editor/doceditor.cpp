@@ -33,6 +33,9 @@ namespace Collett {
 GuiDocEditor::GuiDocEditor(QWidget *parent)
     : QWidget(parent)
 {
+    m_data = CollettData::instance();
+    m_docUuid = QUuid();
+
     m_textArea = new GuiTextEdit(this);
     m_editToolBar = new GuiEditToolBar(this);
     connect(m_editToolBar, SIGNAL(documentAction(DocAction)), m_textArea, SLOT(applyDocAction(DocAction)));
@@ -44,8 +47,41 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
     outerBox->setSpacing(0);
 
     this->setLayout(outerBox);
-    m_textArea->setHtml("<b>Hello World</b>");
-    qDebug() << "QTextDocument:" << sizeof(m_textArea->document());
+}
+
+/**
+ * Methods
+ * =======
+ */
+
+bool GuiDocEditor::openDocument(const QUuid &uuid) {
+    if (!m_data->hasProject()) {
+        qWarning() << "No project loaded";
+        return false;
+    }
+
+    m_textArea->setHtml(
+        "<h3>Some Document</h3>"
+        "<p><b>Hello World!</b></p>"
+        "<p>This is a text <i>paragraph</i> with some simple formatting.</p>"
+        "<p>Here is a paragraph with no formatting whatsoever.</p>"
+    );
+
+    m_docUuid = uuid;
+
+    return true;
+}
+
+bool GuiDocEditor::saveDocument() {
+    if (!m_data->hasProject()) {
+        qWarning() << "No project loaded";
+        return false;
+    }
+    if (m_docUuid.isNull()) {
+        qWarning() << "No document to save";
+        return false;
+    }
+    return m_data->project()->store()->saveFile(m_docUuid, m_textArea->toJsonObject());
 }
 
 } // namespace Collett
