@@ -119,6 +119,7 @@ bool GuiMain::closeProject() {
 
 bool GuiMain::closeMain() {
 
+    m_docEditor->saveDocument();
     m_data->saveProject();
     m_data->closeProject();
 

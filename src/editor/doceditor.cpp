@@ -63,8 +63,10 @@ bool GuiDocEditor::openDocument(const QUuid &uuid) {
     m_textArea->setHtml(
         "<h3>Some Document</h3>"
         "<p><b>Hello World!</b></p>"
-        "<p>This is a text <i>paragraph</i> with some simple formatting.</p>"
+        "<p>This is a text <i>paragraph</i> with some <u>simple</u> formatting.</p>"
         "<p>Here is a paragraph with no formatting whatsoever.</p>"
+        "<p>&nbsp;</p>"
+        "<p>Blank paragraph above here.</p>"
     );
 
     m_docUuid = uuid;

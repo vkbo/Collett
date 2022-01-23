@@ -1,41 +1,35 @@
 {
+    "m:updated": "2022-01-23T23:17:38",
     "x:content": [
         {
             "u:fmt": "h3:al",
-            "x:txt": [
-                {
-                    "u:fmt": "b",
-                    "u:txt": "Some Document"
-                }
-            ]
+            "u:txt": "t:b|Some Document"
+        },
+        {
+            "u:fmt": "p:al",
+            "u:txt": "t:b|Hello World!"
         },
         {
             "u:fmt": "p:al",
             "x:txt": [
-                {
-                    "u:fmt": "b",
-                    "u:txt": "Hello World!"
-                }
+                "t|This is a text ",
+                "t:i|paragraph",
+                "t| with some ",
+                "t:u|simple",
+                "t| formatting."
             ]
         },
         {
             "u:fmt": "p:al",
-            "x:txt": [
-                {
-                    "u:txt": "This is a text "
-                },
-                {
-                    "u:fmt": "i",
-                    "u:txt": "paragraph"
-                },
-                {
-                    "u:txt": " with some simple formatting."
-                }
-            ]
+            "u:txt": "t|Here is a paragraph with no formatting whatsoever."
         },
         {
             "u:fmt": "p:al",
-            "u:txt": "Here is a paragraph with no formatting whatsoever."
+            "u:txt": "t| "
+        },
+        {
+            "u:fmt": "p:al",
+            "u:txt": "t|Blank paragraph above here."
         }
     ]
 }

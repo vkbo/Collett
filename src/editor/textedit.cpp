@@ -25,6 +25,7 @@
 #include <QUuid>
 #include <QObject>
 #include <QWidget>
+#include <QDateTime>
 #include <QTextEdit>
 #include <QJsonArray>
 #include <QTextBlock>
@@ -55,7 +56,6 @@ QJsonObject GuiTextEdit::toJsonObject() {
         QStringList jsonBlockFmt;
 
         QTextBlockFormat blockFormat = block.blockFormat();
-        bool isPlainText = true;
 
         // Block Type
         if (blockFormat.headingLevel() > 0) {
@@ -69,6 +69,7 @@ QJsonObject GuiTextEdit::toJsonObject() {
             case Qt::AlignLeading:  jsonBlockFmt << "al"; break;
             case Qt::AlignHCenter:  jsonBlockFmt << "ac"; break;
             case Qt::AlignTrailing: jsonBlockFmt << "at"; break;
+            case Qt::AlignJustify:  jsonBlockFmt << "aj"; break;
             default: break;
         }
 
@@ -85,33 +86,34 @@ QJsonObject GuiTextEdit::toJsonObject() {
 
             QStringList jsonFragFmt;
 
+            jsonFragFmt << "t";
             if (fragFmt.fontWeight() > QFont::Medium) jsonFragFmt << "b";
             if (fragFmt.fontItalic()) jsonFragFmt << "i";
             if (fragFmt.fontUnderline()) jsonFragFmt << "u";
             if (fragFmt.fontStrikeOut()) jsonFragFmt << "s";
-            
-            if (jsonFragFmt.size() > 0) {
-                jsonFrag.insert(QLatin1String("u:fmt"), jsonFragFmt.join(":"));
-                isPlainText = false;
-            }
-            jsonFrag.insert(QLatin1String("u:txt"), blockFrag.text());
-            jsonFrags.append(jsonFrag);
 
-            if (jsonFrags.size() > 1) {
-                isPlainText = false;
-            }
+            jsonFrags.append(jsonFragFmt.join(":") + "|" + blockFrag.text());
         }
 
-        if (isPlainText) {
-            jsonBlock.insert(QLatin1String("u:txt"), block.text());
-        } else {
+        qDebug() << jsonFrags.size();
+        switch (jsonFrags.size()) {
+        case 0:
+            jsonBlock.insert(QLatin1String("u:txt"), "t|");
+            break;
+        case 1:
+            jsonBlock.insert(QLatin1String("u:txt"), jsonFrags.at(0));
+            break;
+        default:
             jsonBlock.insert(QLatin1String("x:txt"), jsonFrags);
+            break;
         }
 
         // Finish & Next
         jsonBlocks.append(jsonBlock);
         block = block.next();
     }
+
+    json.insert(QLatin1String("m:updated"), QDateTime::currentDateTime().toString(Qt::ISODate));
     json.insert(QLatin1String("x:content"), jsonBlocks);
 
     return json;
