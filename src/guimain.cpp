@@ -99,7 +99,7 @@ void GuiMain::openProject(const QString &path) {
 
     // hardcoded for now
     m_docEditor->openDocument(QUuid("7e5a1a98-d1a3-44a1-ab4e-2b5d21d92201"));
-    m_docEditor->saveDocument();
+    // m_docEditor->saveDocument();
 
     m_mainToolBar->setProjectName(m_data->project()->projectName());
 };
@@ -119,7 +119,7 @@ bool GuiMain::closeProject() {
 
 bool GuiMain::closeMain() {
 
-    m_docEditor->saveDocument();
+    // m_docEditor->saveDocument();
     m_data->saveProject();
     m_data->closeProject();
 

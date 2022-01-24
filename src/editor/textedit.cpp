@@ -22,15 +22,20 @@
 #include "collett.h"
 #include "textedit.h"
 
+#include <QFont>
 #include <QUuid>
 #include <QObject>
 #include <QWidget>
 #include <QDateTime>
 #include <QTextEdit>
 #include <QJsonArray>
+#include <QJsonValue>
 #include <QTextBlock>
 #include <QJsonObject>
 #include <QStringList>
+#include <QTextCursor>
+#include <QTextCharFormat>
+#include <QTextBlockFormat>
 
 namespace Collett {
 
@@ -67,10 +72,16 @@ QJsonObject GuiTextEdit::toJsonObject() {
         // Block Alignment
         switch (blockFormat.alignment()) {
             case Qt::AlignLeading:  jsonBlockFmt << "al"; break;
+            case Qt::AlignCenter:   jsonBlockFmt << "ac"; break;
             case Qt::AlignHCenter:  jsonBlockFmt << "ac"; break;
             case Qt::AlignTrailing: jsonBlockFmt << "at"; break;
             case Qt::AlignJustify:  jsonBlockFmt << "aj"; break;
-            default: break;
+            default: jsonBlockFmt << "al"; break;
+        }
+
+        // Block Indent
+        if (blockFormat.textIndent() > 0.0) {
+            jsonBlockFmt << "in";
         }
 
         // Write Format
@@ -92,10 +103,9 @@ QJsonObject GuiTextEdit::toJsonObject() {
             if (fragFmt.fontUnderline()) jsonFragFmt << "u";
             if (fragFmt.fontStrikeOut()) jsonFragFmt << "s";
 
-            jsonFrags.append(jsonFragFmt.join(":") + "|" + blockFrag.text());
+            jsonFrags.append(jsonFragFmt.join(":") + "|" + blockFrag.text().replace(QChar::LineSeparator, '\n'));
         }
 
-        qDebug() << jsonFrags.size();
         switch (jsonFrags.size()) {
         case 0:
             jsonBlock.insert(QLatin1String("u:txt"), "t|");
@@ -117,6 +127,121 @@ QJsonObject GuiTextEdit::toJsonObject() {
     json.insert(QLatin1String("x:content"), jsonBlocks);
 
     return json;
+}
+
+void GuiTextEdit::setJsonObject(const QJsonObject &json) {
+
+    if (!json.contains(QLatin1String("x:content"))) {
+        qWarning() << "No documentcontent in JSON data.";
+        return;
+    }
+    if (!json[QLatin1String("x:content")].isArray()) {
+        qWarning() << "Unexpected content in 'x:content'. Expected JSON array.";
+        return;
+    }
+
+    QTextDocument *doc = this->document();
+    QTextCursor cursor = QTextCursor(doc);
+    bool isFirst = true;
+
+    doc->setUndoRedoEnabled(false);
+    doc->clear();
+
+    for (const QJsonValue &jsonBlockValue : json[QLatin1String("x:content")].toArray()) {
+        if (!jsonBlockValue.isObject()) {
+            qWarning() << "Unexpected content in 'x:content' array. Expected JSON object.";
+            continue;
+        }
+
+        QStringList jsonBlockFmt;
+        QStringList jsonFrags;
+        QTextBlock newBlock;
+
+        QJsonObject jsonBlock = jsonBlockValue.toObject();
+        if (jsonBlock.contains(QLatin1String("u:fmt"))) {
+            jsonBlockFmt = jsonBlock[QLatin1String("u:fmt")].toString().split(":");
+        }
+
+        QTextBlockFormat blockFormat;
+        for (const QString &blockFmtTag : jsonBlockFmt) {
+            if (blockFmtTag == "p") {
+                blockFormat.setHeadingLevel(0);
+            } else if (blockFmtTag == "h1") {
+                blockFormat.setHeadingLevel(1);
+            } else if (blockFmtTag == "h2") {
+                blockFormat.setHeadingLevel(2);
+            } else if (blockFmtTag == "h3") {
+                blockFormat.setHeadingLevel(3);
+            } else if (blockFmtTag == "h4") {
+                blockFormat.setHeadingLevel(4);
+            } else if (blockFmtTag == "h5") {
+                blockFormat.setHeadingLevel(5);
+            } else if (blockFmtTag == "h6") {
+                blockFormat.setHeadingLevel(6);
+            } else if (blockFmtTag == "al") {
+                blockFormat.setAlignment(Qt::AlignLeading);
+            } else if (blockFmtTag == "ac") {
+                blockFormat.setAlignment(Qt::AlignHCenter);
+            } else if (blockFmtTag == "at") {
+                blockFormat.setAlignment(Qt::AlignTrailing);
+            } else if (blockFmtTag == "aj") {
+                blockFormat.setAlignment(Qt::AlignJustify);
+            }
+        }
+
+        if (isFirst) {
+            cursor.setBlockFormat(blockFormat);
+            isFirst = false;
+        } else {
+            cursor.insertBlock(blockFormat);
+        }
+
+        if (jsonBlock.contains(QLatin1String("u:txt"))) {
+            jsonFrags << jsonBlock[QLatin1String("u:txt")].toString();
+        } else if (jsonBlock.contains(QLatin1String("x:txt"))) {
+            for (const QJsonValue &jsonFragValue : jsonBlock[QLatin1String("x:txt")].toArray()) {
+                jsonFrags << jsonFragValue.toString();
+            }
+        }
+
+        for (const QString &fragText : jsonFrags) {
+
+            qsizetype fmtTagPos = fragText.indexOf("|");
+            if (fmtTagPos < 0) {
+                qWarning() << "Could not parse format of text line";
+                cursor.insertText(fragText);
+                continue;
+            }
+
+            QStringList fragCharFmt = fragText.first(fmtTagPos).split(":");
+            QString innerText = fragText.sliced(fmtTagPos + 1);
+
+            qDebug() << fragCharFmt << innerText;
+
+            QTextCharFormat charFormat;
+            bool isText = false;;
+            for (const QString &fragFmtTag : fragCharFmt) {
+                if (fragFmtTag == "t") {
+                    isText = true;
+                } else if (fragFmtTag == "b") {
+                    charFormat.setFontWeight(QFont::Bold);
+                } else if (fragFmtTag == "i") {
+                    charFormat.setFontItalic(true);
+                } else if (fragFmtTag == "u") {
+                    charFormat.setFontUnderline(true);
+                } else if (fragFmtTag == "s") {
+                    charFormat.setFontStrikeOut(true);
+                }
+            }
+
+            if (isText) {
+                cursor.insertText(innerText, charFormat);
+            }
+        }
+
+    }
+
+    doc->setUndoRedoEnabled(true);
 }
 
 /**

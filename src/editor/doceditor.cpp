@@ -24,8 +24,10 @@
 #include "textedit.h"
 #include "edittoolbar.h"
 
+#include <QTime>
 #include <QObject>
 #include <QWidget>
+#include <QJsonObject>
 #include <QVBoxLayout>
 
 namespace Collett {
@@ -64,10 +66,16 @@ bool GuiDocEditor::openDocument(const QUuid &uuid) {
         "<h3>Some Document</h3>"
         "<p><b>Hello World!</b></p>"
         "<p>This is a text <i>paragraph</i> with some <u>simple</u> formatting.</p>"
-        "<p>Here is a paragraph with no formatting whatsoever.</p>"
+        "<p>Here is a paragraph with no formatting whatsoever.<br>This is a second line in the same paragraph.</p>"
         "<p>&nbsp;</p>"
         "<p>Blank paragraph above here.</p>"
+        "<p style='text-align: center'>* * *</p>"
+        "<p>This text belongs to a second section of the text document.</p>"
     );
+
+    QJsonObject json;
+    bool success = m_data->project()->store()->loadFile(uuid, json);
+    m_textArea->setJsonObject(json);
 
     m_docUuid = uuid;
 
@@ -83,7 +91,12 @@ bool GuiDocEditor::saveDocument() {
         qWarning() << "No document to save";
         return false;
     }
-    return m_data->project()->store()->saveFile(m_docUuid, m_textArea->toJsonObject());
+    QTime startTime = QTime::currentTime();
+    bool status = m_data->project()->store()->saveFile(m_docUuid, m_textArea->toJsonObject());
+    QTime endTime = QTime::currentTime();
+    qDebug() << "Save file took (ms):" << startTime.msecsTo(endTime);
+
+    return status;
 }
 
 } // namespace Collett

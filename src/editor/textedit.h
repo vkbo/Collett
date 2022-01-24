@@ -41,6 +41,7 @@ public:
     ~GuiTextEdit() {};
 
     QJsonObject toJsonObject();
+    void setJsonObject(const QJsonObject &json);
 
 public slots:
     void applyDocAction(DocAction action);

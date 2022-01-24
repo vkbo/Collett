@@ -52,9 +52,9 @@ Project::Project(const QString &path) {
     // If the path is a file, go one level up
     QFileInfo fObj(path);
     if (fObj.isFile()) {
-        m_store = new Storage(fObj.dir().path(), Storage::Folder);
+        m_store = new Storage(fObj.dir().path(), Storage::Folder, false);
     } else {
-        m_store = new Storage(path, Storage::Folder);
+        m_store = new Storage(path, Storage::Folder, false);
     }
 
     qDebug() << "Project Path:" << m_store->projectPath();
