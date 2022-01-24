@@ -1,35 +1,43 @@
 {
-    "m:updated": "2022-01-23T23:17:38",
-    "x:content": [
-        {
-            "u:fmt": "h3:al",
-            "u:txt": "t:b|Some Document"
-        },
-        {
-            "u:fmt": "p:al",
-            "u:txt": "t:b|Hello World!"
-        },
-        {
-            "u:fmt": "p:al",
-            "x:txt": [
-                "t|This is a text ",
-                "t:i|paragraph",
-                "t| with some ",
-                "t:u|simple",
-                "t| formatting."
-            ]
-        },
-        {
-            "u:fmt": "p:al",
-            "u:txt": "t|Here is a paragraph with no formatting whatsoever."
-        },
-        {
-            "u:fmt": "p:al",
-            "u:txt": "t| "
-        },
-        {
-            "u:fmt": "p:al",
-            "u:txt": "t|Blank paragraph above here."
-        }
-    ]
+	"m:updated": "2022-01-24T12:31:27",
+	"x:content": [
+		{
+			"u:fmt": "h3:al",
+			"u:txt": "t:b|Some Document"
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t:b|Hello World!"
+		},
+		{
+			"u:fmt": "p:al",
+			"x:txt": [
+				"t|This is a text ",
+				"t:i|paragraph",
+				"t| with some ",
+				"t:u|simple",
+				"t| formatting."
+			]
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t|Here is a paragraph with no formatting whatsoever.\nThis is a second line in the same paragraph."
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t| "
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t|Blank paragraph above here."
+		},
+		{
+			"u:fmt": "p:ac",
+			"u:txt": "t|* * *"
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t|This text belongs to a second section of the text document."
+		}
+	]
 }

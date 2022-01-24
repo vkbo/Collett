@@ -81,7 +81,11 @@ bool Storage::loadFile(const QString &fileName, QJsonObject &fileData) {
 }
 
 bool Storage::loadFile(const QUuid &fileUuid, QJsonObject &fileData) {
-    return true;
+    if (!ensureFolder("content")) {
+        return false;
+    }
+    QString filePath = QDir(m_rootPath.path() + "/content").filePath(fileUuid.toString(QUuid::WithoutBraces) + ".json");
+    return readJson(filePath, fileData);
 }
 
 bool Storage::saveFile(const QString &fileName, const QJsonObject &fileData) {
@@ -237,7 +241,18 @@ bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData) {
     }
 
     QJsonDocument doc(fileData);
-    file.write(doc.toJson());
+    QByteArray jsonData = doc.toJson(m_compactJson ? QJsonDocument::Compact : QJsonDocument::Indented);
+
+    if (m_compactJson) {
+        file.write(jsonData);
+    } else {
+        for (QByteArray line: jsonData.split('\n')) {
+            QByteArray trimmed = line.trimmed();
+            if (trimmed.length() > 0) {
+                file.write(QByteArray((line.length() - trimmed.length())/4, '\t') + trimmed + '\n');
+            }
+        }
+    }
     file.close();
     qDebug() << "Wrote:" << filePath;
 

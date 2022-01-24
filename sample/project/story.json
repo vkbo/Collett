@@ -1,74 +1,74 @@
 {
-    "u:type": "ROOT",
-    "x:items": [
-        {
-            "m:handle": "e709ba3f-3141-4b4b-95df-4a8d3e91a8ba",
-            "m:order": 0,
-            "m:words": 1234,
-            "u:name": "Novel",
-            "u:type": "BOOK",
-            "x:items": [
-                {
-                    "m:handle": "c2290a95-ca41-4181-89f2-18cb610ab716",
-                    "m:order": 0,
-                    "m:words": 1234,
-                    "u:name": "Title Page",
-                    "u:type": "PAGE"
-                },
-                {
-                    "m:handle": "af3dc4a4-5f66-462d-b63b-9c4d7a7dec77",
-                    "m:order": 1,
-                    "m:words": 1234,
-                    "u:name": "Chapter 1",
-                    "u:type": "CHAPTER",
-                    "x:items": [
-                        {
-                            "m:handle": "63913842-121f-43ed-8d9c-b3e2432599ab",
-                            "m:order": 0,
-                            "m:words": 1234,
-                            "u:name": "Scene 1.1",
-                            "u:type": "SCENE"
-                        },
-                        {
-                            "m:handle": "7e5a1a98-d1a3-44a1-ab4e-2b5d21d92201",
-                            "m:order": 1,
-                            "m:words": 1234,
-                            "u:name": "Scene 1.2",
-                            "u:type": "SCENE"
-                        }
-                    ]
-                },
-                {
-                    "m:handle": "61fc6238-87cf-4b78-b2c7-a430776a2b7a",
-                    "m:order": 2,
-                    "m:words": 1234,
-                    "u:name": "Chapter 2",
-                    "u:type": "CHAPTER",
-                    "x:items": [
-                        {
-                            "m:handle": "f3993444-4e43-4ace-bfdb-55ca659ca914",
-                            "m:order": 0,
-                            "m:words": 1234,
-                            "u:name": "Scene 2.1",
-                            "u:type": "SCENE"
-                        },
-                        {
-                            "m:handle": "ab6ba4f4-5658-4ff0-941d-2e0c687fe88d",
-                            "m:order": 1,
-                            "m:words": 1234,
-                            "u:name": "Scene 2.2",
-                            "u:type": "SCENE"
-                        }
-                    ]
-                },
-                {
-                    "m:handle": "f1dffe99-3583-4f9c-9f0b-1a8f323b0670",
-                    "m:order": 3,
-                    "m:words": 1234,
-                    "u:name": "Very long title on this element here",
-                    "u:type": "PAGE"
-                }
-            ]
-        }
-    ]
+	"u:type": "ROOT",
+	"x:items": [
+		{
+			"m:handle": "e709ba3f-3141-4b4b-95df-4a8d3e91a8ba",
+			"m:order": 0,
+			"m:words": 1234,
+			"u:name": "Novel",
+			"u:type": "BOOK",
+			"x:items": [
+				{
+					"m:handle": "c2290a95-ca41-4181-89f2-18cb610ab716",
+					"m:order": 0,
+					"m:words": 1234,
+					"u:name": "Title Page",
+					"u:type": "PAGE"
+				},
+				{
+					"m:handle": "af3dc4a4-5f66-462d-b63b-9c4d7a7dec77",
+					"m:order": 1,
+					"m:words": 1234,
+					"u:name": "Chapter 1",
+					"u:type": "CHAPTER",
+					"x:items": [
+						{
+							"m:handle": "63913842-121f-43ed-8d9c-b3e2432599ab",
+							"m:order": 0,
+							"m:words": 1234,
+							"u:name": "Scene 1.1",
+							"u:type": "SCENE"
+						},
+						{
+							"m:handle": "7e5a1a98-d1a3-44a1-ab4e-2b5d21d92201",
+							"m:order": 1,
+							"m:words": 1234,
+							"u:name": "Scene 1.2",
+							"u:type": "SCENE"
+						}
+					]
+				},
+				{
+					"m:handle": "61fc6238-87cf-4b78-b2c7-a430776a2b7a",
+					"m:order": 2,
+					"m:words": 1234,
+					"u:name": "Chapter 2",
+					"u:type": "CHAPTER",
+					"x:items": [
+						{
+							"m:handle": "f3993444-4e43-4ace-bfdb-55ca659ca914",
+							"m:order": 0,
+							"m:words": 1234,
+							"u:name": "Scene 2.1",
+							"u:type": "SCENE"
+						},
+						{
+							"m:handle": "ab6ba4f4-5658-4ff0-941d-2e0c687fe88d",
+							"m:order": 1,
+							"m:words": 1234,
+							"u:name": "Scene 2.2",
+							"u:type": "SCENE"
+						}
+					]
+				},
+				{
+					"m:handle": "f1dffe99-3583-4f9c-9f0b-1a8f323b0670",
+					"m:order": 3,
+					"m:words": 1234,
+					"u:name": "Very long title on this element here",
+					"u:type": "PAGE"
+				}
+			]
+		}
+	]
 }
