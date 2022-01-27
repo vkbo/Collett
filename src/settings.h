@@ -25,28 +25,25 @@
 #include "collett.h"
 
 #include <QList>
+#include <QSize>
 #include <QObject>
 #include <QScopedPointer>
-#include <QSize>
+#include <QTextCharFormat>
+#include <QTextBlockFormat>
 
 namespace Collett {
 
-class CollettSettingsPrivate;
 class CollettSettings : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(CollettSettings)
 
 public:
     static CollettSettings *instance();
     static void destroy();
+
+    explicit CollettSettings();
     ~CollettSettings();
 
-private:
-    QScopedPointer<CollettSettingsPrivate> d_ptr;
-    CollettSettings();
-
-public:
     void flushSettings();
 
     // Setters
@@ -56,6 +53,13 @@ public:
     // Getters
     QSize      mainWindowSize() const;
     QList<int> mainSplitSizes() const;
+
+private:
+    static CollettSettings *staticInstance;
+
+    QSize      m_mainWindowSize;
+    QList<int> m_mainSplitSizes;
+
 };
 } // namespace Collett
 

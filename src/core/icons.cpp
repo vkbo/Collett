@@ -43,6 +43,7 @@ CollettIcons *CollettIcons::instance() {
 
 void CollettIcons::destroy() {
     if (staticInstance != nullptr) {
+        qDebug() << "Destructor: Static CollettIcons";
         delete CollettIcons::staticInstance;
     }
 }
