@@ -23,12 +23,15 @@
 #define GUI_TEXTEDIT_H
 
 #include "collett.h"
+#include "settings.h"
 #include "data.h"
 
 #include <QObject>
 #include <QWidget>
 #include <QTextEdit>
 #include <QJsonObject>
+#include <QTextCharFormat>
+#include <QTextBlockFormat>
 
 namespace Collett {
 
@@ -45,6 +48,11 @@ public:
 
 public slots:
     void applyDocAction(DocAction action);
+
+private:
+    CollettSettings::TextFormat m_format;
+
+    void initFormats();
 
 };
 } // namespace Collett

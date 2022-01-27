@@ -20,6 +20,7 @@
 */
 
 #include "collett.h"
+#include "settings.h"
 #include "textedit.h"
 
 #include <QFont>
@@ -42,6 +43,18 @@ namespace Collett {
 GuiTextEdit::GuiTextEdit(QWidget *parent)
     : QTextEdit(parent)
 {
+    // Settings
+    setAcceptRichText(true);
+
+    // Text Options
+    QTextOption opts;
+    opts.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    document()->setDefaultTextOption(opts);
+    document()->setDocumentMargin(40);
+
+    CollettSettings *settings = CollettSettings::instance();
+    m_format = settings->textFormat();
+
 }
 
 /**
@@ -162,23 +175,34 @@ void GuiTextEdit::setJsonObject(const QJsonObject &json) {
             jsonBlockFmt = jsonBlock[QLatin1String("u:fmt")].toString().split(":");
         }
 
-        QTextBlockFormat blockFormat;
+        QTextCharFormat  charFormat = m_format.charDefault;
+        QTextBlockFormat blockFormat = m_format.blockDefault;
+
+        // The first block format entry must describe the block type
+        if (!jsonBlockFmt.isEmpty()) {
+            QString blockFmtType = jsonBlockFmt.first();
+            if (blockFmtType == "p") {
+                charFormat = m_format.charParagraph;
+                blockFormat = m_format.blockParagraph;
+            } else if (blockFmtType == "h1") {
+                charFormat = m_format.charHeader1;
+                blockFormat = m_format.blockHeader1;
+            } else if (blockFmtType == "h2") {
+                charFormat = m_format.charHeader2;
+                blockFormat = m_format.blockHeader2;
+            } else if (blockFmtType == "h3") {
+                charFormat = m_format.charHeader3;
+                blockFormat = m_format.blockHeader3;
+            } else if (blockFmtType == "h4") {
+                charFormat = m_format.charHeader3;
+                blockFormat = m_format.blockHeader4;
+            }
+            jsonBlockFmt.removeFirst();
+        }
+
+        // The remaining block format entries describe the other format flags
         for (const QString &blockFmtTag : jsonBlockFmt) {
-            if (blockFmtTag == "p") {
-                blockFormat.setHeadingLevel(0);
-            } else if (blockFmtTag == "h1") {
-                blockFormat.setHeadingLevel(1);
-            } else if (blockFmtTag == "h2") {
-                blockFormat.setHeadingLevel(2);
-            } else if (blockFmtTag == "h3") {
-                blockFormat.setHeadingLevel(3);
-            } else if (blockFmtTag == "h4") {
-                blockFormat.setHeadingLevel(4);
-            } else if (blockFmtTag == "h5") {
-                blockFormat.setHeadingLevel(5);
-            } else if (blockFmtTag == "h6") {
-                blockFormat.setHeadingLevel(6);
-            } else if (blockFmtTag == "al") {
+            if (blockFmtTag == "al") {
                 blockFormat.setAlignment(Qt::AlignLeading);
             } else if (blockFmtTag == "ac") {
                 blockFormat.setAlignment(Qt::AlignHCenter);
@@ -214,28 +238,28 @@ void GuiTextEdit::setJsonObject(const QJsonObject &json) {
             }
 
             QStringList fragCharFmt = fragText.first(fmtTagPos).split(":");
-            QString innerText = fragText.sliced(fmtTagPos + 1);
+            QString innerText = fragText.sliced(fmtTagPos + 1).replace('\n', QChar::LineSeparator);
 
             qDebug() << fragCharFmt << innerText;
 
-            QTextCharFormat charFormat;
+            QTextCharFormat fragFormat = charFormat;
             bool isText = false;;
             for (const QString &fragFmtTag : fragCharFmt) {
                 if (fragFmtTag == "t") {
                     isText = true;
                 } else if (fragFmtTag == "b") {
-                    charFormat.setFontWeight(QFont::Bold);
+                    fragFormat.setFontWeight(QFont::Bold);
                 } else if (fragFmtTag == "i") {
-                    charFormat.setFontItalic(true);
+                    fragFormat.setFontItalic(true);
                 } else if (fragFmtTag == "u") {
-                    charFormat.setFontUnderline(true);
+                    fragFormat.setFontUnderline(true);
                 } else if (fragFmtTag == "s") {
-                    charFormat.setFontStrikeOut(true);
+                    fragFormat.setFontStrikeOut(true);
                 }
             }
 
             if (isText) {
-                cursor.insertText(innerText, charFormat);
+                cursor.insertText(innerText, fragFormat);
             }
         }
 
