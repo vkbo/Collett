@@ -23,6 +23,8 @@
 #include "settings.h"
 #include "textedit.h"
 
+#include <algorithm>
+
 #include <QFont>
 #include <QUuid>
 #include <QObject>
@@ -94,9 +96,14 @@ QJsonObject GuiTextEdit::toJsonObject() {
             default: jsonBlockFmt << "al"; break;
         }
 
-        // Block Indent
+        // Text Indent
         if (blockFormat.textIndent() > 0.0) {
             jsonBlockFmt << "ti";
+        }
+
+        // Block Indent
+        if (blockFormat.indent() > 0) {
+            jsonBlockFmt << QString().setNum(blockFormat.indent()).prepend("in");
         }
 
         // Write Format
@@ -214,6 +221,8 @@ void GuiTextEdit::setJsonObject(const QJsonObject &json) {
                 blockFormat.setAlignment(Qt::AlignJustify);
             } else if (blockFmtTag == "ti") {
                 blockFormat.setTextIndent(m_format.textIndent);
+            } else if (blockFmtTag.startsWith("in")) {
+                blockFormat.setIndent(blockFmtTag.last(1).toInt());
             }
         }
 
@@ -243,8 +252,6 @@ void GuiTextEdit::setJsonObject(const QJsonObject &json) {
 
             QStringList fragCharFmt = fragText.first(fmtTagPos).split(":");
             QString innerText = fragText.sliced(fmtTagPos + 1).replace('\n', QChar::LineSeparator);
-
-            qDebug() << fragCharFmt << innerText;
 
             QTextCharFormat fragFormat = charFormat;
             bool isText = false;;
@@ -316,8 +323,6 @@ void GuiTextEdit::applyDocAction(DocAction action) {
         blockChanged = true;
 
     } else if (action == Collett::TextIndent) {
-        // Indenting is only allowed on text paragraphs (no heading level) that
-        // are also aligned to the leading edge.
         QTextCursor cursor = textCursor();
         QTextBlockFormat format = cursor.blockFormat();
         if (format.headingLevel() == 0 && format.alignment() == Qt::AlignLeading) {
@@ -331,22 +336,21 @@ void GuiTextEdit::applyDocAction(DocAction action) {
         blockChanged = true;
 
     } else if (action == Collett::BlockIndent) {
-        // Indenting is only allowed on text paragraphs (no heading level) that
-        // are also aligned to the leading edge.
         QTextCursor cursor = textCursor();
         QTextBlockFormat format = cursor.blockFormat();
         if (format.headingLevel() == 0 && format.alignment() == Qt::AlignLeading) {
-            format.setIndent(8.0);
+            format.setIndent(std::min(format.indent() + 1, 9));
             cursor.setBlockFormat(format);
         }
         blockChanged = true;
 
     } else if (action == Collett::BlockOutdent) {
-        // Text outdent is always allowed as there is no need to restrict it.
         QTextCursor cursor = textCursor();
         QTextBlockFormat format = cursor.blockFormat();
-        format.setIndent(0.0);
-        cursor.setBlockFormat(format);
+        if (format.headingLevel() == 0 && format.alignment() == Qt::AlignLeading) {
+            format.setIndent(std::max(format.indent() - 1, 0));
+            cursor.setBlockFormat(format);
+        }
         blockChanged = true;
     }
 
