@@ -125,7 +125,7 @@ void GuiDocEditor::editorCharFormatChanged(const QTextCharFormat &fmt) {
 void GuiDocEditor::editorBlockChanged(const QTextBlock &block) {
     QTextBlockFormat blockFormat = block.blockFormat();
     m_editToolBar->m_alignLeft->setChecked(blockFormat.alignment() == Qt::AlignLeft);
-    m_editToolBar->m_alignCentre->setChecked(blockFormat.alignment() == Qt::AlignCenter);
+    m_editToolBar->m_alignCentre->setChecked(blockFormat.alignment() == Qt::AlignHCenter);
     m_editToolBar->m_alignRight->setChecked(blockFormat.alignment() == Qt::AlignRight);
     m_editToolBar->m_alignJustify->setChecked(blockFormat.alignment() == Qt::AlignJustify);
     m_editToolBar->m_textIndent->setChecked(blockFormat.textIndent() > 0.0);

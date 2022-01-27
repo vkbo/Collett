@@ -279,6 +279,8 @@ void GuiTextEdit::setJsonObject(const QJsonObject &json) {
 
 void GuiTextEdit::applyDocAction(DocAction action) {
 
+    bool blockChanged = false;
+
     if (action == Collett::FormatBold) {
         if (fontWeight() > QFont::Medium) {
             setFontWeight(QFont::Normal);
@@ -299,15 +301,19 @@ void GuiTextEdit::applyDocAction(DocAction action) {
 
     } else if (action == Collett::TextAlignLeft) {
         setAlignment(Qt::AlignLeft);
+        blockChanged = true;
 
     } else if (action == Collett::TextAlignCentre) {
         setAlignment(Qt::AlignHCenter);
+        blockChanged = true;
 
     } else if (action == Collett::TextAlignRight) {
         setAlignment(Qt::AlignRight);
+        blockChanged = true;
 
     } else if (action == Collett::TextAlignJustify) {
         setAlignment(Qt::AlignJustify);
+        blockChanged = true;
 
     } else if (action == Collett::TextIndent) {
         // Indenting is only allowed on text paragraphs (no heading level) that
@@ -322,6 +328,7 @@ void GuiTextEdit::applyDocAction(DocAction action) {
             }
             cursor.setBlockFormat(format);
         }
+        blockChanged = true;
 
     } else if (action == Collett::BlockIndent) {
         // Indenting is only allowed on text paragraphs (no heading level) that
@@ -332,6 +339,7 @@ void GuiTextEdit::applyDocAction(DocAction action) {
             format.setIndent(8.0);
             cursor.setBlockFormat(format);
         }
+        blockChanged = true;
 
     } else if (action == Collett::BlockOutdent) {
         // Text outdent is always allowed as there is no need to restrict it.
@@ -339,6 +347,12 @@ void GuiTextEdit::applyDocAction(DocAction action) {
         QTextBlockFormat format = cursor.blockFormat();
         format.setIndent(0.0);
         cursor.setBlockFormat(format);
+        blockChanged = true;
+    }
+
+    if (blockChanged) {
+        QTextCursor cursor = textCursor();
+        emit currentBlockChanged(cursor.block());
     }
 }
 
