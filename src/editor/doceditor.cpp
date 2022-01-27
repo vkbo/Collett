@@ -24,11 +24,14 @@
 #include "textedit.h"
 #include "edittoolbar.h"
 
+#include <QFont>
 #include <QTime>
+#include <QUuid>
 #include <QObject>
 #include <QWidget>
 #include <QJsonObject>
 #include <QVBoxLayout>
+#include <QTextCharFormat>
 
 namespace Collett {
 
@@ -40,7 +43,6 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
 
     m_textArea = new GuiTextEdit(this);
     m_editToolBar = new GuiEditToolBar(this);
-    connect(m_editToolBar, SIGNAL(documentAction(DocAction)), m_textArea, SLOT(applyDocAction(DocAction)));
 
     QVBoxLayout *outerBox = new QVBoxLayout;
     outerBox->addWidget(m_editToolBar);
@@ -49,6 +51,15 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
     outerBox->setSpacing(0);
 
     this->setLayout(outerBox);
+
+    // Connections
+
+    connect(m_editToolBar, SIGNAL(documentAction(DocAction)),
+            m_textArea, SLOT(applyDocAction(DocAction)));
+    connect(m_textArea, SIGNAL(currentCharFormatChanged(const QTextCharFormat&)),
+            this, SLOT(editorCharFormatChanged(const QTextCharFormat&)));
+    connect(m_textArea, SIGNAL(currentBlockChanged(const QTextBlock&)),
+            this, SLOT(editorBlockChanged(const QTextBlock&)));
 }
 
 /**
@@ -74,12 +85,12 @@ bool GuiDocEditor::openDocument(const QUuid &uuid) {
     );
 
     QJsonObject json;
-    bool success = m_data->project()->store()->loadFile(uuid, json);
+    bool status = m_data->project()->store()->loadFile(uuid, json);
     m_textArea->setJsonObject(json);
 
     m_docUuid = uuid;
 
-    return true;
+    return status;
 }
 
 bool GuiDocEditor::saveDocument() {
@@ -97,6 +108,27 @@ bool GuiDocEditor::saveDocument() {
     qDebug() << "Save file took (ms):" << startTime.msecsTo(endTime);
 
     return status;
+}
+
+/**
+ * Private Slots
+ * =============
+ */
+
+void GuiDocEditor::editorCharFormatChanged(const QTextCharFormat &fmt) {
+    m_editToolBar->m_formatBold->setChecked(fmt.fontWeight() > QFont::Medium);
+    m_editToolBar->m_formatItalic->setChecked(fmt.fontItalic());
+    m_editToolBar->m_formatUnderline->setChecked(fmt.fontUnderline());
+    m_editToolBar->m_formatStrikethrough->setChecked(fmt.fontStrikeOut());
+}
+
+void GuiDocEditor::editorBlockChanged(const QTextBlock &block) {
+    QTextBlockFormat blockFormat = block.blockFormat();
+    m_editToolBar->m_alignLeft->setChecked(blockFormat.alignment() == Qt::AlignLeft);
+    m_editToolBar->m_alignCentre->setChecked(blockFormat.alignment() == Qt::AlignCenter);
+    m_editToolBar->m_alignRight->setChecked(blockFormat.alignment() == Qt::AlignRight);
+    m_editToolBar->m_alignJustify->setChecked(blockFormat.alignment() == Qt::AlignJustify);
+    m_editToolBar->m_textIndent->setChecked(blockFormat.textIndent() > 0.0);
 }
 
 } // namespace Collett

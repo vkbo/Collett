@@ -26,8 +26,11 @@
 #include "textedit.h"
 #include "edittoolbar.h"
 
+#include <QUuid>
 #include <QObject>
 #include <QWidget>
+#include <QTextBlock>
+#include <QTextCharFormat>
 
 namespace Collett {
 
@@ -50,6 +53,10 @@ private:
 
     CollettData *m_data;
     QUuid m_docUuid;
+
+private slots:
+    void editorCharFormatChanged(const QTextCharFormat &fmt);
+    void editorBlockChanged(const QTextBlock &block);
 
 };
 } // namespace Collett

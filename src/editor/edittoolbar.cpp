@@ -43,6 +43,11 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     m_formatUnderline = this->addAction(icons->icon("underline"), tr("Underline"));
     m_formatStrikethrough = this->addAction(icons->icon("strikethrough"), tr("Strikethrough"));
 
+    m_formatBold->setCheckable(true);
+    m_formatItalic->setCheckable(true);
+    m_formatUnderline->setCheckable(true);
+    m_formatStrikethrough->setCheckable(true);
+
     connect(m_formatBold, &QAction::triggered, [this]{emitDocumentAction(DocAction::FormatBold);});
     connect(m_formatItalic, &QAction::triggered, [this]{emitDocumentAction(DocAction::FormatItalic);});
     connect(m_formatUnderline, &QAction::triggered, [this]{emitDocumentAction(DocAction::FormatUnderline);});
@@ -55,6 +60,11 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     m_alignRight = this->addAction(icons->icon("alignRight"), tr("Align Centre"));
     m_alignJustify = this->addAction(icons->icon("alignJustify"), tr("Align Justify"));
 
+    m_alignLeft->setCheckable(true);
+    m_alignCentre->setCheckable(true);
+    m_alignRight->setCheckable(true);
+    m_alignJustify->setCheckable(true);
+
     connect(m_alignLeft, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextAlignLeft);});
     connect(m_alignCentre, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextAlignCentre);});
     connect(m_alignRight, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextAlignRight);});
@@ -62,12 +72,21 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
 
     this->addSeparator();
 
+    m_textIndent = this->addAction(icons->icon("textIndent"), tr("First Line Indent"));
     m_blockIndent = this->addAction(icons->icon("blockIndent"), tr("Indent Paragraph"));
     m_blockOutdent = this->addAction(icons->icon("blockOutdent"), tr("Outdent Paragraph"));
 
-    connect(m_blockIndent, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextIndent);});
-    connect(m_blockOutdent, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextOutdent);});
+    m_textIndent->setCheckable(true);
+
+    connect(m_textIndent, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextIndent);});
+    connect(m_blockIndent, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockIndent);});
+    connect(m_blockOutdent, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockOutdent);});
 }
+
+/**
+ * Private Slots
+ * =============
+ */
 
 void GuiEditToolBar::emitDocumentAction(DocAction action) {
     emit documentAction(action);

@@ -24,32 +24,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="53"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="58"/>
         <source>Align Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="54"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="59"/>
         <source>Align Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="55"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="60"/>
         <source>Align Centre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="56"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="61"/>
         <source>Align Justify</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="65"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="75"/>
+        <source>First Line Indent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="76"/>
         <source>Indent Paragraph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="66"/>
+        <location filename="../src/editor/edittoolbar.cpp" line="77"/>
         <source>Outdent Paragraph</source>
         <translation type="unfinished"></translation>
     </message>
@@ -57,7 +62,7 @@
 <context>
     <name>Collett::GuiMain</name>
     <message>
-        <location filename="../src/guimain.cpp" line="72"/>
+        <location filename="../src/guimain.cpp" line="73"/>
         <source>%1 %2 Version %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -186,7 +191,7 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="156"/>
+        <location filename="../src/project/project.cpp" line="160"/>
         <source>Unnamed Project</source>
         <translation type="unfinished"></translation>
     </message>
@@ -199,23 +204,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="200"/>
-        <location filename="../src/core/storage.cpp" line="228"/>
+        <location filename="../src/core/storage.cpp" line="208"/>
+        <location filename="../src/core/storage.cpp" line="238"/>
         <source>Could not open file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="208"/>
+        <location filename="../src/core/storage.cpp" line="216"/>
         <source>Could not parse file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="215"/>
+        <location filename="../src/core/storage.cpp" line="223"/>
         <source>Unexpected content of file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="251"/>
+        <location filename="../src/core/storage.cpp" line="274"/>
         <source>Could not create folder: %1</source>
         <translation type="unfinished"></translation>
     </message>

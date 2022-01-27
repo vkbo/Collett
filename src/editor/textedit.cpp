@@ -55,6 +55,8 @@ GuiTextEdit::GuiTextEdit(QWidget *parent)
     CollettSettings *settings = CollettSettings::instance();
     m_format = settings->textFormat();
 
+    connect(this, SIGNAL(cursorPositionChanged()),
+            this, SLOT(processCursorPositionChanged()));
 }
 
 /**
@@ -94,7 +96,7 @@ QJsonObject GuiTextEdit::toJsonObject() {
 
         // Block Indent
         if (blockFormat.textIndent() > 0.0) {
-            jsonBlockFmt << "in";
+            jsonBlockFmt << "ti";
         }
 
         // Write Format
@@ -210,6 +212,8 @@ void GuiTextEdit::setJsonObject(const QJsonObject &json) {
                 blockFormat.setAlignment(Qt::AlignTrailing);
             } else if (blockFmtTag == "aj") {
                 blockFormat.setAlignment(Qt::AlignJustify);
+            } else if (blockFmtTag == "ti") {
+                blockFormat.setTextIndent(m_format.textIndent);
             }
         }
 
@@ -311,16 +315,46 @@ void GuiTextEdit::applyDocAction(DocAction action) {
         QTextCursor cursor = textCursor();
         QTextBlockFormat format = cursor.blockFormat();
         if (format.headingLevel() == 0 && format.alignment() == Qt::AlignLeading) {
-            format.setTextIndent(8.0);
+            if (format.textIndent() > 0.0) {
+                format.setTextIndent(0.0);
+            } else {
+                format.setTextIndent(m_format.textIndent);
+            }
             cursor.setBlockFormat(format);
         }
 
-    } else if (action == Collett::TextOutdent) {
+    } else if (action == Collett::BlockIndent) {
+        // Indenting is only allowed on text paragraphs (no heading level) that
+        // are also aligned to the leading edge.
+        QTextCursor cursor = textCursor();
+        QTextBlockFormat format = cursor.blockFormat();
+        if (format.headingLevel() == 0 && format.alignment() == Qt::AlignLeading) {
+            format.setIndent(8.0);
+            cursor.setBlockFormat(format);
+        }
+
+    } else if (action == Collett::BlockOutdent) {
         // Text outdent is always allowed as there is no need to restrict it.
         QTextCursor cursor = textCursor();
         QTextBlockFormat format = cursor.blockFormat();
-        format.setTextIndent(0.0);
+        format.setIndent(0.0);
         cursor.setBlockFormat(format);
+    }
+}
+
+/**
+ * Private Slots
+ * =============
+ */
+
+void GuiTextEdit::processCursorPositionChanged() {
+
+    QTextCursor cursor = textCursor();
+    int blockNo = cursor.blockNumber();
+
+    if (blockNo != m_currentBlockNo) {
+        emit currentBlockChanged(cursor.block());
+        m_currentBlockNo = blockNo;
     }
 }
 

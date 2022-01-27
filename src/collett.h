@@ -38,7 +38,8 @@ enum DocAction {
     TextAlignRight,
     TextAlignJustify,
     TextIndent,
-    TextOutdent,
+    BlockIndent,
+    BlockOutdent,
 };
 
 } // namespace Collett

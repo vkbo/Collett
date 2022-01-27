@@ -29,6 +29,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QTextEdit>
+#include <QTextBlock>
 #include <QJsonObject>
 #include <QTextCharFormat>
 #include <QTextBlockFormat>
@@ -46,13 +47,19 @@ public:
     QJsonObject toJsonObject();
     void setJsonObject(const QJsonObject &json);
 
-public slots:
-    void applyDocAction(DocAction action);
-
 private:
     CollettSettings::TextFormat m_format;
 
-    void initFormats();
+    int m_currentBlockNo = -1;
+
+signals:
+    void currentBlockChanged(const QTextBlock &block);
+
+public slots:
+    void applyDocAction(DocAction action);
+
+private slots:
+    void processCursorPositionChanged();
 
 };
 } // namespace Collett

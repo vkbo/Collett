@@ -153,6 +153,11 @@ CollettIcons::CollettIcons() {
         "85,6H6.19l4.32,6.73L5.88,20z"
     );
 
+    // subject_black_24dp.svg (rotated 180 degrees)
+    m_svgPath["textIndent"] = QLatin1String(
+        "m10 7h10v-2h-10zm-6 8h16v-2h-16zm16-6h-16v2h16zm0 10v-2h-16v2z"
+    );
+
     // format_underlined_black_24dp.svg
     m_svgPath["underline"] = QLatin1String(
         "M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2"

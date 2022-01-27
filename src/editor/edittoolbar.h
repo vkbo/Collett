@@ -30,6 +30,8 @@
 
 namespace Collett {
 
+
+class GuiDocEditor;
 class GuiEditToolBar : public QToolBar
 {
     Q_OBJECT
@@ -52,11 +54,14 @@ private:
     QAction *m_alignRight;
     QAction *m_alignJustify;
 
+    QAction *m_textIndent;
     QAction *m_blockIndent;
     QAction *m_blockOutdent;
 
 private slots:
     void emitDocumentAction(DocAction action);
+
+    friend class GuiDocEditor;
 
 };
 } // namespace Collett
