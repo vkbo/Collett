@@ -68,21 +68,11 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
  */
 
 bool GuiDocEditor::openDocument(const QUuid &uuid) {
+
     if (!m_data->hasProject()) {
         qWarning() << "No project loaded";
         return false;
     }
-
-    m_textArea->setHtml(
-        "<h3>Some Document</h3>"
-        "<p><b>Hello World!</b></p>"
-        "<p>This is a text <i>paragraph</i> with some <u>simple</u> formatting.</p>"
-        "<p>Here is a paragraph with no formatting whatsoever.<br>This is a second line in the same paragraph.</p>"
-        "<p>&nbsp;</p>"
-        "<p>Blank paragraph above here.</p>"
-        "<p style='text-align: center'>* * *</p>"
-        "<p>This text belongs to a second section of the text document.</p>"
-    );
 
     QJsonObject json;
     bool status = m_data->project()->store()->loadFile(uuid, json);
@@ -94,6 +84,7 @@ bool GuiDocEditor::openDocument(const QUuid &uuid) {
 }
 
 bool GuiDocEditor::saveDocument() {
+
     if (!m_data->hasProject()) {
         qWarning() << "No project loaded";
         return false;

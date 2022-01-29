@@ -26,7 +26,6 @@
 #include <algorithm>
 
 #include <QFont>
-#include <QUuid>
 #include <QObject>
 #include <QWidget>
 #include <QDateTime>
