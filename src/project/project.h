@@ -24,9 +24,12 @@
 
 #include "collett.h"
 #include "storage.h"
+#include "document.h"
 #include "storymodel.h"
 
 #include <QDir>
+#include <QHash>
+#include <QUuid>
 #include <QObject>
 #include <QString>
 
@@ -37,7 +40,7 @@ class Project : public QObject
     Q_OBJECT
 
 public:
-    Project(const QString &path);
+    explicit Project(const QString &path);
     ~Project();
 
     // Class Methods
@@ -55,6 +58,8 @@ public:
     QString projectName() const;
     StoryModel *storyModel();
     Storage *store();
+
+    Document *document(const QUuid &uuid);
 
     // Error Handling
 
@@ -79,6 +84,7 @@ private:
     // Content
 
     StoryModel *m_storyModel;
+    QHash<QUuid, Document*> m_content;
 
     // File Load & Save
 
@@ -86,6 +92,8 @@ private:
     bool saveSettingsFile();
     bool loadStoryFile();
     bool saveStoryFile();
+
+    void loadContent();
 
 };
 } // namespace Collett

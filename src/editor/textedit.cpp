@@ -65,10 +65,9 @@ GuiTextEdit::GuiTextEdit(QWidget *parent)
  * =======
  */
 
-QJsonObject GuiTextEdit::toJsonObject() {
+QJsonArray GuiTextEdit::toJsonContent() {
 
-    QJsonObject json;
-    QJsonArray jsonBlocks;
+    QJsonArray json;
 
     QTextBlock block = this->document()->firstBlock();
     while(block.isValid()) {
@@ -140,26 +139,14 @@ QJsonObject GuiTextEdit::toJsonObject() {
         }
 
         // Finish & Next
-        jsonBlocks.append(jsonBlock);
+        json.append(jsonBlock);
         block = block.next();
     }
-
-    json.insert(QLatin1String("m:updated"), QDateTime::currentDateTime().toString(Qt::ISODate));
-    json.insert(QLatin1String("x:content"), jsonBlocks);
 
     return json;
 }
 
-void GuiTextEdit::setJsonObject(const QJsonObject &json) {
-
-    if (!json.contains(QLatin1String("x:content"))) {
-        qWarning() << "No documentcontent in JSON data.";
-        return;
-    }
-    if (!json[QLatin1String("x:content")].isArray()) {
-        qWarning() << "Unexpected content in 'x:content'. Expected JSON array.";
-        return;
-    }
+void GuiTextEdit::setJsonContent(const QJsonArray &json) {
 
     QTextDocument *doc = this->document();
     QTextCursor cursor = QTextCursor(doc);
@@ -168,9 +155,10 @@ void GuiTextEdit::setJsonObject(const QJsonObject &json) {
     doc->setUndoRedoEnabled(false);
     doc->clear();
 
-    for (const QJsonValue &jsonBlockValue : json[QLatin1String("x:content")].toArray()) {
+    for (const QJsonValue &jsonBlockValue : json) {
+
         if (!jsonBlockValue.isObject()) {
-            qWarning() << "Unexpected content in 'x:content' array. Expected JSON object.";
+            qWarning() << "Unexpected content in JSON array. Expected JSON object.";
             continue;
         }
 

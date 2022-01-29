@@ -23,6 +23,7 @@
 #define COLLETT_STORAGE_H
 
 #include <QDir>
+#include <QList>
 #include <QUuid>
 #include <QObject>
 #include <QString>
@@ -49,6 +50,8 @@ public:
     bool saveFile(const QUuid &fileUuid, const QJsonObject &fileData);
     bool loadProjectFile();
     bool saveProjectFile();
+
+    QList<QUuid> listContent() const;
 
     bool isValid();
     QString projectPath() const;

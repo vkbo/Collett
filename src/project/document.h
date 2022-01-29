@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Text Editor Class
-** ===============================
+** Collett – Document Class
+** ========================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -19,49 +19,53 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_TEXTEDIT_H
-#define GUI_TEXTEDIT_H
+#ifndef COLLETT_DOCUMENT_H
+#define COLLETT_DOCUMENT_H
 
 #include "collett.h"
-#include "settings.h"
-#include "data.h"
+#include "storage.h"
 
+#include <QUuid>
 #include <QObject>
-#include <QWidget>
-#include <QTextEdit>
 #include <QJsonArray>
-#include <QTextBlock>
-#include <QTextCharFormat>
-#include <QTextBlockFormat>
 
 namespace Collett {
 
-class GuiTextEdit : public QTextEdit
+class Document : public QObject
 {
     Q_OBJECT
 
 public:
-    GuiTextEdit(QWidget *parent=nullptr);
-    ~GuiTextEdit() {};
+    enum Mode {ReadOnly, ReadWrite};
 
-    QJsonArray toJsonContent();
-    void setJsonContent(const QJsonArray &json);
+    explicit Document(Storage *store, const QUuid uuid);
+    ~Document() {};
+
+    // Getters
+
+    bool isEmpty() const;
+    bool isExisting() const;
+    QJsonArray content() const;
+
+    // Methods
+
+    bool open(const Mode mode);
+    bool save(const QJsonArray &content);
+    bool save();
 
 private:
-    CollettSettings::TextFormat m_format;
+    Storage *m_store;
+    QUuid    m_handle;
+    bool     m_empty;
+    bool     m_existing;
+    Mode     m_mode;
 
-    int m_currentBlockNo = -1;
+    // Data Variables
 
-signals:
-    void currentBlockChanged(const QTextBlock &block);
-
-public slots:
-    void applyDocAction(DocAction action);
-
-private slots:
-    void processCursorPositionChanged();
+    QString    m_created;
+    QJsonArray m_content;
 
 };
 } // namespace Collett
 
-#endif // GUI_TEXTEDIT_H
+#endif // COLLETT_DOCUMENT_H

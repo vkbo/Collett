@@ -24,6 +24,7 @@
 
 #include "data.h"
 #include "textedit.h"
+#include "document.h"
 #include "edittoolbar.h"
 
 #include <QUuid>
@@ -52,6 +53,7 @@ private:
     GuiEditToolBar *m_editToolBar;
 
     CollettData *m_data;
+    Document *m_document;
     QUuid m_docUuid;
 
 private slots:

@@ -24,6 +24,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QList>
 #include <QUuid>
 #include <QString>
 #include <QFileInfo>
@@ -155,6 +156,33 @@ bool Storage::saveProjectFile() {
     } else {
         return false;
     }
+}
+
+QList<QUuid> Storage::listContent() const {
+
+    if (!m_isValid) {
+        return QList<QUuid>();
+    }
+
+    QList<QUuid> result;
+
+    QDir contentPath = QDir(m_rootPath.path() + "/content");
+    QStringList jsonFiles = contentPath.entryList(QStringList() << "*.json", QDir::Files);
+
+    for (const QString &entry : jsonFiles) {
+        if (entry.length() != 41) {
+            qWarning() << "Unknown content:" << entry;
+            continue;
+        }
+        QUuid uuid(entry.first(36));
+        if (uuid.isNull()) {
+            qWarning() << "Skipped content:" << entry;
+            continue;
+        }
+        result << uuid;
+    }
+
+    return result;
 }
 
 bool Storage::isValid() {

@@ -22,6 +22,7 @@
 #include "collett.h"
 #include "doceditor.h"
 #include "textedit.h"
+#include "document.h"
 #include "edittoolbar.h"
 
 #include <QFont>
@@ -74,13 +75,11 @@ bool GuiDocEditor::openDocument(const QUuid &uuid) {
         return false;
     }
 
-    QJsonObject json;
-    bool status = m_data->project()->store()->loadFile(uuid, json);
-    m_textArea->setJsonObject(json);
-
     m_docUuid = uuid;
+    m_document = m_data->project()->document(uuid);
+    m_textArea->setJsonContent(m_document->content());
 
-    return status;
+    return true;
 }
 
 bool GuiDocEditor::saveDocument() {
@@ -94,11 +93,11 @@ bool GuiDocEditor::saveDocument() {
         return false;
     }
     QTime startTime = QTime::currentTime();
-    bool status = m_data->project()->store()->saveFile(m_docUuid, m_textArea->toJsonObject());
+    m_document->save(m_textArea->toJsonContent());
     QTime endTime = QTime::currentTime();
     qDebug() << "Save file took (ms):" << startTime.msecsTo(endTime);
 
-    return status;
+    return true;
 }
 
 /**

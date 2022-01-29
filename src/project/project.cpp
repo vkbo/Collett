@@ -22,6 +22,7 @@
 #include "collett.h"
 #include "project.h"
 #include "storage.h"
+#include "document.h"
 #include "storymodel.h"
 
 #include <QDir>
@@ -82,6 +83,7 @@ bool Project::openProject() {
     if (main) {
         bool settings = loadSettingsFile();
         bool story = loadStoryFile();
+        loadContent();
         m_isValid = settings && story;
     } else {
         m_isValid = false;
@@ -133,6 +135,14 @@ StoryModel *Project::storyModel() {
 
 Storage *Project::store() {
     return m_store;
+}
+
+Document *Project::document(const QUuid &uuid) {
+    if (m_content.contains(uuid)) {
+        return m_content.value(uuid);
+    } else {
+        return new Document(m_store, uuid);
+    }
 }
 
 /**
@@ -208,6 +218,23 @@ bool Project::saveStoryFile() {
         return false;
     }
     return true;
+}
+
+void Project::loadContent() {
+
+    if (!m_content.isEmpty()) {
+        qWarning() << "Project content already loaded";
+        return;
+    }
+
+    QList<QUuid> contentList = m_store->listContent();
+    for (const QUuid &uuid : contentList) {
+        qDebug() << "Loading content:" << uuid.toString(QUuid::WithoutBraces);
+        Document *doc = new Document(m_store, uuid);
+        if (doc->open(Document::ReadWrite)) {
+            m_content.insert(uuid, doc);
+        }
+    }
 }
 
 /**
