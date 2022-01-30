@@ -62,6 +62,8 @@ private:
 
     int m_currentBlockNo = -1;
 
+    void initDocument(QTextDocument *doc);
+
 signals:
     void currentBlockChanged(const QTextBlock &block);
 

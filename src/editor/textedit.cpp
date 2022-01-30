@@ -46,12 +46,7 @@ GuiTextEdit::GuiTextEdit(QWidget *parent)
 {
     // Settings
     setAcceptRichText(true);
-
-    // Text Options
-    QTextOption opts;
-    opts.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-    document()->setDefaultTextOption(opts);
-    document()->setDocumentMargin(40);
+    initDocument(this->document());
 
     CollettSettings *settings = CollettSettings::instance();
     m_format = settings->textFormat();
@@ -86,6 +81,11 @@ bool GuiTextEdit::isModified() const {
 QJsonArray GuiTextEdit::toJsonContent() {
 
     QJsonArray json;
+
+    if (this->document()->blockCount() == 1 && this->document()->firstBlock().text().trimmed().isEmpty()) {
+        // No text content
+        return json;
+    }
 
     QTextBlock block = this->document()->firstBlock();
     while(block.isValid()) {
@@ -172,6 +172,7 @@ void GuiTextEdit::setJsonContent(const QJsonArray &json) {
 
     doc->setUndoRedoEnabled(false);
     doc->clear();
+    initDocument(doc);
 
     for (const QJsonValue &jsonBlockValue : json) {
 
@@ -285,6 +286,21 @@ void GuiTextEdit::setJsonContent(const QJsonArray &json) {
     doc->setModified(false);
 
     this->setDocument(doc);
+}
+
+/**
+ * Internal Functions
+ * ==================
+ */
+
+void GuiTextEdit::initDocument(QTextDocument *doc) {
+
+    // Text Options
+    QTextOption opts;
+    opts.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    doc->setDefaultTextOption(opts);
+    doc->setDocumentMargin(40);
+
 }
 
 /**

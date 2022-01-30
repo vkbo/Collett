@@ -117,6 +117,12 @@ bool Document::read() {
  */
 bool Document::write() {
 
+    if (isEmpty()) {
+        // Nothing to do
+        m_unsaved = false;
+        return true;
+    }
+
     if (m_locked) {
         qInfo() << "Document is locked";
         return false;

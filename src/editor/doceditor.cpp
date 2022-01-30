@@ -46,6 +46,8 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
     m_document = nullptr;
 
     m_textArea = new GuiTextEdit(this);
+    m_textArea->setReadOnly(true);
+
     m_editToolBar = new GuiEditToolBar(this);
 
     QVBoxLayout *outerBox = new QVBoxLayout;
@@ -91,6 +93,7 @@ bool GuiDocEditor::openDocument(const QUuid &uuid) {
     m_textArea->setJsonContent(m_document->content());
 
     m_autoSave->start();
+    m_textArea->setReadOnly(false);
 
     return true;
 }
@@ -115,6 +118,7 @@ bool GuiDocEditor::saveDocument() {
 
 void GuiDocEditor::closeDocument() {
     m_autoSave->stop();
+    m_textArea->setReadOnly(true);
     m_textArea->clear();
     m_docUuid = QUuid();
     m_document = nullptr;
