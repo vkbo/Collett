@@ -29,6 +29,7 @@
 #include "edittoolbar.h"
 
 #include <QUuid>
+#include <QTimer>
 #include <QObject>
 #include <QWidget>
 #include <QTextBlock>
@@ -61,6 +62,7 @@ signals:
 private:
     GuiTextEdit *m_textArea;
     GuiEditToolBar *m_editToolBar;
+    QTimer *m_autoSave;
 
     CollettData *m_data;
     Document *m_document;
@@ -69,6 +71,7 @@ private:
 private slots:
     void editorCharFormatChanged(const QTextCharFormat &fmt);
     void editorBlockChanged(const QTextBlock &block);
+    void flushEditorData();
 
 };
 } // namespace Collett

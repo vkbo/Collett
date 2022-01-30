@@ -36,32 +36,35 @@ class Document : public QObject
     Q_OBJECT
 
 public:
-    enum Mode {ReadOnly, ReadWrite};
-
-    explicit Document(Storage *store, const QUuid uuid, Mode mode=Mode::ReadOnly);
+    explicit Document(Storage *store, const QUuid uuid);
     ~Document() {};
+
+    // Setters
+
+    void setContent(const QJsonArray &content);
+    void setLocked(bool locked);
 
     // Getters
 
-    bool isEmpty() const;
-    bool isExisting() const;
-    bool isUnsaved() const;
     QJsonArray content() const;
     QUuid handle() const;
 
+    // Check State
+
+    bool isEmpty() const;
+    bool isUnsaved() const;
+
     // Methods
 
-    bool open(const Mode mode);
-    bool save(const QJsonArray &content);
-    bool save();
+    bool read();
+    bool write();
 
 private:
     Storage *m_store;
     QUuid    m_handle;
-    bool     m_empty;
-    bool     m_existing;
-    bool     m_unsaved;
-    Mode     m_mode;
+
+    bool m_locked;
+    bool m_unsaved;
 
     // Data Variables
 

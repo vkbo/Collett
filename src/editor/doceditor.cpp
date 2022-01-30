@@ -20,6 +20,7 @@
 */
 
 #include "collett.h"
+#include "settings.h"
 #include "doceditor.h"
 #include "textedit.h"
 #include "document.h"
@@ -28,6 +29,7 @@
 #include <QFont>
 #include <QTime>
 #include <QUuid>
+#include <QTimer>
 #include <QObject>
 #include <QWidget>
 #include <QJsonObject>
@@ -54,6 +56,12 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
 
     this->setLayout(outerBox);
 
+    CollettSettings *settings = CollettSettings::instance();
+
+    // Timers
+    m_autoSave = new QTimer(this);
+    m_autoSave->setInterval(settings->editorAutoSave() * 1000);
+
     // Connections
 
     connect(m_editToolBar, SIGNAL(documentAction(DocAction)),
@@ -62,6 +70,8 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
             this, SLOT(editorCharFormatChanged(const QTextCharFormat&)));
     connect(m_textArea, SIGNAL(currentBlockChanged(const QTextBlock&)),
             this, SLOT(editorBlockChanged(const QTextBlock&)));
+    connect(m_autoSave, SIGNAL(timeout()),
+            this, SLOT(flushEditorData()));
 }
 
 /**
@@ -80,6 +90,8 @@ bool GuiDocEditor::openDocument(const QUuid &uuid) {
     m_document = m_data->project()->document(uuid);
     m_textArea->setJsonContent(m_document->content());
 
+    m_autoSave->start();
+
     return true;
 }
 
@@ -89,19 +101,20 @@ bool GuiDocEditor::saveDocument() {
         qWarning() << "No project loaded";
         return false;
     }
-    if (m_docUuid.isNull()) {
+    if (!hasDocument()) {
         qWarning() << "No document to save";
         return false;
     }
-    QTime startTime = QTime::currentTime();
-    m_document->save(m_textArea->toJsonContent());
-    QTime endTime = QTime::currentTime();
-    qDebug() << "Save file took (ms):" << startTime.msecsTo(endTime);
+
+    m_document->setLocked(true);
+    m_document->setContent(m_textArea->toJsonContent());
+    m_document->setLocked(false);
 
     return true;
 }
 
 void GuiDocEditor::closeDocument() {
+    m_autoSave->stop();
     m_textArea->clear();
     m_docUuid = QUuid();
     m_document = nullptr;
@@ -117,7 +130,7 @@ QUuid GuiDocEditor::currentDocument() const {
 }
 
 bool GuiDocEditor::hasDocument() const {
-    return m_document != nullptr;
+    return m_document != nullptr && !m_docUuid.isNull();
 }
 
 /**
@@ -139,6 +152,25 @@ void GuiDocEditor::editorBlockChanged(const QTextBlock &block) {
     m_editToolBar->m_alignRight->setChecked(blockFormat.alignment() == Qt::AlignRight);
     m_editToolBar->m_alignJustify->setChecked(blockFormat.alignment() == Qt::AlignJustify);
     m_editToolBar->m_textIndent->setChecked(blockFormat.textIndent() > 0.0);
+}
+
+void GuiDocEditor::flushEditorData() {
+
+    qDebug() << "Ding!";
+
+    if (!m_data->hasProject() || !hasDocument()) {
+        return;
+    }
+
+    if (m_textArea->isModified()) {
+        qDebug() << "Autosaving editor content";
+        m_document->setLocked(true);
+        m_document->setContent(m_textArea->toJsonContent());
+        m_document->setLocked(false);
+        if (m_document->write()) {
+            m_textArea->setModified(false);
+        }
+    }
 }
 
 } // namespace Collett

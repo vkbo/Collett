@@ -68,12 +68,14 @@ public:
 
     void setMainWindowSize(const QSize size);
     void setMainSplitSizes(const QList<int> &sizes);
+    void setEditorAutoSave(const int interval);
     void setTextFontSize(const qreal size);
 
     // Getters
 
     QSize      mainWindowSize() const;
     QList<int> mainSplitSizes() const;
+    int        editorAutoSave() const;
     TextFormat textFormat() const;
 
 private:
@@ -83,6 +85,10 @@ private:
 
     QSize      m_mainWindowSize;
     QList<int> m_mainSplitSizes;
+
+    // Editor
+
+    int m_editorAutoSave;
 
     // Text Format
 

@@ -29,32 +29,32 @@
 
 namespace Collett {
 
-Document::Document(Storage *store, const QUuid uuid, Document::Mode mode)
+Document::Document(Storage *store, const QUuid uuid)
     : m_store(store), m_handle(uuid)
 {
-    m_empty = true;
-    m_existing = false;
+    m_locked = false;
     m_unsaved = true;
-    m_mode = mode;
     m_created = QDateTime::currentDateTime().toString(Qt::ISODate);
+}
+
+/**
+ * Class Setters
+ * =============
+ */
+
+void Document::setContent(const QJsonArray &content) {
+    m_content = content;
+    m_unsaved = true;
+}
+
+void Document::setLocked(bool locked) {
+    m_locked = locked;
 }
 
 /**
  * Class Getters
  * =============
  */
-
-bool Document::isEmpty() const {
-    return m_empty;
-}
-
-bool Document::isExisting() const {
-    return m_existing;
-}
-
-bool Document::isUnsaved() const {
-    return m_unsaved;
-}
 
 QJsonArray Document::content() const {
     return m_content;
@@ -65,21 +65,32 @@ QUuid Document::handle() const {
 }
 
 /**
+ * Class State
+ * ===========
+ */
+
+bool Document::isEmpty() const {
+    return m_content.isEmpty();
+}
+
+bool Document::isUnsaved() const {
+    return m_unsaved;
+}
+
+/**
  * Class Methods
  * =============
  */
 
 /**!
  * @brief Open the document and read the content into the data buffer.
- * 
+ *
  * @param mode either ReadOnly or ReadWrite.
  * @return true if successful, otherwise false.
  */
-bool Document::open(const Document::Mode mode) {
+bool Document::read() {
 
     QJsonObject json;
-
-    m_mode = mode;
 
     if (!m_store->loadFile(m_handle, json)) {
         return false;
@@ -96,34 +107,18 @@ bool Document::open(const Document::Mode mode) {
         m_content = QJsonArray();
     }
 
-    m_empty = false;
-    m_existing = true;
-
     return true;
 }
 
 /**!
- * @brief Update content and save data.
- * 
- * This is a convenience function.
- * 
- * @param content the updated document content.
- * @return true if successful, otherwise false.
- */
-bool Document::save(const QJsonArray &content) {
-    m_content = content;
-    m_empty = false;
-    return save();
-}
-
-/**!
  * @brief Save the content in the data buffer to the document file.
- * 
+ *
  * @return true if successful, otherwise false.
  */
-bool Document::save() {
+bool Document::write() {
 
-    if (m_mode != Document::ReadWrite || m_empty) {
+    if (m_locked) {
+        qInfo() << "Document is locked";
         return false;
     }
 
@@ -136,8 +131,8 @@ bool Document::save() {
         return false;
     }
 
-    m_existing = true;
     m_unsaved = false;
+
     return true;
 }
 

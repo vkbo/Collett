@@ -151,7 +151,7 @@ Document *Project::document(const QUuid &uuid) {
         return m_content.value(uuid);
     } else {
         qDebug() << "Created new document entry for" << uuid.toString(QUuid::WithoutBraces);
-        Document *doc = new Document(m_store, uuid, Document::ReadWrite);
+        Document *doc = new Document(m_store, uuid);
         m_content.insert(uuid, doc);
         return doc;
     }
@@ -254,7 +254,7 @@ void Project::loadContent() {
     for (const QUuid &uuid : contentList) {
         qDebug() << "Loading content:" << uuid.toString(QUuid::WithoutBraces);
         Document *doc = new Document(m_store, uuid);
-        if (doc->open(Document::ReadWrite)) {
+        if (doc->read()) {
             m_content.insert(uuid, doc);
         }
     }
@@ -265,7 +265,7 @@ void Project::saveContent() {
     for (Document *doc : m_content) {
         if (doc->isUnsaved()) {
             qDebug() << "Saving content:" << doc->handle().toString(QUuid::WithoutBraces);
-            doc->save();
+            doc->write();
         }
     }
 }

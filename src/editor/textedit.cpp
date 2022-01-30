@@ -61,8 +61,26 @@ GuiTextEdit::GuiTextEdit(QWidget *parent)
 }
 
 /**
- * Methods
- * =======
+ * Class Setters
+ * =============
+ */
+
+void GuiTextEdit::setModified(bool state) {
+    this->document()->setModified(state);
+}
+
+/**
+ * Class Getters
+ * =============
+ */
+
+bool GuiTextEdit::isModified() const {
+    return this->document()->isModified();
+}
+
+/**
+ * Class Methods
+ * =============
  */
 
 QJsonArray GuiTextEdit::toJsonContent() {
@@ -148,7 +166,7 @@ QJsonArray GuiTextEdit::toJsonContent() {
 
 void GuiTextEdit::setJsonContent(const QJsonArray &json) {
 
-    QTextDocument *doc = this->document();
+    QTextDocument *doc = new QTextDocument(this);
     QTextCursor cursor = QTextCursor(doc);
     bool isFirst = true;
 
@@ -264,6 +282,9 @@ void GuiTextEdit::setJsonContent(const QJsonArray &json) {
     }
 
     doc->setUndoRedoEnabled(true);
+    doc->setModified(false);
+
+    this->setDocument(doc);
 }
 
 /**

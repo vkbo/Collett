@@ -25,7 +25,11 @@
 #define CNF_MAIN_WINDOW_SIZE "GuiMain/windowSize"
 #define CNF_MAIN_SPLIT_SIZES "GuiMain/mainSplitSizes"
 
+#define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"
+
 #define CNF_TEXT_FONT_SIZE "TextFormat/fontSize"
+
+#include <algorithm>
 
 #include <QList>
 #include <QSize>
@@ -99,15 +103,15 @@ CollettSettings::CollettSettings() {
         m_mainWindowSize.setHeight(300);
     }
 
+    // Editor Settings
+    // ---------------
+
+    m_editorAutoSave = std::max(settings.value(CNF_EDITOR_AUTO_SAVE, 30).toInt(), 5);
+
     // Text Format
     // -----------
 
-    m_textFontSize = settings.value(CNF_TEXT_FONT_SIZE, (qreal)13.0).toReal();
-
-    // Check Values
-    if (m_textFontSize < 5.0) {
-        m_textFontSize = 5.0;
-    }
+    m_textFontSize = std::max(settings.value(CNF_TEXT_FONT_SIZE, (qreal)13.0).toReal(), 5.0);
     recalculateTextFormats();
 
 }
@@ -127,6 +131,8 @@ void CollettSettings::flushSettings() {
 
     settings.setValue(CNF_MAIN_WINDOW_SIZE, m_mainWindowSize);
     settings.setValue(CNF_MAIN_SPLIT_SIZES, intListToVariant(m_mainSplitSizes));
+
+    settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
 
     settings.setValue(CNF_TEXT_FONT_SIZE, m_textFontSize);
 
@@ -148,6 +154,10 @@ void CollettSettings::setMainSplitSizes(const QList<int> &sizes) {
     m_mainSplitSizes = sizes;
 }
 
+void CollettSettings::setEditorAutoSave(const int interval) {
+    m_editorAutoSave = interval;
+}
+
 void CollettSettings::setTextFontSize(const qreal size) {
     m_textFontSize = size;
     recalculateTextFormats();
@@ -164,6 +174,10 @@ QSize CollettSettings::mainWindowSize() const {
 
 QList<int> CollettSettings::mainSplitSizes() const {
     return m_mainSplitSizes;
+}
+
+int CollettSettings::editorAutoSave() const {
+    return m_editorAutoSave;
 }
 
 CollettSettings::TextFormat CollettSettings::textFormat() const {

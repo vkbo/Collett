@@ -44,6 +44,16 @@ public:
     GuiTextEdit(QWidget *parent=nullptr);
     ~GuiTextEdit() {};
 
+    // Setters
+
+    void setModified(bool state);
+
+    // Getters
+
+    bool isModified() const;
+
+    // Methods
+
     QJsonArray toJsonContent();
     void setJsonContent(const QJsonArray &json);
 
