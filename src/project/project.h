@@ -91,17 +91,18 @@ private:
     // Content
 
     StoryModel *m_storyModel;
-    QHash<QUuid, Document*> m_content;
+    QHash<QUuid, Document*> m_documents;
 
     // File Load & Save
 
     bool loadSettingsFile();
     bool saveSettingsFile();
+
     bool loadStoryFile();
     bool saveStoryFile();
 
-    void loadContent();
-    void saveContent();
+    void loadDocuments();
+    void saveDocuments();
 
 };
 } // namespace Collett

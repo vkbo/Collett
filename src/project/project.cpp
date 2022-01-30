@@ -64,6 +64,7 @@ Project::Project(const QString &path) {
 Project::~Project() {
     qDebug() << "Destructor: Project";
     delete m_storyModel;
+    qDeleteAll(m_documents.begin(), m_documents.end());
 }
 
 /**
@@ -83,7 +84,7 @@ bool Project::openProject() {
     if (main) {
         bool settings = loadSettingsFile();
         bool story = loadStoryFile();
-        loadContent();
+        loadDocuments();
         m_isValid = settings && story;
     } else {
         m_isValid = false;
@@ -103,7 +104,7 @@ bool Project::saveProject() {
     bool main = m_store->saveProjectFile();
     bool settings = saveSettingsFile();
     bool story = saveStoryFile();
-    saveContent();
+    saveDocuments();
 
     return main && settings && story;
 }
@@ -147,12 +148,12 @@ Storage *Project::store() {
 }
 
 Document *Project::document(const QUuid &uuid) {
-    if (m_content.contains(uuid)) {
-        return m_content.value(uuid);
+    if (m_documents.contains(uuid)) {
+        return m_documents.value(uuid);
     } else {
         qDebug() << "Created new document entry for" << uuid.toString(QUuid::WithoutBraces);
         Document *doc = new Document(m_store, uuid);
-        m_content.insert(uuid, doc);
+        m_documents.insert(uuid, doc);
         return doc;
     }
 }
@@ -243,9 +244,9 @@ bool Project::saveStoryFile() {
     return true;
 }
 
-void Project::loadContent() {
+void Project::loadDocuments() {
 
-    if (!m_content.isEmpty()) {
+    if (!m_documents.isEmpty()) {
         qWarning() << "Project content already loaded";
         return;
     }
@@ -255,14 +256,14 @@ void Project::loadContent() {
         qDebug() << "Loading content:" << uuid.toString(QUuid::WithoutBraces);
         Document *doc = new Document(m_store, uuid);
         if (doc->read()) {
-            m_content.insert(uuid, doc);
+            m_documents.insert(uuid, doc);
         }
     }
 }
 
-void Project::saveContent() {
+void Project::saveDocuments() {
 
-    for (Document *doc : m_content) {
+    for (Document *doc : m_documents) {
         if (doc->isUnsaved()) {
             qDebug() << "Saving content:" << doc->handle().toString(QUuid::WithoutBraces);
             doc->write();
