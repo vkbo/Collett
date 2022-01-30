@@ -53,6 +53,7 @@ public:
 
     StoryItem *rootItem() const;
     StoryItem *storyItem(const QModelIndex &index);
+    QUuid itemHandle(const QModelIndex &index);
     QString itemName(const QModelIndex &index);
 
     // Model Edit

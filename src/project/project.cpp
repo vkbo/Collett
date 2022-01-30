@@ -103,6 +103,7 @@ bool Project::saveProject() {
     bool main = m_store->saveProjectFile();
     bool settings = saveSettingsFile();
     bool story = saveStoryFile();
+    saveContent();
 
     return main && settings && story;
 }
@@ -116,6 +117,10 @@ bool Project::isValid() const {
  * =============
  */
 
+void Project::setLastDocumentMain(const QUuid &uuid) {
+    m_lastDocMain = uuid;
+}
+
 void Project::setProjectName(const QString &name) {
     m_projectName = name.simplified();
 }
@@ -124,6 +129,10 @@ void Project::setProjectName(const QString &name) {
  * Class Getters
  * =============
  */
+
+QUuid Project::lastDocumentMain() const {
+    return m_lastDocMain;
+}
 
 QString Project::projectName() const {
     return m_projectName;
@@ -141,7 +150,10 @@ Document *Project::document(const QUuid &uuid) {
     if (m_content.contains(uuid)) {
         return m_content.value(uuid);
     } else {
-        return new Document(m_store, uuid);
+        qDebug() << "Created new document entry for" << uuid.toString(QUuid::WithoutBraces);
+        Document *doc = new Document(m_store, uuid, Document::ReadWrite);
+        m_content.insert(uuid, doc);
+        return doc;
     }
 }
 
@@ -166,7 +178,13 @@ bool Project::loadSettingsFile() {
     QJsonObject jProject = jData[QLatin1String("c:project")].toObject();
     QJsonObject jSettings = jData[QLatin1String("c:settings")].toObject();
 
+    // Project Meta
     m_createdTime = Storage::getJsonString(jMeta, QLatin1String("m:created"), "Unknown");
+
+    // Project State
+    m_lastDocMain = QUuid(Storage::getJsonString(jProject, QLatin1String("s:last-doc-main"), ""));
+
+    // Project Settings
     m_projectName = Storage::getJsonString(jProject, QLatin1String("u:project-name"), tr("Unnamed Project"));
 
     return true;
@@ -176,9 +194,14 @@ bool Project::saveSettingsFile() {
 
     QJsonObject jData, jMeta, jProject, jSettings;
 
+    // Project Meta
     jMeta[QLatin1String("m:created")] = m_createdTime;
     jMeta[QLatin1String("m:updated")] = QDateTime::currentDateTime().toString(Qt::ISODate);
 
+    // Project State
+    jProject[QLatin1String("s:last-doc-main")] = m_lastDocMain.toString(QUuid::WithoutBraces);
+
+    // Project Settings
     jProject[QLatin1String("u:project-name")] = m_projectName;
 
     jData[QLatin1String("c:meta")] = jMeta;
@@ -233,6 +256,16 @@ void Project::loadContent() {
         Document *doc = new Document(m_store, uuid);
         if (doc->open(Document::ReadWrite)) {
             m_content.insert(uuid, doc);
+        }
+    }
+}
+
+void Project::saveContent() {
+
+    for (Document *doc : m_content) {
+        if (doc->isUnsaved()) {
+            qDebug() << "Saving content:" << doc->handle().toString(QUuid::WithoutBraces);
+            doc->save();
         }
     }
 }

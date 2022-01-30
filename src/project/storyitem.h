@@ -56,6 +56,7 @@ public:
     // Class Getters
 
     ItemType type() const;
+    QUuid handle() const;
     QString name() const;
     int wordCount() const;
     int childWordCounts() const;

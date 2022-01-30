@@ -34,6 +34,7 @@
 #include <QWidget>
 #include <QCloseEvent>
 #include <QMainWindow>
+#include <QModelIndex>
 #include <QApplication>
 #include <QItemSelectionModel>
 
@@ -68,6 +69,10 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     resize(mainConf->mainWindowSize());
     m_splitMain->setSizes(mainConf->mainSplitSizes());
 
+    // Connect Signals and Slots
+    connect(m_storyTree, SIGNAL(doubleClicked(const QModelIndex&)),
+            this, SLOT(storyTreeDoubleClick(const QModelIndex&)));
+
     // Finalise
     setWindowTitle(
         tr("%1 %2 Version %3").arg(qApp->applicationName(), "–", qApp->applicationVersion())
@@ -82,8 +87,8 @@ GuiMain::~GuiMain() {
 }
 
 /**
- * Project Functions
- * =================
+ * Project Methods
+ * ===============
  */
 
 void GuiMain::openProject(const QString &path) {
@@ -97,15 +102,17 @@ void GuiMain::openProject(const QString &path) {
     m_storyTree->setTreeModel(m_data->storyModel());
     delete m;
 
-    // hardcoded for now
-    m_docEditor->openDocument(QUuid("7e5a1a98-d1a3-44a1-ab4e-2b5d21d92201"));
-    m_docEditor->saveDocument();
+    QUuid lastDocMain = m_data->project()->lastDocumentMain();
+    if (!lastDocMain.isNull()) {
+        this->openDocument(lastDocMain);
+    }
 
     m_mainToolBar->setProjectName(m_data->project()->projectName());
 };
 
 bool GuiMain::saveProject() {
-    return m_data->saveProject();
+    this->saveDocument();
+    return true;
 }
 
 bool GuiMain::closeProject() {
@@ -113,8 +120,41 @@ bool GuiMain::closeProject() {
 };
 
 /**
- * GUI Functions
- * =============
+ * Document Methods
+ * ================
+ */
+
+void GuiMain::openDocument(const QUuid &uuid) {
+
+    if (!m_data->hasProject()) {
+        return;
+    }
+
+    if (m_docEditor->hasDocument()) {
+        m_docEditor->saveDocument();
+        m_docEditor->closeDocument();
+    }
+    m_docEditor->openDocument(uuid);
+    m_data->project()->setLastDocumentMain(m_docEditor->currentDocument());
+}
+
+void GuiMain::saveDocument() {
+
+    if (!m_data->hasProject()) {
+        return;
+    }
+    if (m_docEditor->hasDocument()) {
+        m_docEditor->saveDocument();
+    }
+}
+
+void GuiMain::closeDocument() {
+    m_docEditor->closeDocument();
+}
+
+/**
+ * GUI Methods
+ * ===========
  */
 
 bool GuiMain::closeMain() {
@@ -148,6 +188,18 @@ void GuiMain::closeEvent(QCloseEvent *event) {
     } else {
         event->ignore();
     }
+}
+
+/**
+ * Private Slots
+ * =============
+ */
+
+void GuiMain::storyTreeDoubleClick(const QModelIndex &index) {
+    if (!m_data->hasProject() || !index.isValid()) {
+        return;
+    }
+    this->openDocument(m_data->project()->storyModel()->itemHandle(index));
 }
 
 } // namespace Collett

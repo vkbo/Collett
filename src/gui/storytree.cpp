@@ -52,16 +52,19 @@ GuiStoryTree::GuiStoryTree(QWidget *parent)
     this->setItemDelegate(new GuiStoryTreeDelegate(this));
     this->setHeaderHidden(true);
     this->setAlternatingRowColors(true);
+    this->setExpandsOnDoubleClick(false);
 
     // Item Actions
     m_editItem = new QAction(tr("Rename"), this);
     m_editItem->setShortcut(QKeySequence("F2"));
-    connect(m_editItem, SIGNAL(triggered(bool)), this, SLOT(doEditName(bool)));
     this->addAction(m_editItem);
+    connect(m_editItem, SIGNAL(triggered(bool)),
+            this, SLOT(doEditName(bool)));
 
     // Connect the Context Menu
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(doOpenContextMenu(QPoint)));
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(doOpenContextMenu(QPoint)));
 }
 
 /**

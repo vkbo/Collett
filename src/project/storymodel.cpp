@@ -183,6 +183,15 @@ StoryItem *StoryModel::storyItem(const QModelIndex &index) {
     }
 }
 
+QUuid StoryModel::itemHandle(const QModelIndex &index) {
+    if (index.isValid()) {
+        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        return item->handle();
+    } else {
+        return QUuid();
+    }
+}
+
 QString StoryModel::itemName(const QModelIndex &index) {
     if (index.isValid()) {
         StoryItem *item = static_cast<StoryItem*>(index.internalPointer());

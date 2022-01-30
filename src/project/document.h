@@ -38,14 +38,16 @@ class Document : public QObject
 public:
     enum Mode {ReadOnly, ReadWrite};
 
-    explicit Document(Storage *store, const QUuid uuid);
+    explicit Document(Storage *store, const QUuid uuid, Mode mode=Mode::ReadOnly);
     ~Document() {};
 
     // Getters
 
     bool isEmpty() const;
     bool isExisting() const;
+    bool isUnsaved() const;
     QJsonArray content() const;
+    QUuid handle() const;
 
     // Methods
 
@@ -58,6 +60,7 @@ private:
     QUuid    m_handle;
     bool     m_empty;
     bool     m_existing;
+    bool     m_unsaved;
     Mode     m_mode;
 
     // Data Variables

@@ -29,12 +29,13 @@
 
 namespace Collett {
 
-Document::Document(Storage *store, const QUuid uuid)
+Document::Document(Storage *store, const QUuid uuid, Document::Mode mode)
     : m_store(store), m_handle(uuid)
 {
     m_empty = true;
     m_existing = false;
-    m_mode = Document::ReadOnly;
+    m_unsaved = true;
+    m_mode = mode;
     m_created = QDateTime::currentDateTime().toString(Qt::ISODate);
 }
 
@@ -51,8 +52,16 @@ bool Document::isExisting() const {
     return m_existing;
 }
 
+bool Document::isUnsaved() const {
+    return m_unsaved;
+}
+
 QJsonArray Document::content() const {
     return m_content;
+}
+
+QUuid Document::handle() const {
+    return m_handle;
 }
 
 /**
@@ -103,6 +112,7 @@ bool Document::open(const Document::Mode mode) {
  */
 bool Document::save(const QJsonArray &content) {
     m_content = content;
+    m_empty = false;
     return save();
 }
 
@@ -127,6 +137,7 @@ bool Document::save() {
     }
 
     m_existing = true;
+    m_unsaved = false;
     return true;
 }
 

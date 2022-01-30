@@ -51,9 +51,12 @@ public:
 
     // Class Setters
 
+    void setLastDocumentMain(const QUuid &uuid);
     void setProjectName(const QString &name);
 
     // Class Getters
+
+    QUuid lastDocumentMain() const;
 
     QString projectName() const;
     StoryModel *storyModel();
@@ -77,7 +80,11 @@ private:
     QString m_projectVersion = "";
     QString m_createdTime = "";
 
-    // Project Details
+    // Project State
+
+    QUuid m_lastDocMain;
+
+    // Project Settings
 
     QString m_projectName = "New Project";
 
@@ -94,6 +101,7 @@ private:
     bool saveStoryFile();
 
     void loadContent();
+    void saveContent();
 
 };
 } // namespace Collett

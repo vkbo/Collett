@@ -22,6 +22,7 @@
 #ifndef GUI_DOCEDITOR_H
 #define GUI_DOCEDITOR_H
 
+#include "collett.h"
 #include "data.h"
 #include "textedit.h"
 #include "document.h"
@@ -43,10 +44,19 @@ public:
     GuiDocEditor(QWidget *parent=nullptr);
     ~GuiDocEditor() {};
 
-    // Methods
+    // Data Methods
 
     bool openDocument(const QUuid &uuid);
     bool saveDocument();
+    void closeDocument();
+
+    // Status Methods
+
+    QUuid currentDocument() const;
+    bool hasDocument() const;
+
+signals:
+    void popMessage(const Collett::Severity type, const QString &message);
 
 private:
     GuiTextEdit *m_textArea;

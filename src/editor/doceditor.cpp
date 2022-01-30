@@ -41,6 +41,7 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
 {
     m_data = CollettData::instance();
     m_docUuid = QUuid();
+    m_document = nullptr;
 
     m_textArea = new GuiTextEdit(this);
     m_editToolBar = new GuiEditToolBar(this);
@@ -64,8 +65,8 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
 }
 
 /**
- * Methods
- * =======
+ * Data Methods
+ * ============
  */
 
 bool GuiDocEditor::openDocument(const QUuid &uuid) {
@@ -98,6 +99,25 @@ bool GuiDocEditor::saveDocument() {
     qDebug() << "Save file took (ms):" << startTime.msecsTo(endTime);
 
     return true;
+}
+
+void GuiDocEditor::closeDocument() {
+    m_textArea->clear();
+    m_docUuid = QUuid();
+    m_document = nullptr;
+}
+
+/**
+ * Status Methods
+ * ==============
+ */
+
+QUuid GuiDocEditor::currentDocument() const {
+    return m_docUuid;
+}
+
+bool GuiDocEditor::hasDocument() const {
+    return m_document != nullptr;
 }
 
 /**

@@ -278,6 +278,10 @@ StoryItem::ItemType StoryItem::type() const {
     return m_type;
 }
 
+QUuid StoryItem::handle() const {
+    return m_handle;
+}
+
 QString StoryItem::name() const {
     return m_name;
 }

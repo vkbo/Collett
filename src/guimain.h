@@ -30,11 +30,13 @@
 #include "storytree.h"
 #include "doceditor.h"
 
-#include <QMainWindow>
+#include <QUuid>
 #include <QObject>
+#include <QString>
 #include <QWidget>
 #include <QSplitter>
-#include <QString>
+#include <QMainWindow>
+#include <QModelIndex>
 
 namespace Collett {
 
@@ -46,9 +48,19 @@ public:
     GuiMain(QWidget *parent=nullptr);
     ~GuiMain();
 
+    // Project Methods
+
     void openProject(const QString &path);
     bool saveProject();
     bool closeProject();
+
+    // Document Methods
+
+    void openDocument(const QUuid &uuid);
+    void saveDocument();
+    void closeDocument();
+
+    // GUI Methods
 
     bool closeMain();
 
@@ -67,6 +79,10 @@ private:
 
     // Events
     void closeEvent(QCloseEvent*);
+
+private slots:
+
+    void storyTreeDoubleClick(const QModelIndex &index);
 
 };
 } // namespace Collett

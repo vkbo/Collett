@@ -42,6 +42,13 @@ enum DocAction {
     BlockOutdent,
 };
 
+enum Severity {
+    Information,
+    Warning,
+    Error,
+    Bug,
+};
+
 } // namespace Collett
 
 #endif // COLLETT_H
