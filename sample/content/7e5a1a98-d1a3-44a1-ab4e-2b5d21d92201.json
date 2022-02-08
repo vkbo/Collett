@@ -1,6 +1,6 @@
 {
 	"m:created": "2022-01-29T18:22:54",
-	"m:updated": "2022-01-29T18:23:42",
+	"m:updated": "2022-02-09T00:08:11",
 	"x:content": [
 		{
 			"u:fmt": "h3:al",
@@ -45,11 +45,7 @@
 			"u:txt": "t|This text belongs to a second section of the text document."
 		},
 		{
-			"u:fmt": "p:al",
-			"u:txt": "t|"
-		},
-		{
-			"u:fmt": "p:al",
+			"u:fmt": "h4:al",
 			"u:txt": "t:b|Song time!"
 		},
 		{

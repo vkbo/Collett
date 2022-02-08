@@ -150,11 +150,42 @@ void GuiDocEditor::editorCharFormatChanged(const QTextCharFormat &fmt) {
 }
 
 void GuiDocEditor::editorBlockChanged(const QTextBlock &block) {
+
     QTextBlockFormat blockFormat = block.blockFormat();
-    m_editToolBar->m_alignLeft->setChecked(blockFormat.alignment() == Qt::AlignLeft);
-    m_editToolBar->m_alignCentre->setChecked(blockFormat.alignment() == Qt::AlignHCenter);
-    m_editToolBar->m_alignRight->setChecked(blockFormat.alignment() == Qt::AlignRight);
-    m_editToolBar->m_alignJustify->setChecked(blockFormat.alignment() == Qt::AlignJustify);
+
+    switch (blockFormat.headingLevel()) {
+    case 1:
+        m_editToolBar->m_formatHeader1->setChecked(true);
+        break;
+    case 2:
+        m_editToolBar->m_formatHeader2->setChecked(true);
+        break;
+    case 3:
+        m_editToolBar->m_formatHeader3->setChecked(true);
+        break;
+    case 4:
+        m_editToolBar->m_formatHeader4->setChecked(true);
+        break;
+    default:
+        m_editToolBar->m_formatParagraph->setChecked(true);
+        break;
+    }
+
+    switch (blockFormat.alignment()) {
+    case  Qt::AlignLeft:
+        m_editToolBar->m_alignLeft->setChecked(true);
+        break;
+    case  Qt::AlignHCenter:
+        m_editToolBar->m_alignCentre->setChecked(true);
+        break;
+    case  Qt::AlignRight:
+        m_editToolBar->m_alignRight->setChecked(true);
+        break;
+    case  Qt::AlignJustify:
+        m_editToolBar->m_alignJustify->setChecked(true);
+        break;
+    }
+
     m_editToolBar->m_textIndent->setChecked(blockFormat.textIndent() > 0.0);
 }
 

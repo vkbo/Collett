@@ -376,6 +376,71 @@ void GuiTextEdit::applyDocAction(DocAction action) {
             cursor.setBlockFormat(format);
         }
         blockChanged = true;
+
+    } else if (action == Collett::BlockParagraph) {
+        QTextCursor cursor = textCursor();
+        int bPos = cursor.block().position();
+        int bLen = cursor.block().length();
+        if (cursor.blockFormat().headingLevel() > 0 && bLen > 1) {
+            cursor.beginEditBlock();
+            cursor.setPosition(bPos, QTextCursor::MoveAnchor);
+            cursor.setPosition(bPos + bLen - 1, QTextCursor::KeepAnchor);
+            cursor.setBlockFormat(m_format.blockParagraph);
+            cursor.setCharFormat(m_format.charParagraph);
+            cursor.endEditBlock();
+        }
+
+    } else if (action == Collett::BlockHeader1) {
+        QTextCursor cursor = textCursor();
+        int bPos = cursor.block().position();
+        int bLen = cursor.block().length();
+        if (cursor.blockFormat().headingLevel() != 1 && bLen > 1) {
+            cursor.beginEditBlock();
+            cursor.setPosition(bPos, QTextCursor::MoveAnchor);
+            cursor.setPosition(bPos + bLen - 1, QTextCursor::KeepAnchor);
+            cursor.setBlockFormat(m_format.blockHeader1);
+            cursor.setCharFormat(m_format.charHeader1);
+            cursor.endEditBlock();
+        }
+
+    } else if (action == Collett::BlockHeader2) {
+        QTextCursor cursor = textCursor();
+        int bPos = cursor.block().position();
+        int bLen = cursor.block().length();
+        if (cursor.blockFormat().headingLevel() != 2 && bLen > 1) {
+            cursor.beginEditBlock();
+            cursor.setPosition(bPos, QTextCursor::MoveAnchor);
+            cursor.setPosition(bPos + bLen - 1, QTextCursor::KeepAnchor);
+            cursor.setBlockFormat(m_format.blockHeader2);
+            cursor.setCharFormat(m_format.charHeader2);
+            cursor.endEditBlock();
+        }
+
+    } else if (action == Collett::BlockHeader3) {
+        QTextCursor cursor = textCursor();
+        int bPos = cursor.block().position();
+        int bLen = cursor.block().length();
+        if (cursor.blockFormat().headingLevel() != 3 && bLen > 1) {
+            cursor.beginEditBlock();
+            cursor.setPosition(bPos, QTextCursor::MoveAnchor);
+            cursor.setPosition(bPos + bLen - 1, QTextCursor::KeepAnchor);
+            cursor.setBlockFormat(m_format.blockHeader3);
+            cursor.setCharFormat(m_format.charHeader3);
+            cursor.endEditBlock();
+        }
+
+    } else if (action == Collett::BlockHeader4) {
+        QTextCursor cursor = textCursor();
+        int bPos = cursor.block().position();
+        int bLen = cursor.block().length();
+        if (cursor.blockFormat().headingLevel() != 4 && bLen > 1) {
+            cursor.beginEditBlock();
+            cursor.setPosition(bPos, QTextCursor::MoveAnchor);
+            cursor.setPosition(bPos + bLen - 1, QTextCursor::KeepAnchor);
+            cursor.setBlockFormat(m_format.blockHeader4);
+            cursor.setCharFormat(m_format.charHeader4);
+            cursor.endEditBlock();
+        }
     }
 
     if (blockChanged) {
