@@ -24,9 +24,12 @@
 
 #include "collett.h"
 
+#include <QMenu>
 #include <QAction>
 #include <QObject>
 #include <QToolBar>
+#include <QToolButton>
+#include <QActionGroup>
 
 namespace Collett {
 
@@ -44,16 +47,33 @@ signals:
     void documentAction(DocAction action);
 
 private:
+    QActionGroup *m_formatTextGroup;
+    QActionGroup *m_alignTextGroup;
+    QActionGroup *m_formatStyleGroup;
+
+    QToolButton *m_formatText;
+    QMenu       *m_formatTextMenu;
+    QAction     *m_formatParagraph;
+    QAction     *m_formatHeader1;
+    QAction     *m_formatHeader2;
+    QAction     *m_formatHeader3;
+    QAction     *m_formatHeader4;
+
     QAction *m_formatBold;
     QAction *m_formatItalic;
     QAction *m_formatUnderline;
     QAction *m_formatStrikethrough;
+
+    QAction *m_formatSubscript;
+    QAction *m_formatSuperscript;
 
     QAction *m_alignLeft;
     QAction *m_alignCentre;
     QAction *m_alignRight;
     QAction *m_alignJustify;
 
+    QAction *m_textQuote;
+    QAction *m_textSegment;
     QAction *m_textIndent;
     QAction *m_blockIndent;
     QAction *m_blockOutdent;

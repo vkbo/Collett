@@ -109,6 +109,11 @@ CollettIcons::CollettIcons() {
         "H11v2z"
     );
 
+    // format_size_black_24dp.svg
+    m_svgPath["formatText"] = QLatin1String(
+        "M9 4v3h5v12h3V7h5V4H9zm-6 8h3v7h3v-7h3V9H3v3z"
+    );
+
     // format_italic_black_24dp.svg
     m_svgPath["italic"] = QLatin1String(
         "M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"
@@ -118,6 +123,11 @@ CollettIcons::CollettIcons() {
     m_svgPath["more"] = QLatin1String(
         "M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-."
         "9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+    );
+
+    // format_quote_black_24dp.svg
+    m_svgPath["quote"] = QLatin1String(
+        "M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"
     );
 
     // settings_black_24dp.svg
@@ -156,6 +166,11 @@ CollettIcons::CollettIcons() {
     // subject_black_24dp.svg (rotated 180 degrees)
     m_svgPath["textIndent"] = QLatin1String(
         "m10 7h10v-2h-10zm-6 8h16v-2h-16zm16-6h-16v2h16zm0 10v-2h-16v2z"
+    );
+
+    // segment_black_24dp.svg
+    m_svgPath["textSegment"] = QLatin1String(
+        "M9 18h12v-2H9v2zM3 6v2h18V6H3zm6 7h12v-2H9v2z"
     );
 
     // format_underlined_black_24dp.svg

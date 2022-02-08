@@ -33,13 +33,22 @@ enum DocAction {
     FormatItalic,
     FormatUnderline,
     FormatStrikethrough,
+    FormatSubscript,
+    FormatSuperscript,
     TextAlignLeft,
     TextAlignCentre,
     TextAlignRight,
     TextAlignJustify,
+    BlockQuote,
+    TextSegment,
     TextIndent,
     BlockIndent,
     BlockOutdent,
+    BlockParagraph,
+    BlockHeader1,
+    BlockHeader2,
+    BlockHeader3,
+    BlockHeader4,
 };
 
 enum Severity {
