@@ -43,9 +43,6 @@ public:
     GuiEditToolBar(QWidget *parent=nullptr);
     ~GuiEditToolBar() {};
 
-signals:
-    void documentAction(DocAction action);
-
 private:
     QActionGroup *m_formatTextGroup;
     QActionGroup *m_alignTextGroup;
@@ -76,9 +73,6 @@ private:
     QAction *m_textIndent;
     QAction *m_blockIndent;
     QAction *m_blockOutdent;
-
-private slots:
-    void emitDocumentAction(DocAction action);
 
     friend class GuiDocEditor;
 

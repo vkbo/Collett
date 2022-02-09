@@ -4,57 +4,107 @@
 <context>
     <name>Collett::GuiEditToolBar</name>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="41"/>
-        <source>Bold</source>
+        <location filename="../src/editor/edittoolbar.cpp" line="51"/>
+        <source>Header 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="42"/>
-        <source>Italic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="43"/>
-        <source>Underline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="44"/>
-        <source>Strikethrough</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="58"/>
-        <source>Align Left</source>
+        <location filename="../src/editor/edittoolbar.cpp" line="55"/>
+        <source>Header 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/editor/edittoolbar.cpp" line="59"/>
-        <source>Align Right</source>
+        <source>Header 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="60"/>
-        <source>Align Centre</source>
+        <location filename="../src/editor/edittoolbar.cpp" line="63"/>
+        <source>Header 4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="61"/>
-        <source>Align Justify</source>
+        <location filename="../src/editor/edittoolbar.cpp" line="67"/>
+        <source>Paragraph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="75"/>
-        <source>First Line Indent</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/editor/edittoolbar.cpp" line="76"/>
-        <source>Indent Paragraph</source>
+        <location filename="../src/editor/edittoolbar.cpp" line="71"/>
+        <source>Block Quote</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/editor/edittoolbar.cpp" line="77"/>
+        <source>Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="87"/>
+        <source>Bold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="90"/>
+        <source>Italic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="93"/>
+        <source>Underline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="96"/>
+        <source>Strikethrough</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="101"/>
+        <source>Superscript</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="104"/>
+        <source>Subscript</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="115"/>
+        <source>Align Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="119"/>
+        <source>Align Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="123"/>
+        <source>Align Centre</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="127"/>
+        <source>Align Justify</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="136"/>
+        <source>Text Segment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="139"/>
+        <source>First Line Indent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="142"/>
+        <source>Indent Paragraph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/editor/edittoolbar.cpp" line="143"/>
         <source>Outdent Paragraph</source>
         <translation type="unfinished"></translation>
     </message>
@@ -191,7 +241,7 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="188"/>
+        <location filename="../src/project/project.cpp" line="189"/>
         <source>Unnamed Project</source>
         <translation type="unfinished"></translation>
     </message>

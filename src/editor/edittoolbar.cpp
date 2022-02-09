@@ -79,13 +79,6 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     m_formatText->setPopupMode(QToolButton::InstantPopup);
     this->addWidget(m_formatText);
 
-    connect(m_formatHeader1, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockHeader1);});
-    connect(m_formatHeader2, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockHeader2);});
-    connect(m_formatHeader3, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockHeader3);});
-    connect(m_formatHeader4, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockHeader4);});
-    connect(m_formatParagraph, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockParagraph);});
-    connect(m_formatBlockQuote, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockQuote);});
-
     this->addSeparator();
 
     // Character Format Buttons
@@ -135,11 +128,6 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     m_alignJustify->setCheckable(true);
     m_alignJustify->setActionGroup(m_alignTextGroup);
 
-    connect(m_alignLeft, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextAlignLeft);});
-    connect(m_alignCentre, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextAlignCentre);});
-    connect(m_alignRight, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextAlignRight);});
-    connect(m_alignJustify, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextAlignJustify);});
-
     this->addSeparator();
 
     // Text Block Indentation and Style
@@ -153,20 +141,6 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
 
     m_blockIndent = this->addAction(icons->icon("blockIndent"), tr("Indent Paragraph"));
     m_blockOutdent = this->addAction(icons->icon("blockOutdent"), tr("Outdent Paragraph"));
-
-    connect(m_textSegment, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextSegment);});
-    connect(m_textIndent, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextIndent);});
-    connect(m_blockIndent, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockIndent);});
-    connect(m_blockOutdent, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockOutdent);});
-}
-
-/**
- * Private Slots
- * =============
- */
-
-void GuiEditToolBar::emitDocumentAction(DocAction action) {
-    emit documentAction(action);
 }
 
 } // namespace Collett

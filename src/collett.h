@@ -28,23 +28,6 @@
 
 namespace Collett {
 
-enum DocAction {
-    TextAlignLeft,
-    TextAlignCentre,
-    TextAlignRight,
-    TextAlignJustify,
-    BlockQuote,
-    TextSegment,
-    TextIndent,
-    BlockIndent,
-    BlockOutdent,
-    BlockParagraph,
-    BlockHeader1,
-    BlockHeader2,
-    BlockHeader3,
-    BlockHeader4,
-};
-
 enum Severity {
     Information,
     Warning,

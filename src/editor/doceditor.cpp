@@ -65,8 +65,6 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
     m_autoSave->setInterval(settings->editorAutoSave() * 1000);
 
     // Connections
-    connect(m_editToolBar, SIGNAL(documentAction(DocAction)),
-            m_textArea, SLOT(applyDocAction(DocAction)));
     connect(m_textArea, SIGNAL(currentCharFormatChanged(const QTextCharFormat&)),
             this, SLOT(editorCharFormatChanged(const QTextCharFormat&)));
     connect(m_textArea, SIGNAL(currentBlockChanged(const QTextBlock&)),
@@ -87,6 +85,37 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
             m_textArea, SLOT(toggleSuperScriptFormat()));
     connect(m_editToolBar->m_formatSubScript, SIGNAL(triggered()),
             m_textArea, SLOT(toggleSubScriptFormat()));
+
+    connect(m_editToolBar->m_textSegment, SIGNAL(triggered()),
+            m_textArea, SLOT(toggleSegmentFormat()));
+    connect(m_editToolBar->m_textIndent, SIGNAL(triggered()),
+            m_textArea, SLOT(toggleFirstLineIndent()));
+    connect(m_editToolBar->m_blockIndent, SIGNAL(triggered()),
+            m_textArea, SLOT(increaseBlockIndent()));
+    connect(m_editToolBar->m_blockOutdent, SIGNAL(triggered()),
+            m_textArea, SLOT(decreaseBlockIndent()));
+
+    connect(m_editToolBar->m_formatHeader1, &QAction::triggered,
+            [this]{m_textArea->applyBlockFormat(GuiTextEdit::Header, 1);});
+    connect(m_editToolBar->m_formatHeader2, &QAction::triggered,
+            [this]{m_textArea->applyBlockFormat(GuiTextEdit::Header, 2);});
+    connect(m_editToolBar->m_formatHeader3, &QAction::triggered,
+            [this]{m_textArea->applyBlockFormat(GuiTextEdit::Header, 3);});
+    connect(m_editToolBar->m_formatHeader4, &QAction::triggered,
+            [this]{m_textArea->applyBlockFormat(GuiTextEdit::Header, 4);});
+    connect(m_editToolBar->m_formatParagraph, &QAction::triggered,
+            [this]{m_textArea->applyBlockFormat(GuiTextEdit::Paragraph, 0);});
+    connect(m_editToolBar->m_formatBlockQuote, &QAction::triggered,
+            [this]{m_textArea->applyBlockFormat(GuiTextEdit::BlockQuote, 0);});
+
+    connect(m_editToolBar->m_alignLeft, &QAction::triggered,
+            [this]{m_textArea->applyBlockAlignment(Qt::AlignLeft);});
+    connect(m_editToolBar->m_alignCentre, &QAction::triggered,
+            [this]{m_textArea->applyBlockAlignment(Qt::AlignHCenter);});
+    connect(m_editToolBar->m_alignRight, &QAction::triggered,
+            [this]{m_textArea->applyBlockAlignment(Qt::AlignRight);});
+    connect(m_editToolBar->m_alignJustify, &QAction::triggered,
+            [this]{m_textArea->applyBlockAlignment(Qt::AlignJustify);});
 }
 
 /**
@@ -201,6 +230,7 @@ void GuiDocEditor::editorBlockChanged(const QTextBlock &block) {
         break;
     }
 
+    m_editToolBar->m_textSegment->setChecked(blockFormat.textIndent() < 0.0);
     m_editToolBar->m_textIndent->setChecked(blockFormat.textIndent() > 0.0);
 }
 

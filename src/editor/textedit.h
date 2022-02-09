@@ -41,6 +41,10 @@ class GuiTextEdit : public QTextEdit
     Q_OBJECT
 
 public:
+    enum BlockFormat {
+        Paragraph, Header, BlockQuote
+    };
+
     GuiTextEdit(QWidget *parent=nullptr);
     ~GuiTextEdit() {};
 
@@ -68,13 +72,18 @@ signals:
     void currentBlockChanged(const QTextBlock &block);
 
 public slots:
-    void applyDocAction(DocAction action);
     void toggleBoldFormat();
     void toggleItalicFormat();
     void toggleUnderlineFormat();
     void toggleStrikeOutFormat();
     void toggleSuperScriptFormat();
     void toggleSubScriptFormat();
+    void toggleSegmentFormat();
+    void toggleFirstLineIndent();
+    void increaseBlockIndent();
+    void decreaseBlockIndent();
+    void applyBlockAlignment(Qt::Alignment align);
+    void applyBlockFormat(BlockFormat format, int hLevel);
 
 private slots:
     void processCursorPositionChanged();
