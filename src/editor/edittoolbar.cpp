@@ -93,7 +93,7 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     m_formatUnderline = this->addAction(icons->icon("underline"), tr("Underline"));
     m_formatUnderline->setCheckable(true);
 
-    m_formatStrikeOut = this->addAction(icons->icon("strikethrough"), tr("Strikethrough"));
+    m_formatStrikeOut = this->addAction(icons->icon("strikeOut"), tr("Strike Out"));
     m_formatStrikeOut->setCheckable(true);
 
     this->addSeparator();

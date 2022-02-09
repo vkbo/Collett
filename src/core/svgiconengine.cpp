@@ -38,9 +38,7 @@ namespace Collett {
  * Based on: https://stackoverflow.com/a/44757951
  */
 
-SVGIconEngine::SVGIconEngine(const QString &iconBuffer) {
-    m_iconData = iconBuffer.toLatin1();
-}
+SVGIconEngine::SVGIconEngine(const QByteArray &iconBuffer) : m_iconData(iconBuffer) {}
 
 void SVGIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) {
     QSvgRenderer renderer(m_iconData);

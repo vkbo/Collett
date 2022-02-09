@@ -27,7 +27,6 @@
 #include <QObject>
 #include <QString>
 #include <QByteArray>
-#include <QLatin1String>
 
 namespace Collett {
 
@@ -42,11 +41,16 @@ public:
     explicit CollettIcons();
     ~CollettIcons();
 
+    void setIconStyle(const QColor &foreground, qreal opacity);
+
     QIcon icon(const QString &name);
 
 private:
     static CollettIcons *staticInstance;
-    QHash<QString, QLatin1String> m_svgPath;
+
+    QByteArray m_svgTemplateA = "<svg viewBox='0 0 24 24'><path d='";
+    QByteArray m_svgTemplateB = "'/></svg>";
+    QHash<QString, QByteArray> m_svgPath;
 
 };
 } // namespace Collett

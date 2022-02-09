@@ -55,7 +55,7 @@
     </message>
     <message>
         <location filename="../src/editor/edittoolbar.cpp" line="96"/>
-        <source>Strikethrough</source>
+        <source>Strike Out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -36,7 +36,7 @@ class SVGIconEngine : public QIconEngine
 {
 
 public:
-    explicit SVGIconEngine(const QString &iconBuffer);
+    explicit SVGIconEngine(const QByteArray &iconBuffer);
 
     void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override;
     QIconEngine *clone() const override;
