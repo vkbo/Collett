@@ -65,7 +65,6 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
     m_autoSave->setInterval(settings->editorAutoSave() * 1000);
 
     // Connections
-
     connect(m_editToolBar, SIGNAL(documentAction(DocAction)),
             m_textArea, SLOT(applyDocAction(DocAction)));
     connect(m_textArea, SIGNAL(currentCharFormatChanged(const QTextCharFormat&)),
@@ -74,6 +73,20 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
             this, SLOT(editorBlockChanged(const QTextBlock&)));
     connect(m_autoSave, SIGNAL(timeout()),
             this, SLOT(flushEditorData()));
+
+    // Editor Tool Bar Signals
+    connect(m_editToolBar->m_formatBold, SIGNAL(triggered()),
+            m_textArea, SLOT(toggleBoldFormat()));
+    connect(m_editToolBar->m_formatItalic, SIGNAL(triggered()),
+            m_textArea, SLOT(toggleItalicFormat()));
+    connect(m_editToolBar->m_formatUnderline, SIGNAL(triggered()),
+            m_textArea, SLOT(toggleUnderlineFormat()));
+    connect(m_editToolBar->m_formatStrikeOut, SIGNAL(triggered()),
+            m_textArea, SLOT(toggleStrikeOutFormat()));
+    connect(m_editToolBar->m_formatSuperScript, SIGNAL(triggered()),
+            m_textArea, SLOT(toggleSuperScriptFormat()));
+    connect(m_editToolBar->m_formatSubScript, SIGNAL(triggered()),
+            m_textArea, SLOT(toggleSubScriptFormat()));
 }
 
 /**
@@ -146,7 +159,9 @@ void GuiDocEditor::editorCharFormatChanged(const QTextCharFormat &fmt) {
     m_editToolBar->m_formatBold->setChecked(fmt.fontWeight() > QFont::Medium);
     m_editToolBar->m_formatItalic->setChecked(fmt.fontItalic());
     m_editToolBar->m_formatUnderline->setChecked(fmt.fontUnderline());
-    m_editToolBar->m_formatStrikethrough->setChecked(fmt.fontStrikeOut());
+    m_editToolBar->m_formatStrikeOut->setChecked(fmt.fontStrikeOut());
+    m_editToolBar->m_formatSuperScript->setChecked(fmt.verticalAlignment() == QTextCharFormat::AlignSuperScript);
+    m_editToolBar->m_formatSubScript->setChecked(fmt.verticalAlignment() == QTextCharFormat::AlignSubScript);
 }
 
 void GuiDocEditor::editorBlockChanged(const QTextBlock &block) {

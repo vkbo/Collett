@@ -48,10 +48,6 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     m_formatTextGroup = new QActionGroup(this);
     m_formatTextGroup->setExclusionPolicy(QActionGroup::ExclusionPolicy::Exclusive);
 
-    m_formatParagraph = m_formatTextMenu->addAction(tr("Paragraph"));
-    m_formatParagraph->setCheckable(true);
-    m_formatParagraph->setActionGroup(m_formatTextGroup);
-
     m_formatHeader1 = m_formatTextMenu->addAction(tr("Header 1"));
     m_formatHeader1->setCheckable(true);
     m_formatHeader1->setActionGroup(m_formatTextGroup);
@@ -68,6 +64,14 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     m_formatHeader4->setCheckable(true);
     m_formatHeader4->setActionGroup(m_formatTextGroup);
 
+    m_formatParagraph = m_formatTextMenu->addAction(tr("Paragraph"));
+    m_formatParagraph->setCheckable(true);
+    m_formatParagraph->setActionGroup(m_formatTextGroup);
+
+    m_formatBlockQuote = m_formatTextMenu->addAction(tr("Block Quote"));
+    m_formatBlockQuote->setCheckable(true);
+    m_formatBlockQuote->setActionGroup(m_formatTextGroup);
+
     m_formatText = new QToolButton(this);
     m_formatText->setIcon(icons->icon("formatText"));
     m_formatText->setText(tr("Format"));
@@ -75,11 +79,12 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     m_formatText->setPopupMode(QToolButton::InstantPopup);
     this->addWidget(m_formatText);
 
-    connect(m_formatParagraph, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockParagraph);});
     connect(m_formatHeader1, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockHeader1);});
     connect(m_formatHeader2, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockHeader2);});
     connect(m_formatHeader3, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockHeader3);});
     connect(m_formatHeader4, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockHeader4);});
+    connect(m_formatParagraph, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockParagraph);});
+    connect(m_formatBlockQuote, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockQuote);});
 
     this->addSeparator();
 
@@ -95,24 +100,16 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     m_formatUnderline = this->addAction(icons->icon("underline"), tr("Underline"));
     m_formatUnderline->setCheckable(true);
 
-    m_formatStrikethrough = this->addAction(icons->icon("strikethrough"), tr("Strikethrough"));
-    m_formatStrikethrough->setCheckable(true);
-
-    connect(m_formatBold, &QAction::triggered, [this]{emitDocumentAction(DocAction::FormatBold);});
-    connect(m_formatItalic, &QAction::triggered, [this]{emitDocumentAction(DocAction::FormatItalic);});
-    connect(m_formatUnderline, &QAction::triggered, [this]{emitDocumentAction(DocAction::FormatUnderline);});
-    connect(m_formatStrikethrough, &QAction::triggered, [this]{emitDocumentAction(DocAction::FormatStrikethrough);});
+    m_formatStrikeOut = this->addAction(icons->icon("strikethrough"), tr("Strikethrough"));
+    m_formatStrikeOut->setCheckable(true);
 
     this->addSeparator();
 
-    m_formatSubscript = this->addAction(icons->icon("subscript"), tr("Subscript"));
-    m_formatSubscript->setCheckable(true);
+    m_formatSuperScript = this->addAction(icons->icon("superscript"), tr("Superscript"));
+    m_formatSuperScript->setCheckable(true);
 
-    m_formatSuperscript = this->addAction(icons->icon("superscript"), tr("Superscript"));
-    m_formatSuperscript->setCheckable(true);
-
-    connect(m_formatSubscript, &QAction::triggered, [this]{emitDocumentAction(DocAction::FormatSubscript);});
-    connect(m_formatSuperscript, &QAction::triggered, [this]{emitDocumentAction(DocAction::FormatSuperscript);});
+    m_formatSubScript = this->addAction(icons->icon("subscript"), tr("Subscript"));
+    m_formatSubScript->setCheckable(true);
 
     this->addSeparator();
 
@@ -148,25 +145,15 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     // Text Block Indentation and Style
     // ================================
 
-    m_formatStyleGroup = new QActionGroup(this);
-    m_formatStyleGroup->setExclusionPolicy(QActionGroup::ExclusionPolicy::ExclusiveOptional);
-
-    m_textQuote = this->addAction(icons->icon("quote"), tr("Block Quote"));
-    m_textQuote->setCheckable(true);
-    m_textQuote->setActionGroup(m_formatStyleGroup);
-
     m_textSegment = this->addAction(icons->icon("textSegment"), tr("Text Segment"));
     m_textSegment->setCheckable(true);
-    m_textSegment->setActionGroup(m_formatStyleGroup);
 
     m_textIndent = this->addAction(icons->icon("textIndent"), tr("First Line Indent"));
     m_textIndent->setCheckable(true);
-    m_textIndent->setActionGroup(m_formatStyleGroup);
 
     m_blockIndent = this->addAction(icons->icon("blockIndent"), tr("Indent Paragraph"));
     m_blockOutdent = this->addAction(icons->icon("blockOutdent"), tr("Outdent Paragraph"));
 
-    connect(m_textQuote, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockQuote);});
     connect(m_textSegment, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextSegment);});
     connect(m_textIndent, &QAction::triggered, [this]{emitDocumentAction(DocAction::TextIndent);});
     connect(m_blockIndent, &QAction::triggered, [this]{emitDocumentAction(DocAction::BlockIndent);});

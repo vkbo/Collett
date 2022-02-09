@@ -140,6 +140,8 @@ QJsonArray GuiTextEdit::toJsonContent() {
             if (fragFmt.fontItalic()) jsonFragFmt << "i";
             if (fragFmt.fontUnderline()) jsonFragFmt << "u";
             if (fragFmt.fontStrikeOut()) jsonFragFmt << "s";
+            if (fragFmt.verticalAlignment() == QTextCharFormat::AlignSuperScript) jsonFragFmt << "sup";
+            if (fragFmt.verticalAlignment() == QTextCharFormat::AlignSubScript) jsonFragFmt << "sub";
 
             jsonFrags.append(jsonFragFmt.join(":") + "|" + blockFrag.text().replace(QChar::LineSeparator, '\n'));
         }
@@ -272,6 +274,10 @@ void GuiTextEdit::setJsonContent(const QJsonArray &json) {
                     fragFormat.setFontUnderline(true);
                 } else if (fragFmtTag == "s") {
                     fragFormat.setFontStrikeOut(true);
+                } else if (fragFmtTag == "sup") {
+                    fragFormat.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
+                } else if (fragFmtTag == "sub") {
+                    fragFormat.setVerticalAlignment(QTextCharFormat::AlignSubScript);
                 }
             }
 
@@ -308,29 +314,53 @@ void GuiTextEdit::initDocument(QTextDocument *doc) {
  * ============
  */
 
+void GuiTextEdit::toggleBoldFormat() {
+    if (this->fontWeight() > QFont::Medium) {
+        this->setFontWeight(QFont::Normal);
+    } else {
+        this->setFontWeight(QFont::Bold);
+    }
+}
+
+void GuiTextEdit::toggleItalicFormat() {
+    this->setFontItalic(!this->fontItalic());
+}
+
+void GuiTextEdit::toggleUnderlineFormat() {
+    this->setFontUnderline(!this->fontUnderline());
+}
+
+void GuiTextEdit::toggleStrikeOutFormat() {
+    QFont font = this->currentFont();
+    font.setStrikeOut(!font.strikeOut());
+    this->setCurrentFont(font);
+}
+
+void GuiTextEdit::toggleSuperScriptFormat() {
+    QTextCharFormat fmt = this->currentCharFormat();
+    if (fmt.verticalAlignment() == QTextCharFormat::AlignSuperScript) {
+        fmt.setVerticalAlignment(QTextCharFormat::AlignNormal);
+    } else {
+        fmt.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
+    }
+    this->setCurrentCharFormat(fmt);
+}
+
+void GuiTextEdit::toggleSubScriptFormat() {
+    QTextCharFormat fmt = this->currentCharFormat();
+    if (fmt.verticalAlignment() == QTextCharFormat::AlignSubScript) {
+        fmt.setVerticalAlignment(QTextCharFormat::AlignNormal);
+    } else {
+        fmt.setVerticalAlignment(QTextCharFormat::AlignSubScript);
+    }
+    this->setCurrentCharFormat(fmt);
+}
+
 void GuiTextEdit::applyDocAction(DocAction action) {
 
     bool blockChanged = false;
 
-    if (action == Collett::FormatBold) {
-        if (fontWeight() > QFont::Medium) {
-            setFontWeight(QFont::Normal);
-        } else {
-            setFontWeight(QFont::Bold);
-        }
-
-    } else if (action == Collett::FormatItalic) {
-        setFontItalic(!fontItalic());
-
-    } else if (action == Collett::FormatUnderline) {
-        setFontUnderline(!fontUnderline());
-
-    } else if (action == Collett::FormatStrikethrough) {
-        QFont font = currentFont();
-        font.setStrikeOut(!font.strikeOut());
-        setCurrentFont(font);
-
-    } else if (action == Collett::TextAlignLeft) {
+    if (action == Collett::TextAlignLeft) {
         setAlignment(Qt::AlignLeft);
         blockChanged = true;
 

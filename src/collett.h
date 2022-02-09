@@ -29,12 +29,6 @@
 namespace Collett {
 
 enum DocAction {
-    FormatBold,
-    FormatItalic,
-    FormatUnderline,
-    FormatStrikethrough,
-    FormatSubscript,
-    FormatSuperscript,
     TextAlignLeft,
     TextAlignCentre,
     TextAlignRight,

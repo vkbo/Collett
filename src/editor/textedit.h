@@ -69,6 +69,12 @@ signals:
 
 public slots:
     void applyDocAction(DocAction action);
+    void toggleBoldFormat();
+    void toggleItalicFormat();
+    void toggleUnderlineFormat();
+    void toggleStrikeOutFormat();
+    void toggleSuperScriptFormat();
+    void toggleSubScriptFormat();
 
 private slots:
     void processCursorPositionChanged();
