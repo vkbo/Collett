@@ -28,6 +28,7 @@
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"
 
 #define CNF_TEXT_FONT_SIZE "TextFormat/fontSize"
+#define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"
 
 #include <algorithm>
 
@@ -113,6 +114,7 @@ CollettSettings::CollettSettings() {
     // -----------
 
     m_textFontSize = std::max(settings.value(CNF_TEXT_FONT_SIZE, (qreal)13.0).toReal(), 5.0);
+    m_textTabWidth = std::max(settings.value(CNF_TEXT_TAB_WIDTH, (qreal)40.0).toReal(), 0.0);
     recalculateTextFormats();
 
 }
@@ -213,7 +215,7 @@ void CollettSettings::recalculateTextFormats() {
     // Text Format Values
 
     m_textFormat.fontSize = m_textFontSize;
-    m_textFormat.textIndent = 2.0 * m_textFontSize;
+    m_textFormat.tabWidth = m_textTabWidth;
     m_textFormat.lineHeight = 1.15;
 
     // Default Text Formats

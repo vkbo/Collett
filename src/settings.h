@@ -52,7 +52,7 @@ public:
         QTextBlockFormat blockHeader4;
         QTextCharFormat  charHeader4;
         qreal fontSize;
-        qreal textIndent;
+        qreal tabWidth;
         qreal lineHeight;
     };
 
@@ -70,6 +70,7 @@ public:
     void setMainSplitSizes(const QList<int> &sizes);
     void setEditorAutoSave(const int interval);
     void setTextFontSize(const qreal size);
+    void setTextTabWidth(const qreal width);
 
     // Getters
 
@@ -93,6 +94,7 @@ private:
     // Text Format
 
     qreal      m_textFontSize;
+    qreal      m_textTabWidth;
     TextFormat m_textFormat;
 
     // Internal Functions

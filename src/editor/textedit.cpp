@@ -230,10 +230,10 @@ void GuiTextEdit::setJsonContent(const QJsonArray &json) {
             } else if (blockFmtTag == "aj") {
                 blockFormat.setAlignment(Qt::AlignJustify);
             } else if (blockFmtTag == "ti") {
-                blockFormat.setTextIndent(m_format.textIndent);
+                blockFormat.setTextIndent(m_format.tabWidth);
             } else if (blockFmtTag == "sg") {
-                blockFormat.setTextIndent(-m_format.textIndent);
-                blockFormat.setLeftMargin(m_format.textIndent);
+                blockFormat.setTextIndent(-m_format.tabWidth);
+                blockFormat.setLeftMargin(m_format.tabWidth);
             } else if (blockFmtTag.startsWith("in")) {
                 blockFormat.setIndent(blockFmtTag.last(1).toInt());
             }
@@ -312,6 +312,8 @@ void GuiTextEdit::initDocument(QTextDocument *doc) {
     doc->setDefaultTextOption(opts);
     doc->setDocumentMargin(40);
 
+    // Editor Options
+    this->setTabStopDistance(m_format.tabWidth);
 }
 
 /**
@@ -369,8 +371,8 @@ void GuiTextEdit::toggleSegmentFormat() {
             format.setTextIndent(0.0);
             format.setLeftMargin(0.0);
         } else {
-            format.setTextIndent(-m_format.textIndent);
-            format.setLeftMargin(m_format.textIndent);
+            format.setTextIndent(-m_format.tabWidth);
+            format.setLeftMargin(m_format.tabWidth);
         }
         cursor.setBlockFormat(format);
         emit currentBlockChanged(cursor.block());
@@ -385,7 +387,7 @@ void GuiTextEdit::toggleFirstLineIndent() {
             format.setTextIndent(0.0);
             format.setLeftMargin(0.0);
         } else {
-            format.setTextIndent(m_format.textIndent);
+            format.setTextIndent(m_format.tabWidth);
             format.setLeftMargin(0.0);
         }
         cursor.setBlockFormat(format);
