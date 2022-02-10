@@ -205,6 +205,8 @@ bool Project::saveSettingsFile() {
     // Project Settings
     jProject[QLatin1String("u:project-name")] = m_projectName;
 
+    // Root Object
+    jData[QLatin1String("c:format")] = "project";
     jData[QLatin1String("c:meta")] = jMeta;
     jData[QLatin1String("c:project")] = jProject;
     jData[QLatin1String("c:settings")] = jSettings;

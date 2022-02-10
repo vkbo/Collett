@@ -69,7 +69,10 @@ private:
     // Data Variables
 
     QString    m_created;
+    QString    m_updated;
     QJsonArray m_content;
+
+    void docChanged();
 
 };
 } // namespace Collett

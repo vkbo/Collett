@@ -35,6 +35,7 @@ Document::Document(Storage *store, const QUuid uuid)
     m_locked = false;
     m_unsaved = true;
     m_created = QDateTime::currentDateTime().toString(Qt::ISODate);
+    m_updated = QDateTime::currentDateTime().toString(Qt::ISODate);
 }
 
 /**
@@ -44,7 +45,7 @@ Document::Document(Storage *store, const QUuid uuid)
 
 void Document::setContent(const QJsonArray &content) {
     m_content = content;
-    m_unsaved = true;
+    this->docChanged();
 }
 
 void Document::setLocked(bool locked) {
@@ -101,11 +102,18 @@ bool Document::read() {
     } else {
         m_created = "unknown";
     }
+    if (json.contains(QLatin1String("m:created"))) {
+        m_updated = json.value(QLatin1String("m:updated")).toString();
+    } else {
+        m_updated = "unknown";
+    }
     if (json.contains(QLatin1String("x:content"))) {
         m_content = json.value(QLatin1String("x:content")).toArray();
     } else {
         m_content = QJsonArray();
     }
+
+    m_unsaved = false;
 
     return true;
 }
@@ -129,8 +137,9 @@ bool Document::write() {
     }
 
     QJsonObject json;
+    json.insert(QLatin1String("c:format"), "document");
     json.insert(QLatin1String("m:created"), m_created);
-    json.insert(QLatin1String("m:updated"), QDateTime::currentDateTime().toString(Qt::ISODate));
+    json.insert(QLatin1String("m:updated"), m_updated);
     json.insert(QLatin1String("x:content"), m_content);
 
     if (!m_store->saveFile(m_handle, json)) {
@@ -140,6 +149,16 @@ bool Document::write() {
     m_unsaved = false;
 
     return true;
+}
+
+/**
+ * Internal Functions
+ * ==================
+ */
+
+void Document::docChanged() {
+    m_updated = QDateTime::currentDateTime().toString(Qt::ISODate);
+    m_unsaved = true;
 }
 
 } // namespace Collett

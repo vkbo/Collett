@@ -150,6 +150,10 @@ bool GuiDocEditor::saveDocument() {
         qWarning() << "No document to save";
         return false;
     }
+    if (!m_textArea->isModified()) {
+        qDebug() << "Document has not been changed";
+        return true;
+    }
 
     m_document->setLocked(true);
     m_document->setContent(m_textArea->toJsonContent());
@@ -235,8 +239,6 @@ void GuiDocEditor::editorBlockChanged(const QTextBlock &block) {
 }
 
 void GuiDocEditor::flushEditorData() {
-
-    qDebug() << "Ding!";
 
     if (!m_data->hasProject() || !hasDocument()) {
         return;
