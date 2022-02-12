@@ -42,7 +42,7 @@ GuiMainToolBar::GuiMainToolBar(QWidget *parent)
     m_projectName = new QLabel(tr("No Project"));
 
     this->setOrientation(Qt::Horizontal);
-    this->buildProjectMenu();
+    this->buildMainMenu();
     this->addWidget(stretch1);
     this->addWidget(m_projectName);
     this->addWidget(stretch2);
@@ -58,29 +58,37 @@ void GuiMainToolBar::setProjectName(const QString &name) {
  * ===============
  */
 
-void GuiMainToolBar::buildProjectMenu() {
+void GuiMainToolBar::buildMainMenu() {
 
     CollettIcons *icons = CollettIcons::instance();
 
-    // Menu
+    // Project Menu
     m_projectMenu = new QMenu(this);
 
-    // New Project
     m_newProject = m_projectMenu->addAction(tr("New Project"));
-
-    // Open Project
     m_openProject = m_projectMenu->addAction(tr("Open Project"));
-
-    // Save Project
     m_saveProject = m_projectMenu->addAction(tr("Save Project"));
 
-    // Assemble
     m_projectButton = new QToolButton(this);
     m_projectButton->setText(tr("Project"));
     m_projectButton->setIcon(icons->icon("archive"));
     m_projectButton->setMenu(m_projectMenu);
     m_projectButton->setPopupMode(QToolButton::InstantPopup);
     this->addWidget(m_projectButton);
+
+    // Documents Menu
+    m_docsMenu = new QMenu(this);
+
+    m_newDocument = m_docsMenu->addAction(tr("New Document"));
+    m_openDocument = m_docsMenu->addAction(tr("Open Document"));
+    m_saveDocument = m_docsMenu->addAction(tr("Save Document"));
+
+    m_docsButton = new QToolButton(this);
+    m_docsButton->setText(tr("Documents"));
+    m_docsButton->setIcon(icons->icon("documents"));
+    m_docsButton->setMenu(m_docsMenu);
+    m_docsButton->setPopupMode(QToolButton::InstantPopup);
+    this->addWidget(m_docsButton);
 
 }
 

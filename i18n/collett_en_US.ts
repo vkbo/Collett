@@ -125,27 +125,47 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="69"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="68"/>
         <source>New Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="72"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="69"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="75"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="70"/>
         <source>Save Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="79"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="73"/>
         <source>Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="96"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="82"/>
+        <source>New Document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/maintoolbar.cpp" line="83"/>
+        <source>Open Document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/maintoolbar.cpp" line="84"/>
+        <source>Save Document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/maintoolbar.cpp" line="87"/>
+        <source>Documents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/maintoolbar.cpp" line="104"/>
         <source>Menu</source>
         <translation type="unfinished"></translation>
     </message>

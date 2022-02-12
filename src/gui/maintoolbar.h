@@ -52,11 +52,18 @@ private:
     QAction     *m_openProject;
     QAction     *m_saveProject;
 
+    // Documents Menu
+    QToolButton *m_docsButton;
+    QMenu       *m_docsMenu;
+    QAction     *m_newDocument;
+    QAction     *m_openDocument;
+    QAction     *m_saveDocument;
+
     // DropDown Menu
     QToolButton *m_moreButton;
     QMenu       *m_moreMenu;
 
-    void buildProjectMenu();
+    void buildMainMenu();
     void buildMoreMenu();
 
 };
