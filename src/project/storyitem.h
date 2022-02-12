@@ -52,6 +52,7 @@ public:
 
     void setName(const QString &name);
     void setWordCount(int count);
+    void setExpanded(bool state);
 
     // Class Getters
 
@@ -60,6 +61,7 @@ public:
     QString name() const;
     int wordCount() const;
     int childWordCounts() const;
+    bool isExpanded() const;
 
     // Static Methods
 
@@ -83,7 +85,8 @@ private:
     QUuid    m_handle;
     QString  m_name;
     ItemType m_type;
-    int      m_wCount;
+    int      m_words;
+    bool     m_expanded;
 
 };
 } // namespace Collett

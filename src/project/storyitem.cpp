@@ -44,10 +44,11 @@ StoryItem::StoryItem(const QUuid &uuid, const QString &name, ItemType type, Stor
     : m_parentItem(parent)
 {
     m_childItems = QVector<StoryItem*>{};
-    m_handle = uuid;
-    m_name   = name;
-    m_type   = type;
-    m_wCount = 0;
+    m_handle   = uuid;
+    m_name     = name;
+    m_type     = type;
+    m_words    = 0;
+    m_expanded = false;
 }
 
 StoryItem::~StoryItem() {
@@ -101,10 +102,11 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
         return nullptr;
     }
 
-    QUuid    handle = QUuid();
-    QString  name   = "";
-    ItemType type   = StoryItem::Invalid;
-    int      wCount = 0;
+    QUuid    handle   = QUuid();
+    QString  name     = "";
+    ItemType type     = StoryItem::Invalid;
+    int      words    = 0;
+    bool     expanded = false;
 
     if (json.contains(QLatin1String("m:handle"))) {
         handle = QUuid(json[QLatin1String("m:handle")].toString());
@@ -116,7 +118,10 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
         type = StoryItem::typeFromString(json[QLatin1String("u:type")].toString());
     }
     if (json.contains(QLatin1String("m:words"))) {
-        wCount = json[QLatin1String("m:words")].toInt();
+        words = json[QLatin1String("m:words")].toInt();
+    }
+    if (json.contains(QLatin1String("m:expanded"))) {
+        expanded = json[QLatin1String("m:expanded")].toBool();
     }
 
     if (type == StoryItem::Invalid) {
@@ -144,7 +149,8 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
     }
     
     StoryItem *item = new StoryItem(handle, name, type, this);
-    item->setWordCount(wCount);
+    item->setWordCount(words);
+    item->setExpanded(expanded);
     m_childItems.append(item);
 
     if (json.contains(QLatin1String("x:items"))) {
@@ -196,11 +202,12 @@ QJsonObject StoryItem::toJsonObject() {
         item[QLatin1String("u:type")]  = type;
         item[QLatin1String("x:items")] = children;
     } else {
-        item[QLatin1String("m:handle")] = m_handle.toString(QUuid::WithoutBraces);
-        item[QLatin1String("m:order")]  = row();
-        item[QLatin1String("m:words")]  = m_wCount;
-        item[QLatin1String("u:name")]   = m_name;
-        item[QLatin1String("u:type")]   = type;
+        item[QLatin1String("m:handle")]   = m_handle.toString(QUuid::WithoutBraces);
+        item[QLatin1String("m:order")]    = row();
+        item[QLatin1String("m:words")]    = m_words;
+        item[QLatin1String("m:expanded")] = m_expanded;
+        item[QLatin1String("u:name")]     = m_name;
+        item[QLatin1String("u:type")]     = type;
         if (children.size() > 0) {
             item[QLatin1String("x:items")] = children;
         }
@@ -266,7 +273,11 @@ void StoryItem::setName(const QString &name) {
 
 
 void StoryItem::setWordCount(int count) {
-    m_wCount = count > 0 ? count : 0;
+    m_words = count > 0 ? count : 0;
+}
+
+void StoryItem::setExpanded(bool state) {
+    m_expanded = state;
 }
 
 /**
@@ -287,7 +298,7 @@ QString StoryItem::name() const {
 }
 
 int StoryItem::wordCount() const {
-    return m_wCount;
+    return m_words;
 }
 
 int StoryItem::childWordCounts() const {
@@ -296,6 +307,10 @@ int StoryItem::childWordCounts() const {
         tCount += child->childWordCounts();
     }
     return tCount;
+}
+
+bool StoryItem::isExpanded() const {
+    return m_expanded;
 }
 
 /**
@@ -372,7 +387,7 @@ int StoryItem::row() const {
 
 QVariant StoryItem::data() const {
     QVariantList itemData;
-    itemData << m_name << m_wCount << typeToString(m_type);
+    itemData << m_name << m_words << typeToString(m_type);
     return QVariant::fromValue(itemData);
 }
 
