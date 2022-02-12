@@ -28,6 +28,7 @@
 #include <QString>
 #include <QJsonObject>
 #include <QModelIndex>
+#include <QModelIndexList>
 #include <QAbstractItemModel>
 
 namespace Collett {
@@ -55,10 +56,12 @@ public:
     StoryItem *storyItem(const QModelIndex &index);
     QUuid itemHandle(const QModelIndex &index);
     QString itemName(const QModelIndex &index);
+    bool isExpanded(const QModelIndex &index);
 
     // Model Edit
 
     void setItemName(const QModelIndex &index, const QString &name);
+    void setExpanded(const QModelIndex &index, bool state);
 
     // Model Access
 

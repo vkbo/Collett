@@ -30,6 +30,7 @@
 #include <QJsonObject>
 #include <QModelIndex>
 #include <QLatin1String>
+#include <QModelIndexList>
 #include <QAbstractItemModel>
 
 namespace Collett {
@@ -201,6 +202,15 @@ QString StoryModel::itemName(const QModelIndex &index) {
     }
 }
 
+bool StoryModel::isExpanded(const QModelIndex &index) {
+    if (index.isValid()) {
+        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        return item->isExpanded();
+    } else {
+        return false;
+    }
+}
+
 /**
  * Model Edit
  * ==========
@@ -210,6 +220,13 @@ void StoryModel::setItemName(const QModelIndex &index, const QString &name) {
     if (index.isValid()) {
         StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
         item->setName(name);
+    }
+}
+
+void StoryModel::setExpanded(const QModelIndex &index, bool state) {
+    if (index.isValid()) {
+        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        item->setExpanded(state);
     }
 }
 

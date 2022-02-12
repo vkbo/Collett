@@ -186,15 +186,35 @@ QJsonObject StoryItem::toJsonObject() {
     }
 
     QLatin1String type;
+    bool expandable = false;
     switch (m_type) {
-        case StoryItem::Root:      type = QLatin1String("ROOT"); break;
-        case StoryItem::Book:      type = QLatin1String("BOOK"); break;
-        case StoryItem::Partition: type = QLatin1String("PARTITION"); break;
-        case StoryItem::Chapter:   type = QLatin1String("CHAPTER"); break;
-        case StoryItem::Scene:     type = QLatin1String("SCENE"); break;
-        case StoryItem::Page:      type = QLatin1String("PAGE"); break;
+        case StoryItem::Root:
+            type = QLatin1String("ROOT");
+            expandable = false;
+            break;
+        case StoryItem::Book:
+            type = QLatin1String("BOOK");
+            expandable = true;
+            break;
+        case StoryItem::Partition:
+            type = QLatin1String("PARTITION");
+            expandable = true;
+            break;
+        case StoryItem::Chapter:
+            type = QLatin1String("CHAPTER");
+            expandable = true;
+            break;
+        case StoryItem::Scene:
+            type = QLatin1String("SCENE");
+            expandable = false;
+            break;
+        case StoryItem::Page:
+            type = QLatin1String("PAGE");
+            expandable = false;
+            break;
         case StoryItem::Invalid:
             return QJsonObject();
+            expandable = false;
             break;
     }
 
@@ -202,14 +222,16 @@ QJsonObject StoryItem::toJsonObject() {
         item[QLatin1String("u:type")]  = type;
         item[QLatin1String("x:items")] = children;
     } else {
-        item[QLatin1String("m:handle")]   = m_handle.toString(QUuid::WithoutBraces);
-        item[QLatin1String("m:order")]    = row();
-        item[QLatin1String("m:words")]    = m_words;
-        item[QLatin1String("m:expanded")] = m_expanded;
-        item[QLatin1String("u:name")]     = m_name;
-        item[QLatin1String("u:type")]     = type;
+        item[QLatin1String("m:handle")] = m_handle.toString(QUuid::WithoutBraces);
+        item[QLatin1String("m:order")]  = row();
+        item[QLatin1String("m:words")]  = m_words;
+        item[QLatin1String("u:name")]   = m_name;
+        item[QLatin1String("u:type")]   = type;
         if (children.size() > 0) {
             item[QLatin1String("x:items")] = children;
+        }
+        if (expandable) {
+            item[QLatin1String("m:expanded")] = m_expanded;
         }
     }
 

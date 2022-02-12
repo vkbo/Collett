@@ -59,6 +59,10 @@ GuiStoryTree::GuiStoryTree(QWidget *parent)
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(doOpenContextMenu(QPoint)));
+    connect(this, SIGNAL(expanded(const QModelIndex&)),
+            this, SLOT(saveExpanded(const QModelIndex&)));
+    connect(this, SIGNAL(collapsed(const QModelIndex&)),
+            this, SLOT(saveCollapsed(const QModelIndex&)));
 }
 
 /**
@@ -67,8 +71,18 @@ GuiStoryTree::GuiStoryTree(QWidget *parent)
  */
 
 void GuiStoryTree::setTreeModel(StoryModel *model) {
+
     m_model = model;
     this->setModel(m_model);
+
+    // Restore Expanded State
+    QModelIndexList allChildren;
+    this->getAllChildren(m_model->index(0, 0), allChildren);
+    this->blockSignals(true);
+    for (const QModelIndex &child : allChildren) {
+        this->setExpanded(child, m_model->isExpanded(child));
+    }
+    this->blockSignals(false);
 }
 
 /**
@@ -82,6 +96,13 @@ QModelIndex GuiStoryTree::firstSelectedIndex() {
         return selections.at(0);
     } else {
         return QModelIndex();
+    }
+}
+
+void GuiStoryTree::getAllChildren(const QModelIndex &index, QModelIndexList &children) {
+    children.append(index);
+    for (int i = 0; i < model()->rowCount(index); ++i) {
+        getAllChildren(model()->index(i, 0, index), children);
     }
 }
 
@@ -245,6 +266,14 @@ void GuiStoryTree::doAddChild(StoryItem *item, StoryItem::ItemType type, StoryMo
             qWarning() << "Failed to add" << StoryItem::typeToString(type);
         }
     }
+}
+
+void GuiStoryTree::saveExpanded(const QModelIndex &index) {
+    if (m_model) m_model->setExpanded(index, true);
+}
+
+void GuiStoryTree::saveCollapsed(const QModelIndex &index) {
+    if (m_model) m_model->setExpanded(index, false);
 }
 
 } // namespace Collett

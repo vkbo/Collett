@@ -51,6 +51,7 @@ public:
     // Class Getters
 
     QModelIndex firstSelectedIndex();
+    void getAllChildren(const QModelIndex &index, QModelIndexList &children);
 
 public slots:
     void doEditName(bool checked);
@@ -58,6 +59,8 @@ public slots:
 private slots:
     void doOpenContextMenu(const QPoint &pos);
     void doAddChild(StoryItem *item, StoryItem::ItemType type, StoryModel::AddLocation loc);
+    void saveExpanded(const QModelIndex &index);
+    void saveCollapsed(const QModelIndex &index);
 
 private:
     StoryModel *m_model = nullptr;
