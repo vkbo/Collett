@@ -94,6 +94,9 @@ void GuiMainToolBar::buildMainMenu() {
     m_saveDocument = m_docsMenu->addAction(tr("Save Document"));
     m_saveDocument->setShortcut(QKeySequence("Ctrl+S"));
 
+    m_renameDocument = m_docsMenu->addAction(tr("Rename Document"));
+    m_renameDocument->setShortcut(QKeySequence("F2"));
+
     m_docsButton = new QToolButton(this);
     m_docsButton->setText(tr("Documents"));
     m_docsButton->setIcon(icons->icon("documents"));

@@ -77,6 +77,8 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
             this, SLOT(openSelectedDocument()));
     connect(m_mainToolBar->m_saveDocument, SIGNAL(triggered()),
             this, SLOT(saveOpenDocument()));
+    connect(m_mainToolBar->m_renameDocument, SIGNAL(triggered()),
+            this, SLOT(renameDocument()));
 
     // Connect Actions to Capture Key Sequence
     this->addAction(m_mainToolBar->m_newProject);
@@ -85,6 +87,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     this->addAction(m_mainToolBar->m_newDocument);
     this->addAction(m_mainToolBar->m_openDocument);
     this->addAction(m_mainToolBar->m_saveDocument);
+    this->addAction(m_mainToolBar->m_renameDocument);
 
     // Finalise
     setWindowTitle(
@@ -224,6 +227,12 @@ void GuiMain::saveOpenDocument() {
         return;
     if (m_docEditor->anyFocus())
         m_docEditor->saveDocument();
+}
+
+void GuiMain::renameDocument() {
+    if (!m_data->hasProject())
+        return;
+    m_storyTree->doEditName(false);
 }
 
 void GuiMain::storyTreeDoubleClick(const QModelIndex &index) {

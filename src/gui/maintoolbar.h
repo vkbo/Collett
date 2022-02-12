@@ -59,6 +59,7 @@ private:
     QAction     *m_newDocument;
     QAction     *m_openDocument;
     QAction     *m_saveDocument;
+    QAction     *m_renameDocument;
 
     // DropDown Menu
     QToolButton *m_moreButton;

@@ -52,8 +52,10 @@ public:
 
     QModelIndex firstSelectedIndex();
 
-private slots:
+public slots:
     void doEditName(bool checked);
+
+private slots:
     void doOpenContextMenu(const QPoint &pos);
     void doAddChild(StoryItem *item, StoryItem::ItemType type, StoryModel::AddLocation loc);
 

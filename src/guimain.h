@@ -84,6 +84,7 @@ private slots:
 
     void openSelectedDocument();
     void saveOpenDocument();
+    void renameDocument();
     void storyTreeDoubleClick(const QModelIndex &index);
 
 };

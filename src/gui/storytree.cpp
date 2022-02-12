@@ -55,13 +55,6 @@ GuiStoryTree::GuiStoryTree(QWidget *parent)
     this->setAlternatingRowColors(true);
     this->setExpandsOnDoubleClick(false);
 
-    // Item Actions
-    m_editItem = new QAction(tr("Rename"), this);
-    m_editItem->setShortcut(QKeySequence("F2"));
-    this->addAction(m_editItem);
-    connect(m_editItem, SIGNAL(triggered(bool)),
-            this, SLOT(doEditName(bool)));
-
     // Connect the Context Menu
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(QPoint)),
@@ -217,21 +210,21 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
 void GuiStoryTree::doEditName(bool checked) {
     Q_UNUSED(checked);
 
-    QModelIndexList sel = this->selectedIndexes();
-    if (sel.size() < 1) {
+    QModelIndex index = this->firstSelectedIndex();
+    if (!index.isValid()) {
         qDebug() << "No item selected";
         return;
     }
 
-    QString oldName = m_model->itemName(sel.at(0));
+    QString oldName = m_model->itemName(index);
     qDebug() << "Requested rename of item" << oldName;
 
     bool ok;
     QString newName = QInputDialog::getText(
-        this, tr("Rename Story Item"), tr("New name:"), QLineEdit::Normal, oldName, &ok
+        this, tr("Rename Story Item"), tr("New Name:"), QLineEdit::Normal, oldName, &ok
     );
     if (ok && !newName.isEmpty()) {
-        m_model->setItemName(sel.at(0), newName);
+        m_model->setItemName(index, newName);
     }
 }
 
