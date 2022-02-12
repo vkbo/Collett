@@ -34,6 +34,7 @@
 #include <QWidget>
 #include <QJsonObject>
 #include <QVBoxLayout>
+#include <QApplication>
 #include <QTextCharFormat>
 
 namespace Collett {
@@ -181,6 +182,15 @@ QUuid GuiDocEditor::currentDocument() const {
 
 bool GuiDocEditor::hasDocument() const {
     return m_document != nullptr && !m_docUuid.isNull();
+}
+
+/**!
+ * @brief Check if this, or any child widget has focus
+ */
+bool GuiDocEditor::anyFocus() const {
+    if (this->hasFocus())
+        return true;
+    return this->isAncestorOf(qApp->focusWidget());
 }
 
 /**

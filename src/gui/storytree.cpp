@@ -33,6 +33,7 @@
 #include <QModelIndex>
 #include <QInputDialog>
 #include <QKeySequence>
+#include <QModelIndexList>
 
 namespace Collett {
 
@@ -75,6 +76,20 @@ GuiStoryTree::GuiStoryTree(QWidget *parent)
 void GuiStoryTree::setTreeModel(StoryModel *model) {
     m_model = model;
     this->setModel(m_model);
+}
+
+/**
+ * Class Getters
+ * =============
+ */
+
+QModelIndex GuiStoryTree::firstSelectedIndex() {
+    QModelIndexList selections = this->selectedIndexes();
+    if (!selections.isEmpty()) {
+        return selections.at(0);
+    } else {
+        return QModelIndex();
+    }
 }
 
 /**

@@ -22,12 +22,13 @@
 #include "maintoolbar.h"
 #include "icons.h"
 
-#include <QObject>
-#include <QToolBar>
-#include <QWidget>
-#include <QSizePolicy>
-#include <QAction>
 #include <QMenu>
+#include <QAction>
+#include <QObject>
+#include <QWidget>
+#include <QToolBar>
+#include <QSizePolicy>
+#include <QKeySequence>
 
 namespace Collett {
 
@@ -66,8 +67,13 @@ void GuiMainToolBar::buildMainMenu() {
     m_projectMenu = new QMenu(this);
 
     m_newProject = m_projectMenu->addAction(tr("New Project"));
+    m_newProject->setShortcut(QKeySequence("Ctrl+Shift+N"));
+
     m_openProject = m_projectMenu->addAction(tr("Open Project"));
+    m_openProject->setShortcut(QKeySequence("Ctrl+Shift+O"));
+
     m_saveProject = m_projectMenu->addAction(tr("Save Project"));
+    m_saveProject->setShortcut(QKeySequence("Ctrl+Shift+S"));
 
     m_projectButton = new QToolButton(this);
     m_projectButton->setText(tr("Project"));
@@ -80,8 +86,13 @@ void GuiMainToolBar::buildMainMenu() {
     m_docsMenu = new QMenu(this);
 
     m_newDocument = m_docsMenu->addAction(tr("New Document"));
+    m_newDocument->setShortcut(QKeySequence("Ctrl+N"));
+
     m_openDocument = m_docsMenu->addAction(tr("Open Document"));
+    m_openDocument->setShortcut(QKeySequence("Ctrl+O"));
+
     m_saveDocument = m_docsMenu->addAction(tr("Save Document"));
+    m_saveDocument->setShortcut(QKeySequence("Ctrl+S"));
 
     m_docsButton = new QToolButton(this);
     m_docsButton->setText(tr("Documents"));

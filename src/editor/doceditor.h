@@ -55,6 +55,7 @@ public:
 
     QUuid currentDocument() const;
     bool hasDocument() const;
+    bool anyFocus() const;
 
 signals:
     void popMessage(const Collett::Severity type, const QString &message);

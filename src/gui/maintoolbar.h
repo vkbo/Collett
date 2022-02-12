@@ -32,6 +32,7 @@
 
 namespace Collett {
 
+class GuiMain;
 class GuiMainToolBar : public QToolBar
 {
     Q_OBJECT
@@ -65,6 +66,8 @@ private:
 
     void buildMainMenu();
     void buildMoreMenu();
+
+    friend class GuiMain;
 
 };
 } // namespace Collett
