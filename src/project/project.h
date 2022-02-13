@@ -25,7 +25,7 @@
 #include "collett.h"
 #include "storage.h"
 #include "document.h"
-#include "storymodel.h"
+#include "itemmodel.h"
 
 #include <QDir>
 #include <QHash>
@@ -59,7 +59,7 @@ public:
     QUuid lastDocumentMain() const;
 
     QString projectName() const;
-    StoryModel *storyModel();
+    ItemModel *storyModel();
     Storage *store();
 
     Document *document(const QUuid &uuid);
@@ -90,7 +90,7 @@ private:
 
     // Content
 
-    StoryModel *m_storyModel;
+    ItemModel *m_storyModel;
     QHash<QUuid, Document*> m_documents;
 
     // File Load & Save

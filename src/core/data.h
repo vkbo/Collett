@@ -24,7 +24,7 @@
 
 #include "collett.h"
 #include "project.h"
-#include "storymodel.h"
+#include "itemmodel.h"
 
 #include <QObject>
 #include <QString>
@@ -53,7 +53,7 @@ public:
 
     bool hasProject() const;
     Project *project();
-    StoryModel *storyModel();
+    ItemModel *storyModel();
 
 private:
     static CollettData *staticInstance;

@@ -266,38 +266,46 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="379"/>
+        <location filename="../src/project/item.cpp" line="378"/>
         <source>Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="380"/>
+        <location filename="../src/project/item.cpp" line="379"/>
         <source>Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="381"/>
+        <location filename="../src/project/item.cpp" line="380"/>
         <source>Partition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="382"/>
+        <location filename="../src/project/item.cpp" line="381"/>
         <source>Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="383"/>
+        <location filename="../src/project/item.cpp" line="382"/>
         <source>Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="384"/>
+        <location filename="../src/project/item.cpp" line="383"/>
         <source>Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="385"/>
+        <location filename="../src/project/item.cpp" line="384"/>
         <source>Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Collett::ItemModel</name>
+    <message>
+        <location filename="../src/project/itemmodel.cpp" line="166"/>
+        <source>New %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -335,14 +343,6 @@
     <message>
         <location filename="../src/core/storage.cpp" line="302"/>
         <source>Could not create folder: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Collett::StoryModel</name>
-    <message>
-        <location filename="../src/project/storymodel.cpp" line="156"/>
-        <source>New %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

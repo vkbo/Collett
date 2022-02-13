@@ -1,6 +1,6 @@
 /*
-** Collett – Project Story Model Class
-** ===================================
+** Collett – Project Item Model Class
+** ==================================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -19,7 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "storymodel.h"
+#include "itemmodel.h"
 #include "item.h"
 
 #include <QUuid>
@@ -43,15 +43,15 @@ namespace Collett {
  *
  * @param parent the parent object.
  */
-StoryModel::StoryModel(ModelType type, QObject *parent)
+ItemModel::ItemModel(ModelType type, QObject *parent)
     : QAbstractItemModel(parent)
 {
     m_type = type;
-    m_rootItem = new Item(QUuid(), "Root", type == StoryModel::Story, Item::Root);
+    m_rootItem = new Item(QUuid(), "Root", type == ItemModel::Story, Item::Root);
 }
 
-StoryModel::~StoryModel() {
-    qDebug() << "Destructor: StoryModel";
+ItemModel::~ItemModel() {
+    qDebug() << "Destructor: ItemModel";
     delete m_rootItem;
 }
 
@@ -69,7 +69,7 @@ StoryModel::~StoryModel() {
  *
  * @return a JSON object.
  */
-QJsonObject StoryModel::toJsonObject() {
+QJsonObject ItemModel::toJsonObject() {
 
     QJsonObject json = m_rootItem->toJsonObject();
     QString modelType = this->modelTypeToString(m_type);
@@ -91,7 +91,7 @@ QJsonObject StoryModel::toJsonObject() {
  * @param json the JSON object to be loaded into the model.
  * @return true if data was loaded successfully, false if an error occurred.
  */
-bool StoryModel::fromJsonObject(const QJsonObject &json) {
+bool ItemModel::fromJsonObject(const QJsonObject &json) {
 
     if (m_rootItem->childCount() > 0) {
         qWarning() << "Cannot initialise a non-empty model";
@@ -148,7 +148,7 @@ bool StoryModel::fromJsonObject(const QJsonObject &json) {
  * @param loc        the relative location of where to add the new item.
  * @return true if the item was successfully added, otherwise false.
  */
-bool StoryModel::addItem(Item *relativeTo, Item::ItemType type, AddLocation loc) {
+bool ItemModel::addItem(Item *relativeTo, Item::ItemType type, AddLocation loc) {
     if (!relativeTo) {
         return false;
     }
@@ -173,7 +173,7 @@ bool StoryModel::addItem(Item *relativeTo, Item::ItemType type, AddLocation loc)
  *
  * @return true if there is no root item, otherwise false
  */
-bool StoryModel::isEmpty() {
+bool ItemModel::isEmpty() {
     return m_rootItem == nullptr;
 }
 
@@ -182,11 +182,11 @@ bool StoryModel::isEmpty() {
  * =============
  */
 
-Item *StoryModel::rootItem() const {
+Item *ItemModel::rootItem() const {
     return m_rootItem;
 }
 
-Item *StoryModel::storyItem(const QModelIndex &index) {
+Item *ItemModel::storyItem(const QModelIndex &index) {
     if (index.isValid()) {
         return static_cast<Item*>(index.internalPointer());
     } else {
@@ -194,7 +194,7 @@ Item *StoryModel::storyItem(const QModelIndex &index) {
     }
 }
 
-QUuid StoryModel::itemHandle(const QModelIndex &index) {
+QUuid ItemModel::itemHandle(const QModelIndex &index) {
     if (index.isValid()) {
         Item *item = static_cast<Item*>(index.internalPointer());
         return item->handle();
@@ -203,7 +203,7 @@ QUuid StoryModel::itemHandle(const QModelIndex &index) {
     }
 }
 
-QString StoryModel::itemName(const QModelIndex &index) {
+QString ItemModel::itemName(const QModelIndex &index) {
     if (index.isValid()) {
         Item *item = static_cast<Item*>(index.internalPointer());
         return item->name();
@@ -212,7 +212,7 @@ QString StoryModel::itemName(const QModelIndex &index) {
     }
 }
 
-bool StoryModel::isExpanded(const QModelIndex &index) {
+bool ItemModel::isExpanded(const QModelIndex &index) {
     if (index.isValid()) {
         Item *item = static_cast<Item*>(index.internalPointer());
         return item->isExpanded();
@@ -226,18 +226,18 @@ bool StoryModel::isExpanded(const QModelIndex &index) {
  * ==============
  */
 
-QString StoryModel::modelTypeToString(ModelType type) {
+QString ItemModel::modelTypeToString(ModelType type) {
     switch (type) {
-        case StoryModel::Story:
+        case ItemModel::Story:
             return "STORY";
             break;
-        case StoryModel::Plot:
+        case ItemModel::Plot:
             return "PLOT";
             break;
-        case StoryModel::Characters:
+        case ItemModel::Characters:
             return "CHARACTERS";
             break;
-        case StoryModel::Locations:
+        case ItemModel::Locations:
             return "LOCATIONS";
             break;
         default:
@@ -252,14 +252,14 @@ QString StoryModel::modelTypeToString(ModelType type) {
  * ==========
  */
 
-void StoryModel::setItemName(const QModelIndex &index, const QString &name) {
+void ItemModel::setItemName(const QModelIndex &index, const QString &name) {
     if (index.isValid()) {
         Item *item = static_cast<Item*>(index.internalPointer());
         item->setName(name);
     }
 }
 
-void StoryModel::setExpanded(const QModelIndex &index, bool state) {
+void ItemModel::setExpanded(const QModelIndex &index, bool state) {
     if (index.isValid()) {
         Item *item = static_cast<Item*>(index.internalPointer());
         item->setExpanded(state);
@@ -271,7 +271,7 @@ void StoryModel::setExpanded(const QModelIndex &index, bool state) {
  * ============
  */
 
-QModelIndex StoryModel::index(int row, int column, const QModelIndex &parent) const {
+QModelIndex ItemModel::index(int row, int column, const QModelIndex &parent) const {
 
     if (!hasIndex(row, column, parent)) {
         return QModelIndex();
@@ -292,7 +292,7 @@ QModelIndex StoryModel::index(int row, int column, const QModelIndex &parent) co
     }
 }
 
-QModelIndex StoryModel::parent(const QModelIndex &index) const {
+QModelIndex ItemModel::parent(const QModelIndex &index) const {
 
     if (!index.isValid()) {
         return QModelIndex();
@@ -308,7 +308,7 @@ QModelIndex StoryModel::parent(const QModelIndex &index) const {
     }
 }
 
-int StoryModel::rowCount(const QModelIndex &parent) const {
+int ItemModel::rowCount(const QModelIndex &parent) const {
 
     Item *parentItem;
     if (parent.column() > 0) {
@@ -324,11 +324,11 @@ int StoryModel::rowCount(const QModelIndex &parent) const {
     return parentItem->childCount();
 }
 
-int StoryModel::columnCount(const QModelIndex &parent) const {
+int ItemModel::columnCount(const QModelIndex &parent) const {
     return 1;
 }
 
-QVariant StoryModel::data(const QModelIndex &index, int role) const {
+QVariant ItemModel::data(const QModelIndex &index, int role) const {
 
     if (!index.isValid()) {
         return QVariant();
@@ -342,7 +342,7 @@ QVariant StoryModel::data(const QModelIndex &index, int role) const {
     return item->data();
 }
 
-Qt::ItemFlags StoryModel::flags(const QModelIndex &index) const {
+Qt::ItemFlags ItemModel::flags(const QModelIndex &index) const {
     if (!index.isValid()) {
         return Qt::NoItemFlags;
     } else {
@@ -350,7 +350,7 @@ Qt::ItemFlags StoryModel::flags(const QModelIndex &index) const {
     }
 }
 
-QVariant StoryModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant ItemModel::headerData(int section, Qt::Orientation orientation, int role) const {
     return QVariant();
 }
 

@@ -1,6 +1,6 @@
 /*
-** Collett – Project Story Model Class
-** ===================================
+** Collett – Project Item Model Class
+** ==================================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -19,8 +19,8 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_STORYMODEL_H
-#define COLLETT_STORYMODEL_H
+#ifndef COLLETT_ITEMMODEL_H
+#define COLLETT_ITEMMODEL_H
 
 #include "item.h"
 
@@ -33,7 +33,7 @@
 
 namespace Collett {
 
-class StoryModel : public QAbstractItemModel
+class ItemModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -41,8 +41,8 @@ public:
     enum ModelType{Invalid, Story, Plot, Characters, Locations};
     enum AddLocation{Before, After, Inside};
 
-    explicit StoryModel(ModelType type, QObject *parent=nullptr);
-    ~StoryModel();
+    explicit ItemModel(ModelType type, QObject *parent=nullptr);
+    ~ItemModel();
 
     // Class Methods
 
@@ -85,4 +85,4 @@ private:
 };
 } // namespace Collett
 
-#endif // COLLETT_STORYMODEL_H
+#endif // COLLETT_ITEMMODEL_H

@@ -23,7 +23,7 @@
 #include "project.h"
 #include "storage.h"
 #include "document.h"
-#include "storymodel.h"
+#include "itemmodel.h"
 
 #include <QDir>
 #include <QFile>
@@ -47,7 +47,7 @@ namespace Collett {
 Project::Project(const QString &path) {
 
     m_isValid = false;
-    m_storyModel = new StoryModel(StoryModel::Story, this);
+    m_storyModel = new ItemModel(ItemModel::Story, this);
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
 
     // If the path is a file, go one level up
@@ -139,7 +139,7 @@ QString Project::projectName() const {
     return m_projectName;
 }
 
-StoryModel *Project::storyModel() {
+ItemModel *Project::storyModel() {
     return m_storyModel;
 }
 
@@ -223,7 +223,7 @@ bool Project::saveSettingsFile() {
  * ==========
  * Load and save functions for the project/story.json file.
  *
- * This file contains the structure of StoryItems contained in the StoryModel.
+ * This file contains the structure of StoryItems contained in the ItemModel.
  * The structure is contained as child items under a single root item, and is
  * saved to a QJsonDocument by recursively calling the Item->toJsonObject
  * function.

@@ -22,7 +22,7 @@
 #include "collett.h"
 #include "item.h"
 #include "storytree.h"
-#include "storymodel.h"
+#include "itemmodel.h"
 #include "storytreedelegate.h"
 
 #include <QMenu>
@@ -70,7 +70,7 @@ GuiStoryTree::GuiStoryTree(QWidget *parent)
  * =============
  */
 
-void GuiStoryTree::setTreeModel(StoryModel *model) {
+void GuiStoryTree::setTreeModel(ItemModel *model) {
 
     m_model = model;
     this->setModel(m_model);
@@ -148,13 +148,13 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
     QMenu *scMenu = new QMenu(tr("Add Scene"));
     if (item->allowedChild(Item::Scene)) {
         QAction *inAction = scMenu->addAction(tr("Inside"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Scene, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Scene, ItemModel::Inside);});
     }
     if (item->allowedSibling(Item::Scene)) {
         QAction *bfAction = scMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Scene, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Scene, ItemModel::Before);});
         QAction *afAction = scMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Scene, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Scene, ItemModel::After);});
     }
     if (!scMenu->isEmpty()) {
         contextMenu.addMenu(scMenu);
@@ -163,13 +163,13 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
     QMenu *chMenu = new QMenu(tr("Add Chapter"));
     if (item->allowedChild(Item::Chapter)) {
         QAction *inAction = chMenu->addAction(tr("Inside"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Chapter, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Chapter, ItemModel::Inside);});
     }
     if (item->allowedSibling(Item::Chapter)) {
         QAction *bfAction = chMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Chapter, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Chapter, ItemModel::Before);});
         QAction *afAction = chMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Chapter, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Chapter, ItemModel::After);});
     }
     if (!chMenu->isEmpty()) {
         contextMenu.addMenu(chMenu);
@@ -178,13 +178,13 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
     QMenu *ptMenu = new QMenu(tr("Add Partition"));
     if (item->allowedChild(Item::Partition)) {
         QAction *inAction = ptMenu->addAction(tr("Inside"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Partition, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Partition, ItemModel::Inside);});
     }
     if (item->allowedSibling(Item::Partition)) {
         QAction *bfAction = ptMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Partition, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Partition, ItemModel::Before);});
         QAction *afAction = ptMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Partition, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Partition, ItemModel::After);});
     }
     if (!ptMenu->isEmpty()) {
         contextMenu.addMenu(ptMenu);
@@ -193,13 +193,13 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
     QMenu *bkMenu = new QMenu(tr("Add Book"));
     if (item->allowedChild(Item::Book)) {
         QAction *inAction = bkMenu->addAction(index.isValid() ? tr("Inside") : tr("Here"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Book, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Book, ItemModel::Inside);});
     }
     if (item->allowedSibling(Item::Book)) {
         QAction *bfAction = bkMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Book, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Book, ItemModel::Before);});
         QAction *afAction = bkMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Book, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Book, ItemModel::After);});
     }
     if (!bkMenu->isEmpty()) {
         contextMenu.addMenu(bkMenu);
@@ -208,13 +208,13 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
     QMenu *pgMenu = new QMenu(tr("Add Page"));
     if (item->allowedChild(Item::Page)) {
         QAction *inAction = pgMenu->addAction(tr("Inside"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Page, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Page, ItemModel::Inside);});
     }
     if (item->allowedSibling(Item::Page)) {
         QAction *bfAction = pgMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Page, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Page, ItemModel::Before);});
         QAction *afAction = pgMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Page, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Page, ItemModel::After);});
     }
     if (!pgMenu->isEmpty()) {
         contextMenu.addMenu(pgMenu);
@@ -258,7 +258,7 @@ void GuiStoryTree::doEditName(bool checked) {
  * @param type the type of item to add.
  * @param loc  the relative location of where to add the new item.
  */
-void GuiStoryTree::doAddChild(Item *item, Item::ItemType type, StoryModel::AddLocation loc) {
+void GuiStoryTree::doAddChild(Item *item, Item::ItemType type, ItemModel::AddLocation loc) {
     if (m_model) {
         if (m_model->addItem(item, type, loc)) {
             qDebug() << "Added" << Item::typeToLabel(type);
