@@ -225,7 +225,7 @@ bool Project::saveSettingsFile() {
  *
  * This file contains the structure of StoryItems contained in the StoryModel.
  * The structure is contained as child items under a single root item, and is
- * saved to a QJsonDocument by recursively calling the StoryItem->toJsonObject
+ * saved to a QJsonDocument by recursively calling the Item->toJsonObject
  * function.
 `*/
 

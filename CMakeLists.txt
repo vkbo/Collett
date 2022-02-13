@@ -95,8 +95,8 @@ list(APPEND SRC_FILES
     src/gui/storytreedelegate
     src/gui/treetoolbar
     src/project/document
+    src/project/item
     src/project/project
-    src/project/storyitem
     src/project/storymodel
     src/guimain
     src/main

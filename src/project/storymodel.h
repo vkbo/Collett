@@ -22,7 +22,7 @@
 #ifndef COLLETT_STORYMODEL_H
 #define COLLETT_STORYMODEL_H
 
-#include "storyitem.h"
+#include "item.h"
 
 #include <QObject>
 #include <QString>
@@ -47,13 +47,13 @@ public:
 
     QJsonObject toJsonObject();
     bool fromJsonObject(const QJsonObject &json);
-    bool addItem(StoryItem *relativeTo, StoryItem::ItemType type, AddLocation loc);
+    bool addItem(Item *relativeTo, Item::ItemType type, AddLocation loc);
     bool isEmpty();
 
     // Class Getters
 
-    StoryItem *rootItem() const;
-    StoryItem *storyItem(const QModelIndex &index);
+    Item *rootItem() const;
+    Item *storyItem(const QModelIndex &index);
     QUuid itemHandle(const QModelIndex &index);
     QString itemName(const QModelIndex &index);
     bool isExpanded(const QModelIndex &index);
@@ -74,7 +74,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
-    StoryItem *m_rootItem = nullptr;
+    Item *m_rootItem = nullptr;
 
 };
 } // namespace Collett

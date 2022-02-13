@@ -22,7 +22,7 @@
 #ifndef GUI_STORYTREE_H
 #define GUI_STORYTREE_H
 
-#include "storyitem.h"
+#include "item.h"
 #include "storymodel.h"
 
 #include <QPoint>
@@ -58,7 +58,7 @@ public slots:
 
 private slots:
     void doOpenContextMenu(const QPoint &pos);
-    void doAddChild(StoryItem *item, StoryItem::ItemType type, StoryModel::AddLocation loc);
+    void doAddChild(Item *item, Item::ItemType type, StoryModel::AddLocation loc);
     void saveExpanded(const QModelIndex &index);
     void saveCollapsed(const QModelIndex &index);
 

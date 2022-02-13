@@ -20,7 +20,7 @@
 */
 
 #include "collett.h"
-#include "storyitem.h"
+#include "item.h"
 #include "storytree.h"
 #include "storymodel.h"
 #include "storytreedelegate.h"
@@ -122,9 +122,9 @@ void GuiStoryTree::getAllChildren(const QModelIndex &index, QModelIndexList &chi
 void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
 
     QModelIndex index = this->indexAt(pos);
-    StoryItem *item;
+    Item *item;
     if (index.isValid()) {
-        item = static_cast<StoryItem*>(index.internalPointer());
+        item = static_cast<Item*>(index.internalPointer());
     } else {
         item = m_model->rootItem();
     }
@@ -146,75 +146,75 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
     // ---------
 
     QMenu *scMenu = new QMenu(tr("Add Scene"));
-    if (item->allowedChild(StoryItem::Scene)) {
+    if (item->allowedChild(Item::Scene)) {
         QAction *inAction = scMenu->addAction(tr("Inside"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Scene, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Scene, StoryModel::Inside);});
     }
-    if (item->allowedSibling(StoryItem::Scene)) {
+    if (item->allowedSibling(Item::Scene)) {
         QAction *bfAction = scMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Scene, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Scene, StoryModel::Before);});
         QAction *afAction = scMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Scene, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Scene, StoryModel::After);});
     }
     if (!scMenu->isEmpty()) {
         contextMenu.addMenu(scMenu);
     }
 
     QMenu *chMenu = new QMenu(tr("Add Chapter"));
-    if (item->allowedChild(StoryItem::Chapter)) {
+    if (item->allowedChild(Item::Chapter)) {
         QAction *inAction = chMenu->addAction(tr("Inside"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Chapter, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Chapter, StoryModel::Inside);});
     }
-    if (item->allowedSibling(StoryItem::Chapter)) {
+    if (item->allowedSibling(Item::Chapter)) {
         QAction *bfAction = chMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Chapter, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Chapter, StoryModel::Before);});
         QAction *afAction = chMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Chapter, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Chapter, StoryModel::After);});
     }
     if (!chMenu->isEmpty()) {
         contextMenu.addMenu(chMenu);
     }
 
     QMenu *ptMenu = new QMenu(tr("Add Partition"));
-    if (item->allowedChild(StoryItem::Partition)) {
+    if (item->allowedChild(Item::Partition)) {
         QAction *inAction = ptMenu->addAction(tr("Inside"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Partition, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Partition, StoryModel::Inside);});
     }
-    if (item->allowedSibling(StoryItem::Partition)) {
+    if (item->allowedSibling(Item::Partition)) {
         QAction *bfAction = ptMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Partition, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Partition, StoryModel::Before);});
         QAction *afAction = ptMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Partition, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Partition, StoryModel::After);});
     }
     if (!ptMenu->isEmpty()) {
         contextMenu.addMenu(ptMenu);
     }
 
     QMenu *bkMenu = new QMenu(tr("Add Book"));
-    if (item->allowedChild(StoryItem::Book)) {
+    if (item->allowedChild(Item::Book)) {
         QAction *inAction = bkMenu->addAction(index.isValid() ? tr("Inside") : tr("Here"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Book, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Book, StoryModel::Inside);});
     }
-    if (item->allowedSibling(StoryItem::Book)) {
+    if (item->allowedSibling(Item::Book)) {
         QAction *bfAction = bkMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Book, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Book, StoryModel::Before);});
         QAction *afAction = bkMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Book, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Book, StoryModel::After);});
     }
     if (!bkMenu->isEmpty()) {
         contextMenu.addMenu(bkMenu);
     }
 
     QMenu *pgMenu = new QMenu(tr("Add Page"));
-    if (item->allowedChild(StoryItem::Page)) {
+    if (item->allowedChild(Item::Page)) {
         QAction *inAction = pgMenu->addAction(tr("Inside"));
-        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Page, StoryModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Page, StoryModel::Inside);});
     }
-    if (item->allowedSibling(StoryItem::Page)) {
+    if (item->allowedSibling(Item::Page)) {
         QAction *bfAction = pgMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Page, StoryModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Page, StoryModel::Before);});
         QAction *afAction = pgMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, StoryItem::Page, StoryModel::After);});
+        connect(afAction, &QAction::triggered, [this, item]{doAddChild(item, Item::Page, StoryModel::After);});
     }
     if (!pgMenu->isEmpty()) {
         contextMenu.addMenu(pgMenu);
@@ -258,12 +258,12 @@ void GuiStoryTree::doEditName(bool checked) {
  * @param type the type of item to add.
  * @param loc  the relative location of where to add the new item.
  */
-void GuiStoryTree::doAddChild(StoryItem *item, StoryItem::ItemType type, StoryModel::AddLocation loc) {
+void GuiStoryTree::doAddChild(Item *item, Item::ItemType type, StoryModel::AddLocation loc) {
     if (m_model) {
         if (m_model->addItem(item, type, loc)) {
-            qDebug() << "Added" << StoryItem::typeToString(type);
+            qDebug() << "Added" << Item::typeToString(type);
         } else {
-            qWarning() << "Failed to add" << StoryItem::typeToString(type);
+            qWarning() << "Failed to add" << Item::typeToString(type);
         }
     }
 }

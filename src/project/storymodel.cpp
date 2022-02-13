@@ -20,7 +20,7 @@
 */
 
 #include "storymodel.h"
-#include "storyitem.h"
+#include "item.h"
 
 #include <QUuid>
 #include <QObject>
@@ -46,7 +46,7 @@ namespace Collett {
 StoryModel::StoryModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_rootItem = new StoryItem(QUuid(), "Root", StoryItem::Root);
+    m_rootItem = new Item(QUuid(), "Root", true, Item::Root);
 }
 
 StoryModel::~StoryModel() {
@@ -63,7 +63,7 @@ StoryModel::~StoryModel() {
  * @brief Build a JSON object of the model.
  *
  * Collect the story tree into a nested JSON object. This is a wrapper around
- * @sa StoryItem::toJsonObject function, which will build the entire tree
+ * @sa Item::toJsonObject function, which will build the entire tree
  * recursively.
  *
  * @return a JSON object.
@@ -76,7 +76,7 @@ QJsonObject StoryModel::toJsonObject() {
  * @brief Load story model from JSON object.
  * 
  * This function loads the root element data, validates it, and calls the
- * addChild method of StoryItem on each child element defined within it.
+ * addChild method of Item on each child element defined within it.
  * 
  * @param json the JSON object to be loaded into the model.
  * @return true if data was loaded successfully, false if an error occurred.
@@ -89,26 +89,26 @@ bool StoryModel::fromJsonObject(const QJsonObject &json) {
     }
 
     if (json.isEmpty()) {
-        qWarning() << "StoryItem Root: No data in JSON object";
+        qWarning() << "Item Root: No data in JSON object";
         return false;
     }
     if (!json.contains(QLatin1String("u:type"))) {
-        qWarning() << "StoryItem Root: Not a valid story item JSON object";
+        qWarning() << "Item Root: Not a valid story item JSON object";
         return false;
     }
 
-    StoryItem::ItemType type = StoryItem::typeFromString(json[QLatin1String("u:type")].toString());
-    if (type != StoryItem::Root) {
-        qWarning() << "StoryItem Root: No ROOT item found in JSON object";
+    Item::ItemType type = Item::typeFromString(json[QLatin1String("u:type")].toString());
+    if (type != Item::Root) {
+        qWarning() << "Item Root: No ROOT item found in JSON object";
         return false;
     }
 
     if (!json.contains(QLatin1String("x:items"))) {
-        qDebug() << "StoryItem Root: No items found in JSON object";
+        qDebug() << "Item Root: No items found in JSON object";
         return false;
     }
     if (!json[QLatin1String("x:items")].isArray()) {
-        qWarning() << "StoryItem Root: x:items value is not a JSON array";
+        qWarning() << "Item Root: x:items value is not a JSON array";
         return false;
     }
 
@@ -117,7 +117,7 @@ bool StoryModel::fromJsonObject(const QJsonObject &json) {
         if (value.isObject()) {
             m_rootItem->addChild(value.toObject());
         } else {
-            qWarning() << "StoryItem Root: Child item is not a JSON object";
+            qWarning() << "Item Root: Child item is not a JSON object";
         }
     }
     emit endResetModel();
@@ -138,11 +138,11 @@ bool StoryModel::fromJsonObject(const QJsonObject &json) {
  * @param loc        the relative location of where to add the new item.
  * @return true if the item was successfully added, otherwise false.
  */
-bool StoryModel::addItem(StoryItem *relativeTo, StoryItem::ItemType type, AddLocation loc) {
+bool StoryModel::addItem(Item *relativeTo, Item::ItemType type, AddLocation loc) {
     if (!relativeTo) {
         return false;
     }
-    StoryItem *target = relativeTo;
+    Item *target = relativeTo;
     int pos = relativeTo->childCount();
     if (loc == AddLocation::Before || loc == AddLocation::After) {
         target = relativeTo->parentItem();
@@ -153,7 +153,7 @@ bool StoryModel::addItem(StoryItem *relativeTo, StoryItem::ItemType type, AddLoc
     }
     qDebug() << target->row() << pos;
     emit beginInsertRows(createIndex(target->row(), 0, target), pos, pos);
-    StoryItem *item = target->addChild(tr("New %1").arg(StoryItem::typeToString(type)), type, pos);
+    Item *item = target->addChild(tr("New %1").arg(Item::typeToString(type)), type, pos);
     emit endInsertRows();
     return item != nullptr;
 }
@@ -172,13 +172,13 @@ bool StoryModel::isEmpty() {
  * =============
  */
 
-StoryItem *StoryModel::rootItem() const {
+Item *StoryModel::rootItem() const {
     return m_rootItem;
 }
 
-StoryItem *StoryModel::storyItem(const QModelIndex &index) {
+Item *StoryModel::storyItem(const QModelIndex &index) {
     if (index.isValid()) {
-        return static_cast<StoryItem*>(index.internalPointer());
+        return static_cast<Item*>(index.internalPointer());
     } else {
         return nullptr;
     }
@@ -186,7 +186,7 @@ StoryItem *StoryModel::storyItem(const QModelIndex &index) {
 
 QUuid StoryModel::itemHandle(const QModelIndex &index) {
     if (index.isValid()) {
-        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        Item *item = static_cast<Item*>(index.internalPointer());
         return item->handle();
     } else {
         return QUuid();
@@ -195,7 +195,7 @@ QUuid StoryModel::itemHandle(const QModelIndex &index) {
 
 QString StoryModel::itemName(const QModelIndex &index) {
     if (index.isValid()) {
-        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        Item *item = static_cast<Item*>(index.internalPointer());
         return item->name();
     } else {
         return "";
@@ -204,7 +204,7 @@ QString StoryModel::itemName(const QModelIndex &index) {
 
 bool StoryModel::isExpanded(const QModelIndex &index) {
     if (index.isValid()) {
-        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        Item *item = static_cast<Item*>(index.internalPointer());
         return item->isExpanded();
     } else {
         return false;
@@ -218,14 +218,14 @@ bool StoryModel::isExpanded(const QModelIndex &index) {
 
 void StoryModel::setItemName(const QModelIndex &index, const QString &name) {
     if (index.isValid()) {
-        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        Item *item = static_cast<Item*>(index.internalPointer());
         item->setName(name);
     }
 }
 
 void StoryModel::setExpanded(const QModelIndex &index, bool state) {
     if (index.isValid()) {
-        StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+        Item *item = static_cast<Item*>(index.internalPointer());
         item->setExpanded(state);
     }
 }
@@ -241,14 +241,14 @@ QModelIndex StoryModel::index(int row, int column, const QModelIndex &parent) co
         return QModelIndex();
     }
 
-    StoryItem *parentItem;
+    Item *parentItem;
     if (!parent.isValid()) {
         parentItem = m_rootItem;
     } else {
-        parentItem = static_cast<StoryItem*>(parent.internalPointer());
+        parentItem = static_cast<Item*>(parent.internalPointer());
     }
 
-    StoryItem *childItem = parentItem->child(row);
+    Item *childItem = parentItem->child(row);
     if (childItem) {
         return createIndex(row, column, childItem);
     } else {
@@ -262,8 +262,8 @@ QModelIndex StoryModel::parent(const QModelIndex &index) const {
         return QModelIndex();
     }
 
-    StoryItem *childItem = static_cast<StoryItem*>(index.internalPointer());
-    StoryItem *parentItem = childItem->parentItem();
+    Item *childItem = static_cast<Item*>(index.internalPointer());
+    Item *parentItem = childItem->parentItem();
 
     if (parentItem == m_rootItem) {
         return QModelIndex();
@@ -274,7 +274,7 @@ QModelIndex StoryModel::parent(const QModelIndex &index) const {
 
 int StoryModel::rowCount(const QModelIndex &parent) const {
 
-    StoryItem *parentItem;
+    Item *parentItem;
     if (parent.column() > 0) {
         return 0;
     }
@@ -282,7 +282,7 @@ int StoryModel::rowCount(const QModelIndex &parent) const {
     if (!parent.isValid()) {
         parentItem = m_rootItem;
     } else {
-        parentItem = static_cast<StoryItem*>(parent.internalPointer());
+        parentItem = static_cast<Item*>(parent.internalPointer());
     }
 
     return parentItem->childCount();
@@ -301,7 +301,7 @@ QVariant StoryModel::data(const QModelIndex &index, int role) const {
         return QVariant();
     }
 
-    StoryItem *item = static_cast<StoryItem*>(index.internalPointer());
+    Item *item = static_cast<Item*>(index.internalPointer());
 
     return item->data();
 }

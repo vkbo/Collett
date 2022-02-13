@@ -1,6 +1,6 @@
 /*
-** Collett – Project Story Item Class
-** ==================================
+** Collett – Project Item Class
+** ============================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -20,7 +20,7 @@
 */
 
 #include "collett.h"
-#include "storyitem.h"
+#include "item.h"
 
 #include <QUuid>
 #include <QVector>
@@ -34,16 +34,17 @@
 namespace Collett {
 
 /**!
- * @brief Construct a new StoryItem object.
+ * @brief Construct a new Item object.
  *
  * @param label  the label of the new item.
  * @param type   the type of the new item.
  * @param parent the parent of the new item, optional.
  */
-StoryItem::StoryItem(const QUuid &uuid, const QString &name, ItemType type, StoryItem *parent)
+Item::Item(const QUuid &uuid, const QString &name, bool story, ItemType type, Item *parent)
     : m_parentItem(parent)
 {
-    m_childItems = QVector<StoryItem*>{};
+    m_childItems = QVector<Item*>{};
+    m_story    = story;
     m_handle   = uuid;
     m_name     = name;
     m_type     = type;
@@ -51,7 +52,7 @@ StoryItem::StoryItem(const QUuid &uuid, const QString &name, ItemType type, Stor
     m_expanded = false;
 }
 
-StoryItem::~StoryItem() {
+Item::~Item() {
     qDeleteAll(m_childItems);
 }
 
@@ -72,12 +73,12 @@ StoryItem::~StoryItem() {
  *             item is appended.
  * @return a pointer to the newly added item.
  */
-StoryItem *StoryItem::addChild(const QString &name, ItemType type, int pos) {
+Item *Item::addChild(const QString &name, ItemType type, int pos) {
     if (!this->allowedChild(type)) {
         return nullptr;
     }
 
-    StoryItem *item = new StoryItem(QUuid::createUuid(), name, type, this);
+    Item *item = new Item(QUuid::createUuid(), name, m_story, type, this);
     if (pos >= 0 && pos < m_childItems.size()) {
         m_childItems.insert((qsizetype)pos, item);
     } else {
@@ -96,7 +97,7 @@ StoryItem *StoryItem::addChild(const QString &name, ItemType type, int pos) {
  * @param json the JSON object read from file.
  * @return a pointer to the newly added item.
  */
-StoryItem *StoryItem::addChild(const QJsonObject &json) {
+Item *Item::addChild(const QJsonObject &json) {
 
     if (json.isEmpty()) {
         return nullptr;
@@ -104,7 +105,7 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
 
     QUuid    handle   = QUuid();
     QString  name     = "";
-    ItemType type     = StoryItem::Invalid;
+    ItemType type     = Item::Invalid;
     int      words    = 0;
     bool     expanded = false;
 
@@ -115,7 +116,7 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
         name = json[QLatin1String("u:name")].toString();
     }
     if (json.contains(QLatin1String("u:type"))) {
-        type = StoryItem::typeFromString(json[QLatin1String("u:type")].toString());
+        type = Item::typeFromString(json[QLatin1String("u:type")].toString());
     }
     if (json.contains(QLatin1String("m:words"))) {
         words = json[QLatin1String("m:words")].toInt();
@@ -124,11 +125,11 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
         expanded = json[QLatin1String("m:expanded")].toBool();
     }
 
-    if (type == StoryItem::Invalid) {
+    if (type == Item::Invalid) {
         qWarning() << "Invalid story item type encountered";
         return nullptr;
     }
-    if (type == StoryItem::Root) {
+    if (type == Item::Root) {
         qWarning() << "Only one Root story item is allowed";
         return nullptr;
     }
@@ -148,7 +149,7 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
         return nullptr;
     }
     
-    StoryItem *item = new StoryItem(handle, name, type, this);
+    Item *item = new Item(handle, name, m_story, type, this);
     item->setWordCount(words);
     item->setExpanded(expanded);
     m_childItems.append(item);
@@ -159,7 +160,7 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
                 if (value.isObject()) {
                     item->addChild(value.toObject());
                 } else {
-                    qWarning() << "StoryItem: Child item is not a JSON object";
+                    qWarning() << "Item: Child item is not a JSON object";
                 }
             }
         }
@@ -176,7 +177,7 @@ StoryItem *StoryItem::addChild(const QJsonObject &json) {
  *
  * @return a JSON object.
  */
-QJsonObject StoryItem::toJsonObject() {
+QJsonObject Item::toJsonObject() {
 
     QJsonObject item;
     QJsonArray children;
@@ -188,37 +189,46 @@ QJsonObject StoryItem::toJsonObject() {
     QLatin1String type;
     bool expandable = false;
     switch (m_type) {
-        case StoryItem::Root:
+        case Item::Root:
             type = QLatin1String("ROOT");
             expandable = false;
             break;
-        case StoryItem::Book:
+        case Item::Folder:
+            type = QLatin1String("FOLDER");
+            expandable = true;
+            break;
+        case Item::Book:
             type = QLatin1String("BOOK");
             expandable = true;
             break;
-        case StoryItem::Partition:
+        case Item::Partition:
             type = QLatin1String("PARTITION");
             expandable = true;
             break;
-        case StoryItem::Chapter:
+        case Item::Chapter:
             type = QLatin1String("CHAPTER");
             expandable = true;
             break;
-        case StoryItem::Scene:
+        case Item::Scene:
             type = QLatin1String("SCENE");
             expandable = false;
             break;
-        case StoryItem::Page:
+        case Item::Page:
             type = QLatin1String("PAGE");
             expandable = false;
             break;
-        case StoryItem::Invalid:
+        case Item::Note:
+            type = QLatin1String("NOTE");
+            expandable = false;
+            break;
+        default:
             return QJsonObject();
             expandable = false;
             break;
     }
 
     if (!m_parentItem) {
+        item[QLatin1String("c:story")] = m_story;
         item[QLatin1String("u:type")]  = type;
         item[QLatin1String("x:items")] = children;
     } else {
@@ -248,22 +258,35 @@ QJsonObject StoryItem::toJsonObject() {
  * @param  type the item type to check against.
  * @return true if the item type is allowed, false if not.
  */
-bool StoryItem::allowedChild(StoryItem::ItemType type) const {
-    switch (m_type) {
-        case StoryItem::Root:
-            return type == StoryItem::Book;
-            break;
-        case StoryItem::Book:
-            return type == StoryItem::Partition || type == StoryItem::Chapter || type == StoryItem::Page;
-            break;
-        case StoryItem::Partition:
-            return type == StoryItem::Chapter || type == StoryItem::Page;
-            break;
-        case StoryItem::Chapter:
-            return type == StoryItem::Scene;
-            break;
-        default:
-            return false;
+bool Item::allowedChild(Item::ItemType type) const {
+    if (m_story) {
+        switch (m_type) {
+            case Item::Root:
+                return type == Item::Book;
+                break;
+            case Item::Book:
+                return type == Item::Partition || type == Item::Chapter || type == Item::Page;
+                break;
+            case Item::Partition:
+                return type == Item::Chapter || type == Item::Page;
+                break;
+            case Item::Chapter:
+                return type == Item::Scene;
+                break;
+            default:
+                return false;
+        }
+    } else {
+        switch (m_type) {
+            case Item::Root:
+                return type == Item::Folder || type == Item::Note;
+                break;
+            case Item::Folder:
+                return type == Item::Note;
+                break;
+            default:
+                return false;
+        }
     }
 }
 
@@ -276,7 +299,7 @@ bool StoryItem::allowedChild(StoryItem::ItemType type) const {
  * @param  type the item type to check against.
  * @return true if the item type is allowed, false if not.
  */
-bool StoryItem::allowedSibling(StoryItem::ItemType type) const {
+bool Item::allowedSibling(Item::ItemType type) const {
     if (m_parentItem) {
         return m_parentItem->allowedChild(type);
     } else {
@@ -289,16 +312,16 @@ bool StoryItem::allowedSibling(StoryItem::ItemType type) const {
  * =============
  */
 
-void StoryItem::setName(const QString &name) {
+void Item::setName(const QString &name) {
     m_name = name;
 }
 
 
-void StoryItem::setWordCount(int count) {
+void Item::setWordCount(int count) {
     m_words = count > 0 ? count : 0;
 }
 
-void StoryItem::setExpanded(bool state) {
+void Item::setExpanded(bool state) {
     m_expanded = state;
 }
 
@@ -307,31 +330,31 @@ void StoryItem::setExpanded(bool state) {
  * =============
  */
 
-StoryItem::ItemType StoryItem::type() const {
+Item::ItemType Item::type() const {
     return m_type;
 }
 
-QUuid StoryItem::handle() const {
+QUuid Item::handle() const {
     return m_handle;
 }
 
-QString StoryItem::name() const {
+QString Item::name() const {
     return m_name;
 }
 
-int StoryItem::wordCount() const {
+int Item::wordCount() const {
     return m_words;
 }
 
-int StoryItem::childWordCounts() const {
+int Item::childWordCounts() const {
     int tCount = 0;
-    for (StoryItem* child : m_childItems) {
+    for (Item* child : m_childItems) {
         tCount += child->childWordCounts();
     }
     return tCount;
 }
 
-bool StoryItem::isExpanded() const {
+bool Item::isExpanded() const {
     return m_expanded;
 }
 
@@ -349,36 +372,42 @@ bool StoryItem::isExpanded() const {
  * @param  type the type to translate.
  * @return a string with the localised name of the type.
  */
-QString StoryItem::typeToString(ItemType type) {
+QString Item::typeToString(ItemType type) {
     QString name = "";
     switch (type) {
-        case StoryItem::Root:      name = ""; break;
-        case StoryItem::Book:      name = tr("Book"); break;
-        case StoryItem::Partition: name = tr("Partition"); break;
-        case StoryItem::Chapter:   name = tr("Chapter"); break;
-        case StoryItem::Scene:     name = tr("Scene"); break;
-        case StoryItem::Page:      name = tr("Page"); break;
-        case StoryItem::Invalid:   name = ""; break;
+        case Item::Root:      name = ""; break;
+        case Item::Folder:    name = tr("Folder"); break;
+        case Item::Book:      name = tr("Book"); break;
+        case Item::Partition: name = tr("Partition"); break;
+        case Item::Chapter:   name = tr("Chapter"); break;
+        case Item::Scene:     name = tr("Scene"); break;
+        case Item::Page:      name = tr("Page"); break;
+        case Item::Note:      name = tr("Note"); break;
+        case Item::Invalid:   name = ""; break;
     }
     return name;
 }
 
-StoryItem::ItemType StoryItem::typeFromString(const QString &value) {
+Item::ItemType Item::typeFromString(const QString &value) {
     QString upper = value.toUpper();
     if (upper == "ROOT") {
-        return StoryItem::Root;
+        return Item::Root;
+    } else if (upper == "FOLDER") {
+        return Item::Folder;
     } else if (upper == "BOOK") {
-        return StoryItem::Book;
+        return Item::Book;
     } else if (upper == "PARTITION") {
-        return StoryItem::Partition;
+        return Item::Partition;
     } else if (upper == "CHAPTER") {
-        return StoryItem::Chapter;
+        return Item::Chapter;
     } else if (upper == "SCENE") {
-        return StoryItem::Scene;
+        return Item::Scene;
     } else if (upper == "PAGE") {
-        return StoryItem::Page;
+        return Item::Page;
+    } else if (upper == "NOTE") {
+        return Item::Note;
     } else {
-        return StoryItem::Invalid;
+        return Item::Invalid;
     }
 }
 
@@ -387,7 +416,7 @@ StoryItem::ItemType StoryItem::typeFromString(const QString &value) {
  * ============
  */
 
-StoryItem *StoryItem::child(int row) {
+Item *Item::child(int row) {
     if (row < 0 || row >= m_childItems.size()) {
         return nullptr;
     } else {
@@ -395,25 +424,25 @@ StoryItem *StoryItem::child(int row) {
     }
 }
 
-int StoryItem::childCount() const {
+int Item::childCount() const {
     return m_childItems.count();
 }
 
-int StoryItem::row() const {
+int Item::row() const {
     if (m_parentItem) {
-        return m_parentItem->m_childItems.indexOf(const_cast<StoryItem*>(this));
+        return m_parentItem->m_childItems.indexOf(const_cast<Item*>(this));
     } else {
         return 0;
     }
 }
 
-QVariant StoryItem::data() const {
+QVariant Item::data() const {
     QVariantList itemData;
     itemData << m_name << m_words << typeToString(m_type);
     return QVariant::fromValue(itemData);
 }
 
-StoryItem *StoryItem::parentItem() {
+Item *Item::parentItem() {
     return m_parentItem;
 }
 
