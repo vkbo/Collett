@@ -228,7 +228,6 @@ QJsonObject Item::toJsonObject() {
     }
 
     if (!m_parentItem) {
-        item[QLatin1String("c:story")] = m_story;
         item[QLatin1String("u:type")]  = type;
         item[QLatin1String("x:items")] = children;
     } else {
@@ -364,7 +363,7 @@ bool Item::isExpanded() const {
  */
 
 /**!
- * @brief Static method to convert type enum to string.
+ * @brief Static method to convert type enum to string label.
  *
  * A static method that will translate the ItemType enum into a localised string
  * that can be displayed on the GUI.
@@ -372,7 +371,7 @@ bool Item::isExpanded() const {
  * @param  type the type to translate.
  * @return a string with the localised name of the type.
  */
-QString Item::typeToString(ItemType type) {
+QString Item::typeToLabel(ItemType type) {
     QString name = "";
     switch (type) {
         case Item::Root:      name = ""; break;
@@ -438,7 +437,7 @@ int Item::row() const {
 
 QVariant Item::data() const {
     QVariantList itemData;
-    itemData << m_name << m_words << typeToString(m_type);
+    itemData << m_name << m_words << typeToLabel(m_type);
     return QVariant::fromValue(itemData);
 }
 

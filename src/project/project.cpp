@@ -47,7 +47,7 @@ namespace Collett {
 Project::Project(const QString &path) {
 
     m_isValid = false;
-    m_storyModel = new StoryModel(this);
+    m_storyModel = new StoryModel(StoryModel::Story, this);
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
 
     // If the path is a file, go one level up

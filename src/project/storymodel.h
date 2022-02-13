@@ -38,9 +38,10 @@ class StoryModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
+    enum ModelType{Invalid, Story, Plot, Characters, Locations};
     enum AddLocation{Before, After, Inside};
 
-    explicit StoryModel(QObject *parent=nullptr);
+    explicit StoryModel(ModelType type, QObject *parent=nullptr);
     ~StoryModel();
 
     // Class Methods
@@ -58,6 +59,10 @@ public:
     QString itemName(const QModelIndex &index);
     bool isExpanded(const QModelIndex &index);
 
+    // Static Methods
+
+    static QString modelTypeToString(ModelType type);
+
     // Model Edit
 
     void setItemName(const QModelIndex &index, const QString &name);
@@ -74,7 +79,8 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
-    Item *m_rootItem = nullptr;
+    ModelType m_type;
+    Item     *m_rootItem = nullptr;
 
 };
 } // namespace Collett

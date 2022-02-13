@@ -1,6 +1,6 @@
 /*
-** Collett – Project Model Class
-** =============================
+** Collett – Project Story Model Class
+** ===================================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -43,10 +43,11 @@ namespace Collett {
  *
  * @param parent the parent object.
  */
-StoryModel::StoryModel(QObject *parent)
+StoryModel::StoryModel(ModelType type, QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_rootItem = new Item(QUuid(), "Root", true, Item::Root);
+    m_type = type;
+    m_rootItem = new Item(QUuid(), "Root", type == StoryModel::Story, Item::Root);
 }
 
 StoryModel::~StoryModel() {
@@ -69,7 +70,16 @@ StoryModel::~StoryModel() {
  * @return a JSON object.
  */
 QJsonObject StoryModel::toJsonObject() {
-    return m_rootItem->toJsonObject();
+
+    QJsonObject json = m_rootItem->toJsonObject();
+    QString modelType = this->modelTypeToString(m_type);
+
+    if (!modelType.isEmpty()) {
+        json[QLatin1String("c:model")] = modelType;
+        return json;
+    } else {
+        return QJsonObject();
+    }
 }
 
 /**!
@@ -153,7 +163,7 @@ bool StoryModel::addItem(Item *relativeTo, Item::ItemType type, AddLocation loc)
     }
     qDebug() << target->row() << pos;
     emit beginInsertRows(createIndex(target->row(), 0, target), pos, pos);
-    Item *item = target->addChild(tr("New %1").arg(Item::typeToString(type)), type, pos);
+    Item *item = target->addChild(tr("New %1").arg(Item::typeToLabel(type)), type, pos);
     emit endInsertRows();
     return item != nullptr;
 }
@@ -210,6 +220,32 @@ bool StoryModel::isExpanded(const QModelIndex &index) {
         return false;
     }
 }
+
+/**
+ * Static Methods
+ * ==============
+ */
+
+QString StoryModel::modelTypeToString(ModelType type) {
+    switch (type) {
+        case StoryModel::Story:
+            return "STORY";
+            break;
+        case StoryModel::Plot:
+            return "PLOT";
+            break;
+        case StoryModel::Characters:
+            return "CHARACTERS";
+            break;
+        case StoryModel::Locations:
+            return "LOCATIONS";
+            break;
+        default:
+            return "";
+            break;
+    }
+}
+
 
 /**
  * Model Edit

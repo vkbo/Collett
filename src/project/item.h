@@ -65,7 +65,7 @@ public:
 
     // Static Methods
 
-    static QString typeToString(ItemType type);
+    static QString typeToLabel(ItemType type);
     static ItemType typeFromString(const QString &value);
 
     // Model Access

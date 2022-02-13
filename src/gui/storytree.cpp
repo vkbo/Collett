@@ -261,9 +261,9 @@ void GuiStoryTree::doEditName(bool checked) {
 void GuiStoryTree::doAddChild(Item *item, Item::ItemType type, StoryModel::AddLocation loc) {
     if (m_model) {
         if (m_model->addItem(item, type, loc)) {
-            qDebug() << "Added" << Item::typeToString(type);
+            qDebug() << "Added" << Item::typeToLabel(type);
         } else {
-            qWarning() << "Failed to add" << Item::typeToString(type);
+            qWarning() << "Failed to add" << Item::typeToLabel(type);
         }
     }
 }
