@@ -103,7 +103,7 @@ Project *CollettData::project() {
 
 ItemModel *CollettData::storyModel() {
     if (hasProject()) {
-        return m_project.data()->storyModel();
+        return m_project.data()->model("story");
     } else {
         return nullptr;
     }

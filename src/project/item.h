@@ -44,7 +44,6 @@ public:
     Item *addChild(const QString &name, ItemType type, int pos=-1);
     Item *addChild(const QJsonObject &json);
     QJsonObject toJsonObject();
-    static Item* fromJsonObject(const QJsonObject &json, Item *parentItem=nullptr);
     bool allowedChild(ItemType type) const;
     bool allowedSibling(ItemType type) const;
 

@@ -47,7 +47,6 @@ namespace Collett {
 Project::Project(const QString &path) {
 
     m_isValid = false;
-    m_storyModel = new ItemModel(ItemModel::Story, this);
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
 
     // If the path is a file, go one level up
@@ -63,7 +62,7 @@ Project::Project(const QString &path) {
 
 Project::~Project() {
     qDebug() << "Destructor: Project";
-    delete m_storyModel;
+    qDeleteAll(m_models.begin(), m_models.end());
     qDeleteAll(m_documents.begin(), m_documents.end());
 }
 
@@ -74,23 +73,39 @@ Project::~Project() {
 
 bool Project::openProject() {
 
+    if (!m_documents.isEmpty() || !m_models.isEmpty()) {
+        qWarning() << "Project content already loaded";
+        return false;
+    }
+
     qInfo() << "Loading Project:" << m_store->projectPath();
     if (!m_store->isValid()) {
         qWarning() << "Cannot load project from this path";
         return false;
     }
 
-    bool main = m_store->loadProjectFile();
-    if (main) {
-        bool settings = loadSettingsFile();
-        bool story = loadStoryFile();
-        loadDocuments();
-        m_isValid = settings && story;
-    } else {
-        m_isValid = false;
+    m_isValid = false;
+
+    if (!m_store->loadProjectFile()) {
+        return false;
+    }
+    if (!loadProjectStructure()) {
+        return false;
     }
 
-    return m_isValid;
+    // Load Documents
+    QList<QUuid> contentList = m_store->listContent();
+    for (const QUuid &uuid : contentList) {
+        qDebug() << "Loading content:" << uuid.toString(QUuid::WithoutBraces);
+        Document *doc = new Document(m_store, uuid);
+        if (doc->read()) {
+            m_documents.insert(uuid, doc);
+        }
+    }
+
+    m_isValid = true;
+
+    return true;
 }
 
 bool Project::saveProject() {
@@ -102,15 +117,27 @@ bool Project::saveProject() {
     }
 
     bool main = m_store->saveProjectFile();
-    bool settings = saveSettingsFile();
-    bool story = saveStoryFile();
-    saveDocuments();
+    bool proj = saveProjectStructure();
 
-    return main && settings && story;
+    // Save Documents
+    for (Document *doc : m_documents) {
+        if (doc->isUnsaved()) {
+            qDebug() << "Saving document:" << doc->handle().toString(QUuid::WithoutBraces);
+            doc->write();
+        }
+    }
+
+    return main && proj;
 }
 
-bool Project::isValid() const {
-    return m_isValid;
+ItemModel *Project::newModel(ItemModel::ModelType type, const QString &name) {
+    QString key = ItemModel::modelTypeToString(type).toLower();
+    int num = 1;
+    while (m_models.contains(key)) {
+        key = QString().setNum(num++).prepend("_").prepend(key);
+    }
+    m_models.insert(key, new ItemModel(type, name, this));
+    return m_models.value(key);
 }
 
 /**
@@ -131,6 +158,10 @@ void Project::setProjectName(const QString &name) {
  * =============
  */
 
+bool Project::isValid() const {
+    return m_isValid;
+}
+
 QUuid Project::lastDocumentMain() const {
     return m_lastDocMain;
 }
@@ -139,12 +170,16 @@ QString Project::projectName() const {
     return m_projectName;
 }
 
-ItemModel *Project::storyModel() {
-    return m_storyModel;
-}
-
 Storage *Project::store() {
     return m_store;
+}
+
+ItemModel *Project::model(const QString &name) {
+    if (m_models.contains(name)) {
+        return m_models.value(name);
+    } else {
+        return nullptr;
+    }
 }
 
 Document *Project::document(const QUuid &uuid) {
@@ -167,7 +202,7 @@ Document *Project::document(const QUuid &uuid) {
  * except for the project content itself (the documents).
  */
 
-bool Project::loadSettingsFile() {
+bool Project::loadProjectStructure() {
 
     QJsonObject jData;
     if (!m_store->loadFile("project", jData)) {
@@ -175,9 +210,9 @@ bool Project::loadSettingsFile() {
         return false;
     }
 
-    QJsonObject jMeta = jData[QLatin1String("c:meta")].toObject();
-    QJsonObject jProject = jData[QLatin1String("c:project")].toObject();
-    QJsonObject jSettings = jData[QLatin1String("c:settings")].toObject();
+    QJsonObject jMeta = jData.value(QLatin1String("c:meta")).toObject();
+    QJsonObject jProject = jData.value(QLatin1String("c:project")).toObject();
+    QJsonObject jSettings = jData.value(QLatin1String("c:settings")).toObject();
 
     // Project Meta
     m_createdTime = Storage::getJsonString(jMeta, QLatin1String("m:created"), "Unknown");
@@ -188,12 +223,30 @@ bool Project::loadSettingsFile() {
     // Project Settings
     m_projectName = Storage::getJsonString(jProject, QLatin1String("u:project-name"), tr("Unnamed Project"));
 
+    // Data Models
+    if (jProject.contains(QLatin1String("u:models")) && jProject.value(QLatin1String("u:models")).isArray()) {
+        for (const QJsonValue &value : jProject.value(QLatin1String("u:models")).toArray()) {
+            QString key = value.toString().simplified();
+            if (!key.isEmpty()) {
+                m_models.insert(key, new ItemModel(this));
+                QJsonObject mData;
+                if (m_store->loadFile(key, mData)) {
+                    m_models.value(key)->fromJsonObject(mData);
+                } else {
+                    m_lastError = m_store->lastError();
+                    return false;
+                }
+            }
+        }
+    }
+
     return true;
 }
 
-bool Project::saveSettingsFile() {
+bool Project::saveProjectStructure() {
 
     QJsonObject jData, jMeta, jProject, jSettings;
+    QJsonArray jModels;
 
     // Project Meta
     jMeta[QLatin1String("m:created")] = m_createdTime;
@@ -202,11 +255,21 @@ bool Project::saveSettingsFile() {
     // Project State
     jProject[QLatin1String("s:last-doc-main")] = m_lastDocMain.toString(QUuid::WithoutBraces);
 
+    // Data Models
+    for (const QString &key : m_models.keys()) {
+        jModels.append(key);
+        qDebug() << "Saving model:" << key;
+        if (!m_store->saveFile(key, m_models[key]->toJsonObject())) {
+            m_lastError = m_store->lastError();
+        }
+    }
+
     // Project Settings
     jProject[QLatin1String("u:project-name")] = m_projectName;
+    jProject[QLatin1String("u:models")] = jModels;
 
     // Root Object
-    jData[QLatin1String("c:format")] = "project";
+    jData[QLatin1String("c:format")] = "Collett Project";
     jData[QLatin1String("c:meta")] = jMeta;
     jData[QLatin1String("c:project")] = jProject;
     jData[QLatin1String("c:settings")] = jSettings;
@@ -216,61 +279,6 @@ bool Project::saveSettingsFile() {
         return false;
     }
     return true;
-}
-
-/**
- * Story File
- * ==========
- * Load and save functions for the project/story.json file.
- *
- * This file contains the structure of StoryItems contained in the ItemModel.
- * The structure is contained as child items under a single root item, and is
- * saved to a QJsonDocument by recursively calling the Item->toJsonObject
- * function.
-`*/
-
-bool Project::loadStoryFile() {
-    QJsonObject jData;
-    if (!m_store->loadFile("story", jData)) {
-        m_lastError = m_store->lastError();
-        return false;
-    }
-    return m_storyModel->fromJsonObject(jData);
-}
-
-bool Project::saveStoryFile() {
-    if (!m_store->saveFile("story", m_storyModel->toJsonObject())) {
-        m_lastError = m_store->lastError();
-        return false;
-    }
-    return true;
-}
-
-void Project::loadDocuments() {
-
-    if (!m_documents.isEmpty()) {
-        qWarning() << "Project content already loaded";
-        return;
-    }
-
-    QList<QUuid> contentList = m_store->listContent();
-    for (const QUuid &uuid : contentList) {
-        qDebug() << "Loading content:" << uuid.toString(QUuid::WithoutBraces);
-        Document *doc = new Document(m_store, uuid);
-        if (doc->read()) {
-            m_documents.insert(uuid, doc);
-        }
-    }
-}
-
-void Project::saveDocuments() {
-
-    for (Document *doc : m_documents) {
-        if (doc->isUnsaved()) {
-            qDebug() << "Saving content:" << doc->handle().toString(QUuid::WithoutBraces);
-            doc->write();
-        }
-    }
 }
 
 /**

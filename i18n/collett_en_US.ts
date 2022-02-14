@@ -304,15 +304,40 @@
 <context>
     <name>Collett::ItemModel</name>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="166"/>
+        <location filename="../src/project/itemmodel.cpp" line="177"/>
         <source>New %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/itemmodel.cpp" line="253"/>
+        <source>Story</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/itemmodel.cpp" line="254"/>
+        <source>Plot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/itemmodel.cpp" line="255"/>
+        <source>Characters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/itemmodel.cpp" line="256"/>
+        <source>Locations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/itemmodel.cpp" line="296"/>
+        <source>No Name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="189"/>
+        <location filename="../src/project/project.cpp" line="224"/>
         <source>Unnamed Project</source>
         <translation type="unfinished"></translation>
     </message>

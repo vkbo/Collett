@@ -41,7 +41,8 @@ public:
     enum ModelType{Invalid, Story, Plot, Characters, Locations};
     enum AddLocation{Before, After, Inside};
 
-    explicit ItemModel(ModelType type, QObject *parent=nullptr);
+    explicit ItemModel(QObject *parent=nullptr);
+    explicit ItemModel(ModelType type, QString name, QObject *parent=nullptr);
     ~ItemModel();
 
     // Class Methods
@@ -49,7 +50,8 @@ public:
     QJsonObject toJsonObject();
     bool fromJsonObject(const QJsonObject &json);
     bool addItem(Item *relativeTo, Item::ItemType type, AddLocation loc);
-    bool isEmpty();
+    bool isEmpty() const;
+    bool isValid() const;
 
     // Class Getters
 
@@ -61,10 +63,13 @@ public:
 
     // Static Methods
 
+    static QString modelTypeToLabel(ModelType type);
     static QString modelTypeToString(ModelType type);
+    static ModelType modelTypeFromString(const QString &value);
 
     // Model Edit
 
+    void setModelName(const QString &name);
     void setItemName(const QModelIndex &index, const QString &name);
     void setExpanded(const QModelIndex &index, bool state);
 
@@ -80,7 +85,10 @@ public:
 
 private:
     ModelType m_type;
+    QString   m_name;
     Item     *m_rootItem = nullptr;
+
+    QString m_lastError = "";
 
 };
 } // namespace Collett

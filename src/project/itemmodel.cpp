@@ -43,11 +43,15 @@ namespace Collett {
  *
  * @param parent the parent object.
  */
-ItemModel::ItemModel(ModelType type, QObject *parent)
-    : QAbstractItemModel(parent)
-{
+ItemModel::ItemModel(QObject *parent) : QAbstractItemModel(parent) {
+    m_type = ItemModel::Invalid;
+    this->setModelName("");
+}
+
+ItemModel::ItemModel(ModelType type, QString name, QObject *parent) : QAbstractItemModel(parent) {
     m_type = type;
     m_rootItem = new Item(QUuid(), "Root", type == ItemModel::Story, Item::Root);
+    this->setModelName(name);
 }
 
 ItemModel::~ItemModel() {
@@ -76,6 +80,7 @@ QJsonObject ItemModel::toJsonObject() {
 
     if (!modelType.isEmpty()) {
         json[QLatin1String("c:model")] = modelType;
+        json[QLatin1String("u:name")] = m_name;
         return json;
     } else {
         return QJsonObject();
@@ -93,32 +98,38 @@ QJsonObject ItemModel::toJsonObject() {
  */
 bool ItemModel::fromJsonObject(const QJsonObject &json) {
 
-    if (m_rootItem->childCount() > 0) {
-        qWarning() << "Cannot initialise a non-empty model";
-        return false;
-    }
-
     if (json.isEmpty()) {
         qWarning() << "Item Root: No data in JSON object";
+        m_lastError = "Item Root: No data in JSON object";
         return false;
     }
-    if (!json.contains(QLatin1String("u:type"))) {
+    if (!json.contains(QLatin1String("u:type")) || !json.contains(QLatin1String("c:model"))) {
         qWarning() << "Item Root: Not a valid story item JSON object";
+        m_lastError = "Item Root: Not a valid story item JSON object";
         return false;
     }
 
-    Item::ItemType type = Item::typeFromString(json[QLatin1String("u:type")].toString());
+    Item::ItemType type = Item::typeFromString(json.value(QLatin1String("u:type")).toString());
     if (type != Item::Root) {
         qWarning() << "Item Root: No ROOT item found in JSON object";
+        m_lastError = "Item Root: No ROOT item found in JSON object";
         return false;
+    }
+
+    m_type = ItemModel::modelTypeFromString(json.value(QLatin1String("c:model")).toString());
+    m_rootItem = new Item(QUuid(), "Root", m_type == ItemModel::Story, Item::Root);
+
+    if (json.contains(QLatin1String("u:name"))) {
+        this->setModelName(json.value(QLatin1String("u:name")).toString());
     }
 
     if (!json.contains(QLatin1String("x:items"))) {
         qDebug() << "Item Root: No items found in JSON object";
-        return false;
+        return true;
     }
-    if (!json[QLatin1String("x:items")].isArray()) {
+    if (!json.value(QLatin1String("x:items")).isArray()) {
         qWarning() << "Item Root: x:items value is not a JSON array";
+        m_lastError = "Item Root: x:items value is not a JSON array";
         return false;
     }
 
@@ -173,8 +184,17 @@ bool ItemModel::addItem(Item *relativeTo, Item::ItemType type, AddLocation loc) 
  *
  * @return true if there is no root item, otherwise false
  */
-bool ItemModel::isEmpty() {
+bool ItemModel::isEmpty() const {
     return m_rootItem == nullptr;
+}
+
+/**!
+ * @brief Check if the model is valid.
+ *
+ * @return false if the model type is Invalid, otherwise true
+ */
+bool ItemModel::isValid() const {
+    return m_type != ItemModel::Invalid;
 }
 
 /**
@@ -226,31 +246,56 @@ bool ItemModel::isExpanded(const QModelIndex &index) {
  * ==============
  */
 
-QString ItemModel::modelTypeToString(ModelType type) {
+QString ItemModel::modelTypeToLabel(ModelType type) {
+    QString name = "";
     switch (type) {
-        case ItemModel::Story:
-            return "STORY";
-            break;
-        case ItemModel::Plot:
-            return "PLOT";
-            break;
-        case ItemModel::Characters:
-            return "CHARACTERS";
-            break;
-        case ItemModel::Locations:
-            return "LOCATIONS";
-            break;
-        default:
-            return "";
-            break;
+        case ItemModel::Invalid:    name = ""; break;
+        case ItemModel::Story:      name = tr("Story"); break;
+        case ItemModel::Plot:       name = tr("Plot"); break;
+        case ItemModel::Characters: name = tr("Characters"); break;
+        case ItemModel::Locations:  name = tr("Locations"); break;
     }
+    return name;
 }
 
+QString ItemModel::modelTypeToString(ModelType type) {
+    QString name = "";
+    switch (type) {
+        case ItemModel::Invalid:    name = ""; break;
+        case ItemModel::Story:      name = "STORY"; break;
+        case ItemModel::Plot:       name = "PLOT"; break;
+        case ItemModel::Characters: name = "CHARACTERS"; break;
+        case ItemModel::Locations:  name = "LOCATIONS"; break;
+    }
+    return name;
+}
+
+ItemModel::ModelType ItemModel::modelTypeFromString(const QString &value) {
+    QString upper = value.toUpper();
+    if (upper == "STORY") {
+        return ItemModel::Story;
+    } else if (upper == "PLOT") {
+        return ItemModel::Plot;
+    } else if (upper == "CHARACTERS") {
+        return ItemModel::Characters;
+    } else if (upper == "LOCATIONS") {
+        return ItemModel::Locations;
+    } else {
+        return ItemModel::Invalid;
+    }
+}
 
 /**
  * Model Edit
  * ==========
  */
+
+void ItemModel::setModelName(const QString &name) {
+    m_name = name.simplified();
+    if (m_name.isEmpty()) {
+        m_name = tr("No Name");
+    }
+}
 
 void ItemModel::setItemName(const QModelIndex &index, const QString &name) {
     if (index.isValid()) {

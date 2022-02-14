@@ -219,7 +219,7 @@ void GuiMain::openSelectedDocument() {
     if (!index.isValid())
         return;
 
-    this->openDocument(m_data->project()->storyModel()->itemHandle(index));
+    this->openDocument(m_data->storyModel()->itemHandle(index));
 }
 
 void GuiMain::saveOpenDocument() {
@@ -239,7 +239,7 @@ void GuiMain::storyTreeDoubleClick(const QModelIndex &index) {
     if (!m_data->hasProject() || !index.isValid()) {
         return;
     }
-    this->openDocument(m_data->project()->storyModel()->itemHandle(index));
+    this->openDocument(m_data->storyModel()->itemHandle(index));
 }
 
 } // namespace Collett
