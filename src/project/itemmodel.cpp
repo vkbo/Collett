@@ -21,6 +21,7 @@
 
 #include "itemmodel.h"
 #include "item.h"
+#include "icons.h"
 
 #include <QUuid>
 #include <QObject>
@@ -46,12 +47,14 @@ namespace Collett {
 ItemModel::ItemModel(QObject *parent) : QAbstractItemModel(parent) {
     m_type = ItemModel::Invalid;
     this->setModelName("");
+    this->setModelIcon("");
 }
 
 ItemModel::ItemModel(ModelType type, QString name, QObject *parent) : QAbstractItemModel(parent) {
     m_type = type;
     m_rootItem = new Item(QUuid(), "Root", type == ItemModel::Story, Item::Root);
     this->setModelName(name);
+    this->setModelIcon("");
 }
 
 ItemModel::~ItemModel() {
@@ -81,6 +84,7 @@ QJsonObject ItemModel::toJsonObject() {
     if (!modelType.isEmpty()) {
         json[QLatin1String("c:model")] = modelType;
         json[QLatin1String("u:name")] = m_name;
+        json[QLatin1String("u:icon")] = m_icon;
         return json;
     } else {
         return QJsonObject();
@@ -121,6 +125,10 @@ bool ItemModel::fromJsonObject(const QJsonObject &json) {
 
     if (json.contains(QLatin1String("u:name"))) {
         this->setModelName(json.value(QLatin1String("u:name")).toString());
+    }
+
+    if (json.contains(QLatin1String("u:icon"))) {
+        this->setModelIcon(json.value(QLatin1String("u:icon")).toString());
     }
 
     if (!json.contains(QLatin1String("x:items"))) {
@@ -258,6 +266,18 @@ QString ItemModel::modelTypeToLabel(ModelType type) {
     return name;
 }
 
+QString ItemModel::modelTypeToIcon(ModelType type) {
+    QString icon = "genericModel";
+    switch (type) {
+        case ItemModel::Invalid:    icon = "genericModel"; break;
+        case ItemModel::Story:      icon = "storyModel"; break;
+        case ItemModel::Plot:       icon = "plotModel"; break;
+        case ItemModel::Characters: icon = "characterModel"; break;
+        case ItemModel::Locations:  icon = "locationModel"; break;
+    }
+    return icon;
+}
+
 QString ItemModel::modelTypeToString(ModelType type) {
     QString name = "";
     switch (type) {
@@ -294,6 +314,15 @@ void ItemModel::setModelName(const QString &name) {
     m_name = name.simplified();
     if (m_name.isEmpty()) {
         m_name = tr("No Name");
+    }
+}
+
+void ItemModel::setModelIcon(const QString &icon) {
+    CollettIcons *icons = CollettIcons::instance();
+    if (icons->contains(icon)) {
+        m_icon = icon;
+    } else {
+        m_icon = ItemModel::modelTypeToIcon(m_type);
     }
 }
 

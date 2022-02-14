@@ -38,7 +38,7 @@ GuiTreeToolBar::GuiTreeToolBar(QWidget *parent)
     CollettIcons *icons = CollettIcons::instance();
 
     this->setOrientation(Qt::Vertical);
-    this->addAction(icons->icon("book"), tr("Story"));
+    this->addAction(icons->icon("storyModel"), tr("Story"));
     this->addWidget(stretch);
     this->addAction(icons->icon("settings"), tr("Settings"));
 }

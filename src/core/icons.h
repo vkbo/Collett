@@ -44,6 +44,7 @@ public:
     void setIconStyle(const QColor &foreground, qreal opacity);
 
     QIcon icon(const QString &name);
+    bool contains(const QString &name);
 
 private:
     static CollettIcons *staticInstance;

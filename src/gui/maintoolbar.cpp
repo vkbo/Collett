@@ -77,7 +77,7 @@ void GuiMainToolBar::buildMainMenu() {
 
     m_projectButton = new QToolButton(this);
     m_projectButton->setText(tr("Project"));
-    m_projectButton->setIcon(icons->icon("archive"));
+    m_projectButton->setIcon(icons->icon("projectMenu"));
     m_projectButton->setMenu(m_projectMenu);
     m_projectButton->setPopupMode(QToolButton::InstantPopup);
     this->addWidget(m_projectButton);
@@ -99,7 +99,7 @@ void GuiMainToolBar::buildMainMenu() {
 
     m_docsButton = new QToolButton(this);
     m_docsButton->setText(tr("Documents"));
-    m_docsButton->setIcon(icons->icon("documents"));
+    m_docsButton->setIcon(icons->icon("documentMenu"));
     m_docsButton->setMenu(m_docsMenu);
     m_docsButton->setPopupMode(QToolButton::InstantPopup);
     this->addWidget(m_docsButton);

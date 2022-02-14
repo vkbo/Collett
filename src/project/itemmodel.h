@@ -55,6 +55,9 @@ public:
 
     // Class Getters
 
+    QString modelName() const;
+    QString modelIcon() const;
+
     Item *rootItem() const;
     Item *storyItem(const QModelIndex &index);
     QUuid itemHandle(const QModelIndex &index);
@@ -64,12 +67,14 @@ public:
     // Static Methods
 
     static QString modelTypeToLabel(ModelType type);
+    static QString modelTypeToIcon(ModelType type);
     static QString modelTypeToString(ModelType type);
     static ModelType modelTypeFromString(const QString &value);
 
     // Model Edit
 
     void setModelName(const QString &name);
+    void setModelIcon(const QString &icon);
     void setItemName(const QModelIndex &index, const QString &name);
     void setExpanded(const QModelIndex &index, bool state);
 
@@ -86,6 +91,7 @@ public:
 private:
     ModelType m_type;
     QString   m_name;
+    QString   m_icon;
     Item     *m_rootItem = nullptr;
 
     QString m_lastError = "";

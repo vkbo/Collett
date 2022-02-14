@@ -84,24 +84,24 @@ GuiEditToolBar::GuiEditToolBar(QWidget *parent)
     // Character Format Buttons
     // ========================
 
-    m_formatBold = this->addAction(icons->icon("bold"), tr("Bold"));
+    m_formatBold = this->addAction(icons->icon("formatBold"), tr("Bold"));
     m_formatBold->setCheckable(true);
 
-    m_formatItalic = this->addAction(icons->icon("italic"), tr("Italic"));
+    m_formatItalic = this->addAction(icons->icon("formatItalic"), tr("Italic"));
     m_formatItalic->setCheckable(true);
 
-    m_formatUnderline = this->addAction(icons->icon("underline"), tr("Underline"));
+    m_formatUnderline = this->addAction(icons->icon("formatUnderline"), tr("Underline"));
     m_formatUnderline->setCheckable(true);
 
-    m_formatStrikeOut = this->addAction(icons->icon("strikeOut"), tr("Strike Out"));
+    m_formatStrikeOut = this->addAction(icons->icon("formatStrikeOut"), tr("Strike Out"));
     m_formatStrikeOut->setCheckable(true);
 
     this->addSeparator();
 
-    m_formatSuperScript = this->addAction(icons->icon("superscript"), tr("Superscript"));
+    m_formatSuperScript = this->addAction(icons->icon("formatSupScript"), tr("Superscript"));
     m_formatSuperScript->setCheckable(true);
 
-    m_formatSubScript = this->addAction(icons->icon("subscript"), tr("Subscript"));
+    m_formatSubScript = this->addAction(icons->icon("formatSubScript"), tr("Subscript"));
     m_formatSubScript->setCheckable(true);
 
     this->addSeparator();

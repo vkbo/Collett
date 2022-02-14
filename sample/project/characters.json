@@ -1,5 +1,6 @@
 {
 	"c:model": "CHARACTERS",
+	"u:icon": "characterModel",
 	"u:name": "Characters",
 	"u:type": "ROOT",
 	"x:items": [
