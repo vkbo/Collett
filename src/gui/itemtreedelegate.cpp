@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Story Tree Delegate Class
-** =======================================
+** Collett – GUI Item Tree Delegate Class
+** ======================================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -19,7 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "storytreedelegate.h"
+#include "itemtreedelegate.h"
 
 #include <QFont>
 #include <QRect>
@@ -36,7 +36,7 @@
 
 namespace Collett {
 
-GuiStoryTreeDelegate::GuiStoryTreeDelegate(QWidget *parent)
+GuiItemTreeDelegate::GuiItemTreeDelegate(QWidget *parent)
     : QAbstractItemDelegate(parent)
 {
     m_headFont = qApp->font();
@@ -46,7 +46,7 @@ GuiStoryTreeDelegate::GuiStoryTreeDelegate(QWidget *parent)
     m_mainHeight = QFontMetrics(m_mainFont).height();
 }
 
-void GuiStoryTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+void GuiItemTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
     QVariantList data = index.data(Qt::DisplayRole).toList();
     Q_ASSERT(data.size() == 3);
@@ -82,7 +82,7 @@ void GuiStoryTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     painter->restore();
 }
 
-QSize GuiStoryTreeDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
+QSize GuiItemTreeDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
     return QSize(option.rect.width(), m_headHeight + m_mainHeight + 4);
 }
 

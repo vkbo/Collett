@@ -22,7 +22,7 @@
 #ifndef GUI_TREETOOLBAR_H
 #define GUI_TREETOOLBAR_H
 
-#include "storytree.h"
+#include "itemtree.h"
 #include "itemmodel.h"
 
 #include <QHash>
@@ -42,15 +42,15 @@ public:
     GuiTreeToolBar(QWidget *parent=nullptr);
     ~GuiTreeToolBar() {};
 
-    void addModelEntry(const QString &name, ItemModel *model, GuiStoryTree *tree);
+    void addModelEntry(const QString &name, ItemModel *model, GuiItemTree *tree);
 
 signals:
-    void treeButtonClicked(GuiStoryTree *tree);
+    void treeButtonClicked(GuiItemTree *tree);
 
 private:
     QAction *m_addAction;
     QHash<QString, QToolButton*>  m_modelButtons;
-    QHash<QString, GuiStoryTree*> m_modelTree;
+    QHash<QString, GuiItemTree*> m_modelTree;
 
 private slots:
     void treeButtonTriggered(const QString &name);

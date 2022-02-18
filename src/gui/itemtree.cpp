@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Story Tree Class
-** ==============================
+** Collett – GUI Item Tree Class
+** =============================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -21,9 +21,9 @@
 
 #include "collett.h"
 #include "item.h"
-#include "storytree.h"
+#include "itemtree.h"
 #include "itemmodel.h"
-#include "storytreedelegate.h"
+#include "itemtreedelegate.h"
 
 #include <QMenu>
 #include <QPoint>
@@ -47,10 +47,10 @@ namespace Collett {
  *
  * @param parent the parent widget.
  */
-GuiStoryTree::GuiStoryTree(QWidget *parent)
+GuiItemTree::GuiItemTree(QWidget *parent)
     : QTreeView(parent)
 {
-    this->setItemDelegate(new GuiStoryTreeDelegate(this));
+    this->setItemDelegate(new GuiItemTreeDelegate(this));
     this->setHeaderHidden(true);
     this->setAlternatingRowColors(true);
     this->setExpandsOnDoubleClick(false);
@@ -70,7 +70,7 @@ GuiStoryTree::GuiStoryTree(QWidget *parent)
  * =============
  */
 
-void GuiStoryTree::setTreeModel(ItemModel *model) {
+void GuiItemTree::setTreeModel(ItemModel *model) {
 
     m_model = model;
     this->setModel(m_model);
@@ -90,7 +90,7 @@ void GuiStoryTree::setTreeModel(ItemModel *model) {
  * =============
  */
 
-QModelIndex GuiStoryTree::firstSelectedIndex() {
+QModelIndex GuiItemTree::firstSelectedIndex() {
     QModelIndexList selections = this->selectedIndexes();
     if (!selections.isEmpty()) {
         return selections.at(0);
@@ -99,7 +99,7 @@ QModelIndex GuiStoryTree::firstSelectedIndex() {
     }
 }
 
-void GuiStoryTree::getAllChildren(const QModelIndex &index, QModelIndexList &children) {
+void GuiItemTree::getAllChildren(const QModelIndex &index, QModelIndexList &children) {
     children.append(index);
     for (int i = 0; i < model()->rowCount(index); ++i) {
         getAllChildren(model()->index(i, 0, index), children);
@@ -119,7 +119,7 @@ void GuiStoryTree::getAllChildren(const QModelIndex &index, QModelIndexList &chi
  *
  * @param pos the position of the cursor.
  */
-void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
+void GuiItemTree::doOpenContextMenu(const QPoint &pos) {
 
     QModelIndex index = this->indexAt(pos);
     Item *item;
@@ -228,7 +228,7 @@ void GuiStoryTree::doOpenContextMenu(const QPoint &pos) {
  *
  * @param bool unused.
  */
-void GuiStoryTree::doEditName(bool checked) {
+void GuiItemTree::doEditName(bool checked) {
     Q_UNUSED(checked);
 
     QModelIndex index = this->firstSelectedIndex();
@@ -258,7 +258,7 @@ void GuiStoryTree::doEditName(bool checked) {
  * @param type the type of item to add.
  * @param loc  the relative location of where to add the new item.
  */
-void GuiStoryTree::doAddChild(Item *item, Item::ItemType type, ItemModel::AddLocation loc) {
+void GuiItemTree::doAddChild(Item *item, Item::ItemType type, ItemModel::AddLocation loc) {
     if (m_model) {
         if (m_model->addItem(item, type, loc)) {
             qDebug() << "Added" << Item::typeToLabel(type);
@@ -268,11 +268,11 @@ void GuiStoryTree::doAddChild(Item *item, Item::ItemType type, ItemModel::AddLoc
     }
 }
 
-void GuiStoryTree::saveExpanded(const QModelIndex &index) {
+void GuiItemTree::saveExpanded(const QModelIndex &index) {
     if (m_model) m_model->setExpanded(index, true);
 }
 
-void GuiStoryTree::saveCollapsed(const QModelIndex &index) {
+void GuiItemTree::saveCollapsed(const QModelIndex &index) {
     if (m_model) m_model->setExpanded(index, false);
 }
 

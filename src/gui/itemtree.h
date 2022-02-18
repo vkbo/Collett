@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Story Tree Class
-** ==============================
+** Collett – GUI Item Tree Class
+** =============================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -19,8 +19,8 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_STORYTREE_H
-#define GUI_STORYTREE_H
+#ifndef GUI_ITEMTREE_H
+#define GUI_ITEMTREE_H
 
 #include "item.h"
 #include "itemmodel.h"
@@ -34,15 +34,15 @@
 
 namespace Collett {
 
-class GuiStoryTree : public QTreeView
+class GuiItemTree : public QTreeView
 {
     Q_OBJECT
 
 public:
     enum AddLocation{Before, After, Inside};
 
-    GuiStoryTree(QWidget *parent=nullptr);
-    ~GuiStoryTree() {};
+    GuiItemTree(QWidget *parent=nullptr);
+    ~GuiItemTree() {};
 
     // Class Setters
 
@@ -70,4 +70,4 @@ private:
 };
 } // namespace Collett
 
-#endif // GUI_STORYTREE_H
+#endif // GUI_ITEMTREE_H

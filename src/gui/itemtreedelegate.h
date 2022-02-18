@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Story Tree Delegate Class
-** =======================================
+** Collett – GUI Item Tree Delegate Class
+** ======================================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -19,8 +19,8 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_STORYTREEDELEGATE_H
-#define GUI_STORYTREEDELEGATE_H
+#ifndef GUI_ITEMTREEDELEGATE_H
+#define GUI_ITEMTREEDELEGATE_H
 
 #include <QSize>
 #include <QFont>
@@ -32,13 +32,13 @@
 
 namespace Collett {
 
-class GuiStoryTreeDelegate : public QAbstractItemDelegate
+class GuiItemTreeDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 
 public:
-    GuiStoryTreeDelegate(QWidget *parent=nullptr);
-    ~GuiStoryTreeDelegate() {};
+    GuiItemTreeDelegate(QWidget *parent=nullptr);
+    ~GuiItemTreeDelegate() {};
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
@@ -52,4 +52,4 @@ private:
 };
 } // namespace Collett
 
-#endif // GUI_STORYTREEDELEGATE_H
+#endif // GUI_ITEMTREEDELEGATE_H

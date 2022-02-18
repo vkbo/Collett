@@ -20,7 +20,7 @@
 */
 
 #include "treetoolbar.h"
-#include "storytree.h"
+#include "itemtree.h"
 #include "itemmodel.h"
 #include "icons.h"
 
@@ -53,7 +53,7 @@ GuiTreeToolBar::GuiTreeToolBar(QWidget *parent)
     this->addAction(icons->icon("settings"), tr("Settings"));
 }
 
-void GuiTreeToolBar::addModelEntry(const QString &name, ItemModel *model, GuiStoryTree *tree) {
+void GuiTreeToolBar::addModelEntry(const QString &name, ItemModel *model, GuiItemTree *tree) {
 
     CollettIcons *icons = CollettIcons::instance();
 

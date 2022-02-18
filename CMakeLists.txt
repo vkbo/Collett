@@ -89,10 +89,10 @@ list(APPEND SRC_FILES
     src/editor/doceditor
     src/editor/edittoolbar
     src/editor/textedit
+    src/gui/itemtree
+    src/gui/itemtreedelegate
     src/gui/maintoolbar
     src/gui/statusbar
-    src/gui/storytree
-    src/gui/storytreedelegate
     src/gui/treetoolbar
     src/project/document
     src/project/item

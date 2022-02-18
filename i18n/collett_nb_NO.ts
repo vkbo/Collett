@@ -110,6 +110,76 @@
     </message>
 </context>
 <context>
+    <name>Collett::GuiItemTree</name>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="148"/>
+        <source>Add Scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="150"/>
+        <location filename="../src/gui/itemtree.cpp" line="165"/>
+        <location filename="../src/gui/itemtree.cpp" line="180"/>
+        <location filename="../src/gui/itemtree.cpp" line="195"/>
+        <location filename="../src/gui/itemtree.cpp" line="210"/>
+        <source>Inside</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="154"/>
+        <location filename="../src/gui/itemtree.cpp" line="169"/>
+        <location filename="../src/gui/itemtree.cpp" line="184"/>
+        <location filename="../src/gui/itemtree.cpp" line="199"/>
+        <location filename="../src/gui/itemtree.cpp" line="214"/>
+        <source>Before</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="156"/>
+        <location filename="../src/gui/itemtree.cpp" line="171"/>
+        <location filename="../src/gui/itemtree.cpp" line="186"/>
+        <location filename="../src/gui/itemtree.cpp" line="201"/>
+        <location filename="../src/gui/itemtree.cpp" line="216"/>
+        <source>After</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="163"/>
+        <source>Add Chapter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="178"/>
+        <source>Add Partition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="193"/>
+        <source>Add Book</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="195"/>
+        <source>Here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="208"/>
+        <source>Add Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="245"/>
+        <source>Rename Story Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="245"/>
+        <source>New Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Collett::GuiMain</name>
     <message>
         <location filename="../src/guimain.cpp" line="94"/>
@@ -172,76 +242,6 @@
     <message>
         <location filename="../src/gui/maintoolbar.cpp" line="118"/>
         <source>Menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Collett::GuiStoryTree</name>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="148"/>
-        <source>Add Scene</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="150"/>
-        <location filename="../src/gui/storytree.cpp" line="165"/>
-        <location filename="../src/gui/storytree.cpp" line="180"/>
-        <location filename="../src/gui/storytree.cpp" line="195"/>
-        <location filename="../src/gui/storytree.cpp" line="210"/>
-        <source>Inside</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="154"/>
-        <location filename="../src/gui/storytree.cpp" line="169"/>
-        <location filename="../src/gui/storytree.cpp" line="184"/>
-        <location filename="../src/gui/storytree.cpp" line="199"/>
-        <location filename="../src/gui/storytree.cpp" line="214"/>
-        <source>Before</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="156"/>
-        <location filename="../src/gui/storytree.cpp" line="171"/>
-        <location filename="../src/gui/storytree.cpp" line="186"/>
-        <location filename="../src/gui/storytree.cpp" line="201"/>
-        <location filename="../src/gui/storytree.cpp" line="216"/>
-        <source>After</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="163"/>
-        <source>Add Chapter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="178"/>
-        <source>Add Partition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="193"/>
-        <source>Add Book</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="195"/>
-        <source>Here</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="208"/>
-        <source>Add Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="245"/>
-        <source>Rename Story Item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/storytree.cpp" line="245"/>
-        <source>New Name:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

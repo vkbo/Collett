@@ -26,7 +26,7 @@
 #include "maintoolbar.h"
 #include "settings.h"
 #include "statusbar.h"
-#include "storytree.h"
+#include "itemtree.h"
 #include "treetoolbar.h"
 
 #include <QUuid>
@@ -77,8 +77,8 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
             this, SLOT(saveOpenDocument()));
     connect(m_mainToolBar->m_renameDocument, SIGNAL(triggered()),
             this, SLOT(renameDocument()));
-    connect(m_treeToolBar, SIGNAL(treeButtonClicked(GuiStoryTree*)),
-            this, SLOT(changeModelTree(GuiStoryTree*)));
+    connect(m_treeToolBar, SIGNAL(treeButtonClicked(GuiItemTree*)),
+            this, SLOT(changeModelTree(GuiItemTree*)));
 
     // Connect Actions to Capture Key Sequence
     this->addAction(m_mainToolBar->m_newProject);
@@ -194,7 +194,7 @@ void GuiMain::addItemTree(const QString &name) {
         return;
     }
 
-    GuiStoryTree *tree = new GuiStoryTree(this);
+    GuiItemTree *tree = new GuiItemTree(this);
     m_itemTrees.insert(name, tree);
 
     tree->setTreeModel(model);
@@ -247,7 +247,7 @@ void GuiMain::openSelectedDocument() {
     if (!m_data->hasProject())
         return;
 
-    GuiStoryTree *tree = static_cast<GuiStoryTree*>(m_treeStack->currentWidget());
+    GuiItemTree *tree = static_cast<GuiItemTree*>(m_treeStack->currentWidget());
     QModelIndex index = tree->firstSelectedIndex();
     if (!index.isValid())
         return;
@@ -267,7 +267,7 @@ void GuiMain::renameDocument() {
     if (!m_data->hasProject())
         return;
 
-    GuiStoryTree *tree = static_cast<GuiStoryTree*>(m_treeStack->currentWidget());
+    GuiItemTree *tree = static_cast<GuiItemTree*>(m_treeStack->currentWidget());
     tree->doEditName(false);
 }
 
@@ -276,7 +276,7 @@ void GuiMain::itemTreeDoubleClick(const QModelIndex &index) {
     this->openSelectedDocument();
 }
 
-void GuiMain::changeModelTree(GuiStoryTree *tree) {
+void GuiMain::changeModelTree(GuiItemTree *tree) {
     if (!m_data->hasProject())
         return;
 

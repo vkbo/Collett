@@ -27,7 +27,7 @@
 #include "maintoolbar.h"
 #include "treetoolbar.h"
 #include "statusbar.h"
-#include "storytree.h"
+#include "itemtree.h"
 #include "doceditor.h"
 
 #include <QHash>
@@ -77,7 +77,7 @@ private:
     GuiDocEditor   *m_docEditor;
     GuiMainStatus  *m_mainStatus;
 
-    QHash<QString, GuiStoryTree*> m_itemTrees;
+    QHash<QString, GuiItemTree*> m_itemTrees;
 
     // GUI Widgets
     QSplitter *m_splitMain;
@@ -91,7 +91,7 @@ private slots:
     void saveOpenDocument();
     void renameDocument();
     void itemTreeDoubleClick(const QModelIndex &index);
-    void changeModelTree(GuiStoryTree *tree);
+    void changeModelTree(GuiItemTree *tree);
 
 };
 } // namespace Collett
