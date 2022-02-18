@@ -151,7 +151,7 @@ bool GuiMain::closeProject() {
  * ================
  */
 
-void GuiMain::openDocument(const Item *item) {
+void GuiMain::openDocument(Item *item) {
 
     if (!m_data->hasProject() || !item) {
         return;
@@ -164,7 +164,7 @@ void GuiMain::openDocument(const Item *item) {
         m_docEditor->saveDocument();
         m_docEditor->closeDocument();
     }
-    m_docEditor->openDocument(item->handle());
+    m_docEditor->openDocument(item);
     m_data->project()->setLastDocumentMain(m_docEditor->currentDocument());
 }
 

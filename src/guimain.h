@@ -59,7 +59,7 @@ public:
 
     // Document Methods
 
-    void openDocument(const Item *item);
+    void openDocument(Item *item);
     void saveDocument();
     void closeDocument();
 

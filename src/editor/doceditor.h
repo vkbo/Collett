@@ -22,10 +22,11 @@
 #ifndef GUI_DOCEDITOR_H
 #define GUI_DOCEDITOR_H
 
-#include "collett.h"
 #include "data.h"
-#include "textedit.h"
+#include "item.h"
+#include "collett.h"
 #include "document.h"
+#include "textedit.h"
 #include "edittoolbar.h"
 
 #include <QUuid>
@@ -47,7 +48,7 @@ public:
 
     // Data Methods
 
-    bool openDocument(const QUuid &uuid);
+    bool openDocument(Item *item);
     bool saveDocument();
     void closeDocument();
 
@@ -61,13 +62,13 @@ signals:
     void popMessage(const Collett::Severity type, const QString &message);
 
 private:
-    GuiTextEdit *m_textArea;
+    GuiTextEdit    *m_textArea;
     GuiEditToolBar *m_editToolBar;
-    QTimer *m_autoSave;
+    QTimer         *m_autoSave;
 
     CollettData *m_data;
-    Document *m_document;
-    QUuid m_docUuid;
+    Item        *m_item;
+    Document    *m_document;
 
 private slots:
     void editorCharFormatChanged(const QTextCharFormat &fmt);
