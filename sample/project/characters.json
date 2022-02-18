@@ -10,7 +10,7 @@
 			"m:order": 0,
 			"m:words": 0,
 			"u:name": "Main Characters",
-			"u:type": "FOLDER",
+			"u:type": "GROUP",
 			"x:items": [
 				{
 					"m:handle": "81def5a0-62c6-48b8-9bf3-cb031a09e2bb",

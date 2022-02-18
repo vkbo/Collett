@@ -34,7 +34,7 @@ class Item : public QObject
     Q_OBJECT
 
 public:
-    enum ItemType{Invalid, Root, Folder, Book, Partition, Chapter, Scene, Page, Note};
+    enum ItemType{Invalid, Root, Book, Partition, Chapter, Scene, Page, Group, Note};
 
     explicit Item(const QUuid &uuid, const QString &name, bool story, ItemType type, Item *parentItem=nullptr);
     ~Item();

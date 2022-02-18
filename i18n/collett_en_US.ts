@@ -178,7 +178,7 @@
     </message>
     <message>
         <location filename="../src/gui/itemtree.cpp" line="225"/>
-        <source>Add Folder</source>
+        <source>Add Group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -200,7 +200,7 @@
 <context>
     <name>Collett::GuiMain</name>
     <message>
-        <location filename="../src/guimain.cpp" line="94"/>
+        <location filename="../src/guimain.cpp" line="95"/>
         <source>%1 %2 Version %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -284,37 +284,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="378"/>
-        <source>Folder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/item.cpp" line="379"/>
+        <location filename="../src/project/item.cpp" line="400"/>
         <source>Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="380"/>
+        <location filename="../src/project/item.cpp" line="401"/>
         <source>Partition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="381"/>
+        <location filename="../src/project/item.cpp" line="402"/>
         <source>Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="382"/>
+        <location filename="../src/project/item.cpp" line="403"/>
         <source>Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="383"/>
+        <location filename="../src/project/item.cpp" line="404"/>
         <source>Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/item.cpp" line="384"/>
+        <location filename="../src/project/item.cpp" line="405"/>
+        <source>Group</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/project/item.cpp" line="406"/>
         <source>Note</source>
         <translation type="unfinished"></translation>
     </message>
@@ -327,27 +327,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="295"/>
+        <location filename="../src/project/itemmodel.cpp" line="294"/>
         <source>Story</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="296"/>
+        <location filename="../src/project/itemmodel.cpp" line="295"/>
         <source>Plot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="297"/>
+        <location filename="../src/project/itemmodel.cpp" line="296"/>
         <source>Characters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="298"/>
+        <location filename="../src/project/itemmodel.cpp" line="297"/>
         <source>Locations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="350"/>
+        <location filename="../src/project/itemmodel.cpp" line="349"/>
         <source>No Name</source>
         <translation type="unfinished"></translation>
     </message>

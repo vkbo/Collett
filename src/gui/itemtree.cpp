@@ -222,16 +222,16 @@ void GuiItemTree::doOpenContextMenu(const QPoint &pos) {
         contextMenu.addMenu(pgMenu);
     }
 
-    QMenu *fdMenu = new QMenu(tr("Add Folder"));
-    if (item->allowedChild(Item::Folder)) {
+    QMenu *fdMenu = new QMenu(tr("Add Group"));
+    if (item->allowedChild(Item::Group)) {
         QAction *inAction = fdMenu->addAction(root ? tr("Here") : tr("Inside"));
-        connect(inAction, &QAction::triggered, [this, index]{doAddChild(index, Item::Folder, ItemModel::Inside);});
+        connect(inAction, &QAction::triggered, [this, index]{doAddChild(index, Item::Group, ItemModel::Inside);});
     }
-    if (item->allowedSibling(Item::Folder)) {
+    if (item->allowedSibling(Item::Group)) {
         QAction *bfAction = fdMenu->addAction(tr("Before"));
-        connect(bfAction, &QAction::triggered, [this, index]{doAddChild(index, Item::Folder, ItemModel::Before);});
+        connect(bfAction, &QAction::triggered, [this, index]{doAddChild(index, Item::Group, ItemModel::Before);});
         QAction *afAction = fdMenu->addAction(tr("After"));
-        connect(afAction, &QAction::triggered, [this, index]{doAddChild(index, Item::Folder, ItemModel::After);});
+        connect(afAction, &QAction::triggered, [this, index]{doAddChild(index, Item::Group, ItemModel::After);});
     }
     if (!fdMenu->isEmpty()) {
         contextMenu.addMenu(fdMenu);
