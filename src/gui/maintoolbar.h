@@ -52,6 +52,7 @@ private:
     QAction     *m_newProject;
     QAction     *m_openProject;
     QAction     *m_saveProject;
+    QAction     *m_closeProject;
 
     // Documents Menu
     QToolButton *m_docsButton;

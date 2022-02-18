@@ -35,22 +35,20 @@
 
 namespace Collett {
 
-GuiTreeToolBar::GuiTreeToolBar(QWidget *parent)
-    : QToolBar(parent)
-{
-    QWidget *stretch = new QWidget(this);
-    stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+GuiTreeToolBar::GuiTreeToolBar(QWidget *parent) : QToolBar(parent) {
+    this->initToolBar();
+}
 
-    CollettIcons *icons = CollettIcons::instance();
+/**
+ * Class Methods
+ * =============
+ */
 
-    m_addAction = new QAction(this);
-    m_addAction->setText(tr("Add Action"));
-    m_addAction->setIcon(icons->icon("add"));
-
-    this->setOrientation(Qt::Vertical);
-    this->addAction(m_addAction);
-    this->addWidget(stretch);
-    this->addAction(icons->icon("settings"), tr("Settings"));
+void GuiTreeToolBar::clearModels() {
+    m_modelButtons.clear();
+    m_modelTree.clear();
+    this->clear();
+    this->initToolBar();
 }
 
 void GuiTreeToolBar::addModelEntry(const QString &name, ItemModel *model, GuiItemTree *tree) {
@@ -67,6 +65,32 @@ void GuiTreeToolBar::addModelEntry(const QString &name, ItemModel *model, GuiIte
 
     connect(button, &QToolButton::clicked, [this, name]{treeButtonTriggered(name);});
 }
+
+/**
+ * Internal Functions
+ * ==================
+ */
+
+void GuiTreeToolBar::initToolBar() {
+    QWidget *stretch = new QWidget(this);
+    stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    CollettIcons *icons = CollettIcons::instance();
+
+    m_addAction = new QAction(this);
+    m_addAction->setText(tr("Add Action"));
+    m_addAction->setIcon(icons->icon("add"));
+
+    this->setOrientation(Qt::Vertical);
+    this->addAction(m_addAction);
+    this->addWidget(stretch);
+    this->addAction(icons->icon("settings"), tr("Settings"));
+}
+
+/**
+ * Private Slots
+ * =============
+ */
 
 void GuiTreeToolBar::treeButtonTriggered(const QString &name) {
     qDebug() << "Clicked tree button:" << name;

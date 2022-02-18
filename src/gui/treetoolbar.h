@@ -42,6 +42,9 @@ public:
     GuiTreeToolBar(QWidget *parent=nullptr);
     ~GuiTreeToolBar() {};
 
+    // Class Methods
+
+    void clearModels();
     void addModelEntry(const QString &name, ItemModel *model, GuiItemTree *tree);
 
 signals:
@@ -51,6 +54,8 @@ private:
     QAction *m_addAction;
     QHash<QString, QToolButton*>  m_modelButtons;
     QHash<QString, GuiItemTree*> m_modelTree;
+
+    void initToolBar();
 
 private slots:
     void treeButtonTriggered(const QString &name);

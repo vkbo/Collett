@@ -32,9 +32,8 @@
 
 namespace Collett {
 
-GuiMainToolBar::GuiMainToolBar(QWidget *parent)
-    : QToolBar(parent)
-{
+GuiMainToolBar::GuiMainToolBar(QWidget *parent) : QToolBar(parent) {
+
     QWidget *stretch1 = new QWidget();
     QWidget *stretch2 = new QWidget();
     stretch1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -74,6 +73,9 @@ void GuiMainToolBar::buildMainMenu() {
 
     m_saveProject = m_projectMenu->addAction(tr("Save Project"));
     m_saveProject->setShortcut(QKeySequence("Ctrl+Shift+S"));
+
+    m_closeProject = m_projectMenu->addAction(tr("Close Project"));
+    m_closeProject->setShortcut(QKeySequence("Ctrl+Shift+W"));
 
     m_projectButton = new QToolButton(this);
     m_projectButton->setText(tr("Project"));

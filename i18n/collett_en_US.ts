@@ -200,8 +200,18 @@
 <context>
     <name>Collett::GuiMain</name>
     <message>
-        <location filename="../src/guimain.cpp" line="95"/>
+        <location filename="../src/guimain.cpp" line="98"/>
         <source>%1 %2 Version %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/guimain.cpp" line="263"/>
+        <source>Question</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/guimain.cpp" line="263"/>
+        <source>Do you want to close the project?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -228,37 +238,42 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="79"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="78"/>
+        <source>Close Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/maintoolbar.cpp" line="82"/>
         <source>Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="88"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="91"/>
         <source>New Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="91"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="94"/>
         <source>Open Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="94"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="97"/>
         <source>Save Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="97"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="100"/>
         <source>Rename Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="101"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="104"/>
         <source>Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="118"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="121"/>
         <source>Menu</source>
         <translation type="unfinished"></translation>
     </message>
@@ -266,12 +281,12 @@
 <context>
     <name>Collett::GuiTreeToolBar</name>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="47"/>
+        <location filename="../src/gui/treetoolbar.cpp" line="78"/>
         <source>Add Action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="53"/>
+        <location filename="../src/gui/treetoolbar.cpp" line="84"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>

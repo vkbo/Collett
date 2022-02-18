@@ -35,6 +35,7 @@
 #include <QWidget>
 #include <QCloseEvent>
 #include <QMainWindow>
+#include <QMessageBox>
 #include <QModelIndex>
 #include <QApplication>
 #include <QStackedWidget>
@@ -72,10 +73,12 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_splitMain->setSizes(mainConf->mainSplitSizes());
 
     // Connect Signals and Slots
+    connect(m_mainToolBar->m_closeProject, SIGNAL(triggered()),
+            this, SLOT(closeProjectRequest()));
     connect(m_mainToolBar->m_openDocument, SIGNAL(triggered()),
             this, SLOT(openSelectedDocument()));
     connect(m_mainToolBar->m_saveDocument, SIGNAL(triggered()),
-            this, SLOT(saveOpenDocument()));
+            this, SLOT(saveCurrentDocument()));
     connect(m_mainToolBar->m_renameDocument, SIGNAL(triggered()),
             this, SLOT(renameDocument()));
     connect(m_treeToolBar, SIGNAL(treeButtonClicked(GuiItemTree*)),
@@ -143,6 +146,9 @@ bool GuiMain::saveProject() {
 }
 
 bool GuiMain::closeProject() {
+    this->closeDocument();
+    m_treeToolBar->clearModels();
+    m_data->closeProject();
     return true;
 };
 
@@ -252,6 +258,15 @@ void GuiMain::closeEvent(QCloseEvent *event) {
  * =============
  */
 
+void GuiMain::closeProjectRequest() {
+    auto response = QMessageBox::question(
+        this, tr("Question"), tr("Do you want to close the project?")
+    );
+    if (response == QMessageBox::Yes) {
+        this->closeProject();
+    }
+}
+
 void GuiMain::openSelectedDocument() {
     if (!m_data->hasProject())
         return;
@@ -265,7 +280,7 @@ void GuiMain::openSelectedDocument() {
     this->openDocument(model->itemFromIndex(index));
 }
 
-void GuiMain::saveOpenDocument() {
+void GuiMain::saveCurrentDocument() {
     if (!m_data->hasProject())
         return;
     if (m_docEditor->anyFocus())

@@ -88,8 +88,9 @@ private:
 
 private slots:
 
+    void closeProjectRequest();
     void openSelectedDocument();
-    void saveOpenDocument();
+    void saveCurrentDocument();
     void renameDocument();
     void itemTreeDoubleClick(const QModelIndex &index);
     void changeModelTree(GuiItemTree *tree);
