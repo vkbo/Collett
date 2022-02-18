@@ -22,13 +22,14 @@
 #ifndef GUI_MAIN_H
 #define GUI_MAIN_H
 
-#include "collett.h"
 #include "data.h"
-#include "maintoolbar.h"
-#include "treetoolbar.h"
-#include "statusbar.h"
+#include "item.h"
+#include "collett.h"
 #include "itemtree.h"
 #include "doceditor.h"
+#include "statusbar.h"
+#include "maintoolbar.h"
+#include "treetoolbar.h"
 
 #include <QHash>
 #include <QUuid>
@@ -58,7 +59,7 @@ public:
 
     // Document Methods
 
-    void openDocument(const QUuid &uuid);
+    void openDocument(const Item *item);
     void saveDocument();
     void closeDocument();
 

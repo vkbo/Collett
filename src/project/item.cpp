@@ -306,6 +306,16 @@ bool Item::allowedSibling(Item::ItemType type) const {
     }
 }
 
+bool Item::canHoldDocument() const {
+    switch (m_type) {
+        case ItemType::Chapter: return true;
+        case ItemType::Scene:   return true;
+        case ItemType::Page:    return true;
+        case ItemType::Note:    return true;
+        default: return false;
+    }
+}
+
 /**
  * Class Setters
  * =============
@@ -355,6 +365,18 @@ int Item::childWordCounts() const {
 
 bool Item::isExpanded() const {
     return m_expanded;
+}
+
+Item *Item::findItemFromHandle(const QUuid &uuid) const {
+    if (m_handle == uuid) {
+        return const_cast<Item*>(this);
+    } else {
+        for (Item* child : m_childItems) {
+            Item *item = child->findItemFromHandle(uuid);
+            if (item) return item;
+        }
+    }
+    return nullptr;
 }
 
 /**

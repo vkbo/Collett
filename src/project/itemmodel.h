@@ -24,6 +24,7 @@
 
 #include "item.h"
 
+#include <QUuid>
 #include <QObject>
 #include <QString>
 #include <QJsonObject>
@@ -61,6 +62,7 @@ public:
 
     Item *rootItem() const;
     Item *itemFromIndex(const QModelIndex &index);
+    Item *itemFromHandle(const QUuid &uuid);
     QUuid itemHandle(const QModelIndex &index);
     QString itemName(const QModelIndex &index);
     bool isExpanded(const QModelIndex &index);

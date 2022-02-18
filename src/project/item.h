@@ -46,6 +46,7 @@ public:
     QJsonObject toJsonObject();
     bool allowedChild(ItemType type) const;
     bool allowedSibling(ItemType type) const;
+    bool canHoldDocument() const;
 
     // Class Setters
 
@@ -61,6 +62,7 @@ public:
     int wordCount() const;
     int childWordCounts() const;
     bool isExpanded() const;
+    Item *findItemFromHandle(const QUuid &uuid) const;
 
     // Static Methods
 

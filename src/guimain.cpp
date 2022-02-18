@@ -20,13 +20,14 @@
 */
 
 #include "data.h"
-#include "doceditor.h"
-#include "guimain.h"
+#include "item.h"
 #include "icons.h"
-#include "maintoolbar.h"
-#include "settings.h"
-#include "statusbar.h"
+#include "guimain.h"
 #include "itemtree.h"
+#include "settings.h"
+#include "doceditor.h"
+#include "statusbar.h"
+#include "maintoolbar.h"
 #include "treetoolbar.h"
 
 #include <QUuid>
@@ -125,7 +126,12 @@ void GuiMain::openProject(const QString &path) {
 
     QUuid lastDocMain = m_data->project()->lastDocumentMain();
     if (!lastDocMain.isNull()) {
-        this->openDocument(lastDocMain);
+        Item *itemMain = nullptr;
+        for (const GuiItemTree *tree : m_itemTrees) {
+            itemMain = static_cast<ItemModel*>(tree->model())->itemFromHandle(lastDocMain);
+            if (itemMain) break;
+        }
+        this->openDocument(itemMain);
     }
 
     m_mainToolBar->setProjectName(m_data->project()->projectName());
@@ -145,9 +151,12 @@ bool GuiMain::closeProject() {
  * ================
  */
 
-void GuiMain::openDocument(const QUuid &uuid) {
+void GuiMain::openDocument(const Item *item) {
 
-    if (!m_data->hasProject()) {
+    if (!m_data->hasProject() || !item) {
+        return;
+    }
+    if (!item->canHoldDocument()) {
         return;
     }
 
@@ -155,7 +164,7 @@ void GuiMain::openDocument(const QUuid &uuid) {
         m_docEditor->saveDocument();
         m_docEditor->closeDocument();
     }
-    m_docEditor->openDocument(uuid);
+    m_docEditor->openDocument(item->handle());
     m_data->project()->setLastDocumentMain(m_docEditor->currentDocument());
 }
 
@@ -253,7 +262,7 @@ void GuiMain::openSelectedDocument() {
         return;
 
     ItemModel *model = static_cast<ItemModel*>(tree->model());
-    this->openDocument(model->itemHandle(index));
+    this->openDocument(model->itemFromIndex(index));
 }
 
 void GuiMain::saveOpenDocument() {

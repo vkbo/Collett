@@ -256,6 +256,14 @@ Item *ItemModel::itemFromIndex(const QModelIndex &index) {
     }
 }
 
+Item *ItemModel::itemFromHandle(const QUuid &uuid) {
+    if (!uuid.isNull()) {
+        return m_rootItem->findItemFromHandle(uuid);
+    } else {
+        return nullptr;
+    }
+}
+
 QUuid ItemModel::itemHandle(const QModelIndex &index) {
     if (index.isValid()) {
         Item *item = static_cast<Item*>(index.internalPointer());
