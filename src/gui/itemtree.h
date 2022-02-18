@@ -58,7 +58,7 @@ public slots:
 
 private slots:
     void doOpenContextMenu(const QPoint &pos);
-    void doAddChild(Item *item, Item::ItemType type, ItemModel::AddLocation loc);
+    void doAddChild(const QModelIndex &index, Item::ItemType type, ItemModel::AddLocation loc);
     void saveExpanded(const QModelIndex &index);
     void saveCollapsed(const QModelIndex &index);
 

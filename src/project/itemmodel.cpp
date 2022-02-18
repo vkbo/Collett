@@ -167,24 +167,46 @@ bool ItemModel::fromJsonObject(const QJsonObject &json) {
  * @param loc        the relative location of where to add the new item.
  * @return true if the item was successfully added, otherwise false.
  */
-bool ItemModel::addItem(Item *relativeTo, Item::ItemType type, AddLocation loc) {
-    if (!relativeTo) {
-        return false;
+bool ItemModel::addItem(const QModelIndex &relative, Item::ItemType type, AddLocation loc) {
+
+    QString name = tr("New %1").arg(Item::typeToLabel(type));
+
+    if (!relative.isValid()) {
+
+        int pos = m_rootItem->childCount();
+        emit beginInsertRows(this->index(0, 0), pos, pos);
+        Item *item = m_rootItem->addChild(name, type, pos);
+        emit endInsertRows();
+        qDebug() << "Added root item with name:" << name;
+        return item != nullptr;
+
+    } else {
+
+        QModelIndex index = relative;
+
+        Item *target = itemFromIndex(relative);
+        if (!target) {
+            return false;
+        }
+
+        int pos = target->childCount();
+        if (loc == AddLocation::Before || loc == AddLocation::After) {
+            target = target->parentItem();
+            index = this->parent(relative);
+            pos = target->row() + (loc == AddLocation::After ? 1 : 0);
+        }
+        if (!target) {
+            return false;
+        }
+
+        emit beginInsertRows(index, pos, pos);
+        Item *item = target->addChild(name, type, pos);
+        emit endInsertRows();
+
+        qDebug() << "Added item with name:" << name;
+        return item != nullptr;
+
     }
-    Item *target = relativeTo;
-    int pos = relativeTo->childCount();
-    if (loc == AddLocation::Before || loc == AddLocation::After) {
-        target = relativeTo->parentItem();
-        pos = relativeTo->row() + (loc == AddLocation::After ? 1 : 0);
-    }
-    if (!target) {
-        return false;
-    }
-    qDebug() << target->row() << pos;
-    emit beginInsertRows(createIndex(target->row(), 0, target), pos, pos);
-    Item *item = target->addChild(tr("New %1").arg(Item::typeToLabel(type)), type, pos);
-    emit endInsertRows();
-    return item != nullptr;
 }
 
 /**!
@@ -226,7 +248,7 @@ Item *ItemModel::rootItem() const {
     return m_rootItem;
 }
 
-Item *ItemModel::storyItem(const QModelIndex &index) {
+Item *ItemModel::itemFromIndex(const QModelIndex &index) {
     if (index.isValid()) {
         return static_cast<Item*>(index.internalPointer());
     } else {

@@ -112,26 +112,19 @@
 <context>
     <name>Collett::GuiItemTree</name>
     <message>
-        <location filename="../src/gui/itemtree.cpp" line="148"/>
+        <location filename="../src/gui/itemtree.cpp" line="150"/>
         <source>Add Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/itemtree.cpp" line="150"/>
-        <location filename="../src/gui/itemtree.cpp" line="165"/>
-        <location filename="../src/gui/itemtree.cpp" line="180"/>
-        <location filename="../src/gui/itemtree.cpp" line="195"/>
-        <location filename="../src/gui/itemtree.cpp" line="210"/>
+        <location filename="../src/gui/itemtree.cpp" line="152"/>
+        <location filename="../src/gui/itemtree.cpp" line="167"/>
+        <location filename="../src/gui/itemtree.cpp" line="182"/>
+        <location filename="../src/gui/itemtree.cpp" line="197"/>
+        <location filename="../src/gui/itemtree.cpp" line="212"/>
+        <location filename="../src/gui/itemtree.cpp" line="227"/>
+        <location filename="../src/gui/itemtree.cpp" line="242"/>
         <source>Inside</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="154"/>
-        <location filename="../src/gui/itemtree.cpp" line="169"/>
-        <location filename="../src/gui/itemtree.cpp" line="184"/>
-        <location filename="../src/gui/itemtree.cpp" line="199"/>
-        <location filename="../src/gui/itemtree.cpp" line="214"/>
-        <source>Before</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -140,41 +133,66 @@
         <location filename="../src/gui/itemtree.cpp" line="186"/>
         <location filename="../src/gui/itemtree.cpp" line="201"/>
         <location filename="../src/gui/itemtree.cpp" line="216"/>
+        <location filename="../src/gui/itemtree.cpp" line="231"/>
+        <location filename="../src/gui/itemtree.cpp" line="246"/>
+        <source>Before</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="158"/>
+        <location filename="../src/gui/itemtree.cpp" line="173"/>
+        <location filename="../src/gui/itemtree.cpp" line="188"/>
+        <location filename="../src/gui/itemtree.cpp" line="203"/>
+        <location filename="../src/gui/itemtree.cpp" line="218"/>
+        <location filename="../src/gui/itemtree.cpp" line="233"/>
+        <location filename="../src/gui/itemtree.cpp" line="248"/>
         <source>After</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/itemtree.cpp" line="163"/>
+        <location filename="../src/gui/itemtree.cpp" line="165"/>
         <source>Add Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/itemtree.cpp" line="178"/>
+        <location filename="../src/gui/itemtree.cpp" line="180"/>
         <source>Add Partition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/itemtree.cpp" line="193"/>
+        <location filename="../src/gui/itemtree.cpp" line="195"/>
         <source>Add Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/itemtree.cpp" line="195"/>
+        <location filename="../src/gui/itemtree.cpp" line="197"/>
+        <location filename="../src/gui/itemtree.cpp" line="227"/>
+        <location filename="../src/gui/itemtree.cpp" line="242"/>
         <source>Here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/itemtree.cpp" line="208"/>
+        <location filename="../src/gui/itemtree.cpp" line="210"/>
         <source>Add Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/itemtree.cpp" line="245"/>
+        <location filename="../src/gui/itemtree.cpp" line="225"/>
+        <source>Add Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="240"/>
+        <source>Add Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemtree.cpp" line="277"/>
         <source>Rename Story Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/itemtree.cpp" line="245"/>
+        <location filename="../src/gui/itemtree.cpp" line="277"/>
         <source>New Name:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -304,32 +322,32 @@
 <context>
     <name>Collett::ItemModel</name>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="185"/>
+        <location filename="../src/project/itemmodel.cpp" line="172"/>
         <source>New %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="273"/>
+        <location filename="../src/project/itemmodel.cpp" line="295"/>
         <source>Story</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="274"/>
+        <location filename="../src/project/itemmodel.cpp" line="296"/>
         <source>Plot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="275"/>
+        <location filename="../src/project/itemmodel.cpp" line="297"/>
         <source>Characters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="276"/>
+        <location filename="../src/project/itemmodel.cpp" line="298"/>
         <source>Locations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="328"/>
+        <location filename="../src/project/itemmodel.cpp" line="350"/>
         <source>No Name</source>
         <translation type="unfinished"></translation>
     </message>

@@ -49,7 +49,7 @@ public:
 
     QJsonObject toJsonObject();
     bool fromJsonObject(const QJsonObject &json);
-    bool addItem(Item *relativeTo, Item::ItemType type, AddLocation loc);
+    bool addItem(const QModelIndex &relative, Item::ItemType type, AddLocation loc);
     bool isEmpty() const;
     bool isValid() const;
 
@@ -60,7 +60,7 @@ public:
     ModelType modelType() const;
 
     Item *rootItem() const;
-    Item *storyItem(const QModelIndex &index);
+    Item *itemFromIndex(const QModelIndex &index);
     QUuid itemHandle(const QModelIndex &index);
     QString itemName(const QModelIndex &index);
     bool isExpanded(const QModelIndex &index);
