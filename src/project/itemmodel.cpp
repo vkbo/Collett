@@ -210,6 +210,18 @@ bool ItemModel::isValid() const {
  * =============
  */
 
+QString ItemModel::modelName() const {
+    return m_name;
+}
+
+QString ItemModel::modelIcon() const {
+    return m_icon;
+}
+
+ItemModel::ModelType ItemModel::modelType() const {
+    return m_type;
+}
+
 Item *ItemModel::rootItem() const {
     return m_rootItem;
 }

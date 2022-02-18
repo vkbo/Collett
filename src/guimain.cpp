@@ -36,6 +36,7 @@
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QApplication>
+#include <QStackedWidget>
 #include <QItemSelectionModel>
 
 namespace Collett {
@@ -48,7 +49,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     // Collett Widgets
     m_mainToolBar = new GuiMainToolBar(this);
     m_treeToolBar = new GuiTreeToolBar(this);
-    m_storyTree   = new GuiStoryTree(this);
+    m_treeStack   = new QStackedWidget(this);
     m_mainStatus  = new GuiMainStatus(this);
     m_docEditor   = new GuiDocEditor(this);
 
@@ -56,7 +57,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_splitMain = new QSplitter(Qt::Horizontal, this);
     m_splitMain->setContentsMargins(0, 0, 0, 0);
     m_splitMain->setOpaqueResize(false);
-    m_splitMain->addWidget(m_storyTree);
+    m_splitMain->addWidget(m_treeStack);
     m_splitMain->addWidget(m_docEditor);
 
     this->addToolBar(Qt::TopToolBarArea, m_mainToolBar);
@@ -70,15 +71,14 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_splitMain->setSizes(mainConf->mainSplitSizes());
 
     // Connect Signals and Slots
-    connect(m_storyTree, SIGNAL(doubleClicked(const QModelIndex&)),
-            this, SLOT(storyTreeDoubleClick(const QModelIndex&)));
-
     connect(m_mainToolBar->m_openDocument, SIGNAL(triggered()),
             this, SLOT(openSelectedDocument()));
     connect(m_mainToolBar->m_saveDocument, SIGNAL(triggered()),
             this, SLOT(saveOpenDocument()));
     connect(m_mainToolBar->m_renameDocument, SIGNAL(triggered()),
             this, SLOT(renameDocument()));
+    connect(m_treeToolBar, SIGNAL(treeButtonClicked(GuiStoryTree*)),
+            this, SLOT(changeModelTree(GuiStoryTree*)));
 
     // Connect Actions to Capture Key Sequence
     this->addAction(m_mainToolBar->m_newProject);
@@ -99,6 +99,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
 GuiMain::~GuiMain() {
     qDebug() << "Destructor: GuiMain";
+    qDeleteAll(m_itemTrees.begin(), m_itemTrees.end());
     delete m_data;
 }
 
@@ -114,9 +115,13 @@ void GuiMain::openProject(const QString &path) {
         return;
     }
 
-    QItemSelectionModel *m = m_storyTree->selectionModel();
-    m_storyTree->setTreeModel(m_data->storyModel());
-    delete m;
+    for (const QString &name : m_data->project()->modelList()) {
+        qDebug() << "Adding tree:" << name;
+        this->addItemTree(name);
+    }
+    if (m_itemTrees.contains("story")) {
+        this->m_treeStack->setCurrentWidget(m_itemTrees.value("story"));
+    }
 
     QUuid lastDocMain = m_data->project()->lastDocumentMain();
     if (!lastDocMain.isNull()) {
@@ -173,6 +178,33 @@ void GuiMain::closeDocument() {
  * ===========
  */
 
+void GuiMain::addItemTree(const QString &name) {
+
+    if (!m_data->hasProject()) {
+        return;
+    }
+    if (m_itemTrees.contains(name)) {
+        qWarning() << "ItemTree already exists:" << name;
+        return;
+    }
+
+    ItemModel *model = m_data->project()->model(name);
+    if (!model) {
+        qWarning() << "Model does not exist:" << name;
+        return;
+    }
+
+    GuiStoryTree *tree = new GuiStoryTree(this);
+    m_itemTrees.insert(name, tree);
+
+    tree->setTreeModel(model);
+    m_treeStack->addWidget(tree);
+    m_treeToolBar->addModelEntry(name, model, tree);
+
+    connect(tree, SIGNAL(doubleClicked(const QModelIndex&)),
+            this, SLOT(itemTreeDoubleClick(const QModelIndex&)));
+}
+
 bool GuiMain::closeMain() {
 
     m_docEditor->saveDocument();
@@ -215,11 +247,13 @@ void GuiMain::openSelectedDocument() {
     if (!m_data->hasProject())
         return;
 
-    QModelIndex index = m_storyTree->firstSelectedIndex();
+    GuiStoryTree *tree = static_cast<GuiStoryTree*>(m_treeStack->currentWidget());
+    QModelIndex index = tree->firstSelectedIndex();
     if (!index.isValid())
         return;
 
-    this->openDocument(m_data->storyModel()->itemHandle(index));
+    ItemModel *model = static_cast<ItemModel*>(tree->model());
+    this->openDocument(model->itemHandle(index));
 }
 
 void GuiMain::saveOpenDocument() {
@@ -232,14 +266,21 @@ void GuiMain::saveOpenDocument() {
 void GuiMain::renameDocument() {
     if (!m_data->hasProject())
         return;
-    m_storyTree->doEditName(false);
+
+    GuiStoryTree *tree = static_cast<GuiStoryTree*>(m_treeStack->currentWidget());
+    tree->doEditName(false);
 }
 
-void GuiMain::storyTreeDoubleClick(const QModelIndex &index) {
-    if (!m_data->hasProject() || !index.isValid()) {
+void GuiMain::itemTreeDoubleClick(const QModelIndex &index) {
+    Q_UNUSED(index);
+    this->openSelectedDocument();
+}
+
+void GuiMain::changeModelTree(GuiStoryTree *tree) {
+    if (!m_data->hasProject())
         return;
-    }
-    this->openDocument(m_data->storyModel()->itemHandle(index));
+
+    m_treeStack->setCurrentWidget(static_cast<QWidget*>(tree));
 }
 
 } // namespace Collett

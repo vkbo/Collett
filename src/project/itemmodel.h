@@ -57,6 +57,7 @@ public:
 
     QString modelName() const;
     QString modelIcon() const;
+    ModelType modelType() const;
 
     Item *rootItem() const;
     Item *storyItem(const QModelIndex &index);

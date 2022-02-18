@@ -53,7 +53,6 @@ public:
 
     bool hasProject() const;
     Project *project();
-    ItemModel *storyModel();
 
 private:
     static CollettData *staticInstance;

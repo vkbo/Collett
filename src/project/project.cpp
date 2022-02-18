@@ -32,6 +32,7 @@
 #include <QFileInfo>
 #include <QIODevice>
 #include <QByteArray>
+#include <QStringList>
 #include <QTextStream>
 #include <QJsonDocument>
 #include <QLatin1String>
@@ -174,6 +175,10 @@ Storage *Project::store() {
     return m_store;
 }
 
+QStringList Project::modelList() const {
+    return m_modelOrder;
+}
+
 ItemModel *Project::model(const QString &name) {
     if (m_models.contains(name)) {
         return m_models.value(name);
@@ -228,6 +233,7 @@ bool Project::loadProjectStructure() {
         for (const QJsonValue &value : jProject.value(QLatin1String("u:models")).toArray()) {
             QString key = value.toString().simplified();
             if (!key.isEmpty()) {
+                m_modelOrder << key;
                 m_models.insert(key, new ItemModel(this));
                 QJsonObject mData;
                 if (m_store->loadFile(key, mData)) {
@@ -256,7 +262,7 @@ bool Project::saveProjectStructure() {
     jProject[QLatin1String("s:last-doc-main")] = m_lastDocMain.toString(QUuid::WithoutBraces);
 
     // Data Models
-    for (const QString &key : m_models.keys()) {
+    for (const QString &key : m_modelOrder) {
         jModels.append(key);
         qDebug() << "Saving model:" << key;
         if (!m_store->saveFile(key, m_models[key]->toJsonObject())) {

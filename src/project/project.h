@@ -32,6 +32,7 @@
 #include <QUuid>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 namespace Collett {
 
@@ -62,6 +63,7 @@ public:
     QString projectName() const;
     Storage *store();
 
+    QStringList modelList() const;
     ItemModel *model(const QString &name);
     Document *document(const QUuid &uuid);
 
@@ -91,6 +93,7 @@ private:
 
     // Content
 
+    QStringList                m_modelOrder;
     QHash<QString, ItemModel*> m_models;
     QHash<QUuid, Document*>    m_documents;
 

@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Tree Tool Bar Class
-** =================================
+** Collett – GUI Tree ToolBar Class
+** ================================
 **
 ** This file is a part of Collett
 ** Copyright 2020–2022, Veronica Berglyd Olsen
@@ -22,8 +22,15 @@
 #ifndef GUI_TREETOOLBAR_H
 #define GUI_TREETOOLBAR_H
 
+#include "storytree.h"
+#include "itemmodel.h"
+
+#include <QHash>
+#include <QAction>
 #include <QObject>
+#include <QString>
 #include <QToolBar>
+#include <QToolButton>
 
 namespace Collett {
 
@@ -34,6 +41,19 @@ class GuiTreeToolBar : public QToolBar
 public:
     GuiTreeToolBar(QWidget *parent=nullptr);
     ~GuiTreeToolBar() {};
+
+    void addModelEntry(const QString &name, ItemModel *model, GuiStoryTree *tree);
+
+signals:
+    void treeButtonClicked(GuiStoryTree *tree);
+
+private:
+    QAction *m_addAction;
+    QHash<QString, QToolButton*>  m_modelButtons;
+    QHash<QString, GuiStoryTree*> m_modelTree;
+
+private slots:
+    void treeButtonTriggered(const QString &name);
 
 };
 } // namespace Collett

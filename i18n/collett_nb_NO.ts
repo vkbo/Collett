@@ -248,12 +248,12 @@
 <context>
     <name>Collett::GuiTreeToolBar</name>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="41"/>
-        <source>Story</source>
+        <location filename="../src/gui/treetoolbar.cpp" line="47"/>
+        <source>Add Action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="43"/>
+        <location filename="../src/gui/treetoolbar.cpp" line="53"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -304,32 +304,32 @@
 <context>
     <name>Collett::ItemModel</name>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="177"/>
+        <location filename="../src/project/itemmodel.cpp" line="185"/>
         <source>New %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="253"/>
+        <location filename="../src/project/itemmodel.cpp" line="273"/>
         <source>Story</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="254"/>
+        <location filename="../src/project/itemmodel.cpp" line="274"/>
         <source>Plot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="255"/>
+        <location filename="../src/project/itemmodel.cpp" line="275"/>
         <source>Characters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="256"/>
+        <location filename="../src/project/itemmodel.cpp" line="276"/>
         <source>Locations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/project/itemmodel.cpp" line="296"/>
+        <location filename="../src/project/itemmodel.cpp" line="328"/>
         <source>No Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -337,7 +337,7 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="224"/>
+        <location filename="../src/project/project.cpp" line="229"/>
         <source>Unnamed Project</source>
         <translation type="unfinished"></translation>
     </message>

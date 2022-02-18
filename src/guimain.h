@@ -30,6 +30,7 @@
 #include "storytree.h"
 #include "doceditor.h"
 
+#include <QHash>
 #include <QUuid>
 #include <QObject>
 #include <QString>
@@ -37,6 +38,7 @@
 #include <QSplitter>
 #include <QMainWindow>
 #include <QModelIndex>
+#include <QStackedWidget>
 
 namespace Collett {
 
@@ -62,6 +64,7 @@ public:
 
     // GUI Methods
 
+    void addItemTree(const QString &name);
     bool closeMain();
 
 private:
@@ -70,9 +73,11 @@ private:
     // Collett Widgets
     GuiMainToolBar *m_mainToolBar;
     GuiTreeToolBar *m_treeToolBar;
-    GuiStoryTree   *m_storyTree;
+    QStackedWidget *m_treeStack;
     GuiDocEditor   *m_docEditor;
     GuiMainStatus  *m_mainStatus;
+
+    QHash<QString, GuiStoryTree*> m_itemTrees;
 
     // GUI Widgets
     QSplitter *m_splitMain;
@@ -85,7 +90,8 @@ private slots:
     void openSelectedDocument();
     void saveOpenDocument();
     void renameDocument();
-    void storyTreeDoubleClick(const QModelIndex &index);
+    void itemTreeDoubleClick(const QModelIndex &index);
+    void changeModelTree(GuiStoryTree *tree);
 
 };
 } // namespace Collett
