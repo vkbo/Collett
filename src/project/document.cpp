@@ -29,8 +29,8 @@
 
 namespace Collett {
 
-Document::Document(Storage *store, const QUuid uuid)
-    : m_store(store), m_handle(uuid)
+Document::Document(const QUuid uuid)
+    : m_handle(uuid)
 {
     m_locked = false;
     m_unsaved = true;
@@ -93,9 +93,9 @@ bool Document::read() {
 
     QJsonObject json;
 
-    if (!m_store->loadFile(m_handle, json)) {
-        return false;
-    }
+    // if (!m_store->loadFile(m_handle, json)) {
+    //     return false;
+    // }
 
     if (json.contains(QLatin1String("m:created"))) {
         m_created = json.value(QLatin1String("m:created")).toString();
@@ -142,9 +142,9 @@ bool Document::write() {
     json.insert(QLatin1String("m:updated"), m_updated);
     json.insert(QLatin1String("x:content"), m_content);
 
-    if (!m_store->saveFile(m_handle, json)) {
-        return false;
-    }
+    // if (!m_store->saveFile(m_handle, json)) {
+    //     return false;
+    // }
 
     m_unsaved = false;
 

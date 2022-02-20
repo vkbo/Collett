@@ -47,6 +47,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
     // Create Main Data Object
     m_data = CollettData::instance();
+    m_data->newProject();
 
     // Collett Widgets
     m_mainToolBar = new GuiMainToolBar(this);
@@ -113,43 +114,19 @@ GuiMain::~GuiMain() {
  */
 
 void GuiMain::openProject(const QString &path) {
-
     m_data->openProject(path);
     if (!m_data->hasProject()) {
         return;
     }
-
-    for (const QString &name : m_data->project()->modelList()) {
-        qDebug() << "Adding tree:" << name;
-        this->addItemTree(name);
-    }
-    if (m_itemTrees.contains("story")) {
-        this->m_treeStack->setCurrentWidget(m_itemTrees.value("story"));
-    }
-
-    QUuid lastDocMain = m_data->project()->lastDocumentMain();
-    if (!lastDocMain.isNull()) {
-        Item *itemMain = nullptr;
-        for (const GuiItemTree *tree : m_itemTrees) {
-            itemMain = static_cast<ItemModel*>(tree->model())->itemFromHandle(lastDocMain);
-            if (itemMain) break;
-        }
-        this->openDocument(itemMain);
-    }
-
     m_mainToolBar->setProjectName(m_data->project()->projectName());
-};
-
-bool GuiMain::saveProject() {
-    this->saveDocument();
-    return true;
 }
 
-bool GuiMain::closeProject() {
-    this->closeDocument();
-    m_treeToolBar->clearModels();
+void GuiMain::saveProject() {
+    m_data->saveProject();
+}
+
+void GuiMain::closeProject() {
     m_data->closeProject();
-    return true;
 };
 
 /**
@@ -171,7 +148,6 @@ void GuiMain::openDocument(Item *item) {
         m_docEditor->closeDocument();
     }
     m_docEditor->openDocument(item);
-    m_data->project()->setLastDocumentMain(m_docEditor->currentDocument());
 }
 
 void GuiMain::saveDocument() {
@@ -192,33 +168,6 @@ void GuiMain::closeDocument() {
  * GUI Methods
  * ===========
  */
-
-void GuiMain::addItemTree(const QString &name) {
-
-    if (!m_data->hasProject()) {
-        return;
-    }
-    if (m_itemTrees.contains(name)) {
-        qWarning() << "ItemTree already exists:" << name;
-        return;
-    }
-
-    ItemModel *model = m_data->project()->model(name);
-    if (!model) {
-        qWarning() << "Model does not exist:" << name;
-        return;
-    }
-
-    GuiItemTree *tree = new GuiItemTree(this);
-    m_itemTrees.insert(name, tree);
-
-    tree->setTreeModel(model);
-    m_treeStack->addWidget(tree);
-    m_treeToolBar->addModelEntry(name, model, tree);
-
-    connect(tree, SIGNAL(doubleClicked(const QModelIndex&)),
-            this, SLOT(itemTreeDoubleClick(const QModelIndex&)));
-}
 
 bool GuiMain::closeMain() {
 

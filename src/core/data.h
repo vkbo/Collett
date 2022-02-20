@@ -45,8 +45,9 @@ public:
 
     // Class Methods
 
-    bool openProject(const QString &path);
-    bool saveProject();
+    void newProject();
+    void openProject(const QString &path);
+    void saveProject();
     void closeProject();
 
     // Class Getters

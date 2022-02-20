@@ -84,7 +84,7 @@ include_directories(
 list(APPEND SRC_FILES
     src/core/data
     src/core/icons
-    src/core/storage
+    src/core/project
     src/core/svgiconengine
     src/editor/doceditor
     src/editor/edittoolbar
@@ -97,10 +97,10 @@ list(APPEND SRC_FILES
     src/project/document
     src/project/item
     src/project/itemmodel
-    src/project/project
     src/guimain
     src/main
     src/settings
+    src/utils
 )
 
 # Resource Files

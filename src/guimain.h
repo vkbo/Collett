@@ -54,8 +54,8 @@ public:
     // Project Methods
 
     void openProject(const QString &path);
-    bool saveProject();
-    bool closeProject();
+    void saveProject();
+    void closeProject();
 
     // Document Methods
 
@@ -65,7 +65,6 @@ public:
 
     // GUI Methods
 
-    void addItemTree(const QString &name);
     bool closeMain();
 
 private:

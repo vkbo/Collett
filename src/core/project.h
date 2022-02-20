@@ -23,16 +23,10 @@
 #define COLLETT_PROJECT_H
 
 #include "collett.h"
-#include "storage.h"
-#include "document.h"
-#include "itemmodel.h"
 
-#include <QDir>
-#include <QHash>
-#include <QUuid>
 #include <QObject>
+#include <QVector>
 #include <QString>
-#include <QStringList>
 
 namespace Collett {
 
@@ -41,67 +35,46 @@ class Project : public QObject
     Q_OBJECT
 
 public:
-    explicit Project(const QString &path);
+    struct Content {
+        QString path = "";
+    };
+
+    explicit Project();
     ~Project();
 
     // Class Methods
 
-    bool openProject();
-    bool saveProject();
-    ItemModel *newModel(ItemModel::ModelType type, const QString &name);
+    void openProject(const QString &path);
+    void saveProject();
 
     // Class Setters
 
-    void setLastDocumentMain(const QUuid &uuid);
     void setProjectName(const QString &name);
 
     // Class Getters
 
-    bool isValid() const;
-    QUuid lastDocumentMain() const;
-
     QString projectName() const;
-    Storage *store();
-
-    QStringList modelList() const;
-    ItemModel *model(const QString &name);
-    Document *document(const QUuid &uuid);
-
-    // Error Handling
-
     bool hasError() const;
     QString lastError() const;
 
 private:
-    bool     m_isValid;
-    QString  m_lastError;
-    Storage *m_store;
+    QString m_projectPath;
+    QString m_lastError;
+    bool    m_changed;
 
-    // Project Meta
+    // Meta Data
 
-    QString m_collettVersion = "";
-    QString m_projectVersion = "";
-    QString m_createdTime = "";
-
-    // Project State
-
-    QUuid m_lastDocMain;
-
-    // Project Settings
-
-    QString m_projectName = "New Project";
+    QString m_created;
+    QString m_updated;
 
     // Content
 
-    QStringList                m_modelOrder;
-    QHash<QString, ItemModel*> m_models;
-    QHash<QUuid, Document*>    m_documents;
+    QString m_projectName;
+    QVector<Content> m_content;
 
-    // File Load & Save
+    // Functions
 
-    bool loadProjectStructure();
-    bool saveProjectStructure();
-
+    void setChanged(bool state);
 };
 } // namespace Collett
 

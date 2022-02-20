@@ -23,7 +23,6 @@
 #define COLLETT_DOCUMENT_H
 
 #include "collett.h"
-#include "storage.h"
 
 #include <QUuid>
 #include <QObject>
@@ -36,7 +35,7 @@ class Document : public QObject
     Q_OBJECT
 
 public:
-    explicit Document(Storage *store, const QUuid uuid);
+    explicit Document(const QUuid uuid);
     ~Document() {};
 
     // Setters
@@ -60,8 +59,7 @@ public:
     bool write();
 
 private:
-    Storage *m_store;
-    QUuid    m_handle;
+    QUuid m_handle;
 
     bool m_locked;
     bool m_unsaved;

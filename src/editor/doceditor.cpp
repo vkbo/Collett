@@ -132,9 +132,9 @@ bool GuiDocEditor::openDocument(Item *item) {
         return false;
     }
 
-    m_item = item;
-    m_document = m_data->project()->document(m_item->handle());
-    m_textArea->setJsonContent(m_document->content());
+    // m_item = item;
+    // m_document = m_data->project()->document(m_item->handle());
+    // m_textArea->setJsonContent(m_document->content());
 
     m_autoSave->start();
     m_textArea->setReadOnly(false);

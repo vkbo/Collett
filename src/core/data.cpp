@@ -54,25 +54,24 @@ CollettData::~CollettData() {
  * =============
  */
 
-bool CollettData::openProject(const QString &path) {
-
-    m_project.reset(new Project(path));
-    if (!m_project.data()->hasError()) {
-        m_project.data()->openProject();
+void CollettData::newProject() {
+    if (!hasProject()) {
+        m_project.reset(new Project());
     }
-    if (!m_project.data()->isValid()) {
-        m_project.reset(nullptr);
-        return false;
-    }
-
-    return true;
 }
 
-bool CollettData::saveProject() {
+void CollettData::openProject(const QString &path) {
+
+    m_project.reset(new Project());
+    m_project.data()->openProject(path);
+    if (m_project.data()->hasError()) {
+        m_project.reset(nullptr);
+    }
+}
+
+void CollettData::saveProject() {
     if (hasProject()) {
         return m_project.data()->saveProject();
-    } else {
-        return false;
     }
 }
 
@@ -86,11 +85,7 @@ void CollettData::closeProject() {
  */
 
 bool CollettData::hasProject() const {
-    if (m_project.isNull()) {
-        return false;
-    } else {
-        return m_project.data()->isValid();
-    }
+    return !m_project.isNull();
 }
 
 Project *CollettData::project() {
