@@ -25,7 +25,7 @@
 #include "data.h"
 #include "item.h"
 #include "collett.h"
-#include "itemtree.h"
+#include "workarea.h"
 #include "doceditor.h"
 #include "statusbar.h"
 #include "maintoolbar.h"
@@ -57,12 +57,6 @@ public:
     void saveProject();
     void closeProject();
 
-    // Document Methods
-
-    void openDocument(Item *item);
-    void saveDocument();
-    void closeDocument();
-
     // GUI Methods
 
     bool closeMain();
@@ -74,10 +68,8 @@ private:
     GuiMainToolBar *m_mainToolBar;
     GuiTreeToolBar *m_treeToolBar;
     QStackedWidget *m_treeStack;
-    GuiDocEditor   *m_docEditor;
+    GuiWorkArea    *m_workArea;
     GuiMainStatus  *m_mainStatus;
-
-    QHash<QString, GuiItemTree*> m_itemTrees;
 
     // GUI Widgets
     QSplitter *m_splitMain;
@@ -88,11 +80,6 @@ private:
 private slots:
 
     void closeProjectRequest();
-    void openSelectedDocument();
-    void saveCurrentDocument();
-    void renameDocument();
-    void itemTreeDoubleClick(const QModelIndex &index);
-    void changeModelTree(GuiItemTree *tree);
 
 };
 } // namespace Collett

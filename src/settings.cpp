@@ -74,14 +74,14 @@ CollettSettings *CollettSettings::staticInstance = nullptr;
 CollettSettings *CollettSettings::instance() {
     if (staticInstance == nullptr) {
         staticInstance = new CollettSettings();
-        qDebug() << "Constructor: CollettSettings";
+        qDebug() << "Constructor: CollettSettings (Static)";
     }
     return staticInstance;
 }
 
 void CollettSettings::destroy() {
     if (staticInstance != nullptr) {
-        qDebug() << "Destructor: Static CollettSettings";
+        qDebug() << "Destructor: CollettSettings (Static)";
         delete CollettSettings::staticInstance;
     }
 }

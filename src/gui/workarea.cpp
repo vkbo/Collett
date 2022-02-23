@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Tree ToolBar Class
-** ================================
+** Collett – GUI Work Area Class
+** =============================
 **
 ** This file is a part of Collett
 ** Copyright 2021–2022, Veronica Berglyd Olsen
@@ -19,24 +19,12 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_TREETOOLBAR_H
-#define GUI_TREETOOLBAR_H
-
-#include <QObject>
-#include <QWidget>
-#include <QToolBar>
+#include "workarea.h"
 
 namespace Collett {
 
-class GuiTreeToolBar : public QToolBar
-{
-    Q_OBJECT
+GuiWorkArea::GuiWorkArea(QWidget *parent) : QTabWidget(parent) {
 
-public:
-    GuiTreeToolBar(QWidget *parent=nullptr);
-    ~GuiTreeToolBar() {};
+}
 
-};
 } // namespace Collett
-
-#endif // GUI_TREETOOLBAR_H

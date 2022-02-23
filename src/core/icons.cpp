@@ -35,14 +35,14 @@ CollettIcons *CollettIcons::staticInstance = nullptr;
 CollettIcons *CollettIcons::instance() {
     if (staticInstance == nullptr) {
         staticInstance = new CollettIcons();
-        qDebug() << "Constructor: CollettIcons";
+        qDebug() << "Constructor: CollettIcons (Static)";
     }
     return staticInstance;
 }
 
 void CollettIcons::destroy() {
     if (staticInstance != nullptr) {
-        qDebug() << "Destructor: Static CollettIcons";
+        qDebug() << "Destructor: CollettIcons (Static)";
         delete CollettIcons::staticInstance;
     }
 }

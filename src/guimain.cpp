@@ -23,7 +23,6 @@
 #include "item.h"
 #include "icons.h"
 #include "guimain.h"
-#include "itemtree.h"
 #include "settings.h"
 #include "doceditor.h"
 #include "statusbar.h"
@@ -54,14 +53,14 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_treeToolBar = new GuiTreeToolBar(this);
     m_treeStack   = new QStackedWidget(this);
     m_mainStatus  = new GuiMainStatus(this);
-    m_docEditor   = new GuiDocEditor(this);
+    m_workArea    = new GuiWorkArea(this);
 
     // Assemble Main Window
     m_splitMain = new QSplitter(Qt::Horizontal, this);
     m_splitMain->setContentsMargins(0, 0, 0, 0);
     m_splitMain->setOpaqueResize(false);
     m_splitMain->addWidget(m_treeStack);
-    m_splitMain->addWidget(m_docEditor);
+    m_splitMain->addWidget(m_workArea);
 
     this->addToolBar(Qt::TopToolBarArea, m_mainToolBar);
     this->addToolBar(Qt::LeftToolBarArea, m_treeToolBar);
@@ -76,14 +75,6 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     // Connect Signals and Slots
     connect(m_mainToolBar->m_closeProject, SIGNAL(triggered()),
             this, SLOT(closeProjectRequest()));
-    connect(m_mainToolBar->m_openDocument, SIGNAL(triggered()),
-            this, SLOT(openSelectedDocument()));
-    connect(m_mainToolBar->m_saveDocument, SIGNAL(triggered()),
-            this, SLOT(saveCurrentDocument()));
-    connect(m_mainToolBar->m_renameDocument, SIGNAL(triggered()),
-            this, SLOT(renameDocument()));
-    connect(m_treeToolBar, SIGNAL(treeButtonClicked(GuiItemTree*)),
-            this, SLOT(changeModelTree(GuiItemTree*)));
 
     // Connect Actions to Capture Key Sequence
     this->addAction(m_mainToolBar->m_newProject);
@@ -104,7 +95,6 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
 GuiMain::~GuiMain() {
     qDebug() << "Destructor: GuiMain";
-    qDeleteAll(m_itemTrees.begin(), m_itemTrees.end());
     delete m_data;
 }
 
@@ -130,48 +120,12 @@ void GuiMain::closeProject() {
 };
 
 /**
- * Document Methods
- * ================
- */
-
-void GuiMain::openDocument(Item *item) {
-
-    if (!m_data->hasProject() || !item) {
-        return;
-    }
-    if (!item->canHoldDocument()) {
-        return;
-    }
-
-    if (m_docEditor->hasDocument()) {
-        m_docEditor->saveDocument();
-        m_docEditor->closeDocument();
-    }
-    m_docEditor->openDocument(item);
-}
-
-void GuiMain::saveDocument() {
-
-    if (!m_data->hasProject()) {
-        return;
-    }
-    if (m_docEditor->hasDocument()) {
-        m_docEditor->saveDocument();
-    }
-}
-
-void GuiMain::closeDocument() {
-    m_docEditor->closeDocument();
-}
-
-/**
  * GUI Methods
  * ===========
  */
 
 bool GuiMain::closeMain() {
 
-    m_docEditor->saveDocument();
     m_data->saveProject();
     m_data->closeProject();
 
@@ -214,46 +168,6 @@ void GuiMain::closeProjectRequest() {
     if (response == QMessageBox::Yes) {
         this->closeProject();
     }
-}
-
-void GuiMain::openSelectedDocument() {
-    if (!m_data->hasProject())
-        return;
-
-    GuiItemTree *tree = static_cast<GuiItemTree*>(m_treeStack->currentWidget());
-    QModelIndex index = tree->firstSelectedIndex();
-    if (!index.isValid())
-        return;
-
-    ItemModel *model = static_cast<ItemModel*>(tree->model());
-    this->openDocument(model->itemFromIndex(index));
-}
-
-void GuiMain::saveCurrentDocument() {
-    if (!m_data->hasProject())
-        return;
-    if (m_docEditor->anyFocus())
-        m_docEditor->saveDocument();
-}
-
-void GuiMain::renameDocument() {
-    if (!m_data->hasProject())
-        return;
-
-    GuiItemTree *tree = static_cast<GuiItemTree*>(m_treeStack->currentWidget());
-    tree->doEditName(false);
-}
-
-void GuiMain::itemTreeDoubleClick(const QModelIndex &index) {
-    Q_UNUSED(index);
-    this->openSelectedDocument();
-}
-
-void GuiMain::changeModelTree(GuiItemTree *tree) {
-    if (!m_data->hasProject())
-        return;
-
-    m_treeStack->setCurrentWidget(static_cast<QWidget*>(tree));
 }
 
 } // namespace Collett

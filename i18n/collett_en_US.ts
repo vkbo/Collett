@@ -110,107 +110,19 @@
     </message>
 </context>
 <context>
-    <name>Collett::GuiItemTree</name>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="150"/>
-        <source>Add Scene</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="152"/>
-        <location filename="../src/gui/itemtree.cpp" line="167"/>
-        <location filename="../src/gui/itemtree.cpp" line="182"/>
-        <location filename="../src/gui/itemtree.cpp" line="197"/>
-        <location filename="../src/gui/itemtree.cpp" line="212"/>
-        <location filename="../src/gui/itemtree.cpp" line="227"/>
-        <location filename="../src/gui/itemtree.cpp" line="242"/>
-        <source>Inside</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="156"/>
-        <location filename="../src/gui/itemtree.cpp" line="171"/>
-        <location filename="../src/gui/itemtree.cpp" line="186"/>
-        <location filename="../src/gui/itemtree.cpp" line="201"/>
-        <location filename="../src/gui/itemtree.cpp" line="216"/>
-        <location filename="../src/gui/itemtree.cpp" line="231"/>
-        <location filename="../src/gui/itemtree.cpp" line="246"/>
-        <source>Before</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="158"/>
-        <location filename="../src/gui/itemtree.cpp" line="173"/>
-        <location filename="../src/gui/itemtree.cpp" line="188"/>
-        <location filename="../src/gui/itemtree.cpp" line="203"/>
-        <location filename="../src/gui/itemtree.cpp" line="218"/>
-        <location filename="../src/gui/itemtree.cpp" line="233"/>
-        <location filename="../src/gui/itemtree.cpp" line="248"/>
-        <source>After</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="165"/>
-        <source>Add Chapter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="180"/>
-        <source>Add Partition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="195"/>
-        <source>Add Book</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="197"/>
-        <location filename="../src/gui/itemtree.cpp" line="227"/>
-        <location filename="../src/gui/itemtree.cpp" line="242"/>
-        <source>Here</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="210"/>
-        <source>Add Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="225"/>
-        <source>Add Group</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="240"/>
-        <source>Add Note</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="277"/>
-        <source>Rename Story Item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemtree.cpp" line="277"/>
-        <source>New Name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>Collett::GuiMain</name>
     <message>
-        <location filename="../src/guimain.cpp" line="98"/>
+        <location filename="../src/guimain.cpp" line="90"/>
         <source>%1 %2 Version %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="263"/>
+        <location filename="../src/guimain.cpp" line="166"/>
         <source>Question</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="263"/>
+        <location filename="../src/guimain.cpp" line="166"/>
         <source>Do you want to close the project?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -218,62 +130,62 @@
 <context>
     <name>Collett::GuiMainToolBar</name>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="43"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="42"/>
         <source>No Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="69"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="68"/>
         <source>New Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="72"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="71"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="75"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="74"/>
         <source>Save Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="78"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="77"/>
         <source>Close Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="82"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="81"/>
         <source>Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="91"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="90"/>
         <source>New Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="94"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="93"/>
         <source>Open Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="97"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="96"/>
         <source>Save Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="100"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="99"/>
         <source>Rename Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="104"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="103"/>
         <source>Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="121"/>
+        <location filename="../src/gui/maintoolbar.cpp" line="120"/>
         <source>Menu</source>
         <translation type="unfinished"></translation>
     </message>
@@ -281,12 +193,7 @@
 <context>
     <name>Collett::GuiTreeToolBar</name>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="78"/>
-        <source>Add Action</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="84"/>
+        <location filename="../src/gui/treetoolbar.cpp" line="39"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -370,37 +277,29 @@
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/project/project.cpp" line="229"/>
+        <location filename="../src/core/project.cpp" line="52"/>
+        <location filename="../src/core/project.cpp" line="101"/>
         <source>Unnamed Project</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Collett::Storage</name>
     <message>
-        <location filename="../src/core/storage.cpp" line="56"/>
-        <source>Could not find or create project storage folder: %1</source>
+        <location filename="../src/core/project.cpp" line="68"/>
+        <source>The provided path is not a file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="236"/>
-        <location filename="../src/core/storage.cpp" line="266"/>
-        <source>Could not open file: %1</source>
+        <location filename="../src/core/project.cpp" line="72"/>
+        <source>The file is not a Collett project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="244"/>
-        <source>Could not parse file: %1</source>
+        <location filename="../src/core/project.cpp" line="78"/>
+        <source>Could not read file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/storage.cpp" line="251"/>
-        <source>Unexpected content of file: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/storage.cpp" line="302"/>
-        <source>Could not create folder: %1</source>
+        <location filename="../src/core/project.cpp" line="124"/>
+        <source>Could not write file: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

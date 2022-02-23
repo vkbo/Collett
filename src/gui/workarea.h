@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Item Tree Delegate Class
-** ======================================
+** Collett – GUI Work Area Class
+** =============================
 **
 ** This file is a part of Collett
 ** Copyright 2021–2022, Veronica Berglyd Olsen
@@ -19,37 +19,23 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_ITEMTREEDELEGATE_H
-#define GUI_ITEMTREEDELEGATE_H
+#ifndef GUI_WORKAREA_H
+#define GUI_WORKAREA_H
 
-#include <QSize>
-#include <QFont>
 #include <QObject>
-#include <QPainter>
-#include <QModelIndex>
-#include <QStyleOptionViewItem>
-#include <QAbstractItemDelegate>
+#include <QTabWidget>
 
 namespace Collett {
 
-class GuiItemTreeDelegate : public QAbstractItemDelegate
+class GuiWorkArea : public QTabWidget
 {
     Q_OBJECT
 
 public:
-    GuiItemTreeDelegate(QWidget *parent=nullptr);
-    ~GuiItemTreeDelegate() {};
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-
-private:
-    QFont m_headFont;
-    QFont m_mainFont;
-    int m_headHeight;
-    int m_mainHeight;
+    GuiWorkArea(QWidget *parent=nullptr);
+    ~GuiWorkArea() {};
 
 };
 } // namespace Collett
 
-#endif // GUI_ITEMTREEDELEGATE_H
+#endif // GUI_WORKAREA_H
