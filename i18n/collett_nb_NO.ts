@@ -112,81 +112,18 @@
 <context>
     <name>Collett::GuiMain</name>
     <message>
-        <location filename="../src/guimain.cpp" line="80"/>
+        <location filename="../src/guimain.cpp" line="65"/>
         <source>%1 %2 Version %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="157"/>
+        <location filename="../src/guimain.cpp" line="141"/>
         <source>Question</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="157"/>
+        <location filename="../src/guimain.cpp" line="141"/>
         <source>Do you want to close the project?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Collett::GuiMainToolBar</name>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="42"/>
-        <source>No Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="68"/>
-        <source>New Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="71"/>
-        <source>Open Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="74"/>
-        <source>Save Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="77"/>
-        <source>Close Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="81"/>
-        <source>Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="90"/>
-        <source>New Document</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="93"/>
-        <source>Open Document</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="96"/>
-        <source>Save Document</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="99"/>
-        <source>Rename Document</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="103"/>
-        <source>Documents</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/maintoolbar.cpp" line="120"/>
-        <source>Menu</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

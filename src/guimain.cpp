@@ -37,7 +37,6 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_data->newProject();
 
     // Collett Widgets
-    m_mainToolBar = new GuiMainToolBar(this);
     m_treeToolBar = new GuiTreeToolBar(this);
     m_mainStatus  = new GuiMainStatus(this);
     m_workArea    = new GuiWorkArea(this);
@@ -52,7 +51,6 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_splitMain->addWidget(m_treeStack);
     m_splitMain->addWidget(m_workArea);
 
-    this->addToolBar(Qt::TopToolBarArea, m_mainToolBar);
     this->addToolBar(Qt::LeftToolBarArea, m_treeToolBar);
     this->setCentralWidget(m_splitMain);
     this->setStatusBar(this->m_mainStatus);
@@ -61,19 +59,6 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     CollettSettings *mainConf = CollettSettings::instance();
     resize(mainConf->mainWindowSize());
     m_splitMain->setSizes(mainConf->mainSplitSizes());
-
-    // Connect Signals and Slots
-    connect(m_mainToolBar->m_closeProject, SIGNAL(triggered()),
-            this, SLOT(closeProjectRequest()));
-
-    // Connect Actions to Capture Key Sequence
-    this->addAction(m_mainToolBar->m_newProject);
-    this->addAction(m_mainToolBar->m_openProject);
-    this->addAction(m_mainToolBar->m_saveProject);
-    this->addAction(m_mainToolBar->m_newDocument);
-    this->addAction(m_mainToolBar->m_openDocument);
-    this->addAction(m_mainToolBar->m_saveDocument);
-    this->addAction(m_mainToolBar->m_renameDocument);
 
     // Finalise
     setWindowTitle(
@@ -98,7 +83,6 @@ void GuiMain::openProject(const QString &path) {
     if (!m_data->hasProject()) {
         return;
     }
-    m_mainToolBar->setProjectName(m_data->project()->projectName());
     m_workArea->openDocument(m_data->project()->relativePath("Some Document.collett"));
 }
 

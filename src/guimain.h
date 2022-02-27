@@ -26,7 +26,6 @@
 #include "collett.h"
 #include "workarea.h"
 #include "statusbar.h"
-#include "maintoolbar.h"
 #include "treetoolbar.h"
 
 #include <QObject>
@@ -61,7 +60,6 @@ private:
     CollettData *m_data;
 
     // Collett Widgets
-    GuiMainToolBar *m_mainToolBar;
     GuiTreeToolBar *m_treeToolBar;
     GuiWorkArea    *m_workArea;
     GuiMainStatus  *m_mainStatus;

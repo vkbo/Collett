@@ -90,7 +90,6 @@ list(APPEND SRC_FILES
     src/editor/document
     src/editor/edittoolbar
     src/editor/textedit
-    src/gui/maintoolbar
     src/gui/statusbar
     src/gui/treetoolbar
     src/gui/workarea
