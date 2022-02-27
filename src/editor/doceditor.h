@@ -23,13 +23,11 @@
 #define GUI_DOCEDITOR_H
 
 #include "data.h"
-#include "item.h"
 #include "collett.h"
 #include "document.h"
 #include "textedit.h"
 #include "edittoolbar.h"
 
-#include <QUuid>
 #include <QTimer>
 #include <QObject>
 #include <QWidget>
@@ -48,7 +46,7 @@ public:
 
     // Data Methods
 
-    bool openDocument(Item *item);
+    bool openDocument(const QString &path);
     bool saveDocument();
     void closeDocument();
 
@@ -67,7 +65,6 @@ private:
     QTimer         *m_autoSave;
 
     CollettData *m_data;
-    Item        *m_item;
     Document    *m_document;
 
 private slots:

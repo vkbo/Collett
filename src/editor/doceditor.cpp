@@ -19,7 +19,6 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "item.h"
 #include "collett.h"
 #include "document.h"
 #include "settings.h"
@@ -40,11 +39,9 @@
 
 namespace Collett {
 
-GuiDocEditor::GuiDocEditor(QWidget *parent)
-    : QWidget(parent)
-{
+GuiDocEditor::GuiDocEditor(QWidget *parent) : QWidget(parent) {
+
     m_data = CollettData::instance();
-    m_item = nullptr;
     m_document = nullptr;
 
     m_textArea = new GuiTextEdit(this);
@@ -125,16 +122,17 @@ GuiDocEditor::GuiDocEditor(QWidget *parent)
  * ============
  */
 
-bool GuiDocEditor::openDocument(Item *item) {
+bool GuiDocEditor::openDocument(const QString &path) {
 
-    if (!m_data->hasProject() || !item) {
-        qWarning() << "Nothing to load";
+    qInfo() << "Loading document from:" << path;
+
+    m_document = new Document(path);
+    m_document->setParent(this);
+    if (!m_document->read()) {
         return false;
     }
 
-    // m_item = item;
-    // m_document = m_data->project()->document(m_item->handle());
-    // m_textArea->setJsonContent(m_document->content());
+    m_textArea->setJsonContent(m_document->content());
 
     m_autoSave->start();
     m_textArea->setReadOnly(false);
@@ -168,8 +166,9 @@ void GuiDocEditor::closeDocument() {
     m_autoSave->stop();
     m_textArea->setReadOnly(true);
     m_textArea->clear();
+
+    delete m_document;
     m_document = nullptr;
-    m_item = nullptr;
 }
 
 /**
@@ -177,16 +176,8 @@ void GuiDocEditor::closeDocument() {
  * ==============
  */
 
-QUuid GuiDocEditor::currentDocument() const {
-    if (m_item) {
-        return m_item->handle();
-    } else {
-        return QUuid();
-    }
-}
-
 bool GuiDocEditor::hasDocument() const {
-    return m_document != nullptr && m_item != nullptr;
+    return m_document != nullptr;
 }
 
 /**!

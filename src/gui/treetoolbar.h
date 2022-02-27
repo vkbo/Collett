@@ -22,6 +22,7 @@
 #ifndef GUI_TREETOOLBAR_H
 #define GUI_TREETOOLBAR_H
 
+#include <QAction>
 #include <QObject>
 #include <QWidget>
 #include <QToolBar>
@@ -35,6 +36,11 @@ class GuiTreeToolBar : public QToolBar
 public:
     GuiTreeToolBar(QWidget *parent=nullptr);
     ~GuiTreeToolBar() {};
+
+private:
+    QAction *m_projectAction;
+    QAction *m_exploreAction;
+    QAction *m_settingsAction;
 
 };
 } // namespace Collett

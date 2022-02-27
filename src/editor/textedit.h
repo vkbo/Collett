@@ -22,9 +22,9 @@
 #ifndef GUI_TEXTEDIT_H
 #define GUI_TEXTEDIT_H
 
+#include "data.h"
 #include "collett.h"
 #include "settings.h"
-#include "data.h"
 
 #include <QObject>
 #include <QWidget>

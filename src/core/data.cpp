@@ -21,7 +21,6 @@
 
 #include "data.h"
 #include "project.h"
-#include "itemmodel.h"
 
 #include <QString>
 #include <QWidget>

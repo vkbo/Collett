@@ -87,19 +87,16 @@ list(APPEND SRC_FILES
     src/core/project
     src/core/svgiconengine
     src/editor/doceditor
+    src/editor/document
     src/editor/edittoolbar
     src/editor/textedit
     src/gui/maintoolbar
     src/gui/statusbar
     src/gui/treetoolbar
     src/gui/workarea
-    src/project/document
-    src/project/item
-    src/project/itemmodel
     src/guimain
     src/main
     src/settings
-    src/utils
 )
 
 # Resource Files

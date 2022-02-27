@@ -112,17 +112,17 @@
 <context>
     <name>Collett::GuiMain</name>
     <message>
-        <location filename="../src/guimain.cpp" line="90"/>
+        <location filename="../src/guimain.cpp" line="80"/>
         <source>%1 %2 Version %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="166"/>
+        <location filename="../src/guimain.cpp" line="157"/>
         <source>Question</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="166"/>
+        <location filename="../src/guimain.cpp" line="157"/>
         <source>Do you want to close the project?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -193,112 +193,46 @@
 <context>
     <name>Collett::GuiTreeToolBar</name>
     <message>
-        <location filename="../src/gui/treetoolbar.cpp" line="39"/>
+        <location filename="../src/gui/treetoolbar.cpp" line="48"/>
+        <source>Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/treetoolbar.cpp" line="52"/>
+        <source>Explore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/treetoolbar.cpp" line="56"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Collett::Item</name>
-    <message>
-        <location filename="../src/project/item.cpp" line="143"/>
-        <source>Unnamed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/item.cpp" line="400"/>
-        <source>Book</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/item.cpp" line="401"/>
-        <source>Partition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/item.cpp" line="402"/>
-        <source>Chapter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/item.cpp" line="403"/>
-        <source>Scene</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/item.cpp" line="404"/>
-        <source>Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/item.cpp" line="405"/>
-        <source>Group</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/item.cpp" line="406"/>
-        <source>Note</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Collett::ItemModel</name>
-    <message>
-        <location filename="../src/project/itemmodel.cpp" line="172"/>
-        <source>New %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/itemmodel.cpp" line="294"/>
-        <source>Story</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/itemmodel.cpp" line="295"/>
-        <source>Plot</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/itemmodel.cpp" line="296"/>
-        <source>Characters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/itemmodel.cpp" line="297"/>
-        <source>Locations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/project/itemmodel.cpp" line="349"/>
-        <source>No Name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Collett::Project</name>
     <message>
-        <location filename="../src/core/project.cpp" line="52"/>
-        <location filename="../src/core/project.cpp" line="101"/>
+        <location filename="../src/core/project.cpp" line="55"/>
+        <location filename="../src/core/project.cpp" line="104"/>
         <source>Unnamed Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project.cpp" line="68"/>
+        <location filename="../src/core/project.cpp" line="71"/>
         <source>The provided path is not a file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project.cpp" line="72"/>
+        <location filename="../src/core/project.cpp" line="75"/>
         <source>The file is not a Collett project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project.cpp" line="78"/>
+        <location filename="../src/core/project.cpp" line="81"/>
         <source>Could not read file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project.cpp" line="124"/>
+        <location filename="../src/core/project.cpp" line="127"/>
         <source>Could not write file: %1</source>
         <translation type="unfinished"></translation>
     </message>

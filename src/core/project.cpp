@@ -19,17 +19,20 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "utils.h"
 #include "collett.h"
 #include "project.h"
 
-#include <QString>
+#include <QDir>
+#include <QFile>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QIODevice>
+#include <QByteArray>
 #include <QJsonArray>
-#include <QJsonObject>
 #include <QApplication>
+#include <QJsonDocument>
 #include <QLatin1String>
+#include <QJsonParseError>
 
 namespace Collett {
 
@@ -74,7 +77,7 @@ void Project::openProject(const QString &path) {
     }
 
     QJsonObject json;
-    if (!jsonDocumentReader(path, json)) {
+    if (!this->jsonDocumentReader(path, json)) {
         m_lastError = tr("Could not read file: %1").arg(path);
         return;
     }
@@ -120,9 +123,76 @@ void Project::saveProject() {
     json.insert(QLatin1String("u:project-name"), m_projectName);
     json.insert(QLatin1String("x:content"), jContent);
 
-    if (!jsonDocumentWriter(m_projectPath, json, false)) {
+    if (!this->jsonDocumentWriter(m_projectPath, json, false)) {
         m_lastError = tr("Could not write file: %1").arg(m_projectPath);
     }
+}
+
+/**!
+ * @brief Read a JSON document from path.
+ * 
+ * @param filePath The path to the JSON file.
+ * @param fileData The JSON object to load the data into.
+ * @return If successful, returns true, otherwise false.
+ */
+bool Project::jsonDocumentReader(const QString &filePath, QJsonObject &fileData) {
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Could not open file:" << filePath;
+        return false;
+    }
+
+    QJsonParseError *error = new QJsonParseError();
+    QJsonDocument json = QJsonDocument::fromJson(file.readAll(), error);
+    if (error->error != QJsonParseError::NoError) {
+        qWarning() << "Could not parse file:" << filePath;
+        qWarning() << error->errorString();
+        return false;
+    }
+
+    if (!json.isObject()) {
+        qWarning() << "Unexpected content of file:" << filePath;
+        return false;
+    }
+
+    fileData = json.object();
+
+    return true;
+}
+
+/**!
+ * @brief Write a JSON document to path.
+ * 
+ * @param filePath The path to the JSON file.
+ * @param fileData The JSON object to write to the file.
+ * @param compact  Whether the JSON format should be compact or not.
+ * @return If successful, returns true, otherwise false.
+ */
+bool Project::jsonDocumentWriter(const QString &filePath, const QJsonObject &fileData, bool compact) {
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Could not open file:" << filePath;
+        return false;
+    }
+
+    QJsonDocument doc(fileData);
+    QByteArray jsonData = doc.toJson(compact ? QJsonDocument::Compact : QJsonDocument::Indented);
+
+    if (compact) {
+        file.write(jsonData);
+    } else {
+        for (QByteArray line: jsonData.split('\n')) {
+            QByteArray trimmed = line.trimmed();
+            if (trimmed.length() > 0) {
+                file.write(QByteArray((line.length() - trimmed.length())/4, '\t') + trimmed + '\n');
+            }
+        }
+    }
+    file.close();
+
+    return true;
 }
 
 /**
@@ -141,6 +211,10 @@ void Project::setProjectName(const QString &name) {
 
 QString Project::projectName() const {
     return m_projectName;
+}
+
+QString Project::relativePath(const QString &path) const {
+    return QFileInfo(m_projectPath).dir().filePath(path);
 }
 
 bool Project::hasError() const {

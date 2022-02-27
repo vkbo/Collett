@@ -1,0 +1,71 @@
+{
+	"c:format": "document",
+	"m:created": "2022-01-29T18:22:54",
+	"m:updated": "2022-02-10T22:57:01",
+	"x:content": [
+		{
+			"u:fmt": "h3:al",
+			"u:txt": "t:b|Some Document"
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t:b|Hello World!"
+		},
+		{
+			"u:fmt": "p:al",
+			"x:txt": [
+				"t|This is a text ",
+				"t:i|paragraph",
+				"t| with some ",
+				"t:u|simple",
+				"t| formatting."
+			]
+		},
+		{
+			"u:fmt": "p:al:ti",
+			"x:txt": [
+				"t|Here is a paragraph",
+				"t:sup|23",
+				"t| with no formatting whatsoever.\nThis is a second line in the same ",
+				"t:s|silly",
+				"t| paragraph."
+			]
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t|"
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t|Blank paragraph above here."
+		},
+		{
+			"u:fmt": "p:ac",
+			"u:txt": "t|* * *"
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t|This text belongs to a second section of the text document."
+		},
+		{
+			"u:fmt": "h4:al",
+			"u:txt": "t:b|Song time!"
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t|I am the very model of a modern Major-General\nI've information vegetable, animal, and mineral\nI know the kings of England, and I quote the fights historical\nFrom Marathon to Waterloo, in order categorical"
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t|I'm very well acquainted, too, with matters mathematical\nI understand equations, both the simple and quadratical\nAbout binomial theorem I'm teeming with a lot o’ news\nWith many cheerful facts about the square of the hypotenuse"
+		},
+		{
+			"u:fmt": "p:al:in1",
+			"u:txt": "t|With many cheerful facts about the square of the hypotenuse\nWith many cheerful facts about the square of the hypotenuse\nWith many cheerful facts about the square of the hypotepotenuse"
+		},
+		{
+			"u:fmt": "p:al",
+			"u:txt": "t|"
+		}
+	]
+}

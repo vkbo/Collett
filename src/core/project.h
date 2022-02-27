@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QVector>
 #include <QString>
+#include <QJsonObject>
 
 namespace Collett {
 
@@ -47,6 +48,9 @@ public:
     void openProject(const QString &path);
     void saveProject();
 
+    static bool jsonDocumentReader(const QString &filePath, QJsonObject &fileData);
+    static bool jsonDocumentWriter(const QString &filePath, const QJsonObject &fileData, bool compact);
+
     // Class Setters
 
     void setProjectName(const QString &name);
@@ -54,6 +58,7 @@ public:
     // Class Getters
 
     QString projectName() const;
+    QString relativePath(const QString &path) const;
     bool hasError() const;
     QString lastError() const;
 

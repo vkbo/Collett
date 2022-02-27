@@ -19,25 +19,52 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "treetoolbar.h"
 #include "icons.h"
+#include "treetoolbar.h"
 
-#include <QAction>
+#include <QFont>
+#include <QSize>
 #include <QSizePolicy>
 
 namespace Collett {
 
 GuiTreeToolBar::GuiTreeToolBar(QWidget *parent) : QToolBar(parent) {
 
+    // ToolBar Settings
+    this->setMovable(false);
+    this->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    this->setIconSize(QSize(32, 32));
+
+    // Under-Icon Text Font Size
+    QFont font = this->font();
+    font.setPointSizeF(0.7*font.pointSizeF());
+    this->setFont(font);
+
+    // ToolBar Action Buttons
+    CollettIcons *icons = CollettIcons::instance();
+
+    m_projectAction = new QAction(this);
+    m_projectAction->setIcon(icons->icon("sideProject"));
+    m_projectAction->setText(tr("Project"));
+
+    m_exploreAction = new QAction(this);
+    m_exploreAction->setIcon(icons->icon("sideExplore"));
+    m_exploreAction->setText(tr("Explore"));
+
+    m_settingsAction = new QAction(this);
+    m_settingsAction->setIcon(icons->icon("sideSettings"));
+    m_settingsAction->setText(tr("Settings"));
+
+    // Stretchable Widget
     QWidget *stretch = new QWidget(this);
     stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    CollettIcons *icons = CollettIcons::instance();
-
+    // Assemble
     this->setOrientation(Qt::Vertical);
+    this->addAction(m_projectAction);
+    this->addAction(m_exploreAction);
     this->addWidget(stretch);
-    this->addAction(icons->icon("settings"), tr("Settings"));
-
+    this->addAction(m_settingsAction);
 }
 
 } // namespace Collett

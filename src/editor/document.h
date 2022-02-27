@@ -24,7 +24,6 @@
 
 #include "collett.h"
 
-#include <QUuid>
 #include <QObject>
 #include <QJsonArray>
 
@@ -35,7 +34,7 @@ class Document : public QObject
     Q_OBJECT
 
 public:
-    explicit Document(const QUuid uuid);
+    explicit Document(const QString &path);
     ~Document() {};
 
     // Setters
@@ -46,7 +45,6 @@ public:
     // Getters
 
     QJsonArray content() const;
-    QUuid handle() const;
 
     // Check State
 
@@ -59,7 +57,7 @@ public:
     bool write();
 
 private:
-    QUuid m_handle;
+    QString m_path;
 
     bool m_locked;
     bool m_unsaved;

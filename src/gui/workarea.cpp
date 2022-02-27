@@ -20,11 +20,20 @@
 */
 
 #include "workarea.h"
+#include "doceditor.h"
 
 namespace Collett {
 
 GuiWorkArea::GuiWorkArea(QWidget *parent) : QTabWidget(parent) {
 
+}
+
+void GuiWorkArea::openDocument(const QString &path) {
+
+    GuiDocEditor *editor = new GuiDocEditor(this);
+    editor->openDocument(path);
+
+    this->addTab(editor, "Document");
 }
 
 } // namespace Collett

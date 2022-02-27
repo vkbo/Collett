@@ -23,22 +23,18 @@
 #define GUI_MAIN_H
 
 #include "data.h"
-#include "item.h"
 #include "collett.h"
 #include "workarea.h"
-#include "doceditor.h"
 #include "statusbar.h"
 #include "maintoolbar.h"
 #include "treetoolbar.h"
 
-#include <QHash>
-#include <QUuid>
 #include <QObject>
 #include <QString>
 #include <QWidget>
 #include <QSplitter>
+#include <QCloseEvent>
 #include <QMainWindow>
-#include <QModelIndex>
 #include <QStackedWidget>
 
 namespace Collett {
@@ -67,9 +63,10 @@ private:
     // Collett Widgets
     GuiMainToolBar *m_mainToolBar;
     GuiTreeToolBar *m_treeToolBar;
-    QStackedWidget *m_treeStack;
     GuiWorkArea    *m_workArea;
     GuiMainStatus  *m_mainStatus;
+
+    QStackedWidget *m_treeStack;
 
     // GUI Widgets
     QSplitter *m_splitMain;

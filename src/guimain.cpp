@@ -19,26 +19,14 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "data.h"
-#include "item.h"
 #include "icons.h"
 #include "guimain.h"
 #include "settings.h"
-#include "doceditor.h"
-#include "statusbar.h"
-#include "maintoolbar.h"
-#include "treetoolbar.h"
 
-#include <QUuid>
-#include <QString>
-#include <QWidget>
-#include <QCloseEvent>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QModelIndex>
 #include <QApplication>
-#include <QStackedWidget>
-#include <QItemSelectionModel>
+#include <QStandardPaths>
 
 namespace Collett {
 
@@ -51,9 +39,11 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     // Collett Widgets
     m_mainToolBar = new GuiMainToolBar(this);
     m_treeToolBar = new GuiTreeToolBar(this);
-    m_treeStack   = new QStackedWidget(this);
     m_mainStatus  = new GuiMainStatus(this);
     m_workArea    = new GuiWorkArea(this);
+
+    // Tree Stack
+    m_treeStack = new QStackedWidget(this);
 
     // Assemble Main Window
     m_splitMain = new QSplitter(Qt::Horizontal, this);
@@ -109,6 +99,7 @@ void GuiMain::openProject(const QString &path) {
         return;
     }
     m_mainToolBar->setProjectName(m_data->project()->projectName());
+    m_workArea->openDocument(m_data->project()->relativePath("Some Document.collett"));
 }
 
 void GuiMain::saveProject() {

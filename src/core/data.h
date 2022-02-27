@@ -24,7 +24,6 @@
 
 #include "collett.h"
 #include "project.h"
-#include "itemmodel.h"
 
 #include <QObject>
 #include <QString>

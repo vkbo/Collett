@@ -20,18 +20,17 @@
 */
 
 #include "collett.h"
+#include "project.h"
 #include "document.h"
 
-#include <QUuid>
 #include <QDateTime>
 #include <QJsonArray>
 #include <QJsonObject>
 
 namespace Collett {
 
-Document::Document(const QUuid uuid)
-    : m_handle(uuid)
-{
+Document::Document(const QString &path) : m_path(path) {
+
     m_locked = false;
     m_unsaved = true;
     m_created = QDateTime::currentDateTime().toString(Qt::ISODate);
@@ -59,10 +58,6 @@ void Document::setLocked(bool locked) {
 
 QJsonArray Document::content() const {
     return m_content;
-}
-
-QUuid Document::handle() const {
-    return m_handle;
 }
 
 /**
@@ -93,9 +88,9 @@ bool Document::read() {
 
     QJsonObject json;
 
-    // if (!m_store->loadFile(m_handle, json)) {
-    //     return false;
-    // }
+    if (!Project::jsonDocumentReader(m_path, json)) {
+        return false;
+    }
 
     if (json.contains(QLatin1String("m:created"))) {
         m_created = json.value(QLatin1String("m:created")).toString();
@@ -142,9 +137,9 @@ bool Document::write() {
     json.insert(QLatin1String("m:updated"), m_updated);
     json.insert(QLatin1String("x:content"), m_content);
 
-    // if (!m_store->saveFile(m_handle, json)) {
-    //     return false;
-    // }
+    if (!Project::jsonDocumentWriter(m_path, json, false)) {
+        return false;
+    }
 
     m_unsaved = false;
 

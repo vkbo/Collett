@@ -22,6 +22,7 @@
 #ifndef GUI_WORKAREA_H
 #define GUI_WORKAREA_H
 
+#include <QString>
 #include <QObject>
 #include <QTabWidget>
 
@@ -34,6 +35,8 @@ class GuiWorkArea : public QTabWidget
 public:
     GuiWorkArea(QWidget *parent=nullptr);
     ~GuiWorkArea() {};
+
+    void openDocument(const QString &path);
 
 };
 } // namespace Collett
