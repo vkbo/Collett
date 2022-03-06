@@ -26,6 +26,7 @@
 #include "collett.h"
 #include "workarea.h"
 #include "statusbar.h"
+#include "projectview.h"
 #include "treetoolbar.h"
 
 #include <QObject>
@@ -34,7 +35,6 @@
 #include <QSplitter>
 #include <QCloseEvent>
 #include <QMainWindow>
-#include <QStackedWidget>
 
 namespace Collett {
 
@@ -62,9 +62,8 @@ private:
     // Collett Widgets
     GuiTreeToolBar *m_treeToolBar;
     GuiWorkArea    *m_workArea;
+    GuiProjectView *m_projectView;
     GuiMainStatus  *m_mainStatus;
-
-    QStackedWidget *m_treeStack;
 
     // GUI Widgets
     QSplitter *m_splitMain;

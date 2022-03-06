@@ -23,10 +23,10 @@
 #include "guimain.h"
 #include "settings.h"
 
+#include <QList>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QApplication>
-#include <QStandardPaths>
 
 namespace Collett {
 
@@ -39,18 +39,17 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     // Collett Widgets
     m_treeToolBar = new GuiTreeToolBar(this);
     m_mainStatus  = new GuiMainStatus(this);
+    m_projectView = new GuiProjectView(this);
     m_workArea    = new GuiWorkArea(this);
 
-    // Tree Stack
-    m_treeStack = new QStackedWidget(this);
-
-    // Assemble Main Window
-    m_splitMain = new QSplitter(Qt::Horizontal, this);
+    // GUI Widgets
+    m_splitMain = new QSplitter(this);
+    m_splitMain->addWidget(m_projectView);
+    m_splitMain->addWidget(m_workArea);
     m_splitMain->setContentsMargins(0, 0, 0, 0);
     m_splitMain->setOpaqueResize(false);
-    m_splitMain->addWidget(m_treeStack);
-    m_splitMain->addWidget(m_workArea);
 
+    // Assemble Main Window
     this->addToolBar(Qt::LeftToolBarArea, m_treeToolBar);
     this->setCentralWidget(m_splitMain);
     this->setStatusBar(this->m_mainStatus);
@@ -58,7 +57,8 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     // Apply Settings
     CollettSettings *mainConf = CollettSettings::instance();
     resize(mainConf->mainWindowSize());
-    m_splitMain->setSizes(mainConf->mainSplitSizes());
+
+    m_splitMain->setSizes(QList<int>() << 200 << 800);
 
     // Finalise
     setWindowTitle(
@@ -92,7 +92,7 @@ void GuiMain::saveProject() {
 
 void GuiMain::closeProject() {
     m_data->closeProject();
-};
+}
 
 /**
  * GUI Methods
@@ -108,7 +108,6 @@ bool GuiMain::closeMain() {
     CollettSettings *mainConf = CollettSettings::instance();
     if (!this->isFullScreen()) {
         mainConf->setMainWindowSize(this->size());
-        mainConf->setMainSplitSizes(m_splitMain->sizes());
     }
     mainConf->flushSettings();
 

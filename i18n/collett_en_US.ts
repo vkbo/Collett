@@ -117,13 +117,21 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="141"/>
+        <location filename="../src/guimain.cpp" line="140"/>
         <source>Question</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="141"/>
+        <location filename="../src/guimain.cpp" line="140"/>
         <source>Do you want to close the project?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Collett::GuiProjectView</name>
+    <message>
+        <location filename="../src/gui/projectview.cpp" line="34"/>
+        <source>Project</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

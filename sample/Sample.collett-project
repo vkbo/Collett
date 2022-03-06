@@ -5,5 +5,8 @@
 	"m:updated": "2022-02-19T20:54:26",
 	"u:project-name": "Sample Project",
 	"x:content": [
+		{
+			"relPath": "Some Document.collett"
+		}
 	]
 }
