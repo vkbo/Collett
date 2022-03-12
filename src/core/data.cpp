@@ -20,7 +20,7 @@
 */
 
 #include "data.h"
-#include "project.h"
+#include "collection.h"
 
 #include <QString>
 #include <QWidget>
@@ -45,7 +45,7 @@ CollettData *CollettData::instance() {
 CollettData::CollettData() {}
 CollettData::~CollettData() {
     qDebug() << "Destructor: CollettData";
-    m_project.reset();
+    m_collection.reset();
 }
 
 /**
@@ -53,29 +53,29 @@ CollettData::~CollettData() {
  * =============
  */
 
-void CollettData::newProject() {
-    if (!hasProject()) {
-        m_project.reset(new Project());
+void CollettData::newCollection() {
+    if (!hasCollection()) {
+        m_collection.reset(new Collection());
     }
 }
 
-void CollettData::openProject(const QString &path) {
+void CollettData::openCollection(const QString &path) {
 
-    m_project.reset(new Project());
-    m_project.data()->openProject(path);
-    if (m_project.data()->hasError()) {
-        m_project.reset(nullptr);
+    m_collection.reset(new Collection());
+    m_collection.data()->openCollection(path);
+    if (m_collection.data()->hasError()) {
+        m_collection.reset(nullptr);
     }
 }
 
-void CollettData::saveProject() {
-    if (hasProject()) {
-        return m_project.data()->saveProject();
+void CollettData::saveCollection() {
+    if (hasCollection()) {
+        return m_collection.data()->saveCollection();
     }
 }
 
-void CollettData::closeProject() {
-    m_project.reset(nullptr);
+void CollettData::closeCollection() {
+    m_collection.reset(nullptr);
 }
 
 /**
@@ -83,13 +83,13 @@ void CollettData::closeProject() {
  * =============
  */
 
-bool CollettData::hasProject() const {
-    return !m_project.isNull();
+bool CollettData::hasCollection() const {
+    return !m_collection.isNull();
 }
 
-Project *CollettData::project() {
-    if (hasProject()) {
-        return m_project.data();
+Collection *CollettData::collection() {
+    if (hasCollection()) {
+        return m_collection.data();
     } else {
         return nullptr;
     }

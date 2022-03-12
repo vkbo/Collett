@@ -1,6 +1,6 @@
 /*
-** Collett – Project Class
-** =======================
+** Collett – Collection Class
+** ==========================
 **
 ** This file is a part of Collett
 ** Copyright 2021–2022, Veronica Berglyd Olsen
@@ -19,8 +19,8 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_H
-#define COLLETT_PROJECT_H
+#ifndef COLLETT_COLLECTION_H
+#define COLLETT_COLLECTION_H
 
 #include "collett.h"
 
@@ -31,7 +31,7 @@
 
 namespace Collett {
 
-class Project : public QObject
+class Collection : public QObject
 {
     Q_OBJECT
 
@@ -40,30 +40,30 @@ public:
         QString path = "";
     };
 
-    explicit Project();
-    ~Project();
+    explicit Collection();
+    ~Collection();
 
     // Class Methods
 
-    void openProject(const QString &path);
-    void saveProject();
+    void openCollection(const QString &path);
+    void saveCollection();
 
     static bool jsonDocumentReader(const QString &filePath, QJsonObject &fileData);
     static bool jsonDocumentWriter(const QString &filePath, const QJsonObject &fileData, bool compact);
 
     // Class Setters
 
-    void setProjectName(const QString &name);
+    void setCollectionName(const QString &name);
 
     // Class Getters
 
-    QString projectName() const;
+    QString collectionName() const;
     QString relativePath(const QString &path) const;
     bool hasError() const;
     QString lastError() const;
 
 private:
-    QString m_projectPath;
+    QString m_path;
     QString m_lastError;
     bool    m_changed;
 
@@ -74,7 +74,7 @@ private:
 
     // Content
 
-    QString m_projectName;
+    QString m_name;
     QVector<Content> m_content;
 
     // Functions
@@ -83,4 +83,4 @@ private:
 };
 } // namespace Collett
 
-#endif // COLLETT_PROJECT_H
+#endif // COLLETT_COLLECTION_H

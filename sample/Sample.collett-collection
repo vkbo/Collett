@@ -1,12 +1,9 @@
 {
-	"$:format": "CollettProject:0.1",
+	"$:format": "CollettCollection:0.1",
 	"$:version": "0.0.1-alpha0",
 	"m:created": "2022-02-19T20:54:26",
 	"m:updated": "2022-02-19T20:54:26",
-	"u:project-name": "Sample Project",
+	"u:name": "Sample Collection",
 	"x:content": [
-		{
-			"relPath": "Some Document.collett"
-		}
 	]
 }

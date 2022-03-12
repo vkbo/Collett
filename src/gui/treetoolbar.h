@@ -38,7 +38,7 @@ public:
     ~GuiTreeToolBar() {};
 
 private:
-    QAction *m_projectAction;
+    QAction *m_collectionAction;
     QAction *m_exploreAction;
     QAction *m_settingsAction;
 

@@ -2,6 +2,35 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>Collett::Collection</name>
+    <message>
+        <location filename="../src/core/collection.cpp" line="55"/>
+        <location filename="../src/core/collection.cpp" line="104"/>
+        <source>Unnamed Collection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/collection.cpp" line="71"/>
+        <source>The provided path is not a file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/collection.cpp" line="75"/>
+        <source>The file is not a Collett collection file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/collection.cpp" line="81"/>
+        <source>Could not read file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/collection.cpp" line="127"/>
+        <source>Could not write file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Collett::GuiEditToolBar</name>
     <message>
         <location filename="../src/editor/edittoolbar.cpp" line="51"/>
@@ -112,26 +141,18 @@
 <context>
     <name>Collett::GuiMain</name>
     <message>
-        <location filename="../src/guimain.cpp" line="65"/>
+        <location filename="../src/guimain.cpp" line="55"/>
         <source>%1 %2 Version %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="140"/>
+        <location filename="../src/guimain.cpp" line="130"/>
         <source>Question</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/guimain.cpp" line="140"/>
-        <source>Do you want to close the project?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Collett::GuiProjectView</name>
-    <message>
-        <location filename="../src/gui/projectview.cpp" line="34"/>
-        <source>Project</source>
+        <location filename="../src/guimain.cpp" line="130"/>
+        <source>Do you want to close the collection?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -139,7 +160,7 @@
     <name>Collett::GuiTreeToolBar</name>
     <message>
         <location filename="../src/gui/treetoolbar.cpp" line="48"/>
-        <source>Project</source>
+        <source>Collection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -154,39 +175,10 @@
     </message>
 </context>
 <context>
-    <name>Collett::Project</name>
-    <message>
-        <location filename="../src/core/project.cpp" line="55"/>
-        <location filename="../src/core/project.cpp" line="104"/>
-        <source>Unnamed Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/project.cpp" line="71"/>
-        <source>The provided path is not a file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/project.cpp" line="75"/>
-        <source>The file is not a Collett project file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/project.cpp" line="81"/>
-        <source>Could not read file: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/project.cpp" line="127"/>
-        <source>Could not write file: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>main</name>
     <message>
         <location filename="../src/main.cpp" line="83"/>
-        <source>Open the &lt;path&gt; project on launch.</source>
+        <source>Open the &lt;path&gt; collection on launch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

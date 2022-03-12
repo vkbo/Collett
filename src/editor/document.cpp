@@ -20,7 +20,7 @@
 */
 
 #include "collett.h"
-#include "project.h"
+#include "collection.h"
 #include "document.h"
 
 #include <QDateTime>
@@ -88,7 +88,7 @@ bool Document::read() {
 
     QJsonObject json;
 
-    if (!Project::jsonDocumentReader(m_path, json)) {
+    if (!Collection::jsonDocumentReader(m_path, json)) {
         return false;
     }
 
@@ -137,7 +137,7 @@ bool Document::write() {
     json.insert(QLatin1String("m:updated"), m_updated);
     json.insert(QLatin1String("x:content"), m_content);
 
-    if (!Project::jsonDocumentWriter(m_path, json, false)) {
+    if (!Collection::jsonDocumentWriter(m_path, json, false)) {
         return false;
     }
 

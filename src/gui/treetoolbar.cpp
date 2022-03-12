@@ -43,9 +43,9 @@ GuiTreeToolBar::GuiTreeToolBar(QWidget *parent) : QToolBar(parent) {
     // ToolBar Action Buttons
     CollettIcons *icons = CollettIcons::instance();
 
-    m_projectAction = new QAction(this);
-    m_projectAction->setIcon(icons->icon("sideProject"));
-    m_projectAction->setText(tr("Project"));
+    m_collectionAction = new QAction(this);
+    m_collectionAction->setIcon(icons->icon("sideCollection"));
+    m_collectionAction->setText(tr("Collection"));
 
     m_exploreAction = new QAction(this);
     m_exploreAction->setIcon(icons->icon("sideExplore"));
@@ -61,7 +61,7 @@ GuiTreeToolBar::GuiTreeToolBar(QWidget *parent) : QToolBar(parent) {
 
     // Assemble
     this->setOrientation(Qt::Vertical);
-    this->addAction(m_projectAction);
+    this->addAction(m_collectionAction);
     this->addAction(m_exploreAction);
     this->addWidget(stretch);
     this->addAction(m_settingsAction);

@@ -23,7 +23,7 @@
 #define COLLETT_DATA_H
 
 #include "collett.h"
-#include "project.h"
+#include "collection.h"
 
 #include <QObject>
 #include <QString>
@@ -44,19 +44,19 @@ public:
 
     // Class Methods
 
-    void newProject();
-    void openProject(const QString &path);
-    void saveProject();
-    void closeProject();
+    void newCollection();
+    void openCollection(const QString &path);
+    void saveCollection();
+    void closeCollection();
 
     // Class Getters
 
-    bool hasProject() const;
-    Project *project();
+    bool hasCollection() const;
+    Collection *collection();
 
 private:
     static CollettData *staticInstance;
-    QScopedPointer<Project> m_project;
+    QScopedPointer<Collection> m_collection;
 
 };
 } // namespace Collett

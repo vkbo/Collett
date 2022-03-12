@@ -34,31 +34,21 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
     // Create Main Data Object
     m_data = CollettData::instance();
-    m_data->newProject();
+    m_data->newCollection();
 
     // Collett Widgets
     m_treeToolBar = new GuiTreeToolBar(this);
     m_mainStatus  = new GuiMainStatus(this);
-    m_projectView = new GuiProjectView(this);
     m_workArea    = new GuiWorkArea(this);
-
-    // GUI Widgets
-    m_splitMain = new QSplitter(this);
-    m_splitMain->addWidget(m_projectView);
-    m_splitMain->addWidget(m_workArea);
-    m_splitMain->setContentsMargins(0, 0, 0, 0);
-    m_splitMain->setOpaqueResize(false);
 
     // Assemble Main Window
     this->addToolBar(Qt::LeftToolBarArea, m_treeToolBar);
-    this->setCentralWidget(m_splitMain);
+    this->setCentralWidget(m_workArea);
     this->setStatusBar(this->m_mainStatus);
 
     // Apply Settings
     CollettSettings *mainConf = CollettSettings::instance();
     resize(mainConf->mainWindowSize());
-
-    m_splitMain->setSizes(QList<int>() << 200 << 800);
 
     // Finalise
     setWindowTitle(
@@ -74,24 +64,24 @@ GuiMain::~GuiMain() {
 }
 
 /**
- * Project Methods
- * ===============
+ * Collection Methods
+ * ==================
  */
 
-void GuiMain::openProject(const QString &path) {
-    m_data->openProject(path);
-    if (!m_data->hasProject()) {
+void GuiMain::openCollection(const QString &path) {
+    m_data->openCollection(path);
+    if (!m_data->hasCollection()) {
         return;
     }
-    m_workArea->openDocument(m_data->project()->relativePath("Some Document.collett"));
+    m_workArea->openDocument(m_data->collection()->relativePath("Some Document.collett"));
 }
 
-void GuiMain::saveProject() {
-    m_data->saveProject();
+void GuiMain::saveCollection() {
+    m_data->saveCollection();
 }
 
-void GuiMain::closeProject() {
-    m_data->closeProject();
+void GuiMain::closeCollection() {
+    m_data->closeCollection();
 }
 
 /**
@@ -101,8 +91,8 @@ void GuiMain::closeProject() {
 
 bool GuiMain::closeMain() {
 
-    m_data->saveProject();
-    m_data->closeProject();
+    m_data->saveCollection();
+    m_data->closeCollection();
 
     // Save Settings
     CollettSettings *mainConf = CollettSettings::instance();
@@ -135,12 +125,12 @@ void GuiMain::closeEvent(QCloseEvent *event) {
  * =============
  */
 
-void GuiMain::closeProjectRequest() {
+void GuiMain::closeCollectionRequest() {
     auto response = QMessageBox::question(
-        this, tr("Question"), tr("Do you want to close the project?")
+        this, tr("Question"), tr("Do you want to close the collection?")
     );
     if (response == QMessageBox::Yes) {
-        this->closeProject();
+        this->closeCollection();
     }
 }
 

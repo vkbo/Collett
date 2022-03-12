@@ -26,7 +26,6 @@
 #include "collett.h"
 #include "workarea.h"
 #include "statusbar.h"
-#include "projectview.h"
 #include "treetoolbar.h"
 
 #include <QObject>
@@ -46,11 +45,11 @@ public:
     GuiMain(QWidget *parent=nullptr);
     ~GuiMain();
 
-    // Project Methods
+    // Collection Methods
 
-    void openProject(const QString &path);
-    void saveProject();
-    void closeProject();
+    void openCollection(const QString &path);
+    void saveCollection();
+    void closeCollection();
 
     // GUI Methods
 
@@ -62,18 +61,14 @@ private:
     // Collett Widgets
     GuiTreeToolBar *m_treeToolBar;
     GuiWorkArea    *m_workArea;
-    GuiProjectView *m_projectView;
     GuiMainStatus  *m_mainStatus;
-
-    // GUI Widgets
-    QSplitter *m_splitMain;
 
     // Events
     void closeEvent(QCloseEvent*);
 
 private slots:
 
-    void closeProjectRequest();
+    void closeCollectionRequest();
 
 };
 } // namespace Collett

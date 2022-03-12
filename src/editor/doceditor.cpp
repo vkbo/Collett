@@ -142,8 +142,8 @@ bool GuiDocEditor::openDocument(const QString &path) {
 
 bool GuiDocEditor::saveDocument() {
 
-    if (!m_data->hasProject()) {
-        qWarning() << "No project loaded";
+    if (!m_data->hasCollection()) {
+        qWarning() << "No collection loaded";
         return false;
     }
     if (!hasDocument()) {
@@ -246,7 +246,7 @@ void GuiDocEditor::editorBlockChanged(const QTextBlock &block) {
 
 void GuiDocEditor::flushEditorData() {
 
-    if (!m_data->hasProject() || !hasDocument()) {
+    if (!m_data->hasCollection() || !hasDocument()) {
         return;
     }
 

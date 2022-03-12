@@ -1,6 +1,6 @@
 /*
-** Collett – Project Class
-** =======================
+** Collett – Collection Class
+** ==========================
 **
 ** This file is a part of Collett
 ** Copyright 2021–2022, Veronica Berglyd Olsen
@@ -20,7 +20,7 @@
 */
 
 #include "collett.h"
-#include "project.h"
+#include "collection.h"
 
 #include <QDir>
 #include <QFile>
@@ -41,22 +41,22 @@ namespace Collett {
  * ============================
  */
 
-Project::Project() {
+Collection::Collection() {
 
-    qDebug() << "Constructor: Project";
+    qDebug() << "Constructor: Collection";
 
-    m_projectPath = "";
+    m_path = "";
     m_lastError = "";
     m_changed = false;
 
     m_created = QDateTime::currentDateTime().toString(Qt::ISODate);
     m_updated = m_created;
 
-    m_projectName = tr("Unnamed Project");
+    m_name = tr("Unnamed Collection");
 }
 
-Project::~Project() {
-    qDebug() << "Destructor: Project";
+Collection::~Collection() {
+    qDebug() << "Destructor: Collection";
 }
 
 /**
@@ -64,15 +64,15 @@ Project::~Project() {
  * =============
  */
 
-void Project::openProject(const QString &path) {
+void Collection::openCollection(const QString &path) {
 
     QFileInfo fInfo(path);
     if (!fInfo.isFile()) {
         m_lastError = tr("The provided path is not a file.");
         return;
     }
-    if (fInfo.suffix() != "collett-project") {
-        m_lastError = tr("The file is not a Collett project file.");
+    if (fInfo.suffix() != "collett-collection") {
+        m_lastError = tr("The file is not a Collett collection file.");
         return;
     }
 
@@ -81,8 +81,8 @@ void Project::openProject(const QString &path) {
         m_lastError = tr("Could not read file: %1").arg(path);
         return;
     }
-    m_projectPath = path;
-    qInfo() << "Loading project from:" << m_projectPath;
+    m_path = path;
+    qInfo() << "Loading collection from:" << m_path;
 
     QString fileFormat;
     if (json.contains(QLatin1String("$:format"))) {
@@ -98,33 +98,33 @@ void Project::openProject(const QString &path) {
     } else {
         m_created = "unknown";
     }
-    if (json.contains(QLatin1String("u:project-name"))) {
-        m_projectName = json.value(QLatin1String("u:project-name")).toString();
+    if (json.contains(QLatin1String("u:name"))) {
+        m_name = json.value(QLatin1String("u:name")).toString();
     } else {
-        m_projectName = tr("Unnamed Project");
+        m_name = tr("Unnamed Collection");
     }
 }
 
-void Project::saveProject() {
+void Collection::saveCollection() {
 
-    if (m_projectPath.isEmpty()) {
+    if (m_path.isEmpty()) {
         return;
     }
 
-    qInfo() << "Saving project to:" << m_projectPath;
+    qInfo() << "Saving collection to:" << m_path;
 
     QJsonObject json;
     QJsonArray jContent;
 
-    json.insert(QLatin1String("$:format"), "CollettProject:0.1");
+    json.insert(QLatin1String("$:format"), "CollettCollection:0.1");
     json.insert(QLatin1String("$:version"), qApp->applicationVersion());
     json.insert(QLatin1String("m:created"), m_created);
     json.insert(QLatin1String("m:updated"), m_updated);
-    json.insert(QLatin1String("u:project-name"), m_projectName);
+    json.insert(QLatin1String("u:name"), m_name);
     json.insert(QLatin1String("x:content"), jContent);
 
-    if (!this->jsonDocumentWriter(m_projectPath, json, false)) {
-        m_lastError = tr("Could not write file: %1").arg(m_projectPath);
+    if (!this->jsonDocumentWriter(m_path, json, false)) {
+        m_lastError = tr("Could not write file: %1").arg(m_path);
     }
 }
 
@@ -135,7 +135,7 @@ void Project::saveProject() {
  * @param fileData The JSON object to load the data into.
  * @return If successful, returns true, otherwise false.
  */
-bool Project::jsonDocumentReader(const QString &filePath, QJsonObject &fileData) {
+bool Collection::jsonDocumentReader(const QString &filePath, QJsonObject &fileData) {
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -169,7 +169,7 @@ bool Project::jsonDocumentReader(const QString &filePath, QJsonObject &fileData)
  * @param compact  Whether the JSON format should be compact or not.
  * @return If successful, returns true, otherwise false.
  */
-bool Project::jsonDocumentWriter(const QString &filePath, const QJsonObject &fileData, bool compact) {
+bool Collection::jsonDocumentWriter(const QString &filePath, const QJsonObject &fileData, bool compact) {
 
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -200,8 +200,8 @@ bool Project::jsonDocumentWriter(const QString &filePath, const QJsonObject &fil
  * =============
  */
 
-void Project::setProjectName(const QString &name) {
-    m_projectName = name.simplified();
+void Collection::setCollectionName(const QString &name) {
+    m_name = name.simplified();
 }
 
 /**
@@ -209,19 +209,19 @@ void Project::setProjectName(const QString &name) {
  * =============
  */
 
-QString Project::projectName() const {
-    return m_projectName;
+QString Collection::collectionName() const {
+    return m_name;
 }
 
-QString Project::relativePath(const QString &path) const {
-    return QFileInfo(m_projectPath).dir().filePath(path);
+QString Collection::relativePath(const QString &path) const {
+    return QFileInfo(m_path).dir().filePath(path);
 }
 
-bool Project::hasError() const {
+bool Collection::hasError() const {
     return !m_lastError.isEmpty();
 }
 
-QString Project::lastError() const {
+QString Collection::lastError() const {
     return m_lastError;
 }
 

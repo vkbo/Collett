@@ -82,15 +82,14 @@ include_directories(
 
 # Source Files
 list(APPEND SRC_FILES
+    src/core/collection
     src/core/data
     src/core/icons
-    src/core/project
     src/core/svgiconengine
     src/editor/doceditor
     src/editor/document
     src/editor/edittoolbar
     src/editor/textedit
-    src/gui/projectview
     src/gui/statusbar
     src/gui/treetoolbar
     src/gui/workarea
