@@ -26,6 +26,9 @@ namespace Collett {
 
 GuiWorkArea::GuiWorkArea(QWidget *parent) : QTabWidget(parent) {
 
+    m_collectionWidget = new GuiCollectionWidget(this);
+
+    this->addTab(m_collectionWidget, tr("Collection"));
 }
 
 void GuiWorkArea::openDocument(const QString &path) {

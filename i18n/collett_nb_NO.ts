@@ -175,6 +175,14 @@
     </message>
 </context>
 <context>
+    <name>Collett::GuiWorkArea</name>
+    <message>
+        <location filename="../src/gui/workarea.cpp" line="31"/>
+        <source>Collection</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>main</name>
     <message>
         <location filename="../src/main.cpp" line="83"/>

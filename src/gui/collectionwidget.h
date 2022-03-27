@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Work Area Class
-** =============================
+** Collett – GUI Collection Widget Class
+** =====================================
 **
 ** This file is a part of Collett
 ** Copyright 2021–2022, Veronica Berglyd Olsen
@@ -19,31 +19,27 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_WORKAREA_H
-#define GUI_WORKAREA_H
+#ifndef GUI_COLLECTIONWIDGET_H
+#define GUI_COLLECTIONWIDGET_H
 
-#include "collectionwidget.h"
-
+#include <QLabel>
 #include <QObject>
-#include <QString>
-#include <QTabWidget>
+#include <QWidget>
 
 namespace Collett {
 
-class GuiWorkArea : public QTabWidget
+class GuiCollectionWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    GuiWorkArea(QWidget *parent=nullptr);
-    ~GuiWorkArea() {};
-
-    void openDocument(const QString &path);
+    GuiCollectionWidget(QWidget *parent=nullptr);
+    ~GuiCollectionWidget() {};
 
 private:
-    GuiCollectionWidget *m_collectionWidget;
+    QLabel *m_collectionName;
 
 };
 } // namespace Collett
 
-#endif // GUI_WORKAREA_H
+#endif // GUI_COLLECTIONWIDGET_H
