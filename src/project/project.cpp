@@ -222,7 +222,6 @@ bool Project::loadProjectStructure() {
 bool Project::saveProjectStructure() {
 
     QJsonObject jData, jMeta, jProject, jSettings;
-    QJsonArray jModels;
 
     // Project Meta
     jMeta[QLatin1String("m:created")] = m_createdTime;
@@ -238,10 +237,9 @@ bool Project::saveProjectStructure() {
 
     // Project Settings
     jProject[QLatin1String("u:project-name")] = m_projectName;
-    jProject[QLatin1String("u:models")] = jModels;
 
     // Root Object
-    jData[QLatin1String("c:format")] = "Collett Project";
+    jData[QLatin1String("c:format")] = "collett:project";
     jData[QLatin1String("c:meta")] = jMeta;
     jData[QLatin1String("c:project")] = jProject;
     jData[QLatin1String("c:settings")] = jSettings;

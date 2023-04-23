@@ -136,7 +136,7 @@ void GuiItemTree::doOpenContextMenu(const QPoint &pos) {
         return;
     }
 
-    qDebug() << "Opening StoryTree context menu";
+    qDebug() << "Opening item tree context menu";
 
     QMenu contextMenu;
 
@@ -180,7 +180,7 @@ void GuiItemTree::doEditName(bool checked) {
 
     bool ok;
     QString newName = QInputDialog::getText(
-        this, tr("Rename Story Item"), tr("New Name:"), QLineEdit::Normal, oldName, &ok
+        this, tr("Rename Item"), tr("New Name:"), QLineEdit::Normal, oldName, &ok
     );
     if (ok && !newName.isEmpty()) {
         m_model->setItemName(index, newName);

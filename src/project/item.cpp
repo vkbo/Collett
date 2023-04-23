@@ -187,27 +187,21 @@ QJsonObject Item::toJsonObject() {
     }
 
     QLatin1String type;
-    bool expandable = false;
     switch (m_type) {
         case Item::Hidden:
             type = QLatin1String("HIDDEN");
-            expandable = false;
             break;
         case Item::Root:
             type = QLatin1String("ROOT");
-            expandable = false;
             break;
         case Item::Folder:
             type = QLatin1String("FOLDER");
-            expandable = true;
             break;
         case Item::Document:
             type = QLatin1String("DOCUMENT");
-            expandable = true;
             break;
         default:
             return QJsonObject();
-            expandable = false;
             break;
     }
 
@@ -217,14 +211,14 @@ QJsonObject Item::toJsonObject() {
     } else {
         item[QLatin1String("m:handle")] = m_handle.toString(QUuid::WithoutBraces);
         item[QLatin1String("m:order")]  = row();
-        item[QLatin1String("m:words")]  = m_words;
         item[QLatin1String("u:name")]   = m_name;
         item[QLatin1String("u:type")]   = type;
-        if (children.size() > 0) {
-            item[QLatin1String("x:items")] = children;
+        if (m_type == Item::Document) {
+            item[QLatin1String("m:words")] = m_words;
         }
-        if (expandable) {
+        if (children.size() > 0) {
             item[QLatin1String("m:expanded")] = m_expanded;
+            item[QLatin1String("x:items")]    = children;
         }
     }
 

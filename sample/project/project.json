@@ -1,13 +1,11 @@
 {
-	"c:format": "Collett Project",
+	"c:format": "collett:project",
 	"c:meta": {
 		"m:created": "2021-12-14T22:24:25",
-		"m:updated": "2023-04-23T22:34:42"
+		"m:updated": "2023-04-23T22:56:06"
 	},
 	"c:project": {
 		"s:last-doc-main": "7e5a1a98-d1a3-44a1-ab4e-2b5d21d92201",
-		"u:models": [
-		],
 		"u:project-name": "Sample Project"
 	},
 	"c:settings": {

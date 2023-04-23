@@ -116,7 +116,7 @@ void GuiMain::openProject(const QString &path) {
         return;
     }
 
-    m_itemTree->setModel(m_data->project()->model());
+    m_itemTree->setTreeModel(m_data->project()->model());
 
     QUuid lastDocMain = m_data->project()->lastDocumentMain();
     if (!lastDocMain.isNull()) {
