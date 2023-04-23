@@ -44,15 +44,19 @@ namespace Collett {
  *
  * @param parent the parent object.
  */
-ItemModel::ItemModel(QObject *parent) : QAbstractItemModel(parent) {
+ItemModel::ItemModel(QObject *parent)
+    : QAbstractItemModel(parent)
+{
     m_type = ItemModel::Invalid;
     this->setModelName("");
     this->setModelIcon("");
 }
 
-ItemModel::ItemModel(ModelType type, QString name, QObject *parent) : QAbstractItemModel(parent) {
+ItemModel::ItemModel(ModelType type, QString name, QObject *parent)
+    : QAbstractItemModel(parent)
+{
     m_type = type;
-    m_rootItem = new Item(QUuid(), "Root", type == ItemModel::Story, Item::Root);
+    m_rootItem = new Item(QUuid(), "Hidden Root", Item::Hidden);
     this->setModelName(name);
     this->setModelIcon("");
 }
@@ -77,18 +81,9 @@ ItemModel::~ItemModel() {
  * @return a JSON object.
  */
 QJsonObject ItemModel::toJsonObject() {
-
     QJsonObject json = m_rootItem->toJsonObject();
-    QString modelType = this->modelTypeToString(m_type);
-
-    if (!modelType.isEmpty()) {
-        json[QLatin1String("c:model")] = modelType;
-        json[QLatin1String("u:name")] = m_name;
-        json[QLatin1String("u:icon")] = m_icon;
-        return json;
-    } else {
-        return QJsonObject();
-    }
+    json[QLatin1String("c:format")] = "collett:itemmodel";
+    return json;
 }
 
 /**!
@@ -107,29 +102,13 @@ bool ItemModel::fromJsonObject(const QJsonObject &json) {
         m_lastError = "Item Root: No data in JSON object";
         return false;
     }
-    if (!json.contains(QLatin1String("u:type")) || !json.contains(QLatin1String("c:model"))) {
-        qWarning() << "Item Root: Not a valid story item JSON object";
-        m_lastError = "Item Root: Not a valid story item JSON object";
+    if (!json.contains(QLatin1String("c:format"))) {
+        qWarning() << "Item Root: Not a valid item model JSON object";
+        m_lastError = "Item Root: Not a valid item model JSON object";
         return false;
     }
 
-    Item::ItemType type = Item::typeFromString(json.value(QLatin1String("u:type")).toString());
-    if (type != Item::Root) {
-        qWarning() << "Item Root: No ROOT item found in JSON object";
-        m_lastError = "Item Root: No ROOT item found in JSON object";
-        return false;
-    }
-
-    m_type = ItemModel::modelTypeFromString(json.value(QLatin1String("c:model")).toString());
-    m_rootItem = new Item(QUuid(), "Root", m_type == ItemModel::Story, Item::Root);
-
-    if (json.contains(QLatin1String("u:name"))) {
-        this->setModelName(json.value(QLatin1String("u:name")).toString());
-    }
-
-    if (json.contains(QLatin1String("u:icon"))) {
-        this->setModelIcon(json.value(QLatin1String("u:icon")).toString());
-    }
+    m_rootItem = new Item(QUuid(), "Hidden Root", Item::Hidden);
 
     if (!json.contains(QLatin1String("x:items"))) {
         qDebug() << "Item Root: No items found in JSON object";
@@ -432,7 +411,7 @@ int ItemModel::rowCount(const QModelIndex &parent) const {
 }
 
 int ItemModel::columnCount(const QModelIndex &parent) const {
-    return 1;
+    return 2;
 }
 
 QVariant ItemModel::data(const QModelIndex &index, int role) const {
@@ -440,13 +419,29 @@ QVariant ItemModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid()) {
         return QVariant();
     }
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
 
     Item *item = static_cast<Item*>(index.internalPointer());
+    if (role == Qt::DisplayRole) {
+        switch (index.column()) {
+            case 0: // Title
+                return QVariant::fromValue(item->name());
+            case 1: // Word Count
+                return QVariant::fromValue(QLocale().toString(item->wordCount()));
+            default:
+                return QVariant();
+        }
+    } else if (role == Qt::TextAlignmentRole) {
+        switch (index.column()) {
+            case 0: // Title
+                return QVariant::fromValue(Qt::AlignLeading);
+            case 1: // Word Count
+                return QVariant::fromValue(Qt::AlignTrailing);
+            default:
+                return QVariant::fromValue(Qt::AlignLeading);
+        }
+    }
 
-    return item->data();
+    return QVariant();
 }
 
 Qt::ItemFlags ItemModel::flags(const QModelIndex &index) const {

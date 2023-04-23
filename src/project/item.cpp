@@ -40,11 +40,11 @@ namespace Collett {
  * @param type   the type of the new item.
  * @param parent the parent of the new item, optional.
  */
-Item::Item(const QUuid &uuid, const QString &name, bool story, ItemType type, Item *parent)
+Item::Item(const QUuid &uuid, const QString &name, ItemType type, Item *parent)
     : m_parentItem(parent)
 {
     m_childItems = QVector<Item*>{};
-    m_story    = story;
+    m_story    = true;
     m_handle   = uuid;
     m_name     = name;
     m_type     = type;
@@ -78,7 +78,7 @@ Item *Item::addChild(const QString &name, ItemType type, int pos) {
         return nullptr;
     }
 
-    Item *item = new Item(QUuid::createUuid(), name, m_story, type, this);
+    Item *item = new Item(QUuid::createUuid(), name, type, this);
     if (pos >= 0 && pos < m_childItems.size()) {
         m_childItems.insert((qsizetype)pos, item);
     } else {
@@ -129,8 +129,8 @@ Item *Item::addChild(const QJsonObject &json) {
         qWarning() << "Invalid story item type encountered";
         return nullptr;
     }
-    if (type == Item::Root) {
-        qWarning() << "Only one Root story item is allowed";
+    if (type == Item::Hidden) {
+        qWarning() << "Only one hidden root item is allowed";
         return nullptr;
     }
 
@@ -149,7 +149,7 @@ Item *Item::addChild(const QJsonObject &json) {
         return nullptr;
     }
 
-    Item *item = new Item(handle, name, m_story, type, this);
+    Item *item = new Item(handle, name, type, this);
     item->setWordCount(words);
     item->setExpanded(expanded);
     m_childItems.append(item);
@@ -189,37 +189,21 @@ QJsonObject Item::toJsonObject() {
     QLatin1String type;
     bool expandable = false;
     switch (m_type) {
+        case Item::Hidden:
+            type = QLatin1String("HIDDEN");
+            expandable = false;
+            break;
         case Item::Root:
             type = QLatin1String("ROOT");
             expandable = false;
             break;
-        case Item::Book:
-            type = QLatin1String("BOOK");
+        case Item::Folder:
+            type = QLatin1String("FOLDER");
             expandable = true;
             break;
-        case Item::Partition:
-            type = QLatin1String("PARTITION");
+        case Item::Document:
+            type = QLatin1String("DOCUMENT");
             expandable = true;
-            break;
-        case Item::Chapter:
-            type = QLatin1String("CHAPTER");
-            expandable = true;
-            break;
-        case Item::Scene:
-            type = QLatin1String("SCENE");
-            expandable = false;
-            break;
-        case Item::Page:
-            type = QLatin1String("PAGE");
-            expandable = false;
-            break;
-        case Item::Group:
-            type = QLatin1String("GROUP");
-            expandable = true;
-            break;
-        case Item::Note:
-            type = QLatin1String("NOTE");
-            expandable = false;
             break;
         default:
             return QJsonObject();
@@ -258,34 +242,21 @@ QJsonObject Item::toJsonObject() {
  * @return true if the item type is allowed, false if not.
  */
 bool Item::allowedChild(Item::ItemType type) const {
-    if (m_story) {
-        switch (m_type) {
-            case Item::Root:
-                return type == Item::Book;
-                break;
-            case Item::Book:
-                return type == Item::Partition || type == Item::Chapter || type == Item::Page;
-                break;
-            case Item::Partition:
-                return type == Item::Chapter || type == Item::Page;
-                break;
-            case Item::Chapter:
-                return type == Item::Scene;
-                break;
-            default:
-                return false;
-        }
-    } else {
-        switch (m_type) {
-            case Item::Root:
-                return type == Item::Group || type == Item::Note;
-                break;
-            case Item::Group:
-                return type == Item::Note;
-                break;
-            default:
-                return false;
-        }
+    switch (m_type) {
+        case Item::Hidden:
+            return type == Item::Root;
+            break;
+        case Item::Root:
+            return type == Item::Folder || type == Item::Document;
+            break;
+        case Item::Folder:
+            return type == Item::Folder || type == Item::Document;
+            break;
+        case Item::Document:
+            return type == Item::Document;
+            break;
+        default:
+            return false;
     }
 }
 
@@ -307,13 +278,7 @@ bool Item::allowedSibling(Item::ItemType type) const {
 }
 
 bool Item::canHoldDocument() const {
-    switch (m_type) {
-        case ItemType::Chapter: return true;
-        case ItemType::Scene:   return true;
-        case ItemType::Page:    return true;
-        case ItemType::Note:    return true;
-        default: return false;
-    }
+    return m_type != ItemType::Root;
 }
 
 /**
@@ -396,37 +361,25 @@ Item *Item::findItemFromHandle(const QUuid &uuid) const {
 QString Item::typeToLabel(ItemType type) {
     QString name = "";
     switch (type) {
-        case Item::Root:      name = ""; break;
-        case Item::Book:      name = tr("Book"); break;
-        case Item::Partition: name = tr("Partition"); break;
-        case Item::Chapter:   name = tr("Chapter"); break;
-        case Item::Scene:     name = tr("Scene"); break;
-        case Item::Page:      name = tr("Page"); break;
-        case Item::Group:     name = tr("Group"); break;
-        case Item::Note:      name = tr("Note"); break;
-        case Item::Invalid:   name = ""; break;
+        case Item::Hidden:   name = ""; break;
+        case Item::Root:     name = tr("Root"); break;
+        case Item::Folder:   name = tr("Folder"); break;
+        case Item::Document: name = tr("Document"); break;
+        case Item::Invalid:  name = ""; break;
     }
     return name;
 }
 
 Item::ItemType Item::typeFromString(const QString &value) {
     QString upper = value.toUpper();
-    if (upper == "ROOT") {
+    if (upper == "HIDDEN") {
+        return Item::Hidden;
+    } else if (upper == "ROOT") {
         return Item::Root;
-    } else if (upper == "BOOK") {
-        return Item::Book;
-    } else if (upper == "PARTITION") {
-        return Item::Partition;
-    } else if (upper == "CHAPTER") {
-        return Item::Chapter;
-    } else if (upper == "SCENE") {
-        return Item::Scene;
-    } else if (upper == "PAGE") {
-        return Item::Page;
-    } else if (upper == "GROUP") {
-        return Item::Group;
-    } else if (upper == "NOTE") {
-        return Item::Note;
+    } else if (upper == "FOLDER") {
+        return Item::Folder;
+    } else if (upper == "DOCUMENT") {
+        return Item::Document;
     } else {
         return Item::Invalid;
     }

@@ -48,7 +48,6 @@ public:
 
     bool openProject();
     bool saveProject();
-    ItemModel *newModel(ItemModel::ModelType type, const QString &name);
 
     // Class Setters
 
@@ -63,8 +62,7 @@ public:
     QString projectName() const;
     Storage *store();
 
-    QStringList modelList() const;
-    ItemModel *model(const QString &name);
+    ItemModel *model();
     Document *document(const QUuid &uuid);
 
     // Error Handling
@@ -93,9 +91,8 @@ private:
 
     // Content
 
-    QStringList                m_modelOrder;
-    QHash<QString, ItemModel*> m_models;
-    QHash<QUuid, Document*>    m_documents;
+    ItemModel               *m_content;
+    QHash<QUuid, Document*>  m_documents;
 
     // File Load & Save
 

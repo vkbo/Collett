@@ -63,7 +63,6 @@ Project::Project(const QString &path) {
 
 Project::~Project() {
     qDebug() << "Destructor: Project";
-    qDeleteAll(m_models.begin(), m_models.end());
     qDeleteAll(m_documents.begin(), m_documents.end());
 }
 
@@ -74,7 +73,7 @@ Project::~Project() {
 
 bool Project::openProject() {
 
-    if (!m_documents.isEmpty() || !m_models.isEmpty()) {
+    if (!m_documents.isEmpty()) {
         qWarning() << "Project content already loaded";
         return false;
     }
@@ -131,16 +130,6 @@ bool Project::saveProject() {
     return main && proj;
 }
 
-ItemModel *Project::newModel(ItemModel::ModelType type, const QString &name) {
-    QString key = ItemModel::modelTypeToString(type).toLower();
-    int num = 1;
-    while (m_models.contains(key)) {
-        key = QString().setNum(num++).prepend("_").prepend(key);
-    }
-    m_models.insert(key, new ItemModel(type, name, this));
-    return m_models.value(key);
-}
-
 /**
  * Class Setters
  * =============
@@ -175,16 +164,8 @@ Storage *Project::store() {
     return m_store;
 }
 
-QStringList Project::modelList() const {
-    return m_modelOrder;
-}
-
-ItemModel *Project::model(const QString &name) {
-    if (m_models.contains(name)) {
-        return m_models.value(name);
-    } else {
-        return nullptr;
-    }
+ItemModel *Project::model() {
+    return m_content;
 }
 
 Document *Project::document(const QUuid &uuid) {
@@ -228,22 +209,11 @@ bool Project::loadProjectStructure() {
     // Project Settings
     m_projectName = Storage::getJsonString(jProject, QLatin1String("u:project-name"), tr("Unnamed Project"));
 
-    // Data Models
-    if (jProject.contains(QLatin1String("u:models")) && jProject.value(QLatin1String("u:models")).isArray()) {
-        for (const QJsonValue &value : jProject.value(QLatin1String("u:models")).toArray()) {
-            QString key = value.toString().simplified();
-            if (!key.isEmpty()) {
-                m_modelOrder << key;
-                m_models.insert(key, new ItemModel(this));
-                QJsonObject mData;
-                if (m_store->loadFile(key, mData)) {
-                    m_models.value(key)->fromJsonObject(mData);
-                } else {
-                    m_lastError = m_store->lastError();
-                    return false;
-                }
-            }
-        }
+    // Project Content
+    QJsonObject mData;
+    m_content = new ItemModel(this);
+    if (m_store->loadFile("content", mData)) {
+        m_content->fromJsonObject(mData);
     }
 
     return true;
@@ -261,13 +231,9 @@ bool Project::saveProjectStructure() {
     // Project State
     jProject[QLatin1String("s:last-doc-main")] = m_lastDocMain.toString(QUuid::WithoutBraces);
 
-    // Data Models
-    for (const QString &key : m_modelOrder) {
-        jModels.append(key);
-        qDebug() << "Saving model:" << key;
-        if (!m_store->saveFile(key, m_models[key]->toJsonObject())) {
-            m_lastError = m_store->lastError();
-        }
+    // Project Content
+    if (!m_store->saveFile("content", m_content->toJsonObject())) {
+        m_lastError = m_store->lastError();
     }
 
     // Project Settings

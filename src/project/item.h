@@ -35,12 +35,10 @@ class Item : public QObject
 
 public:
     enum ItemType{
-        Invalid,
-        Root, Book, Partition, Chapter, Scene, Page,
-        Group, Note
+        Invalid, Hidden, Root, Folder, Document
     };
 
-    explicit Item(const QUuid &uuid, const QString &name, bool story, ItemType type, Item *parentItem=nullptr);
+    explicit Item(const QUuid &uuid, const QString &name, ItemType type, Item *parentItem=nullptr);
     ~Item();
 
     // Class Methods

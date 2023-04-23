@@ -67,8 +67,10 @@ void collettLogHandler(QtMsgType type, const QMessageLogContext &context, const 
 int main(int argc, char *argv[]) {
 
     qInstallMessageHandler(collettLogHandler);
+    QApplication::setDesktopSettingsAware(false); // Ignore OS dark theme
     QApplication app(argc, argv);
 
+    QApplication::setDesktopFileName("Collett");
     QCoreApplication::setOrganizationName("Collett");
     QCoreApplication::setOrganizationDomain("vkbo.net");
     QCoreApplication::setApplicationName("Collett");
