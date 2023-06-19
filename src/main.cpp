@@ -23,6 +23,7 @@
 
 #include "collett.h"
 #include "guimain.h"
+#include "settings.h"
 
 #include <QDateTime>
 #include <QFileInfo>
@@ -75,6 +76,13 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationDomain("vkbo.net");
     QCoreApplication::setApplicationName("Collett");
     QCoreApplication::setApplicationVersion(COL_VERSION_STR);
+
+    Collett::CollettSettings *settings = Collett::CollettSettings::instance();
+
+    QFont appFont;
+    appFont.setFamily(settings->appFontFamily());
+    appFont.setPointSizeF(settings->appFontSize());
+    app.setFont(appFont);
 
     QCommandLineParser parser;
     parser.addHelpOption();

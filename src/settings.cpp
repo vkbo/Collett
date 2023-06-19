@@ -22,6 +22,9 @@
 #include "collett.h"
 #include "settings.h"
 
+#define CNF_APP_FONT_SIZE "Application/fontSize"
+#define CNF_APP_FONT_FAMILY "Application/fontFamily"
+
 #define CNF_MAIN_WINDOW_SIZE "GuiMain/windowSize"
 #define CNF_MAIN_SPLIT_SIZES "GuiMain/mainSplitSizes"
 
@@ -38,6 +41,7 @@
 #include <QVariant>
 #include <QSettings>
 #include <QVariantList>
+#include <QFontDatabase>
 #include <QTextCharFormat>
 #include <QCoreApplication>
 #include <QTextBlockFormat>
@@ -91,6 +95,14 @@ CollettSettings::CollettSettings() {
     // Load Settings
     QSettings settings;
 
+    // Application Settings
+    // --------------------
+
+    QFont sysFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+
+    m_appFontSize = settings.value(CNF_APP_FONT_SIZE, sysFont.pointSizeF()).toReal();
+    m_appFontFamily = settings.value(CNF_APP_FONT_FAMILY, sysFont.family()).toString();
+
     // GUI Settings
     // ------------
 
@@ -132,6 +144,9 @@ void CollettSettings::flushSettings() {
 
     QSettings settings;
 
+    settings.setValue(CNF_APP_FONT_SIZE, m_appFontSize);
+    settings.setValue(CNF_APP_FONT_FAMILY, m_appFontFamily);
+
     settings.setValue(CNF_MAIN_WINDOW_SIZE, m_mainWindowSize);
     settings.setValue(CNF_MAIN_SPLIT_SIZES, intListToVariant(m_mainSplitSizes));
 
@@ -148,6 +163,10 @@ void CollettSettings::flushSettings() {
  * Setter Functions
  * ================
  */
+
+void CollettSettings::setAppFontSize(const qreal size) {
+    m_appFontSize = size;
+}
 
 void CollettSettings::setMainWindowSize(const QSize size) {
     m_mainWindowSize = size;
@@ -166,10 +185,22 @@ void CollettSettings::setTextFontSize(const qreal size) {
     recalculateTextFormats();
 }
 
+void CollettSettings::setTextTabWidth(const qreal width) {
+    m_textTabWidth = width;
+}
+
 /**
  * Getter Functions
  * ================
  */
+
+QString CollettSettings::appFontFamily() const {
+    return m_appFontFamily;
+}
+
+qreal CollettSettings::appFontSize() const {
+    return m_appFontSize;
+}
 
 QSize CollettSettings::mainWindowSize() const {
     return m_mainWindowSize;
@@ -205,10 +236,10 @@ void CollettSettings::recalculateTextFormats() {
     qreal defaultTopMargin = 0.5 * m_textFontSize;
     qreal defaultBottomMargin = 0.5 * m_textFontSize;
 
-    qreal header1FontSize = 2.0*m_textFontSize;
-    qreal header2FontSize = 1.7*m_textFontSize;
-    qreal header3FontSize = 1.4*m_textFontSize;
-    qreal header4FontSize = 1.2*m_textFontSize;
+    qreal header1FontSize = 2.0 * m_textFontSize;
+    qreal header2FontSize = 1.7 * m_textFontSize;
+    qreal header3FontSize = 1.4 * m_textFontSize;
+    qreal header4FontSize = 1.2 * m_textFontSize;
 
     qreal headerBottomMargin = 0.7 * m_textFontSize;
 
@@ -216,7 +247,7 @@ void CollettSettings::recalculateTextFormats() {
 
     m_textFormat.fontSize = m_textFontSize;
     m_textFormat.tabWidth = m_textTabWidth;
-    m_textFormat.lineHeight = 1.15;
+    m_textFormat.lineHeight = defaultLineHeight;
 
     // Default Text Formats
 

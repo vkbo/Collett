@@ -66,6 +66,7 @@ public:
 
     // Setters
 
+    void setAppFontSize(const qreal size);
     void setMainWindowSize(const QSize size);
     void setMainSplitSizes(const QList<int> &sizes);
     void setEditorAutoSave(const int interval);
@@ -74,6 +75,8 @@ public:
 
     // Getters
 
+    qreal      appFontSize() const;
+    QString    appFontFamily() const;
     QSize      mainWindowSize() const;
     QList<int> mainSplitSizes() const;
     int        editorAutoSave() const;
@@ -82,17 +85,18 @@ public:
 private:
     static CollettSettings *staticInstance;
 
-    // GUI Settings
+    // Application Settings
+    qreal   m_appFontSize;
+    QString m_appFontFamily;
 
+    // GUI Settings
     QSize      m_mainWindowSize;
     QList<int> m_mainSplitSizes;
 
     // Editor
-
     int m_editorAutoSave;
 
     // Text Format
-
     qreal      m_textFontSize;
     qreal      m_textTabWidth;
     TextFormat m_textFormat;
