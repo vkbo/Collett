@@ -40,6 +40,7 @@
 #include <QSize>
 #include <QVariant>
 #include <QSettings>
+#include <QFontMetrics>
 #include <QVariantList>
 #include <QFontDatabase>
 #include <QTextCharFormat>
@@ -102,6 +103,9 @@ CollettSettings::CollettSettings() {
 
     m_appFontSize = settings.value(CNF_APP_FONT_SIZE, sysFont.pointSizeF()).toReal();
     m_appFontFamily = settings.value(CNF_APP_FONT_FAMILY, sysFont.family()).toString();
+
+    QFont appFont = QFont(m_appFontFamily, m_appFontSize);
+    m_baseIconSize = QFontMetrics(appFont).ascent();
 
     // GUI Settings
     // ------------
@@ -200,6 +204,10 @@ QString CollettSettings::appFontFamily() const {
 
 qreal CollettSettings::appFontSize() const {
     return m_appFontSize;
+}
+
+int CollettSettings::baseIconSize() const {
+    return m_baseIconSize;
 }
 
 QSize CollettSettings::mainWindowSize() const {

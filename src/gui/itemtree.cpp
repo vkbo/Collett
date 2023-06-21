@@ -21,10 +21,12 @@
 
 #include "collett.h"
 #include "item.h"
+#include "settings.h"
 #include "itemtree.h"
 #include "itemmodel.h"
 
 #include <QMenu>
+#include <QSize>
 #include <QPoint>
 #include <QAction>
 #include <QWidget>
@@ -50,7 +52,6 @@ namespace Collett {
 GuiItemTree::GuiItemTree(QWidget *parent)
     : QTreeView(parent)
 {
-    // this->setItemDelegate(new GuiItemTreeDelegate(this));
     this->setHeaderHidden(true);
     this->setAlternatingRowColors(true);
     this->setExpandsOnDoubleClick(false);
@@ -74,6 +75,13 @@ void GuiItemTree::setTreeModel(ItemModel *model) {
 
     m_model = model;
     this->setModel(m_model);
+
+    CollettSettings *mainConf = CollettSettings::instance();
+    int iconSize = mainConf->baseIconSize();
+    qDebug() << "Tree Icon Size:" << iconSize;
+
+    this->setIconSize(QSize(iconSize, iconSize));
+    this->setIndentation(iconSize);
 
     this->header()->setStretchLastSection(false);
     this->header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -151,11 +159,13 @@ void GuiItemTree::doOpenContextMenu(const QPoint &pos) {
 
     if (item->allowedChild(Item::Folder)) {
         QAction *inAction = contextMenu.addAction(tr("Add Folder"));
-        connect(inAction, &QAction::triggered, [this, index]{doAddChild(index, Item::Folder, ItemModel::Inside);});
+        connect(inAction, &QAction::triggered,
+                [this, index]{doAddChild(index, Item::Folder, ItemModel::Inside);});
     }
     if (item->allowedChild(Item::Document)) {
         QAction *inAction = contextMenu.addAction(tr("Add Document"));
-        connect(inAction, &QAction::triggered, [this, index]{doAddChild(index, Item::Document, ItemModel::Inside);});
+        connect(inAction, &QAction::triggered,
+                [this, index]{doAddChild(index, Item::Document, ItemModel::Inside);});
     }
 
     contextMenu.exec(QWidget::mapToGlobal(pos));

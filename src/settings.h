@@ -77,6 +77,7 @@ public:
 
     qreal      appFontSize() const;
     QString    appFontFamily() const;
+    int        baseIconSize() const;
     QSize      mainWindowSize() const;
     QList<int> mainSplitSizes() const;
     int        editorAutoSave() const;
@@ -101,8 +102,10 @@ private:
     qreal      m_textTabWidth;
     TextFormat m_textFormat;
 
-    // Internal Functions
+    // Calculated Settings
+    int m_baseIconSize;
 
+    // Internal Functions
     void recalculateTextFormats();
 
 };

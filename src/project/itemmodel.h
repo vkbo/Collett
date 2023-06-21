@@ -39,11 +39,9 @@ class ItemModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    enum ModelType{Invalid, Story, Plot, Characters, Locations};
     enum AddLocation{Before, After, Inside};
 
     explicit ItemModel(QObject *parent=nullptr);
-    explicit ItemModel(ModelType type, QString name, QObject *parent=nullptr);
     ~ItemModel();
 
     // Class Methods
@@ -56,27 +54,14 @@ public:
 
     // Class Getters
 
-    QString modelName() const;
-    QString modelIcon() const;
-    ModelType modelType() const;
-
     Item *rootItem() const;
     Item *itemFromIndex(const QModelIndex &index);
     Item *itemFromHandle(const QUuid &uuid);
     QString itemName(const QModelIndex &index);
     bool isExpanded(const QModelIndex &index);
 
-    // Static Methods
-
-    static QString modelTypeToLabel(ModelType type);
-    static QString modelTypeToIcon(ModelType type);
-    static QString modelTypeToString(ModelType type);
-    static ModelType modelTypeFromString(const QString &value);
-
     // Model Edit
 
-    void setModelName(const QString &name);
-    void setModelIcon(const QString &icon);
     void setItemName(const QModelIndex &index, const QString &name);
     void setExpanded(const QModelIndex &index, bool state);
 
@@ -91,11 +76,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
-    ModelType m_type;
-    QString   m_name;
-    QString   m_icon;
-    Item     *m_rootItem = nullptr;
-
+    Item   *m_rootItem = nullptr;
     QString m_lastError = "";
 
 };

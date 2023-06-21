@@ -31,34 +31,18 @@
 #include <QJsonObject>
 #include <QModelIndex>
 #include <QLatin1String>
-#include <QModelIndexList>
 #include <QAbstractItemModel>
 
 namespace Collett {
 
 /**!
- * @brief Construct a new Story Model object.
- *
- * The data model of the project's story content.
- * Example: https://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
+ * @brief Construct a new Item Model object.
  *
  * @param parent the parent object.
  */
 ItemModel::ItemModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_type = ItemModel::Invalid;
-    this->setModelName("");
-    this->setModelIcon("");
-}
-
-ItemModel::ItemModel(ModelType type, QString name, QObject *parent)
-    : QAbstractItemModel(parent)
-{
-    m_type = type;
-    m_rootItem = new Item(QUuid(), "Hidden Root", Item::Hidden);
-    this->setModelName(name);
-    this->setModelIcon("");
 }
 
 ItemModel::~ItemModel() {
@@ -197,31 +181,10 @@ bool ItemModel::isEmpty() const {
     return m_rootItem == nullptr;
 }
 
-/**!
- * @brief Check if the model is valid.
- *
- * @return false if the model type is Invalid, otherwise true
- */
-bool ItemModel::isValid() const {
-    return m_type != ItemModel::Invalid;
-}
-
 /**
  * Class Getters
  * =============
  */
-
-QString ItemModel::modelName() const {
-    return m_name;
-}
-
-QString ItemModel::modelIcon() const {
-    return m_icon;
-}
-
-ItemModel::ModelType ItemModel::modelType() const {
-    return m_type;
-}
 
 Item *ItemModel::rootItem() const {
     return m_rootItem;
@@ -262,81 +225,9 @@ bool ItemModel::isExpanded(const QModelIndex &index) {
 }
 
 /**
- * Static Methods
- * ==============
- */
-
-QString ItemModel::modelTypeToLabel(ModelType type) {
-    QString name = "";
-    switch (type) {
-        case ItemModel::Invalid:    name = ""; break;
-        case ItemModel::Story:      name = tr("Story"); break;
-        case ItemModel::Plot:       name = tr("Plot"); break;
-        case ItemModel::Characters: name = tr("Characters"); break;
-        case ItemModel::Locations:  name = tr("Locations"); break;
-    }
-    return name;
-}
-
-QString ItemModel::modelTypeToIcon(ModelType type) {
-    QString icon = "genericModel";
-    switch (type) {
-        case ItemModel::Invalid:    icon = "genericModel"; break;
-        case ItemModel::Story:      icon = "storyModel"; break;
-        case ItemModel::Plot:       icon = "plotModel"; break;
-        case ItemModel::Characters: icon = "characterModel"; break;
-        case ItemModel::Locations:  icon = "locationModel"; break;
-    }
-    return icon;
-}
-
-QString ItemModel::modelTypeToString(ModelType type) {
-    QString name = "";
-    switch (type) {
-        case ItemModel::Invalid:    name = ""; break;
-        case ItemModel::Story:      name = "STORY"; break;
-        case ItemModel::Plot:       name = "PLOT"; break;
-        case ItemModel::Characters: name = "CHARACTERS"; break;
-        case ItemModel::Locations:  name = "LOCATIONS"; break;
-    }
-    return name;
-}
-
-ItemModel::ModelType ItemModel::modelTypeFromString(const QString &value) {
-    QString upper = value.toUpper();
-    if (upper == "STORY") {
-        return ItemModel::Story;
-    } else if (upper == "PLOT") {
-        return ItemModel::Plot;
-    } else if (upper == "CHARACTERS") {
-        return ItemModel::Characters;
-    } else if (upper == "LOCATIONS") {
-        return ItemModel::Locations;
-    } else {
-        return ItemModel::Invalid;
-    }
-}
-
-/**
  * Model Edit
  * ==========
  */
-
-void ItemModel::setModelName(const QString &name) {
-    m_name = name.simplified();
-    if (m_name.isEmpty()) {
-        m_name = tr("No Name");
-    }
-}
-
-void ItemModel::setModelIcon(const QString &icon) {
-    CollettIcons *icons = CollettIcons::instance();
-    if (icons->contains(icon)) {
-        m_icon = icon;
-    } else {
-        m_icon = ItemModel::modelTypeToIcon(m_type);
-    }
-}
 
 void ItemModel::setItemName(const QModelIndex &index, const QString &name) {
     if (index.isValid()) {
@@ -438,6 +329,22 @@ QVariant ItemModel::data(const QModelIndex &index, int role) const {
                 return QVariant::fromValue(Qt::AlignTrailing);
             default:
                 return QVariant::fromValue(Qt::AlignLeading);
+        }
+    } else if (role == Qt::DecorationRole) {
+        CollettIcons *icons = CollettIcons::instance();
+        if (index.column() == 0) {
+            switch (item->type()) {
+                case Item::Root:
+                    return icons->icon("projectRoot");
+                case Item::Folder:
+                    return icons->icon("projectFolder");
+                case Item::Document:
+                    return icons->icon("projectDocument");
+                default:
+                    return QVariant();
+            }
+        } else {
+            return QVariant();
         }
     }
 

@@ -101,6 +101,28 @@ CollettIcons::CollettIcons() {
         "v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"
     );
 
+    // Project Tree
+    // ============
+
+    // article_black_24dp.svg
+    m_svgPath["projectDocument"] = QByteArray(
+        "m14 17h-7v-2h7zm3-4h-10v-2h10zm0-4h-10v-2h10zm2-4v14h-14v-14h14m0-2h-14c-1.1 0-2 0.9-2 2v"
+        "14c0 1.1 0.9 2 2 2h14c1.1 0 2-0.9 2-2v-14c0-1.1-0.9-2-2-2z"
+    );
+
+    // folder_open_black_24dp.svg
+    m_svgPath["projectFolder"] = QByteArray(
+        "M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-"
+        "2zm0 12H4V8h16v10z"
+    );
+
+    // inbox_black_24dp.svg
+    m_svgPath["projectRoot"] = QByteArray(
+        "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5v-3h3"
+        ".56c.69 1.19 1.97 2 3.45 2s2.75-.81 3.45-2H19v3zm0-5h-4.99c0 1.1-.9 2-2 2s-2-.9-2-2H5V5h1"
+        "4v9z"
+    );
+
     // Tree ToolBar
     // ============
 
