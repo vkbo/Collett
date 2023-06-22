@@ -87,6 +87,7 @@ public slots:
 
 private slots:
     void processCursorPositionChanged();
+    void processDocumentContentsChange(int pos, int removed, int added);
 
 };
 } // namespace Collett

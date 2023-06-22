@@ -36,6 +36,7 @@
 #include <QJsonObject>
 #include <QStringList>
 #include <QTextCursor>
+#include <QTextDocument>
 #include <QTextCharFormat>
 #include <QTextBlockFormat>
 
@@ -104,12 +105,24 @@ QJsonArray GuiTextEdit::toJsonContent() {
 
         // Block Alignment
         switch (blockFormat.alignment()) {
-            case Qt::AlignLeading:  jsonBlockFmt << "al"; break;
-            case Qt::AlignCenter:   jsonBlockFmt << "ac"; break;
-            case Qt::AlignHCenter:  jsonBlockFmt << "ac"; break;
-            case Qt::AlignTrailing: jsonBlockFmt << "at"; break;
-            case Qt::AlignJustify:  jsonBlockFmt << "aj"; break;
-            default: jsonBlockFmt << "al"; break;
+            case Qt::AlignLeading:
+                jsonBlockFmt << "al";
+                break;
+            case Qt::AlignCenter:
+                jsonBlockFmt << "ac";
+                break;
+            case Qt::AlignHCenter:
+                jsonBlockFmt << "ac";
+                break;
+            case Qt::AlignTrailing:
+                jsonBlockFmt << "at";
+                break;
+            case Qt::AlignJustify:
+                jsonBlockFmt << "aj";
+                break;
+            default:
+                jsonBlockFmt << "al";
+                break;
         }
 
         // Text Indent
@@ -131,33 +144,38 @@ QJsonArray GuiTextEdit::toJsonContent() {
         QTextBlock::Iterator blockIt = block.begin();
         for (; !blockIt.atEnd(); ++blockIt) {
 
-            QJsonObject jsonFrag;
             QTextFragment blockFrag = blockIt.fragment();
             QTextCharFormat fragFmt = blockFrag.charFormat();
 
             QStringList jsonFragFmt;
 
             jsonFragFmt << "t";
-            if (fragFmt.fontWeight() > QFont::Medium) jsonFragFmt << "b";
-            if (fragFmt.fontItalic()) jsonFragFmt << "i";
-            if (fragFmt.fontUnderline()) jsonFragFmt << "u";
-            if (fragFmt.fontStrikeOut()) jsonFragFmt << "s";
-            if (fragFmt.verticalAlignment() == QTextCharFormat::AlignSuperScript) jsonFragFmt << "sup";
-            if (fragFmt.verticalAlignment() == QTextCharFormat::AlignSubScript) jsonFragFmt << "sub";
+            if (fragFmt.fontWeight() > QFont::Medium)
+                jsonFragFmt << "b";
+            if (fragFmt.fontItalic())
+                jsonFragFmt << "i";
+            if (fragFmt.fontUnderline())
+                jsonFragFmt << "u";
+            if (fragFmt.fontStrikeOut())
+                jsonFragFmt << "s";
+            if (fragFmt.verticalAlignment() == QTextCharFormat::AlignSuperScript)
+                jsonFragFmt << "sup";
+            if (fragFmt.verticalAlignment() == QTextCharFormat::AlignSubScript)
+                jsonFragFmt << "sub";
 
             jsonFrags.append(jsonFragFmt.join(":") + "|" + blockFrag.text().replace(QChar::LineSeparator, '\n'));
         }
 
         switch (jsonFrags.size()) {
-        case 0:
-            jsonBlock.insert(QLatin1String("u:txt"), "t|");
-            break;
-        case 1:
-            jsonBlock.insert(QLatin1String("u:txt"), jsonFrags.at(0));
-            break;
-        default:
-            jsonBlock.insert(QLatin1String("x:txt"), jsonFrags);
-            break;
+            case 0:
+                jsonBlock.insert(QLatin1String("u:txt"), "t|");
+                break;
+            case 1:
+                jsonBlock.insert(QLatin1String("u:txt"), jsonFrags.at(0));
+                break;
+            default:
+                jsonBlock.insert(QLatin1String("x:txt"), jsonFrags);
+                break;
         }
 
         // Finish & Next
@@ -290,13 +308,14 @@ void GuiTextEdit::setJsonContent(const QJsonArray &json) {
                 cursor.insertText(innerText, fragFormat);
             }
         }
-
     }
 
     doc->setUndoRedoEnabled(true);
     doc->setModified(false);
 
     this->setDocument(doc);
+    connect(doc, SIGNAL(contentsChange(int, int, int)),
+            this, SLOT(processDocumentContentsChange(int, int, int)));
 }
 
 /**
@@ -311,6 +330,9 @@ void GuiTextEdit::initDocument(QTextDocument *doc) {
     opts.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     doc->setDefaultTextOption(opts);
     doc->setDocumentMargin(40);
+
+    connect(doc, SIGNAL(contentsChange(int, int, int)),
+            this, SLOT(processDocumentContentsChange(int, int, int)));
 
     // Editor Options
     this->setTabStopDistance(m_format.tabWidth);
@@ -469,6 +491,10 @@ void GuiTextEdit::processCursorPositionChanged() {
         emit currentBlockChanged(cursor.block());
         m_currentBlockNo = blockNo;
     }
+}
+
+void GuiTextEdit::processDocumentContentsChange(int pos, int removed, int added) {
+    qDebug() << "Text Changed:" << pos << removed << added;
 }
 
 } // namespace Collett

@@ -40,10 +40,7 @@ namespace Collett {
  *
  * @param parent the parent object.
  */
-ItemModel::ItemModel(QObject *parent)
-    : QAbstractItemModel(parent)
-{
-}
+ItemModel::ItemModel(QObject *parent) : QAbstractItemModel(parent) {}
 
 ItemModel::~ItemModel() {
     qDebug() << "Destructor: ItemModel";
@@ -59,7 +56,7 @@ ItemModel::~ItemModel() {
  * @brief Build a JSON object of the model.
  *
  * Collect the story tree into a nested JSON object. This is a wrapper around
- * @sa Item::toJsonObject function, which will build the entire tree
+ * the @sa Item::toJsonObject function, which will build the entire tree
  * recursively.
  *
  * @return a JSON object.
@@ -125,9 +122,9 @@ bool ItemModel::fromJsonObject(const QJsonObject &json) {
  * the end of the list of @a relativeTo child items; or Before or After, in which
  * case it is added directly above or below the @a relativeTo item.
  *
- * @param relativeTo the item to add a new item relative to.
- * @param type       the type of the new item.
- * @param loc        the relative location of where to add the new item.
+ * @param relative the item to add a new item relative to.
+ * @param type     the type of the new item.
+ * @param loc      the relative location of where to add the new item.
  * @return true if the item was successfully added, otherwise false.
  */
 bool ItemModel::addItem(const QModelIndex &relative, Item::ItemType type, AddLocation loc) {
