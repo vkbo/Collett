@@ -34,16 +34,18 @@ class Item : public QObject
     Q_OBJECT
 
 public:
-    enum ItemType{
-        Invalid, Hidden, Root, Folder, Document
+    enum ItemType {
+        T_Invalid, T_Hidden, T_Root, T_Folder, T_Document
+    };
+    enum ItemClass {
+        C_Inherit, C_Hidden, C_Story, C_Notes, C_Archive, C_Trash
     };
 
-    explicit Item(const QUuid &uuid, const QString &name, ItemType type, Item *parentItem=nullptr);
+    explicit Item(const QUuid &uuid, const QString &name, ItemType type, ItemClass cls, Item *parentItem=nullptr);
     ~Item();
 
     // Class Methods
-
-    Item *addChild(const QString &name, ItemType type, int pos=-1);
+    Item *addChild(const QString &name, ItemType type, ItemClass cls, int pos=-1);
     Item *addChild(const QJsonObject &json);
     QJsonObject toJsonObject();
     bool allowedChild(ItemType type) const;
@@ -51,14 +53,13 @@ public:
     bool canHoldDocument() const;
 
     // Class Setters
-
     void setName(const QString &name);
     void setWordCount(int count);
     void setExpanded(bool state);
 
     // Class Getters
-
     ItemType type() const;
+    ItemClass cls() const;
     QUuid handle() const;
     QString name() const;
     int wordCount() const;
@@ -67,12 +68,11 @@ public:
     Item *findItemFromHandle(const QUuid &uuid) const;
 
     // Static Methods
-
     static QString typeToLabel(ItemType type);
     static ItemType typeFromString(const QString &value);
+    static ItemClass classFromString(const QString &value);
 
     // Model Access
-
     int row() const;
     int childCount() const;
     QVariant data() const;
@@ -84,11 +84,11 @@ private:
     Item          *m_parentItem;
 
     // Member Values
-
     bool      m_story;
     QUuid     m_handle;
     QString   m_name;
     ItemType  m_type;
+    ItemClass m_class;
     int       m_words;
     bool      m_expanded;
 

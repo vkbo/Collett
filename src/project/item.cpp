@@ -40,7 +40,7 @@ namespace Collett {
  * @param type   the type of the new item.
  * @param parent the parent of the new item, optional.
  */
-Item::Item(const QUuid &uuid, const QString &name, ItemType type, Item *parent)
+Item::Item(const QUuid &uuid, const QString &name, ItemType type, ItemClass cls, Item *parent)
     : m_parentItem(parent)
 {
     m_childItems = QVector<Item*>{};
@@ -50,6 +50,11 @@ Item::Item(const QUuid &uuid, const QString &name, ItemType type, Item *parent)
     m_type     = type;
     m_words    = 0;
     m_expanded = false;
+    if (parent && cls == Item::C_Inherit) {
+        m_class = parent->cls();
+    } else {
+        m_class = cls;
+    }
 }
 
 Item::~Item() {
@@ -73,12 +78,24 @@ Item::~Item() {
  *             item is appended.
  * @return a pointer to the newly added item.
  */
-Item *Item::addChild(const QString &name, ItemType type, int pos) {
+Item *Item::addChild(const QString &name, ItemType type, ItemClass cls, int pos) {
     if (!this->allowedChild(type)) {
         return nullptr;
     }
 
-    Item *item = new Item(QUuid::createUuid(), name, type, this);
+    // Check class setting
+    if (type == Item::T_Folder || type == Item::T_Document) {
+        // Folders and document should always inherit class
+        cls = Item::C_Inherit;
+    } else if (type == Item::T_Invalid || type == Item::T_Hidden) {
+        // No child item can be invalid or hidden
+        return nullptr;
+    } else if (type == Item::T_Root && (cls == Item::C_Inherit || cls == Item::C_Hidden)) {
+        // Root items must have a proper class set
+        return nullptr;
+    }
+
+    Item *item = new Item(QUuid::createUuid(), name, type, cls, this);
     if (pos >= 0 && pos < m_childItems.size()) {
         m_childItems.insert((qsizetype)pos, item);
     } else {
@@ -103,11 +120,12 @@ Item *Item::addChild(const QJsonObject &json) {
         return nullptr;
     }
 
-    QUuid    handle   = QUuid();
-    QString  name     = "";
-    ItemType type     = Item::Invalid;
-    int      words    = 0;
-    bool     expanded = false;
+    QUuid     handle   = QUuid();
+    QString   name     = "";
+    ItemType  type     = Item::T_Invalid;
+    ItemClass cls      = Item::C_Inherit;
+    int       words    = 0;
+    bool      expanded = false;
 
     if (json.contains(QLatin1String("m:handle"))) {
         handle = QUuid(json[QLatin1String("m:handle")].toString());
@@ -115,8 +133,11 @@ Item *Item::addChild(const QJsonObject &json) {
     if (json.contains(QLatin1String("u:name"))) {
         name = json[QLatin1String("u:name")].toString();
     }
-    if (json.contains(QLatin1String("u:type"))) {
-        type = Item::typeFromString(json[QLatin1String("u:type")].toString());
+    if (json.contains(QLatin1String("m:type"))) {
+        type = Item::typeFromString(json[QLatin1String("m:type")].toString());
+    }
+    if (json.contains(QLatin1String("m:class"))) {
+        cls = Item::classFromString(json[QLatin1String("m:class")].toString());
     }
     if (json.contains(QLatin1String("m:words"))) {
         words = json[QLatin1String("m:words")].toInt();
@@ -125,11 +146,11 @@ Item *Item::addChild(const QJsonObject &json) {
         expanded = json[QLatin1String("m:expanded")].toBool();
     }
 
-    if (type == Item::Invalid) {
+    if (type == Item::T_Invalid) {
         qWarning() << "Invalid story item type encountered";
         return nullptr;
     }
-    if (type == Item::Hidden) {
+    if (type == Item::T_Hidden || cls == Item::C_Hidden) {
         qWarning() << "Only one hidden root item is allowed";
         return nullptr;
     }
@@ -149,7 +170,7 @@ Item *Item::addChild(const QJsonObject &json) {
         return nullptr;
     }
 
-    Item *item = new Item(handle, name, type, this);
+    Item *item = new Item(handle, name, type, cls, this);
     item->setWordCount(words);
     item->setExpanded(expanded);
     m_childItems.append(item);
@@ -188,16 +209,16 @@ QJsonObject Item::toJsonObject() {
 
     QLatin1String type;
     switch (m_type) {
-        case Item::Hidden:
+        case Item::T_Hidden:
             type = QLatin1String("HIDDEN");
             break;
-        case Item::Root:
+        case Item::T_Root:
             type = QLatin1String("ROOT");
             break;
-        case Item::Folder:
+        case Item::T_Folder:
             type = QLatin1String("FOLDER");
             break;
-        case Item::Document:
+        case Item::T_Document:
             type = QLatin1String("DOCUMENT");
             break;
         default:
@@ -205,15 +226,41 @@ QJsonObject Item::toJsonObject() {
             break;
     }
 
+    QLatin1String cls;
+    switch (m_class) {
+        case Item::C_Hidden:
+            cls = QLatin1String("HIDDEN");
+            break;
+        case Item::C_Story:
+            cls = QLatin1String("STORY");
+            break;
+        case Item::C_Notes:
+            cls = QLatin1String("NOTES");
+            break;
+        case Item::C_Archive:
+            cls = QLatin1String("ARCHIVE");
+            break;
+        case Item::C_Trash:
+            cls = QLatin1String("TRASH");
+            break;
+        default:
+            return QJsonObject();
+            break;
+    }
+
     if (!m_parentItem) {
-        item[QLatin1String("u:type")]  = type;
+        item[QLatin1String("m:type")]  = type;
+        item[QLatin1String("m:class")] = cls;
         item[QLatin1String("x:items")] = children;
     } else {
         item[QLatin1String("m:handle")] = m_handle.toString(QUuid::WithoutBraces);
         item[QLatin1String("m:order")]  = row();
         item[QLatin1String("u:name")]   = m_name;
-        item[QLatin1String("u:type")]   = type;
-        if (m_type == Item::Document) {
+        item[QLatin1String("m:type")]   = type;
+        if (m_type == Item::T_Root) {
+            item[QLatin1String("m:class")] = cls;
+        }
+        if (m_type == Item::T_Document) {
             item[QLatin1String("m:words")] = m_words;
         }
         if (children.size() > 0) {
@@ -237,17 +284,17 @@ QJsonObject Item::toJsonObject() {
  */
 bool Item::allowedChild(Item::ItemType type) const {
     switch (m_type) {
-        case Item::Hidden:
-            return type == Item::Root;
+        case Item::T_Hidden:
+            return type == Item::T_Root;
             break;
-        case Item::Root:
-            return type == Item::Folder || type == Item::Document;
+        case Item::T_Root:
+            return type == Item::T_Folder || type == Item::T_Document;
             break;
-        case Item::Folder:
-            return type == Item::Folder || type == Item::Document;
+        case Item::T_Folder:
+            return type == Item::T_Folder || type == Item::T_Document;
             break;
-        case Item::Document:
-            return type == Item::Document;
+        case Item::T_Document:
+            return type == Item::T_Document;
             break;
         default:
             return false;
@@ -272,7 +319,7 @@ bool Item::allowedSibling(Item::ItemType type) const {
 }
 
 bool Item::canHoldDocument() const {
-    return m_type != ItemType::Root;
+    return m_type != ItemType::T_Root;
 }
 
 /**
@@ -300,6 +347,10 @@ void Item::setExpanded(bool state) {
 
 Item::ItemType Item::type() const {
     return m_type;
+}
+
+Item::ItemClass Item::cls() const {
+    return m_class;
 }
 
 QUuid Item::handle() const {
@@ -355,11 +406,11 @@ Item *Item::findItemFromHandle(const QUuid &uuid) const {
 QString Item::typeToLabel(ItemType type) {
     QString name = "";
     switch (type) {
-        case Item::Hidden:   name = ""; break;
-        case Item::Root:     name = tr("Root"); break;
-        case Item::Folder:   name = tr("Folder"); break;
-        case Item::Document: name = tr("Document"); break;
-        case Item::Invalid:  name = ""; break;
+        case Item::T_Hidden:   name = ""; break;
+        case Item::T_Root:     name = tr("Root"); break;
+        case Item::T_Folder:   name = tr("Folder"); break;
+        case Item::T_Document: name = tr("Document"); break;
+        case Item::T_Invalid:   name = ""; break;
     }
     return name;
 }
@@ -367,15 +418,32 @@ QString Item::typeToLabel(ItemType type) {
 Item::ItemType Item::typeFromString(const QString &value) {
     QString upper = value.toUpper();
     if (upper == "HIDDEN") {
-        return Item::Hidden;
+        return Item::T_Hidden;
     } else if (upper == "ROOT") {
-        return Item::Root;
+        return Item::T_Root;
     } else if (upper == "FOLDER") {
-        return Item::Folder;
+        return Item::T_Folder;
     } else if (upper == "DOCUMENT") {
-        return Item::Document;
+        return Item::T_Document;
     } else {
-        return Item::Invalid;
+        return Item::T_Invalid;
+    }
+}
+
+Item::ItemClass Item::classFromString(const QString &value) {
+    QString upper = value.toUpper();
+    if (upper == "HIDDEN") {
+        return Item::C_Hidden;
+    } else if (upper == "STORY") {
+        return Item::C_Story;
+    } else if (upper == "NOTES") {
+        return Item::C_Notes;
+    } else if (upper == "ARCHIVE") {
+        return Item::C_Archive;
+    } else if (upper == "TRASH") {
+        return Item::C_Trash;
+    } else {
+        return Item::C_Inherit;
     }
 }
 

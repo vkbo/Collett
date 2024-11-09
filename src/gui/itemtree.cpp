@@ -157,15 +157,15 @@ void GuiItemTree::doOpenContextMenu(const QPoint &pos) {
     // New Items
     // ---------
 
-    if (item->allowedChild(Item::Folder)) {
+    if (item->allowedChild(Item::T_Folder)) {
         QAction *inAction = contextMenu.addAction(tr("Add Folder"));
         connect(inAction, &QAction::triggered,
-                [this, index]{doAddChild(index, Item::Folder, ItemModel::Inside);});
+                [this, index]{doAddChild(index, Item::T_Folder, ItemModel::Inside);});
     }
-    if (item->allowedChild(Item::Document)) {
+    if (item->allowedChild(Item::T_Document)) {
         QAction *inAction = contextMenu.addAction(tr("Add Document"));
         connect(inAction, &QAction::triggered,
-                [this, index]{doAddChild(index, Item::Document, ItemModel::Inside);});
+                [this, index]{doAddChild(index, Item::T_Document, ItemModel::Inside);});
     }
 
     contextMenu.exec(QWidget::mapToGlobal(pos));

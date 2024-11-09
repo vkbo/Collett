@@ -1,7 +1,7 @@
 {
 	"c:format": "document",
 	"m:created": "2022-01-29T18:22:54",
-	"m:updated": "2022-02-10T22:57:01",
+	"m:updated": "2023-06-23T12:11:14",
 	"x:content": [
 		{
 			"u:fmt": "h3:al",
@@ -26,7 +26,8 @@
 			"x:txt": [
 				"t|Here is a paragraph",
 				"t:sup|23",
-				"t| with no formatting whatsoever.\nThis is a second line in the same ",
+				"t| with no formatting whatsoever.\nThis is a second line in the sam",
+				"t|e ",
 				"t:s|silly",
 				"t| paragraph."
 			]

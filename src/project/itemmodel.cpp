@@ -89,7 +89,7 @@ bool ItemModel::fromJsonObject(const QJsonObject &json) {
         return false;
     }
 
-    m_rootItem = new Item(QUuid(), "Hidden Root", Item::Hidden);
+    m_rootItem = new Item(QUuid(), "Hidden Root", Item::T_Hidden, Item::C_Hidden);
 
     if (!json.contains(QLatin1String("x:items"))) {
         qDebug() << "Item Root: No items found in JSON object";
@@ -331,11 +331,11 @@ QVariant ItemModel::data(const QModelIndex &index, int role) const {
         CollettIcons *icons = CollettIcons::instance();
         if (index.column() == 0) {
             switch (item->type()) {
-                case Item::Root:
+                case Item::T_Root:
                     return icons->icon("projectRoot");
-                case Item::Folder:
+                case Item::T_Folder:
                     return icons->icon("projectFolder");
-                case Item::Document:
+                case Item::T_Document:
                     return icons->icon("projectDocument");
                 default:
                     return QVariant();
