@@ -2,7 +2,7 @@
 # ==========================
 #
 # This file is a part of Collett
-# Copyright 2025, Veronica Berglyd Olsen
+# Copyright (C) 2025 Veronica Berglyd Olsen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -78,11 +78,16 @@ qt_standard_project_setup(
 
 # Source Folders
 include_directories(
+    src/core
+    src/project
     src
 )
 
 # Source Files
 list(APPEND SRC_FILES
+    src/core/data
+    src/core/storage
+    src/project/project
     src/guimain
     src/main
 )

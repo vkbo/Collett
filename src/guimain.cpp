@@ -3,7 +3,7 @@
 ** ========================
 **
 ** This file is a part of Collett
-** Copyright 2025, Veronica Berglyd Olsen
+** Copyright (C) 2025 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -29,6 +29,9 @@ namespace Collett {
 
 GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
+    m_data = CollettData::instance();
+    setWindowTitle(qApp->applicationName());
+
     return;
 }
 
@@ -37,17 +40,35 @@ GuiMain::~GuiMain() {
 }
 
 /**
+ * Methods
+ */
+
+ /**!
+ * @brief Open a Collett project.
+ * 
+ * @param path Path to the project.
+ */
+void GuiMain::openFile(const QString &path) {
+
+    m_data->openProject(path);
+    if (!m_data->hasProject()) {
+        return;
+    }
+}
+
+/**
  * GUI Methods
- * ===========
  */
 
 bool GuiMain::closeMain() {
+    if (m_data->hasProject()) {
+        m_data->saveProject();
+    }
     return true;
 }
 
 /**
  * Events
- * ======
  */
 
 void GuiMain::closeEvent(QCloseEvent *event) {

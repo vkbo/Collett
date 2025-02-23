@@ -3,7 +3,7 @@
 ** ========================
 **
 ** This file is a part of Collett
-** Copyright 2025, Veronica Berglyd Olsen
+** Copyright (C) 2025 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #define GUI_MAIN_H
 
 #include "collett.h"
+#include "data.h"
 
 #include <QMainWindow>
 
@@ -37,9 +38,12 @@ public:
     ~GuiMain();
 
     // Methods
+    void openFile(const QString &path);
     bool closeMain();
 
 private:
+    CollettData *m_data;
+
     void closeEvent(QCloseEvent*);
 
 private slots:

@@ -3,7 +3,7 @@
 ** =======================
 **
 ** This file is a part of Collett
-** Copyright 2025, Veronica Berglyd Olsen
+** Copyright (C) 2025 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     Collett::GuiMain mainGUI;
     mainGUI.show();
     if (parser.isSet(openPath)) {
-        // mainGUI.openFile(parser.value(openPath));
+        mainGUI.openFile(parser.value(openPath));
     }
 
     // Styles
