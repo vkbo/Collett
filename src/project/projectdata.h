@@ -1,6 +1,6 @@
 /*
-** Collett – Project Class
-** =======================
+** Collett – Project Data Class
+** ============================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,47 +19,36 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_H
-#define COLLETT_PROJECT_H
+#ifndef COLLETT_PROJECT_DATA_H
+#define COLLETT_PROJECT_DATA_H
 
 #include "collett.h"
-#include "storage.h"
-#include "projectdata.h"
 
 #include <QJsonObject>
+#include <QString>
 
 namespace Collett {
 
-class Project : public QObject
+class ProjectData : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Project();
-    ~Project();
+    explicit ProjectData();
+    ~ProjectData();
 
     // Methods
-    bool openProject(const QString &path);
-    bool saveProject();
-    bool saveProjectAs(const QString &path);
+    void pack(QJsonObject &data);
+    void unpack(const QJsonObject &data);
 
     // Getters
-    bool isValid() const {return m_isValid;};
-    Storage *store() {return m_store;};
-    ProjectData *data() {return m_data;};
-
-    // Error Handling
-    bool hasError() const {return !m_lastError.isEmpty();};
-    QString lastError() const {return m_lastError;};
+    QString name() const {return m_projectName;};
 
 private:
-    bool     m_isValid = false;
-    QString  m_lastError = "";
-
-    Storage     *m_store = nullptr;
-    ProjectData *m_data = nullptr;
+    QString m_createdTime = "";
+    QString m_projectName = "";
 
 };
 } // namespace Collett
 
-#endif // COLLETT_PROJECT_H
+#endif // COLLETT_PROJECT_DATA_H

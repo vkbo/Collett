@@ -56,6 +56,8 @@ bool Project::openProject(const QString &path) {
         m_lastError = m_store->lastError();
         return false;
     }
+    m_data = new ProjectData();
+    m_data->unpack(jData);
 
     m_isValid = true;
 
@@ -64,7 +66,7 @@ bool Project::openProject(const QString &path) {
 
 bool Project::saveProject() {
 
-    if (m_store == nullptr) {
+    if (m_store == nullptr || m_data == nullptr) {
         qWarning() << "Project storage not initialised, cannot save";
         return false;
     }
@@ -76,7 +78,7 @@ bool Project::saveProject() {
     }
 
     QJsonObject jData;
-
+    m_data->pack(jData);
     if (!m_store->writeProject(jData)) {
         m_lastError = m_store->lastError();
         return false;
@@ -89,30 +91,6 @@ bool Project::saveProjectAs(const QString &path) {
     m_store = new Storage(path, false);
     m_isValid = true;
     return this->saveProject();
-}
-
-/**
- * Getters
- */
-
-bool Project::isValid() const {
-    return m_isValid;
-}
-
-Storage *Project::store() {
-    return m_store;
-}
-
-/**
- * Error Handling
- */
-
-bool Project::hasError() const {
-    return !m_lastError.isEmpty();
-}
-
-QString Project::lastError() const {
-    return m_lastError;
 }
 
 } // namespace Collett

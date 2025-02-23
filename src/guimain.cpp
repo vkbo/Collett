@@ -54,6 +54,8 @@ void GuiMain::openFile(const QString &path) {
     if (!m_data->hasProject()) {
         return;
     }
+
+    setWindowTitle(m_data->project()->data()->name() + " - " + qApp->applicationName());
 }
 
 /**

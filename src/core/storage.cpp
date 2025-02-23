@@ -21,6 +21,7 @@
 
 #include "storage.h"
 
+#include <QByteArray>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -166,7 +167,7 @@ bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData) {
 void Storage::writeCollett() {
     QFile file(m_rootPath.filePath("CollettProject.collett"));
     if (file.open(QIODevice::WriteOnly)) {
-        file.write("Collett");
+        file.write("Collett " + QByteArray(COL_VERSION_STR));
     }
     file.close();
 }
