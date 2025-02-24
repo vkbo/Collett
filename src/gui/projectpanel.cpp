@@ -1,6 +1,6 @@
 /*
-** Collett – Project Tree Class
-** ============================
+** Collett – GUI Project Panel Class
+** =================================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,44 +19,42 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "tree.h"
+#include "collett.h"
+#include "projectpanel.h"
 
-#include <QJsonObject>
-#include <QString>
-
-using namespace Qt::Literals::StringLiterals;
+#include <QTreeView>
+#include <QWidget>
 
 namespace Collett {
 
 // Constructor/Destructor
 // ======================
 
-Tree::Tree(QObject *parent) : QObject(parent) {
-    m_model = new ProjectModel(this);
+GuiProjectPanel::GuiProjectPanel(QWidget *parent) : QWidget(parent) {
 
-    QModelIndex root = m_model->index(0, 0);
+    // Components
+    m_projectView = new GuiProjectView(this);
 
-    Node *novel = new Node(ItemType::Root, "Novel");
-    m_model->insertChild(novel, root);
+    // Assemble
+    m_outerBox = new QVBoxLayout();
+    m_outerBox->addWidget(m_projectView, 1);
 
-    Node *chars = new Node(ItemType::Root, "Characters");
-    m_model->insertChild(chars, root, 1);
+    this->setLayout(m_outerBox);
 }
 
-Tree::~Tree() {
-    qDebug() << "Destructor: Tree";
+GuiProjectPanel::~GuiProjectPanel() {
+    qDebug() << "Destructor: GuiProjectPanel";
 }
 
 // Public Methods
 // ==============
 
-void Tree::pack(QJsonObject &data) {
-    data["c:format"_L1] = "CollettProjectStructure";
-    if (m_model) m_model->pack(data);
+void GuiProjectPanel::openProjectTasks() {
+    if (m_projectView) m_projectView->openProjectTasks();
 }
 
-void Tree::unpack(const QJsonObject &data) {
-
+void GuiProjectPanel::closeProjectTasks() {
+    if (m_projectView) m_projectView->closeProjectTasks();
 }
 
 } // namespace Collett

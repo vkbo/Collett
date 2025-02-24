@@ -1,6 +1,6 @@
 /*
-** Collett – Project Tree Class
-** ============================
+** Collett – GUI Project Tree Class
+** ================================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,44 +19,47 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "tree.h"
+#include "collett.h"
+#include "mtreeview.h"
+#include "projectview.h"
+#include "projectmodel.h"
 
-#include <QJsonObject>
-#include <QString>
-
-using namespace Qt::Literals::StringLiterals;
+#include <QTreeView>
+#include <QWidget>
+#include <QItemSelectionModel>
 
 namespace Collett {
 
 // Constructor/Destructor
 // ======================
 
-Tree::Tree(QObject *parent) : QObject(parent) {
-    m_model = new ProjectModel(this);
+GuiProjectView::GuiProjectView(QWidget *parent) : MTreeView(parent) {
 
-    QModelIndex root = m_model->index(0, 0);
-
-    Node *novel = new Node(ItemType::Root, "Novel");
-    m_model->insertChild(novel, root);
-
-    Node *chars = new Node(ItemType::Root, "Characters");
-    m_model->insertChild(chars, root, 1);
+    m_data = CollettData::instance();
 }
 
-Tree::~Tree() {
-    qDebug() << "Destructor: Tree";
+GuiProjectView::~GuiProjectView() {
+    qDebug() << "Destructor: GuiProjectView";
 }
 
 // Public Methods
 // ==============
 
-void Tree::pack(QJsonObject &data) {
-    data["c:format"_L1] = "CollettProjectStructure";
-    if (m_model) m_model->pack(data);
+void GuiProjectView::openProjectTasks() {
+    if (m_data->hasProject()) {
+        ProjectModel *model = m_data->project()->tree()->model();
+        if (model) {
+            QItemSelectionModel *m = this->selectionModel();
+            this->setModel(model);
+            delete m;
+        }
+    }
 }
 
-void Tree::unpack(const QJsonObject &data) {
-
+void GuiProjectView::closeProjectTasks() {
+    QItemSelectionModel *m = this->selectionModel();
+    this->setModel(nullptr);
+    delete m;
 }
 
 } // namespace Collett

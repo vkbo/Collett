@@ -1,6 +1,6 @@
 /*
-** Collett – Project Data Class
-** ============================
+** Collett – Project Model Class
+** =============================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,37 +19,45 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_DATA_H
-#define COLLETT_PROJECT_DATA_H
+#ifndef COLLETT_PROJECT_MODEL_H
+#define COLLETT_PROJECT_MODEL_H
 
 #include "collett.h"
+#include "node.h"
 
+#include <QAbstractItemModel>
 #include <QJsonObject>
 #include <QString>
-#include <QObject>
 
 namespace Collett {
 
-class ProjectData : public QObject
+class ProjectModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit ProjectData(QObject *parent = nullptr);
-    ~ProjectData();
+    explicit ProjectModel(QObject *parent=nullptr);
+    ~ProjectModel();
 
     // Methods
     void pack(QJsonObject &data);
     void unpack(const QJsonObject &data);
 
-    // Getters
-    QString name() const {return m_projectName;};
+    // Model Access
+    QVariant data(const QModelIndex &index, int role) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    // Model Edit
+    void insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
 
 private:
-    QString m_createdTime = "";
-    QString m_projectName = "";
+    Node *m_root = nullptr;
 
 };
 } // namespace Collett
 
-#endif // COLLETT_PROJECT_DATA_H
+#endif // COLLETT_PROJECT_MODEL_H

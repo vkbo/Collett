@@ -1,6 +1,6 @@
 /*
-** Collett – Project Tree Class
-** ============================
+** Collett – Modified QTreeView Class
+** ==================================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,44 +19,34 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "tree.h"
+#include "collett.h"
+#include "mtreeview.h"
 
-#include <QJsonObject>
-#include <QString>
-
-using namespace Qt::Literals::StringLiterals;
+#include <QTreeView>
+#include <QWidget>
+#include <QMouseEvent>
 
 namespace Collett {
 
 // Constructor/Destructor
 // ======================
 
-Tree::Tree(QObject *parent) : QObject(parent) {
-    m_model = new ProjectModel(this);
-
-    QModelIndex root = m_model->index(0, 0);
-
-    Node *novel = new Node(ItemType::Root, "Novel");
-    m_model->insertChild(novel, root);
-
-    Node *chars = new Node(ItemType::Root, "Characters");
-    m_model->insertChild(chars, root, 1);
+MTreeView::MTreeView(QWidget *parent) : QTreeView(parent) {
 }
 
-Tree::~Tree() {
-    qDebug() << "Destructor: Tree";
+MTreeView::~MTreeView() {
+    qDebug() << "Destructor: MTreeView";
 }
 
-// Public Methods
-// ==============
+// Events
+// ======
 
-void Tree::pack(QJsonObject &data) {
-    data["c:format"_L1] = "CollettProjectStructure";
-    if (m_model) m_model->pack(data);
-}
-
-void Tree::unpack(const QJsonObject &data) {
-
+void MTreeView::mousePressEvent(QMouseEvent *event) {
+    QModelIndex index = indexAt(event->pos());
+    if (event->button() == Qt::MiddleButton && index.isValid()) {
+        emit middleClicked(index);
+    }
+    QTreeView::mousePressEvent(event);
 }
 
 } // namespace Collett

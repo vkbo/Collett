@@ -1,6 +1,6 @@
 /*
-** Collett – Project Tree Class
-** ============================
+** Collett – GUI Work Panel Class
+** ==============================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,44 +19,21 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "tree.h"
+#include "collett.h"
+#include "workpanel.h"
 
-#include <QJsonObject>
-#include <QString>
-
-using namespace Qt::Literals::StringLiterals;
+#include <QWidget>
 
 namespace Collett {
 
 // Constructor/Destructor
 // ======================
 
-Tree::Tree(QObject *parent) : QObject(parent) {
-    m_model = new ProjectModel(this);
-
-    QModelIndex root = m_model->index(0, 0);
-
-    Node *novel = new Node(ItemType::Root, "Novel");
-    m_model->insertChild(novel, root);
-
-    Node *chars = new Node(ItemType::Root, "Characters");
-    m_model->insertChild(chars, root, 1);
+GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent) {
 }
 
-Tree::~Tree() {
-    qDebug() << "Destructor: Tree";
-}
-
-// Public Methods
-// ==============
-
-void Tree::pack(QJsonObject &data) {
-    data["c:format"_L1] = "CollettProjectStructure";
-    if (m_model) m_model->pack(data);
-}
-
-void Tree::unpack(const QJsonObject &data) {
-
+GuiWorkPanel::~GuiWorkPanel() {
+    qDebug() << "Destructor: GuiWorkPanel";
 }
 
 } // namespace Collett

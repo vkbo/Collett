@@ -23,6 +23,7 @@
 #define COLLETT_TREE_H
 
 #include "collett.h"
+#include "projectmodel.h"
 
 #include <QJsonObject>
 #include <QString>
@@ -34,12 +35,18 @@ class Tree : public QObject
     Q_OBJECT
 
 public:
-    explicit Tree();
+    explicit Tree(QObject *parent = nullptr);
     ~Tree();
 
     // Methods
     void pack(QJsonObject &data);
     void unpack(const QJsonObject &data);
+
+    // Getters
+    ProjectModel *model() {return m_model;};
+
+private:
+    ProjectModel *m_model;
 
 };
 } // namespace Collett

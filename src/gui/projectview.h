@@ -1,6 +1,6 @@
 /*
-** Collett – Main GUI Class
-** ========================
+** Collett – GUI Project Tree Class
+** ================================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,49 +19,36 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_MAIN_H
-#define GUI_MAIN_H
+#ifndef COLLETT_GUI_PROJECT_VIEW_H
+#define COLLETT_GUI_PROJECT_VIEW_H
 
 #include "collett.h"
 #include "data.h"
-#include "projectpanel.h"
-#include "workpanel.h"
+#include "mtreeview.h"
 
-#include <QMainWindow>
-#include <QSplitter>
+#include <QTreeView>
+#include <QWidget>
+#include <QModelIndex>
 
 namespace Collett {
 
-class GuiMain : public QMainWindow
+class GuiProjectView : public MTreeView
 {
     Q_OBJECT
 
 public:
-    GuiMain(QWidget *parent=nullptr);
-    ~GuiMain();
+    explicit GuiProjectView(QWidget *parent = nullptr);
+    ~GuiProjectView();
 
     // Methods
-    void openProject(const QString &path);
-    void saveProject();
-    void closeProject();
-    bool closeMain();
+    void openProjectTasks();
+    void closeProjectTasks();
 
 private:
     // Singletons
     CollettData *m_data;
 
-    // Components
-    GuiProjectPanel *m_projectPanel;
-    GuiWorkPanel    *m_workPanel;
-
-    // Layout
-    QSplitter *m_splitMain;
-
-    void closeEvent(QCloseEvent*);
-
-private slots:
-
 };
 } // namespace Collett
 
-#endif // GUI_MAIN_H
+#endif // COLLETT_GUI_PROJECT_VIEW_H

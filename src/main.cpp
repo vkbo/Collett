@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     Collett::GuiMain mainGUI;
     mainGUI.show();
     if (parser.isSet(openPath)) {
-        mainGUI.openFile(parser.value(openPath));
+        mainGUI.openProject(parser.value(openPath));
     }
 
     // Styles

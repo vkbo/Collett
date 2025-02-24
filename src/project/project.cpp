@@ -62,7 +62,7 @@ bool Project::openProject(const QString &path) {
         m_lastError = m_store->lastError();
         return false;
     }
-    m_tree = new Tree();
+    m_tree = new Tree(this);
     m_tree->unpack(jData);
 
     m_isValid = true;

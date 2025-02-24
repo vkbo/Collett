@@ -33,7 +33,7 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-ProjectData::ProjectData() {
+ProjectData::ProjectData(QObject *parent) : QObject(parent) {
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
 }
 

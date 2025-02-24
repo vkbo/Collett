@@ -32,6 +32,9 @@
 
 namespace Collett {
 
+enum ItemType {Invisible, Root, Folder, File};
+enum ItemClass {Novel, Characters};
+
 } // namespace Collett
 
 #endif // COLLETT_H

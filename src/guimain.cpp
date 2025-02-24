@@ -23,7 +23,7 @@
 
 #include <QApplication>
 #include <QCloseEvent>
-#include <QJsonArray>
+#include <QSplitter>
 
 namespace Collett {
 
@@ -35,7 +35,22 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_data = CollettData::instance();
     setWindowTitle(qApp->applicationName());
 
-    return;
+    // Panels
+    m_projectPanel = new GuiProjectPanel(this);
+    m_workPanel    = new GuiWorkPanel(this);
+
+    // Main Splitter
+    QList<int> sizes = {400, 1000};
+    m_splitMain = new QSplitter(Qt::Horizontal, this);
+    m_splitMain->setContentsMargins(0, 0, 0, 0);
+    m_splitMain->setOpaqueResize(false);
+    m_splitMain->addWidget(m_projectPanel);
+    m_splitMain->addWidget(m_workPanel);
+    m_splitMain->setSizes(sizes);
+
+    // Assemble
+    this->setCentralWidget(m_splitMain);
+    this->resize(1400, 900);
 }
 
 GuiMain::~GuiMain() {
@@ -49,20 +64,32 @@ GuiMain::~GuiMain() {
  * 
  * @param path Path to the project.
  */
-void GuiMain::openFile(const QString &path) {
+void GuiMain::openProject(const QString &path) {
 
     m_data->openProject(path);
     if (!m_data->hasProject()) {
         return;
     }
-
+    m_projectPanel->openProjectTasks();
     setWindowTitle(m_data->project()->data()->name() + " - " + qApp->applicationName());
 }
 
-bool GuiMain::closeMain() {
+void GuiMain::saveProject() {
     if (m_data->hasProject()) {
         m_data->saveProject();
     }
+}
+
+void GuiMain::closeProject() {
+    if (m_data->hasProject()) {
+        m_data->closeProject();
+    }
+    m_projectPanel->closeProjectTasks();
+}
+
+bool GuiMain::closeMain() {
+    this->saveProject();
+    this->closeProject();
     return true;
 }
 
