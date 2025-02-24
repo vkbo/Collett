@@ -40,17 +40,22 @@ public:
     // Methods
     bool readProject(QJsonObject &fileData);
     bool writeProject(const QJsonObject &fileData);
+    bool readStructure(QJsonObject &fileData);
+    bool writeStructure(const QJsonObject &fileData);
 
-    bool isValid();
+    // Getters
+    bool isValid() const {return m_isValid;};
     QString projectPath() const;
-    bool hasError();
-    QString lastError() const;
+
+    // Error Handling
+    bool hasError() const {return !m_lastError.isEmpty();};
+    QString lastError() const {return m_lastError;};
 
     // Static Methods
     static QString getJsonString(const QJsonObject &object, const QLatin1String &key, QString def);
 
 private:
-    bool readJson(const QString &filePath, QJsonObject &fileData);
+    bool readJson(const QString &filePath, QJsonObject &fileData, bool required);
     bool writeJson(const QString &filePath, const QJsonObject &fileData);
     void writeCollett();
 

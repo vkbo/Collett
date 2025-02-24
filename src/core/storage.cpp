@@ -31,6 +31,9 @@
 
 namespace Collett {
 
+// Constructor/Destructor
+// ======================
+
 Storage::Storage(const QString &path, bool compact) : m_compactJson(compact) {
 
     QFileInfo pathInfo(path);
@@ -55,13 +58,12 @@ Storage::~Storage() {
     qDebug() << "Destructor: Storage";
 };
 
-/**
- * Public Methods
- */
+// Public Methods
+// ==============
 
 bool Storage::readProject(QJsonObject &fileData) {
     if (m_isValid) {
-        return this->readJson(m_projectDir.filePath("project.json"), fileData);
+        return this->readJson(m_projectDir.filePath("project.json"), fileData, true);
     }
     return false;
 }
@@ -74,9 +76,23 @@ bool Storage::writeProject(const QJsonObject &fileData) {
     return false;
 }
 
-bool Storage::isValid() {
-    return m_isValid;
+bool Storage::readStructure(QJsonObject &fileData) {
+    if (m_isValid) {
+        return this->readJson(m_projectDir.filePath("structure.json"), fileData, false);
+    }
+    return false;
 }
+
+bool Storage::writeStructure(const QJsonObject &fileData) {
+    if (m_isValid) {
+        writeCollett();
+        return this->writeJson(m_projectDir.filePath("structure.json"), fileData);
+    }
+    return false;
+}
+
+// Getters
+// =======
 
 QString Storage::projectPath() const {
     if (m_isValid) {
@@ -86,17 +102,8 @@ QString Storage::projectPath() const {
     }
 }
 
-bool Storage::hasError() {
-    return !m_lastError.isEmpty();
-}
-
-QString Storage::lastError() const {
-    return m_lastError;
-}
-
-/**
- * Static Methods
- */
+// Static Methods
+// ==============
 
 /**!
  * @brief Get string from JSON object.
@@ -114,17 +121,21 @@ QString Storage::getJsonString(const QJsonObject &object, const QLatin1String &k
     }
 }
 
-/**
- * Private Methods
- */
+// Private Methods
+// ===============
 
-bool Storage::readJson(const QString &filePath, QJsonObject &fileData) {
+bool Storage::readJson(const QString &filePath, QJsonObject &fileData, bool required) {
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
-        m_lastError = tr("Could not open file: %1").arg(filePath);
-        qWarning() << "Could not open file:" << filePath;
-        return false;
+        if (required) {
+            m_lastError = tr("Could not open file: %1").arg(filePath);
+            qWarning() << "Could not open file:" << filePath;
+            return false;
+        } else {
+            qDebug() << "Missing:" << filePath;
+            return true;
+        }
     }
 
     QJsonParseError *error = new QJsonParseError();
@@ -135,6 +146,7 @@ bool Storage::readJson(const QString &filePath, QJsonObject &fileData) {
         qWarning() << error->errorString();
         return false;
     }
+    file.close();
 
     if (!json.isObject()) {
         m_lastError = tr("Unexpected content of file: %1").arg(filePath);

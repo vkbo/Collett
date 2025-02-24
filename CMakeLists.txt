@@ -89,6 +89,7 @@ list(APPEND SRC_FILES
     src/core/storage
     src/project/project
     src/project/projectdata
+    src/project/tree
     src/guimain
     src/main
 )

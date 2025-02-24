@@ -27,6 +27,9 @@
 
 namespace Collett {
 
+// Constructor/Destructor
+// ======================
+
 GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
     m_data = CollettData::instance();
@@ -39,9 +42,7 @@ GuiMain::~GuiMain() {
     qDebug() << "Destructor: GuiMain";
 }
 
-/**
- * Methods
- */
+// Public Methods
 
  /**!
  * @brief Open a Collett project.
@@ -58,10 +59,6 @@ void GuiMain::openFile(const QString &path) {
     setWindowTitle(m_data->project()->data()->name() + " - " + qApp->applicationName());
 }
 
-/**
- * GUI Methods
- */
-
 bool GuiMain::closeMain() {
     if (m_data->hasProject()) {
         m_data->saveProject();
@@ -69,9 +66,8 @@ bool GuiMain::closeMain() {
     return true;
 }
 
-/**
- * Events
- */
+// Events
+// ======
 
 void GuiMain::closeEvent(QCloseEvent *event) {
     if (closeMain()) {

@@ -27,9 +27,8 @@
 
 namespace Collett {
 
-/**
- * Constructor/Destructor
- */
+// Constructor/Destructor
+// ======================
 
 Project::Project() {
 }
@@ -38,9 +37,8 @@ Project::~Project() {
     qDebug() << "Destructor: Project";
 }
 
-/**
- * Public Methods
- */
+// Public Methods
+// ==============
 
 bool Project::openProject(const QString &path) {
 
@@ -51,13 +49,21 @@ bool Project::openProject(const QString &path) {
         return false;
     }
 
-    QJsonObject jData;
+    QJsonObject jData, jTree;
+
     if (!m_store->readProject(jData)) {
         m_lastError = m_store->lastError();
         return false;
     }
     m_data = new ProjectData();
     m_data->unpack(jData);
+
+    if (!m_store->readStructure(jTree)) {
+        m_lastError = m_store->lastError();
+        return false;
+    }
+    m_tree = new Tree();
+    m_tree->unpack(jData);
 
     m_isValid = true;
 
@@ -77,9 +83,16 @@ bool Project::saveProject() {
         return false;
     }
 
-    QJsonObject jData;
+    QJsonObject jData, jTree;
+
     m_data->pack(jData);
     if (!m_store->writeProject(jData)) {
+        m_lastError = m_store->lastError();
+        return false;
+    }
+
+    m_tree->pack(jTree);
+    if (!m_store->writeStructure(jTree)) {
         m_lastError = m_store->lastError();
         return false;
     }

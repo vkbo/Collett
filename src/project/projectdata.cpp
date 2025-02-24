@@ -30,9 +30,8 @@ using namespace Qt::Literals::StringLiterals;
 
 namespace Collett {
 
-/**
- * Constructor/Destructor
- */
+// Constructor/Destructor
+// ======================
 
 ProjectData::ProjectData() {
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
@@ -42,9 +41,8 @@ ProjectData::~ProjectData() {
     qDebug() << "Destructor: ProjectData";
 }
 
-/**
- * Public Methods
- */
+// Public Methods
+// ==============
 
 void ProjectData::pack(QJsonObject &data) {
 

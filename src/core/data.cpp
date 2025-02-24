@@ -27,9 +27,8 @@
 
 namespace Collett {
 
-/**
- * Constructor/Destructor/Instance
- */
+// Constructor/Destructor/Instance
+// ===============================
 
 CollettData *CollettData::staticInstance = nullptr;
 CollettData *CollettData::instance() {
@@ -46,30 +45,8 @@ CollettData::~CollettData() {
     m_project.reset();
 }
 
-/**
- * Getters
- */
-
- bool CollettData::hasProject() const {
-    if (m_project.isNull()) {
-        return false;
-    } else {
-        return m_project.data()->isValid();
-    }
-}
-
-Project *CollettData::project() {
-    if (hasProject()) {
-        return m_project.data();
-    } else {
-        return nullptr;
-    }
-}
-
-
-/**
- * Methods
- */
+// Public Methods
+// ==============
 
 bool CollettData::openProject(const QString &path) {
 
@@ -104,5 +81,25 @@ bool CollettData::saveProjectAs(const QString &path) {
 void CollettData::closeProject() {
     m_project.reset(nullptr);
 }
+
+// Getters
+// =======
+
+bool CollettData::hasProject() const {
+    if (m_project.isNull()) {
+        return false;
+    } else {
+        return m_project.data()->isValid();
+    }
+}
+
+Project *CollettData::project() {
+    if (hasProject()) {
+        return m_project.data();
+    } else {
+        return nullptr;
+    }
+}
+
 
 } // namespace Collett
