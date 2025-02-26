@@ -56,7 +56,6 @@ void Tree::pack(QJsonObject &data) {
 }
 
 void Tree::unpack(const QJsonObject &data) {
-
 }
 
 } // namespace Collett

@@ -33,6 +33,7 @@ namespace Collett {
 GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
     m_data = CollettData::instance();
+    m_settings = Settings::instance();
     setWindowTitle(qApp->applicationName());
 
     // Panels
@@ -46,11 +47,11 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_splitMain->setOpaqueResize(false);
     m_splitMain->addWidget(m_projectPanel);
     m_splitMain->addWidget(m_workPanel);
-    m_splitMain->setSizes(sizes);
+    m_splitMain->setSizes(m_settings->mainSplitSizes());
 
     // Assemble
     this->setCentralWidget(m_splitMain);
-    this->resize(1400, 900);
+    this->resize(m_settings->mainWindowSize());
 }
 
 GuiMain::~GuiMain() {
@@ -58,12 +59,8 @@ GuiMain::~GuiMain() {
 }
 
 // Public Methods
+// ==============
 
- /**!
- * @brief Open a Collett project.
- * 
- * @param path Path to the project.
- */
 void GuiMain::openProject(const QString &path) {
 
     m_data->openProject(path);
@@ -90,6 +87,14 @@ void GuiMain::closeProject() {
 bool GuiMain::closeMain() {
     this->saveProject();
     this->closeProject();
+
+    // Save Settings
+    if (!this->isFullScreen()) {
+        m_settings->setMainWindowSize(this->size());
+        m_settings->setMainSplitSizes(m_splitMain->sizes());
+    }
+    m_settings->flushSettings();
+
     return true;
 }
 

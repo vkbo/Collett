@@ -25,6 +25,7 @@
 #include "collett.h"
 #include "data.h"
 #include "projectpanel.h"
+#include "settings.h"
 #include "workpanel.h"
 
 #include <QMainWindow>
@@ -49,6 +50,7 @@ public:
 private:
     // Singletons
     CollettData *m_data;
+    Settings    *m_settings;
 
     // Components
     GuiProjectPanel *m_projectPanel;

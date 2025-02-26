@@ -88,6 +88,7 @@ include_directories(
 # Source Files
 list(APPEND SRC_FILES
     src/core/data
+    src/core/settings
     src/core/storage
     src/gui/projectpanel
     src/gui/projectview
