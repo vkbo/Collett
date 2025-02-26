@@ -26,9 +26,8 @@
 #define COL_VERSION_NUM 0x000001a1
 #define COL_VERSION_DATE "2025-02-23"
 
+#include <QDebug>
 #include <QObject>
-#include <QString>
-#include <QLatin1String>
 
 namespace Collett {
 

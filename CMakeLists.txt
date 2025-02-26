@@ -81,14 +81,13 @@ include_directories(
     src/core
     src/gui
     src/project
+    src/static
     src/widgets
     src
 )
 
 # Source Files
 list(APPEND SRC_FILES
-    src/core/data
-    src/core/settings
     src/core/storage
     src/gui/projectpanel
     src/gui/projectview
@@ -98,6 +97,9 @@ list(APPEND SRC_FILES
     src/project/projectdata
     src/project/projectmodel
     src/project/tree
+    src/static/data
+    src/static/settings
+    src/static/theme
     src/widgets/mtreeview
     src/guimain
     src/main
@@ -111,6 +113,11 @@ qt_add_translations(Collett TS_FILE_DIR i18n)
 qt_add_resources(Collett "assets" PREFIX "/styles" BASE "assets/" FILES
     assets/styles.qss
 )
+add_custom_target(assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+)
+add_dependencies(Collett assets)
 
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")
 target_link_libraries(Collett PRIVATE Qt::Widgets Qt::Svg)

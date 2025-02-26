@@ -1,6 +1,6 @@
 /*
-** Collett – Core Data Class
-** =========================
+** Collett – Main Theme Class
+** ==========================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,40 +19,33 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_DATA_H
-#define COLLETT_DATA_H
+#ifndef COLLETT_THEME_H
+#define COLLETT_THEME_H
 
 #include "collett.h"
-#include "project.h"
 
-#include <QScopedPointer>
+#include <QString>
 
 namespace Collett {
 
-class CollettData : public QObject
+class Theme : public QObject
 {
     Q_OBJECT
 
 public:
-    static CollettData *instance();
-    ~CollettData();
-    CollettData();
+    static Theme *instance();
+    static void destroy();
+
+    explicit Theme(QObject *parent = nullptr);
+    ~Theme();
 
     // Methods
-    bool openProject(const QString &path);
-    bool saveProject();
-    bool saveProjectAs(const QString &path);
-    void closeProject();
-
-    // Getters
-    bool hasProject() const;
-    Project *project();
+    void loadTheme(QString theme);
 
 private:
-    static CollettData *staticInstance;
-    QScopedPointer<Project> m_project;
+    static Theme *staticInstance;
 
 };
 } // namespace Collett
 
-#endif // COLLETT_DATA_H
+#endif // COLLETT_THEME_H

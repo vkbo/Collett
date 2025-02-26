@@ -80,7 +80,7 @@ void Settings::destroy() {
     }
 }
 
-Settings::Settings() {
+Settings::Settings(QObject *parent) : QObject(parent) {
 
     // Load Settings
     QSettings settings;

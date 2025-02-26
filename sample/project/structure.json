@@ -1,3 +1,23 @@
 {
-    "c:format": "CollettProjectStructure"
+    "c:format": "CollettProjectStructure",
+    "x:items": [
+        {
+            "m:characters": 0,
+            "m:expanded": false,
+            "m:handle": "b40f0226-7863-4f6d-9581-b52fd231138a",
+            "m:order": 0,
+            "m:type": "Root",
+            "m:words": 0,
+            "u:name": "Novel"
+        },
+        {
+            "m:characters": 0,
+            "m:expanded": false,
+            "m:handle": "524976da-2bad-41fe-8902-3606d64b0577",
+            "m:order": 1,
+            "m:type": "Root",
+            "m:words": 0,
+            "u:name": "Characters"
+        }
+    ]
 }

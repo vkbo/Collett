@@ -39,7 +39,8 @@ CollettData *CollettData::instance() {
     return staticInstance;
 }
 
-CollettData::CollettData() {}
+CollettData::CollettData(QObject *parent) : QObject(parent) {}
+
 CollettData::~CollettData() {
     qDebug() << "Destructor: CollettData";
     m_project.reset();

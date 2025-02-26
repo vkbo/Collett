@@ -1,6 +1,6 @@
 /*
-** Collett – Project Data Class
-** ============================
+** Collett – Main Theme Class
+** ==========================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,36 +19,44 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_DATA_H
-#define COLLETT_PROJECT_DATA_H
-
 #include "collett.h"
+#include "theme.h"
 
-#include <QJsonObject>
 #include <QString>
 
 namespace Collett {
 
-class ProjectData : public QObject
-{
-    Q_OBJECT
+// Constructor/Destructor/Instance
+// ===============================
 
-public:
-    explicit ProjectData(QObject *parent = nullptr);
-    ~ProjectData();
+Theme *Theme::staticInstance = nullptr;
+Theme *Theme::instance() {
+    if (staticInstance == nullptr) {
+        staticInstance = new Theme();
+        qDebug() << "Constructor: Theme";
+    }
+    return staticInstance;
+}
 
-    // Methods
-    void pack(QJsonObject &data);
-    void unpack(const QJsonObject &data);
+void Theme::destroy() {
+    if (staticInstance != nullptr) {
+        qDebug() << "Destructor: Static Theme";
+        delete Theme::staticInstance;
+    }
+}
 
-    // Getters
-    QString name() const {return m_projectName;};
+Theme::Theme(QObject *parent) : QObject(parent) {
+}
 
-private:
-    QString m_createdTime = "";
-    QString m_projectName = "";
+Theme::~Theme() {
+    qDebug() << "Destructor: Theme";
+}
 
-};
+// Public Methods
+// ==============
+
+void Theme::loadTheme(QString theme) {
+
+}
+
 } // namespace Collett
-
-#endif // COLLETT_PROJECT_DATA_H

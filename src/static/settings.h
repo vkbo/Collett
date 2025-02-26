@@ -26,7 +26,6 @@
 
 #include <QList>
 #include <QSize>
-#include <QObject>
 #include <QScopedPointer>
 #include <QTextCharFormat>
 #include <QTextBlockFormat>
@@ -59,8 +58,8 @@ public:
     static Settings *instance();
     static void destroy();
 
-    explicit Settings();
-    ~Settings();
+    explicit Settings(QObject *parent = nullptr);
+    ~Settings() noexcept;
 
     void flushSettings();
 
@@ -70,7 +69,6 @@ public:
     void setMainSplitSizes(const QList<int> &sizes);
     void setEditorAutoSave(const int interval);
     void setTextFontSize(const qreal size);
-    void setTextTabWidth(const qreal width);
 
     // Getters
 

@@ -1,6 +1,6 @@
 /*
-** Collett – Project Data Class
-** ============================
+** Collett – Core Data Class
+** =========================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,36 +19,41 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_DATA_H
-#define COLLETT_PROJECT_DATA_H
+#ifndef COLLETT_DATA_H
+#define COLLETT_DATA_H
 
 #include "collett.h"
+#include "project.h"
 
-#include <QJsonObject>
-#include <QString>
+#include <QScopedPointer>
 
 namespace Collett {
 
-class ProjectData : public QObject
+class CollettData : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ProjectData(QObject *parent = nullptr);
-    ~ProjectData();
+    static CollettData *instance();
+
+    CollettData(QObject *parent = nullptr);
+    ~CollettData();
 
     // Methods
-    void pack(QJsonObject &data);
-    void unpack(const QJsonObject &data);
+    bool openProject(const QString &path);
+    bool saveProject();
+    bool saveProjectAs(const QString &path);
+    void closeProject();
 
     // Getters
-    QString name() const {return m_projectName;};
+    bool hasProject() const;
+    Project *project();
 
 private:
-    QString m_createdTime = "";
-    QString m_projectName = "";
+    static CollettData *staticInstance;
+    QScopedPointer<Project> m_project;
 
 };
 } // namespace Collett
 
-#endif // COLLETT_PROJECT_DATA_H
+#endif // COLLETT_DATA_H

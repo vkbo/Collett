@@ -25,6 +25,8 @@
 #include <QCloseEvent>
 #include <QSplitter>
 
+using namespace Qt::Literals::StringLiterals;
+
 namespace Collett {
 
 // Constructor/Destructor
@@ -68,7 +70,7 @@ void GuiMain::openProject(const QString &path) {
         return;
     }
     m_projectPanel->openProjectTasks();
-    setWindowTitle(m_data->project()->data()->name() + " - " + qApp->applicationName());
+    setWindowTitle(QString("%1 - %2").arg(m_data->project()->data()->name(), qApp->applicationName()));
 }
 
 void GuiMain::saveProject() {
