@@ -20,6 +20,7 @@
 */
 
 #include "storage.h"
+#include "tools.h"
 
 #include <QByteArray>
 #include <QDir>
@@ -102,78 +103,33 @@ QString Storage::projectPath() const {
     }
 }
 
-// Static Methods
-// ==============
-
-/**!
- * @brief Get string from JSON object.
- *
- * @param object the json object.
- * @param key    the key of the value to look up.
- * @param def    the default value to return in case the key does not exist.
- * @return the value or the default as a string.
- */
-QString Storage::getJsonString(const QJsonObject &object, const QLatin1String &key, QString def) {
-    if (object.contains(key)) {
-        return object.value(key).toString();
-    } else {
-        return def;
-    }
-}
-
 // Private Methods
 // ===============
 
 bool Storage::readJson(const QString &filePath, QJsonObject &fileData, bool required) {
 
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        if (required) {
+    switch (JsonUtils::readJson(filePath, fileData, required)) {
+        case JsonUtilsError::FileError:
             m_lastError = tr("Could not open file: %1").arg(filePath);
-            qWarning() << "Could not open file:" << filePath;
             return false;
-        } else {
-            qDebug() << "Missing:" << filePath;
+        case JsonUtilsError::JsonError:
+            m_lastError = tr("Could not parse file: %1").arg(filePath);
+            return false;
+        default:
             return true;
-        }
     }
-
-    QJsonParseError *error = new QJsonParseError();
-    QJsonDocument json = QJsonDocument::fromJson(file.readAll(), error);
-    if (error->error != QJsonParseError::NoError) {
-        m_lastError = tr("Could not parse file: %1").arg(filePath);
-        qWarning() << "Could not parse file:" << filePath;
-        qWarning() << error->errorString();
-        return false;
-    }
-    file.close();
-
-    if (!json.isObject()) {
-        m_lastError = tr("Unexpected content of file: %1").arg(filePath);
-        qWarning() << "Unexpected content of file:" << filePath;
-        return false;
-    }
-
-    fileData = json.object();
-    qDebug() << "Read:" << filePath;
-
-    return true;
 }
 
 bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData) {
 
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly)) {
-        m_lastError = tr("Could not open file: %1").arg(filePath);
-        qWarning() << "Could not open file:" << filePath;
-        return false;
+    switch (JsonUtils::writeJson(filePath, fileData, m_compactJson)) {
+        case JsonUtilsError::FileError:
+            m_lastError = tr("Could not open file: %1").arg(filePath);
+            return false;
+        case JsonUtilsError::JsonError: // N/A
+        default:
+            return true;
     }
-    file.write(QJsonDocument(fileData).toJson(
-        m_compactJson ? QJsonDocument::Compact : QJsonDocument::Indented
-    ));
-    file.close();
-    qDebug() << "Wrote:" << filePath;
-    return true;
 }
 
 void Storage::writeCollett() {

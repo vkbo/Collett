@@ -46,7 +46,7 @@ public:
 
 private:
     // Singletons
-    CollettData *m_data;
+    SharedData *m_data;
 
 };
 } // namespace Collett

@@ -35,7 +35,7 @@ namespace Collett {
 
 GuiProjectView::GuiProjectView(QWidget *parent) : MTreeView(parent) {
 
-    m_data = CollettData::instance();
+    m_data = SharedData::instance();
 }
 
 GuiProjectView::~GuiProjectView() {

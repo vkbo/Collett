@@ -1,6 +1,6 @@
 /*
-** Collett – Core Data Class
-** =========================
+** Collett – Shared Data Class
+** ===========================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,8 +19,8 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_DATA_H
-#define COLLETT_DATA_H
+#ifndef COLLETT_SHARED_DATA_H
+#define COLLETT_SHARED_DATA_H
 
 #include "collett.h"
 #include "project.h"
@@ -29,15 +29,15 @@
 
 namespace Collett {
 
-class CollettData : public QObject
+class SharedData : public QObject
 {
     Q_OBJECT
 
 public:
-    static CollettData *instance();
+    static SharedData *instance();
 
-    CollettData(QObject *parent = nullptr);
-    ~CollettData();
+    SharedData(QObject *parent = nullptr);
+    ~SharedData();
 
     // Methods
     bool openProject(const QString &path);
@@ -49,11 +49,15 @@ public:
     bool hasProject() const;
     Project *project();
 
+signals:
+
+    void projectLoaded();
+
 private:
-    static CollettData *staticInstance;
+    static SharedData *staticInstance;
     QScopedPointer<Project> m_project;
 
 };
 } // namespace Collett
 
-#endif // COLLETT_DATA_H
+#endif // COLLETT_SHARED_DATA_H

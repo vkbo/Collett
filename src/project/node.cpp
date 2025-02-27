@@ -65,9 +65,9 @@ void Node::pack(QJsonObject &data) {
         data["x:items"_L1] = children;
     } else {
         switch (m_type) {
-            case ItemType::Root:   data["m:type"_L1] = "Root"_L1; break;
-            case ItemType::Folder: data["m:type"_L1] = "Folder"_L1; break;
-            case ItemType::File:   data["m:type"_L1] = "File"_L1; break;
+            case ItemType::RootType:   data["m:type"_L1] = "Root"_L1; break;
+            case ItemType::FolderType: data["m:type"_L1] = "Folder"_L1; break;
+            case ItemType::FileType:   data["m:type"_L1] = "File"_L1; break;
             default: return;
         }
         data["u:name"_L1] = m_name;

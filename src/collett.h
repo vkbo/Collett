@@ -31,8 +31,29 @@
 
 namespace Collett {
 
-enum ItemType {Invisible, Root, Folder, File};
+enum ItemType {InvisibleRoot, RootType, FolderType, FileType};
 enum ItemClass {Novel, Characters};
+
+enum ThemeColor {
+    RootColor    = 0,
+    FolderColor  = 1,
+    FileColor    = 2,
+    TitleColor   = 3,
+    ChapterColor = 4,
+    SceneColor   = 5,
+    NoteColor    = 6,
+    DefaultColor = 7,
+    FadedColor   = 8,
+    Red          = 9,
+    Orange       = 10,
+    Yellow       = 11,
+    Green        = 12,
+    Aqua         = 13,
+    Blue         = 14,
+    Purple       = 15,
+};
+
+enum JsonUtilsError{NoError, FileError, JsonError};
 
 } // namespace Collett
 

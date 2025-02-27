@@ -1,6 +1,6 @@
 /*
-** Collett – Main GUI Class
-** ========================
+** Collett – Core Tools
+** ====================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,55 +19,23 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_MAIN_H
-#define GUI_MAIN_H
+#ifndef COLLETT_TOOLS_H
+#define COLLETT_TOOLS_H
 
 #include "collett.h"
-#include "data.h"
-#include "projectpanel.h"
-#include "settings.h"
-#include "theme.h"
-#include "workpanel.h"
 
-#include <QMainWindow>
-#include <QSplitter>
+#include <QDir>
+#include <QJsonObject>
 
 namespace Collett {
 
-class GuiMain : public QMainWindow
+class JsonUtils
 {
-    Q_OBJECT
-
 public:
-    GuiMain(QWidget *parent=nullptr);
-    ~GuiMain();
-
-    // Methods
-    void openProject(const QString &path);
-    void saveProject();
-    void closeProject();
-    bool closeMain();
-
-private:
-    // Singletons
-    SharedData *m_data;
-    Settings   *m_settings;
-    Theme      *m_theme;
-
-    // Components
-    GuiProjectPanel *m_projectPanel;
-    GuiWorkPanel    *m_workPanel;
-
-    // Layout
-    QSplitter *m_splitMain;
-
-    void closeEvent(QCloseEvent*);
-
-private slots:
-
-    void updateTitle();
-
+    static QString getJsonString(const QJsonObject &object, const QLatin1String &key, QString def);
+    static JsonUtilsError readJson(const QString &filePath, QJsonObject &fileData, bool required);
+    static JsonUtilsError writeJson(const QString &filePath, const QJsonObject &fileData, bool compact);
 };
 } // namespace Collett
 
-#endif // GUI_MAIN_H
+#endif // COLLETT_TOOLS_H

@@ -22,21 +22,23 @@
 #include "collett.h"
 #include "settings.h"
 
+#include <QCoreApplication>
+#include <QDir>
 #include <QFont>
 #include <QList>
-#include <QSize>
-#include <QVariant>
 #include <QSettings>
-#include <QVariantList>
-#include <QTextCharFormat>
-#include <QCoreApplication>
+#include <QSize>
 #include <QTextBlockFormat>
+#include <QTextCharFormat>
+#include <QVariant>
+#include <QVariantList>
 
 using namespace Qt::Literals::StringLiterals;
 
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
 #define CNF_MAIN_SPLIT_SIZES "Main/mainSplitSizes"_L1
 #define CNF_MAIN_WINDOW_SIZE "Main/windowSize"_L1
+#define CNF_MAIN_GUI_THEME "Main/guiTheme"_L1
 #define CNF_TEXT_FONT_SIZE "TextFormat/fontSize"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
 
@@ -90,14 +92,11 @@ Settings::Settings(QObject *parent) : QObject(parent) {
 
     m_mainWindowSize = settings.value(CNF_MAIN_WINDOW_SIZE, QSize(1200, 800)).toSize();
     m_mainSplitSizes = variantListToInt(settings.value(CNF_MAIN_SPLIT_SIZES, QVariantList() << 300 << 700).toList());
+    m_guiTheme = settings.value(CNF_MAIN_GUI_THEME, "default_light").toString();
 
     // Check Values
-    if (m_mainWindowSize.width() < 400) {
-        m_mainWindowSize.setWidth(400);
-    }
-    if (m_mainWindowSize.height() < 300) {
-        m_mainWindowSize.setHeight(300);
-    }
+    if (m_mainWindowSize.width() < 400) m_mainWindowSize.setWidth(400);
+    if (m_mainWindowSize.height() < 300) m_mainWindowSize.setHeight(300);
 
     // Editor Settings
     // ---------------
@@ -125,53 +124,33 @@ void Settings::flushSettings() {
 
     settings.setValue(CNF_MAIN_WINDOW_SIZE, m_mainWindowSize);
     settings.setValue(CNF_MAIN_SPLIT_SIZES, intListToVariant(m_mainSplitSizes));
+    settings.setValue(CNF_MAIN_GUI_THEME, m_guiTheme);
 
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
 
     settings.setValue(CNF_TEXT_FONT_SIZE, m_textFontSize);
+    settings.setValue(CNF_TEXT_TAB_WIDTH, m_textTabWidth);
 
     qDebug() << "Settings values saved";
 
     return;
 }
 
+QDir Settings::assetPath(QString asset) {
+    return QDir(QCoreApplication::applicationDirPath() + "/assets/" + asset);
+}
+
 // Setters
 // =======
-
-void Settings::setMainWindowSize(const QSize size) {
-    m_mainWindowSize = size;
-}
-
-void Settings::setMainSplitSizes(const QList<int> &sizes) {
-    m_mainSplitSizes = sizes;
-}
-
-void Settings::setEditorAutoSave(const int interval) {
-    m_editorAutoSave = interval;
-}
 
 void Settings::setTextFontSize(const qreal size) {
     m_textFontSize = size;
     recalculateTextFormats();
 }
 
-// Getters
-// =======
-
-QSize Settings::mainWindowSize() const {
-    return m_mainWindowSize;
-}
-
-QList<int> Settings::mainSplitSizes() const {
-    return m_mainSplitSizes;
-}
-
-int Settings::editorAutoSave() const {
-    return m_editorAutoSave;
-}
-
-Settings::TextFormat Settings::textFormat() const {
-    return m_textFormat;
+void Settings::setTextTabWidth(const qreal width) {
+    m_textTabWidth = width;
+    recalculateTextFormats();
 }
 
 // Internal Functions

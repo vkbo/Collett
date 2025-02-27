@@ -1,0 +1,40 @@
+{
+    "c:format": "CollettTheme",
+    "c:meta": {
+        "m:name": "Collett Default Light"
+    },
+    "c:baseColors": {
+        "window": "#efefef",
+        "windowText": "#000000",
+        "base": "#ffffff",
+        "alternateBase": "#e0e0e0",
+        "text": "#000000",
+        "toolTipBase": "#ffffdc",
+        "toolTipText": "#000000",
+        "button": "#efefef",
+        "buttonText": "#000000",
+        "brightText": "#ffffff",
+        "highlight": "#3087c6",
+        "highlightedText": "#ffffff",
+        "link": "#4271ae",
+        "linkVisited": "#4271ae"
+    },
+    "c:themeColors": {
+        "root": "#4271ae",
+        "folder": "#eab700",
+        "file": "#484848",
+        "title": "#718c00",
+        "chapter": "#f02829",
+        "scene": "#4271ae",
+        "note": "#eab700",
+        "default": "#484848",
+        "faded": "#6c6c6c",
+        "red": "#f02829",
+        "orange": "#f5871f",
+        "yellow": "#eab700",
+        "green": "#718c00",
+        "aqua": "#3e999f",
+        "blue": "#4271ae",
+        "purple": "#8959a8"
+    }
+}

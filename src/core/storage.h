@@ -26,6 +26,7 @@
 
 #include <QDir>
 #include <QJsonObject>
+#include <QString>
 
 namespace Collett {
 
@@ -50,9 +51,6 @@ public:
     // Error Handling
     bool hasError() const {return !m_lastError.isEmpty();};
     QString lastError() const {return m_lastError;};
-
-    // Static Methods
-    static QString getJsonString(const QJsonObject &object, const QLatin1String &key, QString def);
 
 private:
     bool readJson(const QString &filePath, QJsonObject &fileData, bool required);

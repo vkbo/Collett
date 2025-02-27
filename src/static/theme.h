@@ -23,8 +23,11 @@
 #define COLLETT_THEME_H
 
 #include "collett.h"
+#include "settings.h"
 
 #include <QString>
+#include <QColor>
+#include <QList>
 
 namespace Collett {
 
@@ -39,11 +42,40 @@ public:
     explicit Theme(QObject *parent = nullptr);
     ~Theme();
 
+    // Getters
+    bool isDark() const {return m_isDark;};
+    QColor getColor(ThemeColor color) const {return m_colors.at(color);};
+
     // Methods
-    void loadTheme(QString theme);
+    bool loadTheme(QString theme);
 
 private:
     static Theme *staticInstance;
+    Settings *m_settings;
+
+    // Meta
+    QString m_themeName = "";
+
+    // Colors
+    bool m_isDark = false;
+    QList<QColor> m_colors = {
+        QColor::fromString("black"),  // ThemeColor::RootColor
+        QColor::fromString("yellow"), // ThemeColor::Folder Color
+        QColor::fromString("grey"),   // ThemeColor::FileColor
+        QColor::fromString("green"),  // ThemeColor::TitleColor
+        QColor::fromString("red"),    // ThemeColor::ChapterColor
+        QColor::fromString("blue"),   // ThemeColor::SceneColor
+        QColor::fromString("yellow"), // ThemeColor::NoteColor
+        QColor::fromString("black"),  // ThemeColor::DefaultColor
+        QColor::fromString("grey"),   // ThemeColor::FadedColor
+        QColor::fromString("red"),    // ThemeColor::Red
+        QColor::fromString("orange"), // ThemeColor::Orange
+        QColor::fromString("yellow"), // ThemeColor::Yellow
+        QColor::fromString("green"),  // ThemeColor::Green
+        QColor::fromString("aqua"),   // ThemeColor::Aqua
+        QColor::fromString("blue"),   // ThemeColor::Blue
+        QColor::fromString("purple"), // ThemeColor::Purple
+    };
 
 };
 } // namespace Collett

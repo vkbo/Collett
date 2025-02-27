@@ -34,9 +34,10 @@ namespace Collett {
 
 GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
-    m_data = CollettData::instance();
+    // Static Objects
+    m_data = SharedData::instance();
     m_settings = Settings::instance();
-    setWindowTitle(qApp->applicationName());
+    m_theme = Theme::instance();
 
     // Panels
     m_projectPanel = new GuiProjectPanel(this);
@@ -51,9 +52,15 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_splitMain->addWidget(m_workPanel);
     m_splitMain->setSizes(m_settings->mainSplitSizes());
 
+    // Connect Signals
+    this->connect(m_data, &SharedData::projectLoaded, this, &GuiMain::updateTitle);
+
     // Assemble
     this->setCentralWidget(m_splitMain);
+
+    // Apply Settings
     this->resize(m_settings->mainWindowSize());
+    this->updateTitle();
 }
 
 GuiMain::~GuiMain() {
@@ -70,7 +77,6 @@ void GuiMain::openProject(const QString &path) {
         return;
     }
     m_projectPanel->openProjectTasks();
-    setWindowTitle(QString("%1 - %2").arg(m_data->project()->data()->name(), qApp->applicationName()));
 }
 
 void GuiMain::saveProject() {
@@ -108,6 +114,17 @@ void GuiMain::closeEvent(QCloseEvent *event) {
         event->accept();
     } else {
         event->ignore();
+    }
+}
+
+// Private Slots
+// =============
+
+void GuiMain::updateTitle() {
+    if (m_data->hasProject()) {
+        setWindowTitle(QString("%1 - %2").arg(m_data->project()->data()->name(), qApp->applicationName()));
+    } else {
+        setWindowTitle(qApp->applicationName());
     }
 }
 

@@ -1,0 +1,40 @@
+{
+    "c:format": "CollettTheme",
+    "c:meta": {
+        "m:name": "Collett Default Dark"
+    },
+    "c:baseColors": {
+        "window": "#363636",
+        "windowText": "#cccccc",
+        "base": "#3e3e3e",
+        "alternateBase": "#4e4e4e",
+        "text": "#cccccc",
+        "toolTipBase": "#ffffc0",
+        "toolTipText": "#15150d",
+        "button": "#3e3e3e",
+        "buttonText": "#cccccc",
+        "brightText": "#3e3e3e",
+        "highlight": "#2c98f7",
+        "highlightedText": "#ffffff",
+        "link": "#6699cc",
+        "linkVisited": "#6699cc"
+    },
+    "c:themeColors": {
+        "root": "#6699cc",
+        "folder": "#ffcc66",
+        "file": "#b8b8b8",
+        "title": "#99cc99",
+        "chapter": "#f2777a",
+        "scene": "#6699cc",
+        "note": "#ffcc66",
+        "default": "#b8b8b8",
+        "faded": "#949494",
+        "red": "#f2777a",
+        "orange": "#f99139",
+        "yellow": "#ffcc66",
+        "green": "#99cc99",
+        "aqua": "#66cccc",
+        "blue": "#6699cc",
+        "purple": "#cc99cc"
+    }
+}

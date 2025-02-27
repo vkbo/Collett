@@ -30,26 +30,26 @@ namespace Collett {
 // Constructor/Destructor/Instance
 // ===============================
 
-CollettData *CollettData::staticInstance = nullptr;
-CollettData *CollettData::instance() {
+SharedData *SharedData::staticInstance = nullptr;
+SharedData *SharedData::instance() {
     if (staticInstance == nullptr) {
-        staticInstance = new CollettData();
-        qDebug() << "Constructor: CollettData";
+        staticInstance = new SharedData();
+        qDebug() << "Constructor: SharedData";
     }
     return staticInstance;
 }
 
-CollettData::CollettData(QObject *parent) : QObject(parent) {}
+SharedData::SharedData(QObject *parent) : QObject(parent) {}
 
-CollettData::~CollettData() {
-    qDebug() << "Destructor: CollettData";
+SharedData::~SharedData() {
+    qDebug() << "Destructor: SharedData";
     m_project.reset();
 }
 
 // Public Methods
 // ==============
 
-bool CollettData::openProject(const QString &path) {
+bool SharedData::openProject(const QString &path) {
 
     m_project.reset(new Project());
     if (!m_project.data()->hasError()) {
@@ -60,10 +60,12 @@ bool CollettData::openProject(const QString &path) {
         return false;
     }
 
+    emit projectLoaded();
+
     return true;
 }
 
-bool CollettData::saveProject() {
+bool SharedData::saveProject() {
     if (hasProject()) {
         return m_project.data()->saveProject();
     } else {
@@ -71,7 +73,7 @@ bool CollettData::saveProject() {
     }
 }
 
-bool CollettData::saveProjectAs(const QString &path) {
+bool SharedData::saveProjectAs(const QString &path) {
     if (hasProject()) {
         return m_project.data()->saveProjectAs(path);
     } else {
@@ -79,14 +81,14 @@ bool CollettData::saveProjectAs(const QString &path) {
     }
 }
 
-void CollettData::closeProject() {
+void SharedData::closeProject() {
     m_project.reset(nullptr);
 }
 
 // Getters
 // =======
 
-bool CollettData::hasProject() const {
+bool SharedData::hasProject() const {
     if (m_project.isNull()) {
         return false;
     } else {
@@ -94,7 +96,7 @@ bool CollettData::hasProject() const {
     }
 }
 
-Project *CollettData::project() {
+Project *SharedData::project() {
     if (hasProject()) {
         return m_project.data();
     } else {

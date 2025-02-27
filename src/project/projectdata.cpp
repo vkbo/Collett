@@ -21,6 +21,7 @@
 
 #include "projectdata.h"
 #include "storage.h"
+#include "tools.h"
 
 #include <QDateTime>
 #include <QJsonObject>
@@ -70,10 +71,10 @@ void ProjectData::unpack(const QJsonObject &data) {
     QJsonObject jSettings = data.value("c:settings"_L1).toObject();
 
     // Project Meta
-    m_createdTime = Storage::getJsonString(jMeta, "m:created"_L1, "Unknown");
+    m_createdTime = JsonUtils::getJsonString(jMeta, "m:created"_L1, "Unknown");
 
     // Project Settings
-    m_projectName = Storage::getJsonString(jProject, "u:name"_L1, tr("Unnamed Project"));
+    m_projectName = JsonUtils::getJsonString(jProject, "u:name"_L1, tr("Unnamed Project"));
 }
 
 } // namespace Collett

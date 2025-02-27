@@ -24,11 +24,13 @@
 
 #include "collett.h"
 
+#include <QDir>
 #include <QList>
-#include <QSize>
 #include <QScopedPointer>
-#include <QTextCharFormat>
+#include <QSize>
+#include <QString>
 #include <QTextBlockFormat>
+#include <QTextCharFormat>
 
 namespace Collett {
 
@@ -61,21 +63,26 @@ public:
     explicit Settings(QObject *parent = nullptr);
     ~Settings() noexcept;
 
+    // Methods
     void flushSettings();
+    static QDir assetPath(QString asset);
 
     // Setters
 
-    void setMainWindowSize(const QSize size);
-    void setMainSplitSizes(const QList<int> &sizes);
-    void setEditorAutoSave(const int interval);
+    void setMainWindowSize(const QSize size) {m_mainWindowSize = size;};
+    void setMainSplitSizes(const QList<int> &sizes) {m_mainSplitSizes = sizes;};
+    void setMainGuiTheme(const QString theme) {m_guiTheme = theme;};
+    void setEditorAutoSave(const int interval) {m_editorAutoSave = interval;};
     void setTextFontSize(const qreal size);
+    void setTextTabWidth(const qreal width);
 
     // Getters
 
-    QSize      mainWindowSize() const;
-    QList<int> mainSplitSizes() const;
-    int        editorAutoSave() const;
-    TextFormat textFormat() const;
+    QSize      mainWindowSize() const {return m_mainWindowSize;};
+    QList<int> mainSplitSizes() const {return m_mainSplitSizes;};
+    QString    guiTheme() const {return m_guiTheme;};
+    int        editorAutoSave() const {return m_editorAutoSave;};
+    TextFormat textFormat() const {return m_textFormat;};
 
 private:
     static Settings *staticInstance;
@@ -84,6 +91,7 @@ private:
 
     QSize      m_mainWindowSize;
     QList<int> m_mainSplitSizes;
+    QString    m_guiTheme;
 
     // Editor
 
