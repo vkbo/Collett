@@ -24,6 +24,7 @@
 
 #include "collett.h"
 #include "settings.h"
+#include "icons.h"
 
 #include <QString>
 #include <QColor>
@@ -52,9 +53,13 @@ public:
 private:
     static Theme *staticInstance;
     Settings *m_settings;
+    Icons    *m_icons;
 
     // Meta
-    QString m_themeName = "";
+    QString m_name = "";
+    QString m_author = "";
+    QString m_credit = "";
+    QString m_license = "";
 
     // Colors
     bool m_isDark = false;
@@ -77,6 +82,7 @@ private:
         QColor::fromString("purple"), // ThemeColor::Purple
     };
 
+    friend class Icons;
 };
 } // namespace Collett
 

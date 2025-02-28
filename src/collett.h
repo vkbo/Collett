@@ -31,9 +31,29 @@
 
 namespace Collett {
 
-enum ItemType {InvisibleRoot, RootType, FolderType, FileType};
-enum ItemClass {Novel, Characters};
+// Item Enums
+// Used for distinguishing between the roles of a project node.
+enum ItemType {
+    InvisibleRoot,
+    RootType,
+    FolderType,
+    FileType,
+};
+enum ItemClass {
+    NovelClass,
+    CharacterClass,
+    PlotClass,
+    LocationClass,
+    ObjectClass,
+    EntityClass,
+    CustomClass,
+    ArchiveClass,
+    TemplateClass,
+    TrashClass,
+};
 
+// Theme Colours
+// Used as index keys to look up colours from the Theme class.
 enum ThemeColor {
     RootColor    = 0,
     FolderColor  = 1,

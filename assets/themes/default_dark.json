@@ -1,7 +1,10 @@
 {
     "c:format": "CollettTheme",
     "c:meta": {
-        "m:name": "Collett Default Dark"
+        "m:name": "Collett Default Dark",
+        "m:author": "Veronica Berglyd Olsen",
+        "m:credit": "Veronica Berglyd Olsen",
+        "m:license": "GPLv3"
     },
     "c:baseColors": {
         "window": "#363636",

@@ -103,6 +103,9 @@ bool GuiMain::closeMain() {
     }
     m_settings->flushSettings();
 
+    m_theme->destroy();
+    m_settings->destroy();
+
     return true;
 }
 

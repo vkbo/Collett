@@ -22,6 +22,7 @@
 #include "collett.h"
 #include "theme.h"
 #include "tools.h"
+#include "icons.h"
 
 #include <QString>
 #include <QFileInfo>
@@ -56,7 +57,10 @@ void Theme::destroy() {
 Theme::Theme(QObject *parent) : QObject(parent) {
 
     m_settings = Settings::instance();
+    m_icons = new Icons(this);
+
     this->loadTheme(m_settings->guiTheme());
+    m_icons->loadIcons(m_settings->iconSet());
 }
 
 Theme::~Theme() {
@@ -80,7 +84,10 @@ bool Theme::loadTheme(QString theme) {
     QJsonObject jTheme = data.value("c:themeColors"_L1).toObject();
 
     // Theme Meta
-    m_themeName = JsonUtils::getJsonString(jMeta, "m:name"_L1, "Unknown");
+    m_name = JsonUtils::getJsonString(jMeta, "m:name"_L1, "Unknown");
+    m_author = JsonUtils::getJsonString(jMeta, "m:author"_L1, "");
+    m_credit = JsonUtils::getJsonString(jMeta, "m:credit"_L1, "");
+    m_license = JsonUtils::getJsonString(jMeta, "m:license"_L1, "");
 
     // Qt Base Colors
     QColor window          = QColor::fromString(JsonUtils::getJsonString(jBase, "window"_L1, "white"));

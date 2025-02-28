@@ -68,19 +68,19 @@ public:
     static QDir assetPath(QString asset);
 
     // Setters
-
     void setMainWindowSize(const QSize size) {m_mainWindowSize = size;};
     void setMainSplitSizes(const QList<int> &sizes) {m_mainSplitSizes = sizes;};
     void setMainGuiTheme(const QString theme) {m_guiTheme = theme;};
+    void setMainIconSet(const QString icons) {m_iconSet = icons;};
     void setEditorAutoSave(const int interval) {m_editorAutoSave = interval;};
     void setTextFontSize(const qreal size);
     void setTextTabWidth(const qreal width);
 
     // Getters
-
     QSize      mainWindowSize() const {return m_mainWindowSize;};
     QList<int> mainSplitSizes() const {return m_mainSplitSizes;};
     QString    guiTheme() const {return m_guiTheme;};
+    QString    iconSet() const {return m_iconSet;};
     int        editorAutoSave() const {return m_editorAutoSave;};
     TextFormat textFormat() const {return m_textFormat;};
 
@@ -88,25 +88,21 @@ private:
     static Settings *staticInstance;
 
     // GUI Settings
-
     QSize      m_mainWindowSize;
     QList<int> m_mainSplitSizes;
     QString    m_guiTheme;
+    QString    m_iconSet;
 
     // Editor
-
     int m_editorAutoSave;
 
     // Text Format
-
     qreal      m_textFontSize;
     qreal      m_textTabWidth;
     TextFormat m_textFormat;
 
     // Internal Functions
-
     void recalculateTextFormats();
-
 };
 } // namespace Collett
 

@@ -1,0 +1,43 @@
+{
+    "c:format": "CollettTheme",
+    "c:meta": {
+        "m:name": "Dracula",
+        "m:author": "Veronica Berglyd Olsen (adaptation)",
+        "m:credit": "Zeno Rocha",
+        "m:license": "MIT"
+    },
+    "c:baseColors": {
+        "window": "#44475a",
+        "windowText": "#f8f8f2",
+        "base": "#282a36",
+        "alternateBase": "#333645",
+        "text": "#f8f8f2",
+        "toolTipBase": "#f1fa8c",
+        "toolTipText": "#282a36",
+        "button": "#505369",
+        "buttonText": "#f8f8f2",
+        "brightText": "#44475a",
+        "highlight": "#a681da",
+        "highlightedText": "#f8f8f2",
+        "link": "#8be9fd",
+        "linkVisited": "#8be9fd"
+    },
+    "c:themeColors": {
+        "root": "#bd93f9",
+        "folder": "#f1fa8c",
+        "file": "#e6e6e0",
+        "title": "#50fa7b",
+        "chapter": "#ff5555",
+        "scene": "#93cff9",
+        "note": "#f1fa8c",
+        "default": "#e6e6e0",
+        "faded": "#6272a4",
+        "red": "#ff5555",
+        "orange": "#ffb86c",
+        "yellow": "#f1fa8c",
+        "green": "#50fa7b",
+        "aqua": "#8be9fd",
+        "blue": "#93cff9",
+        "purple": "#bd93f9"
+    }
+}
