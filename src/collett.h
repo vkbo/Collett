@@ -40,6 +40,7 @@ enum ItemType {
     FileType,
 };
 enum ItemClass {
+    NoClass,
     NovelClass,
     CharacterClass,
     PlotClass,

@@ -33,7 +33,7 @@ namespace Collett {
 // ======================
 
 ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent) {
-    m_root = new Node(ItemType::InvisibleRoot, "InvisibleRoot");
+    m_root = new Node(ItemType::InvisibleRoot, ItemClass::NoClass, "InvisibleRoot");
 }
 
 ProjectModel::~ProjectModel() {

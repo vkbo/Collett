@@ -25,8 +25,10 @@
 #include "collett.h"
 #include "settings.h"
 
-#include <QString>
+#include <QByteArray>
+#include <QIcon>
 #include <QMap>
+#include <QString>
 
 namespace Collett {
 
@@ -38,6 +40,10 @@ class Icons : public QObject
 public:
     explicit Icons(Theme *parent);
     ~Icons();
+
+    // Getters
+    QIcon getIcon(QString name, ThemeColor color, QSize size);
+    QIcon getIcon(QString name, ThemeColor color) {return getIcon(name, color, QSize(24, 24));};
 
     // Methods
     bool loadIcons(QString icons);
@@ -52,7 +58,11 @@ private:
     QString m_license = "";
 
     // Storage
-    QMap<QString, QString> m_icons;
+    QMap<QString, QByteArray> m_svg;
+    QMap<QString, QIcon>      m_icons;
+
+    // Functions
+    QIcon generateIcon(QString name, ThemeColor color, QSize size);
 };
 } // namespace Collett
 

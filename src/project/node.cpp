@@ -20,6 +20,7 @@
 */
 
 #include "node.h"
+#include "theme.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -34,14 +35,11 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Node::Node(ItemType type, QUuid &handle, QString name) :
-    m_type(type), m_handle(handle), m_name(name)
-{}
-
-Node::Node(ItemType type, QString name) :
-    m_type(type), m_name(name)
+Node::Node(ItemType itemType, ItemClass itemClass, QUuid handle, QString name) :
+    m_type(itemType), m_class(itemClass), m_handle(handle), m_name(name)
 {
-    m_handle = QUuid::createUuid();
+    Theme *theme = Theme::instance();
+    m_icon = theme->icons()->getIcon("cls_novel", ThemeColor::Red);
 }
 
 Node::~Node() {
@@ -108,6 +106,7 @@ Node *Node::child(int row) {
 QVariant Node::data(int column, int role) const {
     if (column == 0) {
         if (role == Qt::DisplayRole) return QVariant::fromValue(m_name);
+        if (role == Qt::DecorationRole) return QVariant::fromValue(m_icon);
     } else if (column == 1) {
         if (role == Qt::DisplayRole) return QVariant::fromValue(m_counts.words);
         if (role == Qt::TextAlignmentRole) return QVariant::fromValue(Qt::AlignRight);

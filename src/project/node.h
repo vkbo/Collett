@@ -24,6 +24,7 @@
 
 #include "collett.h"
 
+#include <QIcon>
 #include <QJsonObject>
 #include <QString>
 #include <QUuid>
@@ -43,8 +44,9 @@ class Node : public QObject
     };
 
 public:
-    Node(ItemType type, QUuid &handle, QString name);
-    Node(ItemType type, QString name);
+    Node(ItemType itemType, ItemClass itemClass, QUuid handle, QString name);
+    Node(ItemType itemType, ItemClass itemClass, QString name) :
+        Node(itemType, itemClass, QUuid::createUuid(), name) {};
     ~Node();
 
     // Methods
@@ -69,9 +71,11 @@ public:
 
 private:
     // Attributes
-    ItemType m_type;
-    QUuid    m_handle;
-    QString  m_name;
+    ItemType  m_type;
+    ItemClass m_class;
+    QUuid     m_handle;
+    QString   m_name;
+    QIcon     m_icon;
 
     // Meta
     Counts m_counts = {0, 0, 0};

@@ -24,9 +24,12 @@
 #include "settings.h"
 #include "theme.h"
 
-#include <QString>
+#include <QByteArray>
 #include <QFileInfo>
+#include <QString>
 #include <QTextStream>
+#include <QIcon>
+#include <QPixmap>
 
 namespace Collett {
 
@@ -39,6 +42,20 @@ Icons::Icons(Theme *parent) : QObject(parent), m_theme(parent) {
 
 Icons::~Icons() {
     qDebug() << "Destructor: Icons";
+}
+
+// Getters
+// =======
+
+QIcon Icons::getIcon(QString name, ThemeColor color, QSize size) {
+    QString key = name + QString::number(color) + "-"
+                + QString::number(size.width()) + "x"
+                + QString::number(size.height());
+    if (!m_icons.contains(key)) {
+        m_icons[key] = this->generateIcon(name, color, size);
+    }
+    qDebug() << "Requested Icon:" << key;
+    return m_icons[key];
 }
 
 // Public Methods
@@ -63,8 +80,9 @@ bool Icons::loadIcons(QString icons) {
         if (eqPos > 5) {
             if (line.startsWith("icon:")) {
                 QString key(line.first(eqPos).sliced(5).trimmed());
-                QString svg(line.sliced(eqPos + 1).trimmed());
-                if (svg.startsWith("<svg")) m_icons[key] = svg;
+                QByteArray svg(line.sliced(eqPos + 1).trimmed().toLatin1());
+                if (svg.startsWith("<svg")) m_svg[key] = svg;
+                qDebug() << "Icon:" << key << " = " << svg;
             } else if (line.startsWith("meta:name")) {
                 m_name = line.sliced(eqPos + 1).trimmed();
                 qDebug() << "IconSet Name:" << m_name;
@@ -80,6 +98,22 @@ bool Icons::loadIcons(QString icons) {
     file.close();
 
     return true;
+}
+
+// Private Methods
+// ===============
+
+QIcon Icons::generateIcon(QString name, ThemeColor color, QSize size) {
+    if (m_svg.contains(name)) {
+        QByteArray svg(m_svg[name]);
+        svg.replace("#000000", QByteArray::fromStdString(m_theme->m_colors.at(color).name(QColor::HexRgb).toStdString()));
+        qDebug() << name << svg;
+        QPixmap pixmap(size);
+        pixmap.fill(Qt::transparent);
+        pixmap.loadFromData(svg, "svg");
+        return QIcon(pixmap);
+    }
+    return QIcon();
 }
 
 } // namespace Collett

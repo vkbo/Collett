@@ -46,6 +46,7 @@ public:
     // Getters
     bool isDark() const {return m_isDark;};
     QColor getColor(ThemeColor color) const {return m_colors.at(color);};
+    Icons *icons() const {return m_icons;};
 
     // Methods
     bool loadTheme(QString theme);
