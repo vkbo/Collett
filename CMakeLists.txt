@@ -92,6 +92,7 @@ list(APPEND SRC_FILES
     src/core/storage
     src/core/tools
     src/gui/projectpanel
+    src/gui/projecttoolbar
     src/gui/projectview
     src/gui/workpanel
     src/project/node
@@ -103,6 +104,7 @@ list(APPEND SRC_FILES
     src/static/settings
     src/static/theme
     src/widgets/mtreeview
+    src/constants
     src/guimain
     src/main
 )

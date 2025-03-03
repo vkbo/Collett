@@ -21,9 +21,12 @@
 
 #include "guimain.h"
 
+#include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
+#include <QMenu>
 #include <QSplitter>
+#include <QToolButton>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -52,11 +55,19 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_splitMain->addWidget(m_workPanel);
     m_splitMain->setSizes(m_settings->mainSplitSizes());
 
+    // ToolBars
+    m_projectToolBar = new GuiProjectToolBar(this);
+
     // Connect Signals
-    this->connect(m_data, &SharedData::projectLoaded, this, &GuiMain::updateTitle);
+    connect(m_data, &SharedData::projectLoaded, this, &GuiMain::updateTitle);
+
+    connect(m_projectToolBar->actOpenProject, &QAction::triggered, this, &GuiMain::onProjectOpen);
+    connect(m_projectToolBar->actSaveProject, &QAction::triggered, this, &GuiMain::onProjectSave);
+    connect(m_projectToolBar->actCloseProject, &QAction::triggered, this, &GuiMain::onProjectClose);
 
     // Assemble
     this->setCentralWidget(m_splitMain);
+    this->addToolBar(m_projectToolBar);
 
     // Apply Settings
     this->resize(m_settings->mainWindowSize());
@@ -122,6 +133,10 @@ void GuiMain::closeEvent(QCloseEvent *event) {
 
 // Private Slots
 // =============
+
+void GuiMain::onProjectOpen() {
+
+}
 
 void GuiMain::updateTitle() {
     if (m_data->hasProject()) {

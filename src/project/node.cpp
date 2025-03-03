@@ -81,7 +81,6 @@ void Node::pack(QJsonObject &data) {
                 case ItemClass::EntityClass:    data["m:class"_L1] = "Entity"_L1; break;
                 case ItemClass::CustomClass:    data["m:class"_L1] = "Custom"_L1; break;
                 case ItemClass::ArchiveClass:   data["m:class"_L1] = "Archive"_L1; break;
-                case ItemClass::TemplateClass:  data["m:class"_L1] = "Template"_L1; break;
                 case ItemClass::TrashClass:     data["m:class"_L1] = "Trash"_L1; break;
                 default: return;
             }
@@ -305,7 +304,7 @@ void Node::updateIcon() {
     if (m_type == ItemType::InvisibleRoot) {
         m_icon = QIcon();
     } else {
-        m_icon = theme->icons()->getProjectIcon(m_type, m_class, m_level);
+        m_icon = theme->icons()->getProjectIcon(m_type, m_class, m_level, theme->baseIconSize());
     }
 }
 
@@ -359,10 +358,6 @@ bool Node::classFromString(QString value, ItemClass &itemClass) {
     }
     if (value == "Archive") {
         itemClass = ItemClass::ArchiveClass;
-        return true;
-    }
-    if (value == "Template") {
-        itemClass = ItemClass::TemplateClass;
         return true;
     }
     if (value == "Trash") {

@@ -25,12 +25,14 @@
 #include "collett.h"
 #include "data.h"
 #include "projectpanel.h"
+#include "projecttoolbar.h"
 #include "settings.h"
 #include "theme.h"
 #include "workpanel.h"
 
 #include <QMainWindow>
 #include <QSplitter>
+#include <QToolBar>
 
 namespace Collett {
 
@@ -58,13 +60,20 @@ private:
     GuiProjectPanel *m_projectPanel;
     GuiWorkPanel    *m_workPanel;
 
+    // ToolBars
+    GuiProjectToolBar *m_projectToolBar;
+
     // Layout
     QSplitter *m_splitMain;
 
+    // Events
     void closeEvent(QCloseEvent*);
 
 private slots:
 
+    void onProjectOpen();
+    void onProjectSave() {saveProject();};
+    void onProjectClose() {closeProject();};
     void updateTitle();
 
 };

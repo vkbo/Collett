@@ -55,6 +55,7 @@ public:
     int   baseButtonHeight() const {return m_baseButtonHeight;};
     QSize baseIconSize() const {return m_baseIconSize;};
     QSize buttonIconSize() const {return m_buttonIconSize;};
+    QSize toolButtonIconSize() const {return m_toolButtonIconSize;};
 
     // Methods
     bool loadTheme(QString theme);
@@ -98,6 +99,7 @@ private:
     int   m_baseButtonHeight = 16;
     QSize m_baseIconSize = {16, 16};
     QSize m_buttonIconSize = {14, 14};
+    QSize m_toolButtonIconSize = {20, 20};
 
     friend class Icons;
 };

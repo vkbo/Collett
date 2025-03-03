@@ -40,23 +40,22 @@ enum ItemType {
     FileType,
 };
 enum ItemClass {
-    NovelClass,
-    CharacterClass,
-    PlotClass,
-    LocationClass,
-    ObjectClass,
-    EntityClass,
-    CustomClass,
-    ArchiveClass,
-    TemplateClass,
-    TrashClass,
+    NovelClass     = 0,
+    CharacterClass = 1,
+    PlotClass      = 2,
+    LocationClass  = 3,
+    ObjectClass    = 4,
+    EntityClass    = 5,
+    CustomClass    = 6,
+    ArchiveClass   = 7,
+    TrashClass     = 8,
 };
 enum ItemLevel {
-    PageLevel,
-    NoteLevel,
-    TitleLevel,
-    ChapterLevel,
-    SceneLevel,
+    PageLevel    = 0,
+    TitleLevel   = 1,
+    ChapterLevel = 2,
+    SceneLevel   = 3,
+    NoteLevel    = 4,
 };
 
 // Theme Colours

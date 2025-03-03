@@ -59,7 +59,7 @@ QIcon Icons::getIcon(QString name, ThemeColor color, QSize size) {
     return m_icons[key];
 }
 
-QIcon Icons::getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel) {
+QIcon Icons::getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel, QSize size) {
     QString name = "none";
     ThemeColor color = ThemeColor::DefaultColor;
     switch (itemType) {
@@ -88,9 +88,6 @@ QIcon Icons::getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel it
                     break;
                 case ItemClass::ArchiveClass:
                     name = "cls_archive";
-                    break;
-                case ItemClass::TemplateClass:
-                    name = "cls_template";
                     break;
                 case ItemClass::TrashClass:
                     name = "cls_trash";
@@ -129,7 +126,7 @@ QIcon Icons::getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel it
             break;
     }
     if (name != "none") {
-        return this->getIcon(name, color);
+        return this->getIcon(name, color, size);
     } else {
         return QIcon();
     }

@@ -1,5 +1,5 @@
 /*
-** Collett – Shared Data Class
+** Collett – Collett Constants
 ** ===========================
 **
 ** This file is a part of Collett
@@ -19,44 +19,18 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_SHARED_DATA_H
-#define COLLETT_SHARED_DATA_H
+#ifndef COLLETT_CONSTANTS_H
+#define COLLETT_CONSTANTS_H
 
 #include "collett.h"
-#include "project.h"
 
-#include <QScopedPointer>
+#include <QString>
 
 namespace Collett {
 
-class SharedData : public QObject
-{
-    Q_OBJECT
+QString itemClassNames(ItemClass itemClass);
+QString itemLevelNames(ItemLevel itemLevel);
 
-public:
-    static SharedData *instance();
-
-    SharedData(QObject *parent = nullptr);
-    ~SharedData();
-
-    // Methods
-    bool openProject(const QString &path);
-    bool saveProject();
-    bool saveProjectAs(const QString &path);
-    void closeProject();
-
-    // Getters
-    bool hasProject() const;
-    Project *project();
-
-signals:
-    void projectLoaded();
-
-private:
-    static SharedData *staticInstance;
-    QScopedPointer<Project> m_project;
-
-};
 } // namespace Collett
 
-#endif // COLLETT_SHARED_DATA_H
+#endif // COLLETT_CONSTANTS_H

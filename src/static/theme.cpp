@@ -71,6 +71,7 @@ Theme::Theme(QObject *parent) : QObject(parent) {
     m_baseButtonHeight = int(round(1.35*metric.ascent()));
     m_baseIconSize = QSize(m_baseIconHeight, m_baseIconHeight);
     m_buttonIconSize = QSize(int(0.9*m_baseIconHeight), int(0.9*m_baseIconHeight));
+    m_toolButtonIconSize = QSize(int(1.2*m_baseIconHeight), int(1.2*m_baseIconHeight));
 }
 
 Theme::~Theme() {

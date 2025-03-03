@@ -37,7 +37,6 @@ ICONS = {
     "cls_novel": "git-repository",
     "cls_object": "knife-blood-line",
     "cls_plot": "puzzle-2",
-    "cls_template": "folder-add",
     "cls_trash": "delete-bin",
 
     "prj_chapter": "file-text",
@@ -46,6 +45,11 @@ ICONS = {
     "prj_note": "file-4",
     "prj_scene": "file-text",
     "prj_title": "file-text",
+
+    "menu_project": "booklet",
+
+    "add": "add-large",
+    "bookmarks": "bookmark",
 }
 
 

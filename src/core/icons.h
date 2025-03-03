@@ -45,7 +45,7 @@ public:
     // Getters
     QIcon getIcon(QString name, ThemeColor color, QSize size);
     QIcon getIcon(QString name, ThemeColor color) {return getIcon(name, color, QSize(24, 24));};
-    QIcon getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel);
+    QIcon getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel, QSize size);
 
     // Methods
     bool loadIcons(QString icons);
