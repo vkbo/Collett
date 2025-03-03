@@ -26,6 +26,7 @@
 
 #include <QIcon>
 #include <QJsonObject>
+#include <QList>
 #include <QString>
 #include <QUuid>
 #include <QVariant>
@@ -44,18 +45,24 @@ class Node : public QObject
     };
 
 public:
-    Node(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel, QUuid handle, QString name);
+    Node(ItemType itemType, QUuid handle, QString name);
     ~Node();
 
     // Methods
     void pack(QJsonObject &data);
-    void unpack(const QJsonObject &data);
+    void unpack(const QJsonObject &data, int &skipped, int &errors);
 
     // Getters
-    ItemType type() const {return m_type;};
-    QUuid    handle() const {return m_handle;};
-    QString  name() const {return m_name;};
-    Counts   counts() {return m_counts;};
+    ItemType  itemType() const {return m_type;};
+    ItemClass itemClass() const {return m_class;};
+    QUuid     handle() const {return m_handle;};
+    QString   name() const {return m_name;};
+    Counts    counts() {return m_counts;};
+    bool      isExpanded() {return m_expanded;};
+
+    // Setters
+    void setCounts(Counts counts) {m_counts = counts;};
+    void setExpanded(bool state) {m_expanded = state;};
 
     // Model Access
     int row() const;
@@ -64,8 +71,19 @@ public:
     Node *child(int row);
     Node *parent() {return m_parent;};
 
+    QList<Node*> allChildren();
+
     // Model Edit
     void addChild(Node *child, qsizetype pos = -1);
+    Node *addRoot(QUuid handle, QString name, ItemClass itemClass, qsizetype pos = -1);
+    Node *addFolder(QUuid handle, QString name, qsizetype pos = -1);
+    Node *addFile(QUuid handle, QString name, ItemLevel itemLevel, qsizetype pos = -1);
+    void updateIcon();
+
+    // Static Methods
+    static bool typeFromString(QString value, ItemType &itemType);
+    static bool classFromString(QString value, ItemClass &itemClass);
+    static bool levelFromString(QString value, ItemLevel &ItemLevel);
 
 private:
     // Attributes
@@ -84,6 +102,8 @@ private:
     Node           *m_parent = nullptr;
     QVector<Node*>  m_children;
 
+    // Methods
+    void recursiveAppendChildren(QList<Node*> &children);
 };
 } // namespace Collett
 

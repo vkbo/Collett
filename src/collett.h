@@ -52,7 +52,7 @@ enum ItemClass {
     TrashClass,
 };
 enum ItemLevel {
-    NoLevel,
+    PageLevel,
     NoteLevel,
     TitleLevel,
     ChapterLevel,

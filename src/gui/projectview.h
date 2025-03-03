@@ -24,6 +24,7 @@
 
 #include "collett.h"
 #include "data.h"
+#include "theme.h"
 #include "mtreeview.h"
 
 #include <QTreeView>
@@ -47,7 +48,19 @@ public:
 private:
     // Singletons
     SharedData *m_data;
+    Theme      *m_theme;
 
+    // Getters
+    ProjectModel *getModel();
+    Node *getNode(const QModelIndex &index);
+
+    // Methods
+    void adjustHeaders();
+    void restoreExpandedState();
+
+private slots:
+    void onNodeExpanded(const QModelIndex &index);
+    void onNodeCollapsed(const QModelIndex &index);
 };
 } // namespace Collett
 

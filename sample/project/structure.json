@@ -2,22 +2,133 @@
     "c:format": "CollettProjectStructure",
     "x:items": [
         {
-            "m:characters": 0,
-            "m:expanded": false,
-            "m:handle": "b40f0226-7863-4f6d-9581-b52fd231138a",
+            "m:characters": 100,
+            "m:class": "Novel",
+            "m:expanded": true,
+            "m:handle": "b2fa285c-f6b8-4f0a-ab3e-bebce4bf48f8",
             "m:order": 0,
             "m:type": "Root",
-            "m:words": 0,
-            "u:name": "Novel"
+            "m:words": 10,
+            "u:name": "Novel",
+            "x:items": [
+                {
+                    "m:characters": 0,
+                    "m:expanded": false,
+                    "m:handle": "211ca2ce-d8b3-4b7c-a0cd-615f3aa392d0",
+                    "m:level": "Page",
+                    "m:order": 0,
+                    "m:type": "File",
+                    "m:words": 0,
+                    "u:name": "Title Page"
+                },
+                {
+                    "m:characters": 0,
+                    "m:expanded": true,
+                    "m:handle": "083de0b6-f182-4b0f-bb9f-08543095b221",
+                    "m:level": "Chapter",
+                    "m:order": 1,
+                    "m:type": "File",
+                    "m:words": 0,
+                    "u:name": "Chapter 1",
+                    "x:items": [
+                        {
+                            "m:characters": 0,
+                            "m:expanded": false,
+                            "m:handle": "f18360f6-e70a-4972-ae47-d58038a8e191",
+                            "m:level": "Scene",
+                            "m:order": 0,
+                            "m:type": "File",
+                            "m:words": 0,
+                            "u:name": "Scene 1"
+                        }
+                    ]
+                }
+            ]
         },
         {
-            "m:characters": 0,
-            "m:expanded": false,
-            "m:handle": "524976da-2bad-41fe-8902-3606d64b0577",
+            "m:characters": 200,
+            "m:class": "Character",
+            "m:expanded": true,
+            "m:handle": "0123801b-d9c0-4fad-a1e8-0d7e866a095b",
             "m:order": 1,
             "m:type": "Root",
-            "m:words": 0,
-            "u:name": "Characters"
+            "m:words": 20,
+            "u:name": "Characters",
+            "x:items": [
+                {
+                    "m:characters": 0,
+                    "m:expanded": false,
+                    "m:handle": "4e4c3e4b-5784-4e94-b175-90eca4c3ee36",
+                    "m:level": "Note",
+                    "m:order": 0,
+                    "m:type": "File",
+                    "m:words": 0,
+                    "u:name": "Jane Smith"
+                },
+                {
+                    "m:characters": 0,
+                    "m:expanded": false,
+                    "m:handle": "3b5e5075-9b92-47b3-9335-d8c28cee38c9",
+                    "m:level": "Note",
+                    "m:order": 1,
+                    "m:type": "File",
+                    "m:words": 0,
+                    "u:name": "John Smith"
+                },
+                {
+                    "m:characters": 0,
+                    "m:expanded": true,
+                    "m:handle": "c5d8421e-18c7-44cd-bcf9-cce2fd3f4c3d",
+                    "m:order": 2,
+                    "m:type": "Folder",
+                    "m:words": 0,
+                    "u:name": "Side Characters",
+                    "x:items": [
+                        {
+                            "m:characters": 0,
+                            "m:expanded": false,
+                            "m:handle": "1681befd-c3d1-4f3a-b91a-48d761df8dcd",
+                            "m:level": "Note",
+                            "m:order": 0,
+                            "m:type": "File",
+                            "m:words": 0,
+                            "u:name": "Sideshow Bob"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "m:characters": 300,
+            "m:class": "Plot",
+            "m:expanded": true,
+            "m:handle": "8b17ab7d-9006-4b8c-8cc1-8ee6ca3f3776",
+            "m:order": 2,
+            "m:type": "Root",
+            "m:words": 30,
+            "u:name": "Plot",
+            "x:items": [
+                {
+                    "m:characters": 0,
+                    "m:expanded": false,
+                    "m:handle": "3eaca2cb-7725-4b83-b21e-bf42b1a79efa",
+                    "m:level": "Note",
+                    "m:order": 0,
+                    "m:type": "File",
+                    "m:words": 0,
+                    "u:name": "Main Plot"
+                },
+                {
+                    "m:characters": 0,
+                    "m:expanded": false,
+                    "m:handle": "f673af3d-d949-4244-862f-a5cabadd4bc4",
+                    "m:level": "Note",
+                    "m:order": 1,
+                    "m:type": "File",
+                    "m:words": 0,
+                    "u:name": "Side Plot"
+                }
+            ]
         }
     ]
 }

@@ -27,6 +27,8 @@
 
 #include <QAbstractItemModel>
 #include <QJsonObject>
+#include <QList>
+#include <QModelIndex>
 #include <QString>
 
 namespace Collett {
@@ -39,17 +41,23 @@ public:
     explicit ProjectModel(QObject *parent=nullptr);
     ~ProjectModel();
 
+    // Getters
+    Node *invisibleRoot() const {return m_root;};
+
     // Methods
     void pack(QJsonObject &data);
     void unpack(const QJsonObject &data);
 
     // Model Access
-    QVariant data(const QModelIndex &index, int role) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    QList<QModelIndex> allExpanded();
+    Node *nodeAtIndex(const QModelIndex &index);
 
     // Model Edit
     void insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);

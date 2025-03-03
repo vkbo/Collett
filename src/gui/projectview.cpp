@@ -24,9 +24,11 @@
 #include "projectview.h"
 #include "projectmodel.h"
 
+#include <QAbstractItemView>
+#include <QHeaderView>
+#include <QItemSelectionModel>
 #include <QTreeView>
 #include <QWidget>
-#include <QItemSelectionModel>
 
 namespace Collett {
 
@@ -36,6 +38,27 @@ namespace Collett {
 GuiProjectView::GuiProjectView(QWidget *parent) : MTreeView(parent) {
 
     m_data = SharedData::instance();
+    m_theme = Theme::instance();
+
+    this->setIconSize(m_theme->baseIconSize());
+    this->setUniformRowHeights(true);
+    this->setAllColumnsShowFocus(true);
+    this->setExpandsOnDoubleClick(true);
+    this->setAutoExpandDelay(1000);
+    this->setHeaderHidden(true);
+    this->setIndentation(m_theme->baseIconHeight());
+
+    // Allow Move by Drag & Drop
+    this->setDragEnabled(true);
+    this->setDragDropMode(QAbstractItemView::InternalMove);
+    
+    // Set selection options
+    this->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    this->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    // Connect Signals
+    this->connect(this, &GuiProjectView::expanded, this, &GuiProjectView::onNodeExpanded);
+    this->connect(this, &GuiProjectView::collapsed, this, &GuiProjectView::onNodeCollapsed);
 }
 
 GuiProjectView::~GuiProjectView() {
@@ -46,13 +69,13 @@ GuiProjectView::~GuiProjectView() {
 // ==============
 
 void GuiProjectView::openProjectTasks() {
-    if (m_data->hasProject()) {
-        ProjectModel *model = m_data->project()->tree()->model();
-        if (model) {
-            QItemSelectionModel *m = this->selectionModel();
-            this->setModel(model);
-            delete m;
-        }
+    ProjectModel *model = this->getModel();
+    if (model) {
+        QItemSelectionModel *m = this->selectionModel();
+        this->setModel(model);
+        delete m;
+        this->adjustHeaders();
+        this->restoreExpandedState();
     }
 }
 
@@ -60,6 +83,64 @@ void GuiProjectView::closeProjectTasks() {
     QItemSelectionModel *m = this->selectionModel();
     this->setModel(nullptr);
     delete m;
+}
+
+// Private Getters
+// ===============
+
+ProjectModel *GuiProjectView::getModel() {
+    if (m_data->hasProject()) {
+        return m_data->project()->tree()->model();
+    }
+    return nullptr;
+}
+
+Node *GuiProjectView::getNode(const QModelIndex &index) {
+    if (m_data->hasProject()) {
+        ProjectModel *model = m_data->project()->tree()->model();
+        if (model) return model->nodeAtIndex(index);
+    }
+    return nullptr;
+}
+
+// Private Methods
+// ===============
+
+void GuiProjectView::adjustHeaders() {
+    QHeaderView *header = this->header();
+    if (header) {
+        header->setStretchLastSection(false);
+        header->setSectionResizeMode(0, QHeaderView::Stretch);
+        header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+        header->setSectionResizeMode(2, QHeaderView::Fixed);
+        header->setSectionResizeMode(3, QHeaderView::Fixed);
+        header->resizeSection(2, m_theme->baseButtonHeight() + 6);
+        header->resizeSection(3, m_theme->baseButtonHeight() + 6);
+    }
+}
+
+void GuiProjectView::restoreExpandedState() {
+    ProjectModel *model = this->getModel();
+    if (model) {
+        this->blockSignals(true);
+        for (QModelIndex index : model->allExpanded()) {
+            this->setExpanded(index, true);
+        }
+        this->blockSignals(false);
+    }
+}
+
+// Private Slots
+// =============
+
+void GuiProjectView::onNodeExpanded(const QModelIndex &index) {
+    Node *node = this->getNode(index);
+    if (node) node->setExpanded(true);
+}
+
+void GuiProjectView::onNodeCollapsed(const QModelIndex &index) {
+    Node *node = this->getNode(index);
+    if (node) node->setExpanded(false);
 }
 
 } // namespace Collett

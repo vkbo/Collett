@@ -22,9 +22,14 @@
 #include "collett.h"
 #include "projectmodel.h"
 
+#include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonValue>
+#include <QList>
+#include <QModelIndex>
 #include <QString>
 #include <QUuid>
+#include <QVariant>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -34,8 +39,7 @@ namespace Collett {
 // ======================
 
 ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent) {
-    m_root = new Node(ItemType::InvisibleRoot, ItemClass::NovelClass, ItemLevel::NoLevel,
-                      QUuid::createUuid(), "InvisibleRoot");
+    m_root = new Node(ItemType::InvisibleRoot, QUuid::createUuid(), "InvisibleRoot");
 }
 
 ProjectModel::~ProjectModel() {
@@ -51,7 +55,19 @@ void ProjectModel::pack(QJsonObject &data) {
 }
 
 void ProjectModel::unpack(const QJsonObject &data) {
-    if (m_root) m_root->unpack(data);
+    int skipped = 0;
+    int errors = 0;
+    if (data.contains("x:items"_L1) && data["x:items"_L1].isArray()) {
+        for (const QJsonValue &value : data["x:items"_L1].toArray()) {
+            if (value.isObject()) {
+                m_root->unpack(value.toObject(), skipped, errors);
+            } else {
+                qWarning() << "Project root node is not a JSON object";
+            }
+        }
+    } else {
+        qWarning() << "No root nodes in project";
+    }
 }
 
 // Model Access
@@ -125,6 +141,23 @@ Qt::ItemFlags ProjectModel::flags(const QModelIndex &index) const {
     } else {
         return QAbstractItemModel::flags(index);
     }
+}
+
+QList<QModelIndex> ProjectModel::allExpanded() {
+    QList<QModelIndex> expanded;
+    for (Node *node : m_root->allChildren()) {
+        if (node->isExpanded()) {
+            expanded.append(createIndex(node->row(), 0, node));
+        }
+    }
+    return expanded;
+}
+
+Node *ProjectModel::nodeAtIndex(const QModelIndex &index) {
+    if (index.isValid()) {
+        return static_cast<Node*>(index.internalPointer());
+    }
+    return nullptr;
 }
 
 // Model Edit

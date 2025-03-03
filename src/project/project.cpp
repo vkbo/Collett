@@ -63,7 +63,7 @@ bool Project::openProject(const QString &path) {
         return false;
     }
     m_tree = new Tree(this);
-    m_tree->unpack(jData);
+    m_tree->unpack(jTree);
 
     m_isValid = true;
 
