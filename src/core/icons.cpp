@@ -26,10 +26,11 @@
 
 #include <QByteArray>
 #include <QFileInfo>
-#include <QString>
-#include <QTextStream>
 #include <QIcon>
 #include <QPixmap>
+#include <QSize>
+#include <QString>
+#include <QTextStream>
 
 namespace Collett {
 
@@ -58,6 +59,82 @@ QIcon Icons::getIcon(QString name, ThemeColor color, QSize size) {
     return m_icons[key];
 }
 
+QIcon Icons::getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel) {
+    QString name = "none";
+    ThemeColor color = ThemeColor::DefaultColor;
+    switch (itemType) {
+        case ItemType::RootType:
+            switch (itemClass) {
+                case ItemClass::NovelClass:
+                    name = "cls_novel";
+                    break;
+                case ItemClass::CharacterClass:
+                    name = "cls_character";
+                    break;
+                case ItemClass::PlotClass:
+                    name = "cls_plot";
+                    break;
+                case ItemClass::LocationClass:
+                    name = "cls_location";
+                    break;
+                case ItemClass::ObjectClass:
+                    name = "cls_object";
+                    break;
+                case ItemClass::EntityClass:
+                    name = "cls_entity";
+                    break;
+                case ItemClass::CustomClass:
+                    name = "cls_custom";
+                    break;
+                case ItemClass::ArchiveClass:
+                    name = "cls_archive";
+                    break;
+                case ItemClass::TemplateClass:
+                    name = "cls_template";
+                    break;
+                case ItemClass::TrashClass:
+                    name = "cls_trash";
+                    break;
+            }
+            color = ThemeColor::RootColor;
+            break;
+        case ItemType::FolderType:
+            name = "prj_folder";
+            color = ThemeColor::FolderColor;
+            break;
+        case ItemType::FileType:
+            switch (itemLevel) {
+                case ItemLevel::NoteLevel:
+                    name = "prj_note";
+                    color = ThemeColor::NoteColor;
+                    break;
+                case ItemLevel::TitleLevel:
+                    name = "prj_title";
+                    color = ThemeColor::TitleColor;
+                    break;
+                case ItemLevel::ChapterLevel:
+                    name = "prj_chapter";
+                    color = ThemeColor::ChapterColor;
+                    break;
+                case ItemLevel::SceneLevel:
+                    name = "prj_scene";
+                    color = ThemeColor::SceneColor;
+                    break;
+                default:
+                    name = "prj_document";
+                    color = ThemeColor::FileColor;
+                    break;
+            }
+        default:
+            break;
+    }
+    if (name != "none") {
+        return this->getIcon(name, color);
+    } else {
+        return QIcon();
+    }
+}
+
 // Public Methods
 // ==============
 
@@ -82,7 +159,6 @@ bool Icons::loadIcons(QString icons) {
                 QString key(line.first(eqPos).sliced(5).trimmed());
                 QByteArray svg(line.sliced(eqPos + 1).trimmed().toLatin1());
                 if (svg.startsWith("<svg")) m_svg[key] = svg;
-                qDebug() << "Icon:" << key << " = " << svg;
             } else if (line.startsWith("meta:name")) {
                 m_name = line.sliced(eqPos + 1).trimmed();
                 qDebug() << "IconSet Name:" << m_name;
@@ -107,7 +183,6 @@ QIcon Icons::generateIcon(QString name, ThemeColor color, QSize size) {
     if (m_svg.contains(name)) {
         QByteArray svg(m_svg[name]);
         svg.replace("#000000", QByteArray::fromStdString(m_theme->m_colors.at(color).name(QColor::HexRgb).toStdString()));
-        qDebug() << name << svg;
         QPixmap pixmap(size);
         pixmap.fill(Qt::transparent);
         pixmap.loadFromData(svg, "svg");

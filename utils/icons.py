@@ -29,8 +29,23 @@ from xml.etree import ElementTree as ET
 ET.register_namespace("", "http://www.w3.org/2000/svg")
 ROOT_DIR = Path(__file__).parent.parent
 ICONS = {
+    "cls_archive": "archive",
     "cls_character": "team",
+    "cls_custom": "price-tag-3",
+    "cls_entity": "building",
+    "cls_location": "road-map",
     "cls_novel": "git-repository",
+    "cls_object": "knife-blood-line",
+    "cls_plot": "puzzle-2",
+    "cls_template": "folder-add",
+    "cls_trash": "delete-bin",
+
+    "prj_chapter": "file-text",
+    "prj_document": "file-text",
+    "prj_folder": "folder-6",
+    "prj_note": "file-4",
+    "prj_scene": "file-text",
+    "prj_title": "file-text",
 }
 
 

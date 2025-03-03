@@ -30,6 +30,8 @@
 #include <QPalette>
 #include <QColor>
 #include <QApplication>
+#include <QFontMetrics>
+#include <QSize>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -61,6 +63,14 @@ Theme::Theme(QObject *parent) : QObject(parent) {
 
     this->loadTheme(m_settings->guiTheme());
     m_icons->loadIcons(m_settings->iconSet());
+
+    QFontMetrics metric(QApplication::font());
+    m_fontPointSizeF = QApplication::font().pointSizeF();
+    m_fontPixelSize = metric.height();
+    m_baseIconHeight = metric.ascent();
+    m_baseButtonHeight = int(round(1.35*metric.ascent()));
+    m_baseIconSize = QSize(m_baseIconHeight, m_baseIconHeight);
+    m_buttonIconSize = QSize(int(0.9*m_baseIconHeight), int(0.9*m_baseIconHeight));
 }
 
 Theme::~Theme() {

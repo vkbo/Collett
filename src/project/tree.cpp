@@ -36,11 +36,17 @@ Tree::Tree(QObject *parent) : QObject(parent) {
 
     QModelIndex root = m_model->index(0, 0);
 
-    Node *novel = new Node(ItemType::RootType, ItemClass::NovelClass, "Novel");
+    Node *novel = new Node(ItemType::RootType, ItemClass::NovelClass,
+                           ItemLevel::NoLevel, QUuid::createUuid(), "Novel");
     m_model->insertChild(novel, root);
 
-    Node *chars = new Node(ItemType::RootType, ItemClass::CharacterClass, "Characters");
+    Node *chars = new Node(ItemType::RootType, ItemClass::CharacterClass,
+                           ItemLevel::NoLevel, QUuid::createUuid(), "Characters");
     m_model->insertChild(chars, root, 1);
+
+    Node *plot = new Node(ItemType::RootType, ItemClass::PlotClass,
+                          ItemLevel::NoLevel, QUuid::createUuid(), "Plot");
+    m_model->insertChild(plot, root, 2);
 }
 
 Tree::~Tree() {

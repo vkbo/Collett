@@ -40,7 +40,6 @@ enum ItemType {
     FileType,
 };
 enum ItemClass {
-    NoClass,
     NovelClass,
     CharacterClass,
     PlotClass,
@@ -51,6 +50,13 @@ enum ItemClass {
     ArchiveClass,
     TemplateClass,
     TrashClass,
+};
+enum ItemLevel {
+    NoLevel,
+    NoteLevel,
+    TitleLevel,
+    ChapterLevel,
+    SceneLevel,
 };
 
 // Theme Colours

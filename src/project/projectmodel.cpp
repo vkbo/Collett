@@ -24,6 +24,7 @@
 
 #include <QJsonObject>
 #include <QString>
+#include <QUuid>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -33,7 +34,8 @@ namespace Collett {
 // ======================
 
 ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent) {
-    m_root = new Node(ItemType::InvisibleRoot, ItemClass::NoClass, "InvisibleRoot");
+    m_root = new Node(ItemType::InvisibleRoot, ItemClass::NovelClass, ItemLevel::NoLevel,
+                      QUuid::createUuid(), "InvisibleRoot");
 }
 
 ProjectModel::~ProjectModel() {

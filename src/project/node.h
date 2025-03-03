@@ -44,9 +44,7 @@ class Node : public QObject
     };
 
 public:
-    Node(ItemType itemType, ItemClass itemClass, QUuid handle, QString name);
-    Node(ItemType itemType, ItemClass itemClass, QString name) :
-        Node(itemType, itemClass, QUuid::createUuid(), name) {};
+    Node(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel, QUuid handle, QString name);
     ~Node();
 
     // Methods
@@ -73,6 +71,7 @@ private:
     // Attributes
     ItemType  m_type;
     ItemClass m_class;
+    ItemLevel m_level;
     QUuid     m_handle;
     QString   m_name;
     QIcon     m_icon;

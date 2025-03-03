@@ -22,11 +22,12 @@
 #include "node.h"
 #include "theme.h"
 
-#include <QJsonObject>
+#include <QIcon>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QString>
-#include <QVariant>
 #include <QUuid>
+#include <QVariant>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -35,11 +36,15 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Node::Node(ItemType itemType, ItemClass itemClass, QUuid handle, QString name) :
-    m_type(itemType), m_class(itemClass), m_handle(handle), m_name(name)
+Node::Node(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel, QUuid handle, QString name) :
+    m_type(itemType), m_class(itemClass), m_level(itemLevel), m_handle(handle), m_name(name)
 {
     Theme *theme = Theme::instance();
-    m_icon = theme->icons()->getIcon("cls_novel", ThemeColor::Red);
+    if (itemType == ItemType::InvisibleRoot) {
+        m_icon = QIcon();
+    } else {
+        m_icon = theme->icons()->getProjectIcon(itemType, itemClass, itemLevel);
+    }
 }
 
 Node::~Node() {
