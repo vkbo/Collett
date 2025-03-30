@@ -50,6 +50,9 @@ ICONS = {
 
     "add": "add-large",
     "bookmarks": "bookmark",
+    "checked": "checkbox",
+    "noncheckable": "checkbox-indeterminate",
+    "unchecked": "checkbox-blank",
 }
 
 
