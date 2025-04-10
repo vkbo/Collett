@@ -65,6 +65,10 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     connect(m_projectToolBar->actSaveProject, &QAction::triggered, this, &GuiMain::onProjectSave);
     connect(m_projectToolBar->actCloseProject, &QAction::triggered, this, &GuiMain::onProjectClose);
 
+    connect(m_projectToolBar, &GuiProjectToolBar::createFileRequested, m_projectPanel, &GuiProjectPanel::createFile);
+    connect(m_projectToolBar, &GuiProjectToolBar::createFolderRequested, m_projectPanel, &GuiProjectPanel::createFolder);
+    connect(m_projectToolBar, &GuiProjectToolBar::createRootRequested, m_projectPanel, &GuiProjectPanel::createRoot);
+
     // Assemble
     this->setCentralWidget(m_splitMain);
     this->addToolBar(m_projectToolBar);

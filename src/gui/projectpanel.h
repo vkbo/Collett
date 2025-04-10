@@ -45,7 +45,11 @@ public:
 
 private:
     GuiProjectView *m_projectView = nullptr;
-    QVBoxLayout    *m_outerBox;
+
+public slots:
+    void createFile(const ItemLevel itemLevel) {if(m_projectView) m_projectView->createFile(itemLevel);};
+    void createFolder() {if(m_projectView) m_projectView->createFolder();};
+    void createRoot(const ItemClass itemClass) {if(m_projectView) m_projectView->createRoot(itemClass);};
 
 };
 } // namespace Collett

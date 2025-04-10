@@ -313,6 +313,34 @@ QList<Node*> Node::allChildren() {
 // Model Edit
 // ==========
 
+bool Node::canAddRoot() {
+    if (m_type == ItemType::InvisibleRoot) {
+        return true;
+    } else {
+        qWarning() << "Root nodes can only be added to invisible root";
+        return false;
+    }
+}
+
+bool Node::canAddFolder() {
+    if (m_type != ItemType::InvisibleRoot) {
+        return true;
+    } else {
+        qWarning() << "Folder nodes cannot be added to invisible root";
+        return false;
+    }
+}
+
+bool Node::canAddFile() {
+    if (m_type != ItemType::InvisibleRoot) {
+        return true;
+    } else {
+        qWarning() << "File nodes cannot be added to invisible root";
+        return false;
+    }
+}
+
+
 void Node::addChild(Node *child, qsizetype pos) {
     child->m_parent = this;
     if (pos >= 0 && pos < m_children.size()) {
@@ -324,10 +352,7 @@ void Node::addChild(Node *child, qsizetype pos) {
 }
 
 Node *Node::addRoot(QUuid handle, QString name, ItemClass itemClass, qsizetype pos) {
-    if (m_type != ItemType::InvisibleRoot) {
-        qWarning() << "Root nodes can only be added to invisible root";
-        return nullptr;
-    }
+    if (!this->canAddRoot()) return nullptr;
     Node *node = new Node(ItemType::RootType, handle, name);
     node->m_class = itemClass;
     this->addChild(node, pos);
@@ -335,10 +360,7 @@ Node *Node::addRoot(QUuid handle, QString name, ItemClass itemClass, qsizetype p
 }
 
 Node *Node::addFolder(QUuid handle, QString name, qsizetype pos) {
-    if (m_type == ItemType::InvisibleRoot) {
-        qWarning() << "Folder nodes cannot be added to invisible root";
-        return nullptr;
-    }
+    if (!this->canAddFolder()) return nullptr;
     Node *node = new Node(ItemType::FolderType, handle, name);
     node->m_class = m_class;
     this->addChild(node, pos);
@@ -346,10 +368,7 @@ Node *Node::addFolder(QUuid handle, QString name, qsizetype pos) {
 }
 
 Node *Node::addFile(QUuid handle, QString name, ItemLevel itemLevel, qsizetype pos) {
-    if (m_type == ItemType::InvisibleRoot) {
-        qWarning() << "File nodes cannot be added to invisible root";
-        return nullptr;
-    }
+    if (!this->canAddFile()) return nullptr;
     Node *node = new Node(ItemType::FileType, handle, name);
     node->m_class = m_class;
     node->m_level = itemLevel;

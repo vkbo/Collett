@@ -76,6 +76,10 @@ public:
     QList<Node*> allChildren();
 
     // Model Edit
+    bool canAddRoot();
+    bool canAddFolder();
+    bool canAddFile();
+
     void addChild(Node *child, qsizetype pos = -1);
     Node *addRoot(QUuid handle, QString name, ItemClass itemClass, qsizetype pos = -1);
     Node *addFolder(QUuid handle, QString name, qsizetype pos = -1);

@@ -36,10 +36,10 @@ GuiProjectPanel::GuiProjectPanel(QWidget *parent) : QWidget(parent) {
     m_projectView = new GuiProjectView(this);
 
     // Assemble
-    m_outerBox = new QVBoxLayout();
-    m_outerBox->addWidget(m_projectView, 1);
+    QVBoxLayout *outerBox = new QVBoxLayout();
+    outerBox->addWidget(m_projectView, 1);
 
-    this->setLayout(m_outerBox);
+    this->setLayout(outerBox);
 }
 
 GuiProjectPanel::~GuiProjectPanel() {

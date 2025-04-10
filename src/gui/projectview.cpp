@@ -30,6 +30,7 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QTreeView>
+#include <QUuid>
 #include <QWidget>
 
 namespace Collett {
@@ -135,6 +136,36 @@ void GuiProjectView::restoreExpandedState() {
             this->setExpanded(index, true);
         }
         this->blockSignals(false);
+    }
+}
+
+// Public Slots
+// ============
+
+void GuiProjectView::createFile(const ItemLevel itemLevel) {
+    ProjectModel *model = this->getModel();
+    QModelIndex current = this->currentIndex();
+    if (model && current.isValid()) {
+        Node *node = model->addFile(tr("New File"), itemLevel, current);
+        if (node) EditItemDialog::editNode(this, node);
+    }
+}
+
+void GuiProjectView::createFolder() {
+    ProjectModel *model = this->getModel();
+    QModelIndex current = this->currentIndex();
+    if (model && current.isValid()) {
+        Node *node = model->addFolder(tr("New Folder"), current);
+        if (node) EditItemDialog::editNode(this, node);
+    }
+}
+
+void GuiProjectView::createRoot(const ItemClass itemClass) {
+    ProjectModel *model = this->getModel();
+    QModelIndex current = this->currentIndex();
+    if (model && current.isValid()) {
+        Node *node = model->addRoot(tr("New Root"), itemClass, current);
+        if (node) EditItemDialog::editNode(this, node);
     }
 }
 

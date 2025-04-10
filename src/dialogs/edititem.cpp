@@ -40,14 +40,14 @@ namespace Collett {
 
 EditItemDialog::EditItemDialog(QWidget *parent, Node *node) : QDialog(parent) {
 
-    this->setWindowTitle(tr("Edit Project Item"));
+    this->setWindowTitle(tr("Edit Item"));
 
     m_titleValue = new QLineEdit(this);
     m_titleValue->setMaxLength(200);
     m_titleValue->setText(node->name());
     m_titleValue->selectAll();
 
-    QLabel *titleLabel = new QLabel(tr("Title"), this);
+    QLabel *titleLabel = new QLabel(tr("Name"), this);
 
     QPushButton *okButton = new QPushButton(tr("Ok"), this);
     QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
@@ -55,7 +55,7 @@ EditItemDialog::EditItemDialog(QWidget *parent, Node *node) : QDialog(parent) {
     QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
     buttonBox->addButton(okButton, QDialogButtonBox::AcceptRole);
     buttonBox->addButton(cancelButton, QDialogButtonBox::RejectRole);
-    
+
     QHBoxLayout *innerBox = new QHBoxLayout();
     innerBox->addWidget(titleLabel, 0);
     innerBox->addWidget(m_titleValue, 1);

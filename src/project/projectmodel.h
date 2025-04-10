@@ -60,7 +60,10 @@ public:
     Node *nodeAtIndex(const QModelIndex &index);
 
     // Model Edit
-    void insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
+    void  insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
+    Node *addRoot(QString name, ItemClass itemClass, const QModelIndex &relative);
+    Node *addFolder(QString name, const QModelIndex &relative);
+    Node *addFile(QString name, ItemLevel itemLevel, const QModelIndex &parent, qsizetype pos = -1);
 
 private:
     Node *m_root = nullptr;

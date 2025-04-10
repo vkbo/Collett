@@ -50,7 +50,6 @@ ProjectModel::~ProjectModel() {
 // ==============
 
 void ProjectModel::pack(QJsonObject &data) {
-    qDebug() << "Ping Model";
     if (m_root) m_root->pack(data);
 }
 
@@ -176,5 +175,39 @@ void ProjectModel::insertChild(Node *child, const QModelIndex &parent, qsizetype
     parentNode->addChild(child, row);
     emit endInsertRows();
 }
+
+Node *ProjectModel::addRoot(QString name, ItemClass itemClass, const QModelIndex &relative) {
+    return nullptr;
+}
+
+Node *ProjectModel::addFolder(QString name, const QModelIndex &relative) {
+    if (!relative.isValid()) return nullptr;
+
+    Node *node = static_cast<Node*>(relative.internalPointer());
+    qsizetype pos = -1;
+    QModelIndex parent;
+    if (node->itemType() == ItemType::RootType) {
+        parent = relative;
+        pos = node->childCount();
+    } else {
+        node = node->parent();
+        parent = relative.parent();
+        pos = relative.row() + 1;
+    }
+
+    if (node && parent.isValid()) {
+        int row = qMin(qMax(pos, 0), node->childCount());
+        emit beginInsertRows(parent, row, row);
+        Node *child = node->addFolder(QUuid::createUuid(), name, row);
+        emit endInsertRows();
+        return child;
+    }
+    return nullptr;
+}
+
+Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex &parent, qsizetype pos) {
+    return nullptr;
+}
+
 
 } // namespace Collett

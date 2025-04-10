@@ -62,6 +62,11 @@ private:
     void adjustHeaders();
     void restoreExpandedState();
 
+public slots:
+    void createFile(const ItemLevel itemLevel);
+    void createFolder();
+    void createRoot(const ItemClass itemClass);
+
 private slots:
     void onNodeExpanded(const QModelIndex &index);
     void onNodeCollapsed(const QModelIndex &index);
