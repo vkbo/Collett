@@ -63,6 +63,7 @@ public:
     // Setters
     void setCounts(Counts counts) {m_counts = counts;};
     void setExpanded(bool state) {m_expanded = state;};
+    void setActive(bool state);
 
     // Model Access
     int row() const;
@@ -83,7 +84,7 @@ public:
     // Static Methods
     static bool typeFromString(QString value, ItemType &itemType);
     static bool classFromString(QString value, ItemClass &itemClass);
-    static bool levelFromString(QString value, ItemLevel &ItemLevel);
+    static bool levelFromString(QString value, ItemLevel &itemLevel);
 
 private:
     // Attributes
@@ -92,11 +93,17 @@ private:
     ItemLevel m_level;
     QUuid     m_handle;
     QString   m_name;
-    QIcon     m_icon;
-
+    bool      m_active = false;
+    
     // Meta
+    QIcon  m_icon;
     Counts m_counts = {0, 0, 0};
     bool   m_expanded = false;
+    QIcon  m_activeIcon;
+
+    // Accessibility
+    QString m_accWords = tr("Word Count: %1");
+    QString m_accActive = "";
 
     // Structure
     Node           *m_parent = nullptr;

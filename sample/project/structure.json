@@ -19,6 +19,7 @@
                     "m:order": 0,
                     "m:type": "File",
                     "m:words": 0,
+                    "u:active": true,
                     "u:name": "Title Page"
                 },
                 {
@@ -29,6 +30,7 @@
                     "m:order": 1,
                     "m:type": "File",
                     "m:words": 0,
+                    "u:active": true,
                     "u:name": "Chapter 1",
                     "x:items": [
                         {
@@ -39,6 +41,7 @@
                             "m:order": 0,
                             "m:type": "File",
                             "m:words": 0,
+                            "u:active": true,
                             "u:name": "Scene 1"
                         }
                     ]
@@ -63,6 +66,7 @@
                     "m:order": 0,
                     "m:type": "File",
                     "m:words": 0,
+                    "u:active": true,
                     "u:name": "Jane Smith"
                 },
                 {
@@ -73,6 +77,7 @@
                     "m:order": 1,
                     "m:type": "File",
                     "m:words": 0,
+                    "u:active": true,
                     "u:name": "John Smith"
                 },
                 {
@@ -92,6 +97,7 @@
                             "m:order": 0,
                             "m:type": "File",
                             "m:words": 0,
+                            "u:active": true,
                             "u:name": "Sideshow Bob"
                         }
                     ]
@@ -116,6 +122,7 @@
                     "m:order": 0,
                     "m:type": "File",
                     "m:words": 0,
+                    "u:active": true,
                     "u:name": "Main Plot"
                 },
                 {
@@ -126,6 +133,7 @@
                     "m:order": 1,
                     "m:type": "File",
                     "m:words": 0,
+                    "u:active": true,
                     "u:name": "Side Plot"
                 }
             ]

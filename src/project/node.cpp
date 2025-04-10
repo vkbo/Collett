@@ -43,10 +43,35 @@ Node::Node(ItemType itemType, QUuid handle, QString name) :
     m_class = ItemClass::NovelClass;
     m_level = ItemLevel::PageLevel;
     m_icon = QIcon();
+    m_activeIcon = QIcon();
 }
 
 Node::~Node() {
     qDebug() << "Destructor: Node";
+}
+
+// Setters
+// =======
+
+void Node::setActive(bool state) {
+    Theme *theme = Theme::instance();
+    if (m_type == ItemType::InvisibleRoot) {
+        m_icon = QIcon();
+    } else {
+        m_active = state;
+        if (m_type == ItemType::FileType) {
+            if (m_active) {
+                m_accActive = tr("Active");
+                m_activeIcon = theme->icons()->getIcon("checked", ThemeColor::Green, theme->baseIconSize());
+            } else {
+                m_accActive = tr("Inactive");
+                m_activeIcon = theme->icons()->getIcon("unchecked", ThemeColor::Red, theme->baseIconSize());
+            }
+        } else {
+            m_accActive = "";
+            m_activeIcon = theme->icons()->getIcon("noncheckable", ThemeColor::FadedColor, theme->baseIconSize());
+        }
+    }
 }
 
 // Public Methods
@@ -94,6 +119,7 @@ void Node::pack(QJsonObject &data) {
                 case ItemLevel::SceneLevel:   data["m:level"_L1] = "Scene"_L1; break;
                 default: return;
             }
+            data["u:active"_L1] = m_active;
         }
         data["u:name"_L1] = m_name;
         data["m:handle"_L1] = m_handle.toString(QUuid::WithoutBraces);
@@ -125,6 +151,7 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors) {
     ItemLevel itemLevel = ItemLevel::PageLevel;
     Counts    counts    = {0, 0, 0};
     bool      expanded  = false;
+    bool      active    = false;
 
     // Name (Optional)
     if (data.contains("u:name"_L1)) {
@@ -149,6 +176,11 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors) {
         qWarning() << "Received a project node with invalid type";
         error &= true;
         errors++;
+    }
+
+    // Other Values
+    if (data.contains("u:active"_L1)) {
+        active = data["u:active"_L1].toBool();
     }
 
     // Meta Values
@@ -202,6 +234,7 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors) {
 
     node->setCounts(counts);
     node->setExpanded(expanded);
+    node->setActive(active);
 
     if (data.contains("x:items"_L1)) {
         if (data["x:items"_L1].isArray()) {
@@ -236,12 +269,37 @@ Node *Node::child(int row) {
 }
 
 QVariant Node::data(int column, int role) const {
-    if (column == 0) {
-        if (role == Qt::DisplayRole) return QVariant::fromValue(m_name);
-        if (role == Qt::DecorationRole) return QVariant::fromValue(m_icon);
-    } else if (column == 1) {
-        if (role == Qt::DisplayRole) return QVariant::fromValue(m_counts.words);
-        if (role == Qt::TextAlignmentRole) return QVariant::fromValue(Qt::AlignRight);
+    switch (column) {
+        case 0:
+            switch (role) {
+                case Qt::DisplayRole:
+                case Qt::ToolTipRole:
+                case Qt::AccessibleTextRole:
+                    return QVariant::fromValue(m_name);
+                case Qt::DecorationRole:
+                    return QVariant::fromValue(m_icon);
+            }
+            break;
+        case 1:
+            switch (role) {
+                case Qt::DisplayRole:
+                    return QVariant::fromValue(m_counts.words);
+                case Qt::ToolTipRole:
+                case Qt::AccessibleTextRole:
+                    return QVariant::fromValue(m_accWords.arg(m_counts.words));
+                case Qt::TextAlignmentRole:
+                    return QVariant::fromValue(Qt::AlignRight);
+            }
+            break;
+        case 2:
+            switch (role) {
+                case Qt::DecorationRole:
+                    return QVariant::fromValue(m_activeIcon);
+                case Qt::ToolTipRole:
+                case Qt::AccessibleTextRole:
+                    return QVariant::fromValue(m_accActive);
+            }
+            break;
     }
     return QVariant();
 }
@@ -367,25 +425,25 @@ bool Node::classFromString(QString value, ItemClass &itemClass) {
     return false;
 }
 
-bool Node::levelFromString(QString value, ItemLevel &ItemLevel) {
+bool Node::levelFromString(QString value, ItemLevel &itemLevel) {
     if (value == "Page") {
-        ItemLevel = ItemLevel::PageLevel;
+        itemLevel = ItemLevel::PageLevel;
         return true;
     }
     if (value == "Note") {
-        ItemLevel = ItemLevel::NoteLevel;
+        itemLevel = ItemLevel::NoteLevel;
         return true;
     }
     if (value == "Title") {
-        ItemLevel = ItemLevel::TitleLevel;
+        itemLevel = ItemLevel::TitleLevel;
         return true;
     }
     if (value == "Chapter") {
-        ItemLevel = ItemLevel::ChapterLevel;
+        itemLevel = ItemLevel::ChapterLevel;
         return true;
     }
     if (value == "Scene") {
-        ItemLevel = ItemLevel::SceneLevel;
+        itemLevel = ItemLevel::SceneLevel;
         return true;
     }
     return false;
