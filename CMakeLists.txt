@@ -79,6 +79,7 @@ qt_standard_project_setup(
 # Source Folders
 include_directories(
     src/core
+    src/dialogs
     src/gui
     src/project
     src/static
@@ -91,6 +92,7 @@ list(APPEND SRC_FILES
     src/core/icons
     src/core/storage
     src/core/tools
+    src/dialogs/edititem
     src/gui/projectpanel
     src/gui/projecttoolbar
     src/gui/projectview

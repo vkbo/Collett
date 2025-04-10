@@ -27,9 +27,10 @@
 #include "theme.h"
 #include "mtreeview.h"
 
+#include <QAction>
+#include <QModelIndex>
 #include <QTreeView>
 #include <QWidget>
-#include <QModelIndex>
 
 namespace Collett {
 
@@ -44,6 +45,9 @@ public:
     // Methods
     void openProjectTasks();
     void closeProjectTasks();
+
+    // Actions
+    QAction *a_editItem;
 
 private:
     // Singletons
@@ -61,6 +65,7 @@ private:
 private slots:
     void onNodeExpanded(const QModelIndex &index);
     void onNodeCollapsed(const QModelIndex &index);
+    void editSelectedItem();
 };
 } // namespace Collett
 

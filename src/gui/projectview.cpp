@@ -23,8 +23,10 @@
 #include "mtreeview.h"
 #include "projectview.h"
 #include "projectmodel.h"
+#include "edititem.h"
 
 #include <QAbstractItemView>
+#include <QAction>
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QTreeView>
@@ -56,9 +58,15 @@ GuiProjectView::GuiProjectView(QWidget *parent) : MTreeView(parent) {
     this->setSelectionMode(QAbstractItemView::ExtendedSelection);
     this->setSelectionBehavior(QAbstractItemView::SelectRows);
 
+    // Create Actions
+    a_editItem = new QAction(this);
+    a_editItem->setShortcut(QKeySequence(Qt::Key_F2));
+    this->addAction(a_editItem);
+
     // Connect Signals
     this->connect(this, &GuiProjectView::expanded, this, &GuiProjectView::onNodeExpanded);
     this->connect(this, &GuiProjectView::collapsed, this, &GuiProjectView::onNodeCollapsed);
+    this->connect(a_editItem, &QAction::triggered, this, &GuiProjectView::editSelectedItem);
 }
 
 GuiProjectView::~GuiProjectView() {
@@ -141,6 +149,13 @@ void GuiProjectView::onNodeExpanded(const QModelIndex &index) {
 void GuiProjectView::onNodeCollapsed(const QModelIndex &index) {
     Node *node = this->getNode(index);
     if (node) node->setExpanded(false);
+}
+
+void GuiProjectView::editSelectedItem() {
+    Node *node = this->getNode(this->currentIndex());
+    if (node){
+        EditItemDialog::editNode(this, node);
+    }
 }
 
 } // namespace Collett

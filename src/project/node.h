@@ -61,6 +61,7 @@ public:
     bool      isExpanded() {return m_expanded;};
 
     // Setters
+    void setName(QString name) {m_name = name.simplified();};
     void setCounts(Counts counts) {m_counts = counts;};
     void setExpanded(bool state) {m_expanded = state;};
     void setActive(bool state);
