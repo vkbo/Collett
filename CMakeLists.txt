@@ -64,14 +64,14 @@ endif()
 
 qt_standard_project_setup(
     I18N_SOURCE_LANGUAGE en_GB
-    I18N_TRANSLATED_LANGUAGES en_US nb_NO de
+    I18N_TRANSLATED_LANGUAGES en_US nb_NO
 )
 
-# set(TS_FILES
-#     i18n/collett_en_US.ts
-#     i18n/collett_nb_NO.ts
-# )
-# qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+set(TS_FILES
+    i18n/collett_en_US.ts
+    i18n/collett_nb_NO.ts
+)
+qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 
 # Sources
 # =======
