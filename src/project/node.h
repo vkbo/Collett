@@ -30,7 +30,6 @@
 #include <QString>
 #include <QUuid>
 #include <QVariant>
-#include <QVector>
 
 namespace Collett {
 
@@ -71,6 +70,7 @@ public:
     int row() const;
     int childCount() const {return m_children.count();};
     QVariant data(int column, int role) const;
+    Qt::ItemFlags flags() const {return m_flags;};
     Node *child(int row);
     Node *parent() {return m_parent;};
 
@@ -81,11 +81,11 @@ public:
     bool canAddFolder();
     bool canAddFile(ItemLevel itemLevel);
 
-    void addChild(Node *child, qsizetype pos = -1);
-    Node *addRoot(QUuid handle, QString name, ItemClass itemClass, qsizetype pos = -1);
-    Node *addFolder(QUuid handle, QString name, qsizetype pos = -1);
-    Node *addFile(QUuid handle, QString name, ItemLevel itemLevel, qsizetype pos = -1);
-    void updateIcon();
+    void  addChild(Node *child, qsizetype pos = -1);
+    Node *createRoot(QUuid handle, QString name, ItemClass itemClass);
+    Node *createFolder(QUuid handle, QString name);
+    Node *createFile(QUuid handle, QString name, ItemLevel itemLevel);
+    void  updateIcon();
 
     // Static Methods
     static bool typeFromString(QString value, ItemType &itemType);
@@ -94,13 +94,14 @@ public:
 
 private:
     // Attributes
-    ItemType  m_type;
-    ItemClass m_class;
-    ItemLevel m_level;
-    QUuid     m_handle;
-    QString   m_name;
-    bool      m_active = false;
-    
+    ItemType      m_type;
+    ItemClass     m_class;
+    ItemLevel     m_level;
+    QUuid         m_handle;
+    QString       m_name;
+    bool          m_active = false;
+    Qt::ItemFlags m_flags = Qt::NoItemFlags;
+
     // Meta
     QIcon  m_icon;
     Counts m_counts = {0, 0, 0};
@@ -112,11 +113,12 @@ private:
     QString m_accActive = "";
 
     // Structure
-    Node           *m_parent = nullptr;
-    QVector<Node*>  m_children;
+    Node         *m_parent = nullptr;
+    QList<Node*>  m_children;
 
     // Methods
     void recursiveAppendChildren(QList<Node*> &children);
+    void updateValues();
 };
 } // namespace Collett
 

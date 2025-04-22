@@ -26,6 +26,8 @@
 #define COL_VERSION_NUM 0x000001a1
 #define COL_VERSION_DATE "2025-02-23"
 
+#define PROJECT_ITEM_MIME "text/vnd.collett.handle"
+
 #include <QDebug>
 #include <QObject>
 

@@ -26,8 +26,10 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QList>
+#include <QMimeData>
 #include <QModelIndex>
 #include <QString>
+#include <QStringList>
 #include <QUuid>
 #include <QVariant>
 
@@ -56,6 +58,7 @@ ProjectModel::~ProjectModel() {
  * @return Node* The root node or nullptr if invisible root.
  */
 Node *ProjectModel::rootNode(Node *node) {
+
     Node *self = node;
     Node *root = nullptr;
     if (node) {
@@ -169,7 +172,8 @@ Qt::ItemFlags ProjectModel::flags(const QModelIndex &index) const {
     if (!index.isValid()) {
         return Qt::NoItemFlags;
     } else {
-        return QAbstractItemModel::flags(index);
+        Node *node = static_cast<Node*>(index.internalPointer());
+        return node->flags();
     }
 }
 
@@ -179,6 +183,7 @@ Qt::ItemFlags ProjectModel::flags(const QModelIndex &index) const {
  * @return QList<QModelIndex> The list of indexes.
  */
 QList<QModelIndex> ProjectModel::allExpanded() {
+
     QList<QModelIndex> expanded;
     for (Node *node : m_root->allChildren()) {
         if (node->isExpanded()) {
@@ -201,6 +206,19 @@ Node *ProjectModel::nodeAtIndex(const QModelIndex &index) {
     return nullptr;
 }
 
+/**!
+ * @brief Return the node corresponding to a given handle.
+ * 
+ * @param uuid   The Handle uuid.
+ * @return Node* The node, or nullptr if it does not exist.
+ */
+Node *ProjectModel::nodeFromHandle(const QUuid &uuid) {
+    if (m_nodes.contains(uuid)) {
+        return m_nodes.value(uuid);
+    }
+    return nullptr;
+}
+
 // Model Edit
 // ==========
 
@@ -213,15 +231,16 @@ Node *ProjectModel::nodeAtIndex(const QModelIndex &index) {
  */
 void ProjectModel::insertChild(Node *child, const QModelIndex &parent, qsizetype pos) {
 
-    Node *parentNode;
+    Node *node;
     if (parent.isValid()) {
-        parentNode = static_cast<Node*>(parent.internalPointer());
+        node = static_cast<Node*>(parent.internalPointer());
     } else {
-        parentNode = m_root;
+        node = m_root;
     }
-    int row = qMin(qMax(pos, 0), parentNode->childCount());
+    int row = qMin(qMax(pos, 0), node->childCount());
     emit beginInsertRows(parent, row, row);
-    parentNode->addChild(child, row);
+    node->addChild(child, row);
+    m_nodes.insert(child->handle(), child);
     emit endInsertRows();
 }
 
@@ -244,11 +263,9 @@ Node *ProjectModel::addRoot(QString name, ItemClass itemClass, const QModelIndex
         if (sNode) pos = sNode->row() + 1;
     }
 
-    int row = qMin(qMax(pos, 0), m_root->childCount());
-    emit beginInsertRows(QModelIndex(), row, row);
-    Node *child = m_root->addRoot(QUuid::createUuid(), name, itemClass, row);
-    if (child) child->setActive(true);
-    emit endInsertRows();
+    Node *child = m_root->createRoot(QUuid::createUuid(), name, itemClass);
+    child->setActive(true);
+    this->insertChild(child, QModelIndex(), pos);
     return child;
 }
 
@@ -264,6 +281,7 @@ Node *ProjectModel::addRoot(QString name, ItemClass itemClass, const QModelIndex
  * @return Node*   The folder node or nullptr if failed.
  */
 Node *ProjectModel::addFolder(QString name, const QModelIndex &selected) {
+
     if (!selected.isValid()) return nullptr;
 
     Node *sNode = static_cast<Node*>(selected.internalPointer());
@@ -286,11 +304,9 @@ Node *ProjectModel::addFolder(QString name, const QModelIndex &selected) {
     if (parent.isValid()) {
         Node *nNode = static_cast<Node*>(parent.internalPointer());
         if (nNode) {
-            int row = qMin(qMax(pos, 0), sNode->childCount());
-            emit beginInsertRows(parent, row, row);
-            Node *child = sNode->addFolder(QUuid::createUuid(), name, row);
-            if (child) child->setActive(true);
-            emit endInsertRows();
+            Node *child = nNode->createFolder(QUuid::createUuid(), name);
+            child->setActive(true);
+            this->insertChild(child, parent, pos);
             return child;
         }
     }
@@ -320,6 +336,7 @@ Node *ProjectModel::addFolder(QString name, const QModelIndex &selected) {
  * @return Node*    The file node or nullptr if failed.
  */
 Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex &selected) {
+
     if (!selected.isValid()) return nullptr;
 
     Node *sNode = static_cast<Node*>(selected.internalPointer());
@@ -365,15 +382,80 @@ Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex
     if (parent.isValid()) {
         Node *nNode = static_cast<Node*>(parent.internalPointer());
         if (nNode) {
-            int row = qMin(qMax(pos, 0), nNode->childCount());
-            emit beginInsertRows(parent, row, row);
-            Node *child = nNode->addFile(QUuid::createUuid(), name, itemLevel, row);
-            if (child) child->setActive(true);
-            emit endInsertRows();
+            Node *child = nNode->createFile(QUuid::createUuid(), name, itemLevel);
+            child->setActive(true);
+            this->insertChild(child, parent, pos);
             return child;
         }
     }
     return nullptr;
+}
+
+// Drag and Drop
+// =============
+
+QStringList ProjectModel::mimeTypes() const {
+    return {PROJECT_ITEM_MIME};
+}
+
+QMimeData *ProjectModel::mimeData(const QModelIndexList &indexes) const {
+
+    QMimeData *mimeData = new QMimeData;
+    QList<QByteArray> handles;
+
+    for (QModelIndex index : indexes) {
+        if (index.isValid() && index.column() == 0) {
+            Node *node = static_cast<Node*>(index.internalPointer());
+            handles << node->handle().toByteArray(QUuid::WithoutBraces);
+        }
+    }
+
+    mimeData->setData(PROJECT_ITEM_MIME, handles.join(";"));
+    return mimeData;
+}
+
+Qt::DropActions ProjectModel::supportedDropActions() const {
+    return Qt::DropAction::MoveAction;
+}
+
+bool ProjectModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const {
+
+    if (parent.isValid() && parent.internalPointer() != m_root) {
+        return data->hasFormat(PROJECT_ITEM_MIME) && action == Qt::MoveAction;
+    }
+    return false;
+}
+
+bool ProjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) {
+
+    if (this->canDropMimeData(data, action, row, column, parent)) {
+        QList<Node*> nodes;
+        for (const QUuid handle : decodeMimeHandles(data)) {
+            Node *node = this->nodeFromHandle(handle);
+            if (node) nodes << node;
+        }
+        // Call move node methods
+        return true;
+    }
+    return false;
+}
+
+// Static Methods
+// ==============
+
+/**!
+ * @brief Static method to decode handles from mime data.
+ * 
+ * @param mimeData      The mimedata object.
+ * @return QList<QUuid> A list of handle UUIDs.
+ */
+QList<QUuid> ProjectModel::decodeMimeHandles(const QMimeData *mimeData) {
+
+    QList<QUuid> handles;
+    for (QByteArray handle : mimeData->data(PROJECT_ITEM_MIME).split(';')) {
+        handles << QUuid(handle);
+    }
+    return handles;
 }
 
 } // namespace Collett

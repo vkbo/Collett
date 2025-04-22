@@ -26,10 +26,14 @@
 #include "node.h"
 
 #include <QAbstractItemModel>
+#include <QHash>
 #include <QJsonObject>
 #include <QList>
+#include <QMimeData>
 #include <QModelIndex>
 #include <QString>
+#include <QStringList>
+#include <QUuid>
 
 namespace Collett {
 
@@ -59,6 +63,7 @@ public:
 
     QList<QModelIndex> allExpanded();
     Node *nodeAtIndex(const QModelIndex &index);
+    Node *nodeFromHandle(const QUuid &uuid);
 
     // Model Edit
     void  insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
@@ -66,8 +71,19 @@ public:
     Node *addFolder(QString name, const QModelIndex &selected);
     Node *addFile(QString name, ItemLevel itemLevel, const QModelIndex &selected);
 
+    // Drag and Drop
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    Qt::DropActions supportedDropActions() const;
+    bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+
+    // Static Methods
+    static QList<QUuid> decodeMimeHandles(const QMimeData *mimeData);
+
 private:
     Node *m_root = nullptr;
+    QHash<QUuid, Node*> m_nodes;
 
 };
 } // namespace Collett

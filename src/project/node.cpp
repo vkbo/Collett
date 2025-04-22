@@ -44,11 +44,16 @@ Node::Node(ItemType itemType, QUuid handle, QString name) :
     m_level = ItemLevel::PageLevel;
     m_icon = QIcon();
     m_activeIcon = QIcon();
+    if (itemType == ItemType::RootType) {
+        m_flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled;
+    } else if (itemType == ItemType::FileType || itemType == ItemType::FolderType) {
+        m_flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
+    }
 }
 
 Node::~Node() {
     qDebug() << "Destructor: Node" << m_name;
-    qDeleteAll(m_children);
+    qDeleteAll(m_children);  // Parent is tracked in m_parent, so we delete explicitly
 }
 
 // Setters
@@ -209,17 +214,20 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors) {
                 qWarning() << "Received a project root node with invalid class";
                 errors++;
             }
-            node = this->addRoot(handle, name, itemClass);
+            node = this->createRoot(handle, name, itemClass);
+            this->addChild(node);
             break;
         case ItemType::FolderType:
-            node = this->addFolder(handle, name);
+            node = this->createFolder(handle, name);
+            this->addChild(node);
             break;
         case ItemType::FileType:
             if (!Node::levelFromString(JsonUtils::getJsonString(data, "m:level"_L1, "Error"), itemLevel)) {
                 qWarning() << "Received a project node with invalid level";
                 errors++;
             }
-            node = this->addFile(handle, name, itemLevel);
+            node = this->createFile(handle, name, itemLevel);
+            this->addChild(node);
             break;
         default:
             break;
@@ -367,30 +375,25 @@ void Node::addChild(Node *child, qsizetype pos) {
         m_children.append(child);
     }
     child->updateIcon();
+    child->updateValues();
 }
 
-Node *Node::addRoot(QUuid handle, QString name, ItemClass itemClass, qsizetype pos) {
-    if (!this->canAddRoot()) return nullptr;
+Node *Node::createRoot(QUuid handle, QString name, ItemClass itemClass) {
     Node *node = new Node(ItemType::RootType, handle, name);
     node->m_class = itemClass;
-    this->addChild(node, pos);
     return node;
 }
 
-Node *Node::addFolder(QUuid handle, QString name, qsizetype pos) {
-    if (!this->canAddFolder()) return nullptr;
+Node *Node::createFolder(QUuid handle, QString name) {
     Node *node = new Node(ItemType::FolderType, handle, name);
     node->m_class = m_class;
-    this->addChild(node, pos);
     return node;
 }
 
-Node *Node::addFile(QUuid handle, QString name, ItemLevel itemLevel, qsizetype pos) {
-    if (!this->canAddFile(itemLevel)) return nullptr;
+Node *Node::createFile(QUuid handle, QString name, ItemLevel itemLevel) {
     Node *node = new Node(ItemType::FileType, handle, name);
     node->m_class = m_class;
     node->m_level = itemLevel;
-    this->addChild(node, pos);
     return node;
 }
 
@@ -493,6 +496,12 @@ void Node::recursiveAppendChildren(QList<Node*> &children) {
     for (Node *child : m_children) {
         children.append(child);
         child->recursiveAppendChildren(children);
+    }
+}
+
+void Node::updateValues() {
+    if (m_parent && m_parent->itemType() != ItemType::InvisibleRoot) {
+        m_class = m_parent->m_class;
     }
 }
 
