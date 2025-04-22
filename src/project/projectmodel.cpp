@@ -40,19 +40,50 @@ namespace Collett {
 
 ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent) {
     m_root = new Node(ItemType::InvisibleRoot, QUuid::createUuid(), "InvisibleRoot");
+    m_root->setParent(this);
 }
 
 ProjectModel::~ProjectModel() {
     qDebug() << "Destructor: ProjectModel";
 }
 
+// Getters
+// =======
+
+/**!
+ * @brief Get the root note of an item.
+ *
+ * @return Node* The root node or nullptr if invisible root.
+ */
+Node *ProjectModel::rootNode(Node *node) {
+    Node *self = node;
+    Node *root = nullptr;
+    if (node) {
+        while (self->parent()) {
+            root = self;
+            self = self->parent();
+        }
+    }
+    return root;
+}
+
 // Public Methods
 // ==============
 
+/**!
+ * @brief Pack all nodes into a JSON object.
+ *
+ * @param data The JSON object to populate.
+ */
 void ProjectModel::pack(QJsonObject &data) {
     if (m_root) m_root->pack(data);
 }
 
+/**!
+ * @brief Unpack nodes from a JSON object.
+ *
+ * @param data The JSON object to unpack.
+ */
 void ProjectModel::unpack(const QJsonObject &data) {
     int skipped = 0;
     int errors = 0;
@@ -142,6 +173,11 @@ Qt::ItemFlags ProjectModel::flags(const QModelIndex &index) const {
     }
 }
 
+/**!
+ * @brief Return a list of the index of all expanded nodes.
+ *
+ * @return QList<QModelIndex> The list of indexes.
+ */
 QList<QModelIndex> ProjectModel::allExpanded() {
     QList<QModelIndex> expanded;
     for (Node *node : m_root->allChildren()) {
@@ -152,6 +188,12 @@ QList<QModelIndex> ProjectModel::allExpanded() {
     return expanded;
 }
 
+/**!
+ * @brief Return the node at a give index, if one exists.
+ *
+ * @param index  The model index to look up.
+ * @return Node* The node, or nullptr if it does not exist.
+ */
 Node *ProjectModel::nodeAtIndex(const QModelIndex &index) {
     if (index.isValid()) {
         return static_cast<Node*>(index.internalPointer());
@@ -162,13 +204,20 @@ Node *ProjectModel::nodeAtIndex(const QModelIndex &index) {
 // Model Edit
 // ==========
 
+/**!
+ * @brief Insert a child node at a given position under a parent.
+ *
+ * @param child  The child node to insert.
+ * @param parent The parent of the node.
+ * @param pos    The position of the node under the parent.
+ */
 void ProjectModel::insertChild(Node *child, const QModelIndex &parent, qsizetype pos) {
 
     Node *parentNode;
-    if (!parent.isValid()) {
-        parentNode = m_root;
-    } else {
+    if (parent.isValid()) {
         parentNode = static_cast<Node*>(parent.internalPointer());
+    } else {
+        parentNode = m_root;
     }
     int row = qMin(qMax(pos, 0), parentNode->childCount());
     emit beginInsertRows(parent, row, row);
@@ -176,38 +225,155 @@ void ProjectModel::insertChild(Node *child, const QModelIndex &parent, qsizetype
     emit endInsertRows();
 }
 
-Node *ProjectModel::addRoot(QString name, ItemClass itemClass, const QModelIndex &relative) {
-    return nullptr;
-}
+/**!
+ * @brief Add a root folder relative to the selected index.
+ *
+ * Root folders are always added after the root folder ancestor of the selected
+ * index, or by default at the end of the project tree.
+ *
+ * @param name      The name of the new root folder.
+ * @param itemClass The class of the new root folder.
+ * @param selected  The selected index to add the root folder relative to.
+ * @return Node*    The root folder node.
+ */
+Node *ProjectModel::addRoot(QString name, ItemClass itemClass, const QModelIndex &selected) {
 
-Node *ProjectModel::addFolder(QString name, const QModelIndex &relative) {
-    if (!relative.isValid()) return nullptr;
-
-    Node *node = static_cast<Node*>(relative.internalPointer());
-    qsizetype pos = -1;
-    QModelIndex parent;
-    if (node->itemType() == ItemType::RootType) {
-        parent = relative;
-        pos = node->childCount();
-    } else {
-        node = node->parent();
-        parent = relative.parent();
-        pos = relative.row() + 1;
+    qsizetype pos = m_root->childCount();
+    if (selected.isValid()) {
+        Node *sNode = this->rootNode(static_cast<Node*>(selected.internalPointer()));
+        if (sNode) pos = sNode->row() + 1;
     }
 
-    if (node && parent.isValid()) {
-        int row = qMin(qMax(pos, 0), node->childCount());
-        emit beginInsertRows(parent, row, row);
-        Node *child = node->addFolder(QUuid::createUuid(), name, row);
-        emit endInsertRows();
-        return child;
+    int row = qMin(qMax(pos, 0), m_root->childCount());
+    emit beginInsertRows(QModelIndex(), row, row);
+    Node *child = m_root->addRoot(QUuid::createUuid(), name, itemClass, row);
+    if (child) child->setActive(true);
+    emit endInsertRows();
+    return child;
+}
+
+/**!
+ * @brief Add a folder relative to the selected index.
+ *
+ * The folder is added as a child if the selected index is a root folder or an
+ * expanded folder with other child items. Otherwise, the folder is added next
+ * to the selected item as a sibling.
+ *
+ * @param name     The name of the new folder.
+ * @param selected The selected index to add the folder relative to.
+ * @return Node*   The folder node or nullptr if failed.
+ */
+Node *ProjectModel::addFolder(QString name, const QModelIndex &selected) {
+    if (!selected.isValid()) return nullptr;
+
+    Node *sNode = static_cast<Node*>(selected.internalPointer());
+    if (!sNode) return nullptr;
+
+    // The default behaviour is to make the new item a sibling of the selected item
+    QModelIndex parent = selected.parent();
+    qsizetype pos = selected.row() + 1;
+
+    if (sNode->itemType() == ItemType::RootType) {
+        // For root folders, it must be a child
+        parent = selected;
+        pos = sNode->childCount();
+    } else if (sNode->itemType() == ItemType::FolderType && sNode->isExpanded() && sNode->childCount() > 0) {
+        // If the node is an expanded folder with children, add the new folder as a child
+        parent = selected;
+        pos = sNode->childCount();
+    }
+
+    if (parent.isValid()) {
+        Node *nNode = static_cast<Node*>(parent.internalPointer());
+        if (nNode) {
+            int row = qMin(qMax(pos, 0), sNode->childCount());
+            emit beginInsertRows(parent, row, row);
+            Node *child = sNode->addFolder(QUuid::createUuid(), name, row);
+            if (child) child->setActive(true);
+            emit endInsertRows();
+            return child;
+        }
     }
     return nullptr;
 }
 
-Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex &parent, qsizetype pos) {
+/**!
+ * @brief Add a file relative to the selected index.
+ *
+ * New files are by default added next to the selected item as a sibling, with
+ * the following exceptions:
+ *
+ * 1. If the selected index is a root or folder, the file is added as a child
+ *    at the end of the list of children.
+ *
+ * 2. If the parent of the selected index is of similar or higher structural
+ *    level than the selected index, then the new file is added as a sibling of
+ *    the parent instead of the selected.
+ *
+ * 3. If the selected index has children and the new file is of lower
+ *    structural level or is a note, the new file is added as a child of the
+ *    selected index.
+ *
+ * @param name      The name of the new file.
+ * @param itemLevel The item level of the file.
+ * @param selected  The selected index to add the file relative to.
+ * @return Node*    The file node or nullptr if failed.
+ */
+Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex &selected) {
+    if (!selected.isValid()) return nullptr;
+
+    Node *sNode = static_cast<Node*>(selected.internalPointer());
+    if (!sNode) return nullptr;
+
+    // The default behaviour is to make the new item a sibling of the selected item
+    QModelIndex parent = selected.parent();
+    qsizetype pos = selected.row() + 1;
+
+    if (sNode->itemType() == ItemType::RootType || sNode->itemType() == ItemType::FolderType) {
+        // Always add as a direct child of any folder
+        parent = selected;
+        pos = sNode->childCount();
+
+    } else if (sNode->itemType() == ItemType::FileType) {
+        Node *pNode = sNode->parent();
+
+        int hLevel = static_cast<int>(itemLevel);
+        int sLevel = static_cast<int>(sNode->itemLevel());
+        int pLevel = static_cast<int>(pNode->itemLevel());
+
+        bool isNote = false;
+        if (itemLevel == ItemLevel::NoteLevel) {
+            isNote = true;
+            sLevel = 0;  // Here we treat selected notes as level 0
+        }
+
+        if (pNode && pNode->itemType() == ItemType::FileType && pLevel >= hLevel && sLevel > hLevel) {
+            // If the selected item's is a higher level than the new item, and
+            // the parent level is equal or higher, we make it a sibling of the parent
+            parent = parent.parent();
+            pos = pNode->row() + 1;
+        }
+
+        if (sNode->childCount() > 0 && ((sLevel > 0 && sLevel < hLevel) || isNote)) {
+            // If the selected item already has child nodes and
+            // has a lower level or is a note, we make the new item a child
+            parent = selected;
+            pos = sNode->childCount();
+        }
+    }
+
+    if (parent.isValid()) {
+        Node *nNode = static_cast<Node*>(parent.internalPointer());
+        if (nNode) {
+            int row = qMin(qMax(pos, 0), nNode->childCount());
+            emit beginInsertRows(parent, row, row);
+            Node *child = nNode->addFile(QUuid::createUuid(), name, itemLevel, row);
+            if (child) child->setActive(true);
+            emit endInsertRows();
+            return child;
+        }
+    }
     return nullptr;
 }
-
 
 } // namespace Collett

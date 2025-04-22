@@ -47,7 +47,8 @@ Node::Node(ItemType itemType, QUuid handle, QString name) :
 }
 
 Node::~Node() {
-    qDebug() << "Destructor: Node";
+    qDebug() << "Destructor: Node" << m_name;
+    qDeleteAll(m_children);
 }
 
 // Setters
@@ -331,13 +332,30 @@ bool Node::canAddFolder() {
     }
 }
 
-bool Node::canAddFile() {
-    if (m_type != ItemType::InvisibleRoot) {
-        return true;
-    } else {
+bool Node::canAddFile(ItemLevel itemLevel) {
+    if (m_type == ItemType::InvisibleRoot) {
         qWarning() << "File nodes cannot be added to invisible root";
         return false;
     }
+
+    switch (m_class) {
+        case ItemClass::NovelClass:
+        case ItemClass::ArchiveClass:
+            return itemLevel != ItemLevel::NoteLevel;
+
+        case ItemClass::CharacterClass:
+        case ItemClass::PlotClass:
+        case ItemClass::LocationClass:
+        case ItemClass::ObjectClass:
+        case ItemClass::EntityClass:
+        case ItemClass::CustomClass:
+            return itemLevel == ItemLevel::NoteLevel;
+
+        case ItemClass::TrashClass:
+            return false;
+    }
+
+    return false;
 }
 
 
@@ -368,7 +386,7 @@ Node *Node::addFolder(QUuid handle, QString name, qsizetype pos) {
 }
 
 Node *Node::addFile(QUuid handle, QString name, ItemLevel itemLevel, qsizetype pos) {
-    if (!this->canAddFile()) return nullptr;
+    if (!this->canAddFile(itemLevel)) return nullptr;
     Node *node = new Node(ItemType::FileType, handle, name);
     node->m_class = m_class;
     node->m_level = itemLevel;

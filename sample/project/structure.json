@@ -43,6 +43,17 @@
                             "m:words": 0,
                             "u:active": true,
                             "u:name": "Scene 1"
+                        },
+                        {
+                            "m:characters": 0,
+                            "m:expanded": false,
+                            "m:handle": "ebd68dac-ba32-47c5-b035-4f5879ec8a19",
+                            "m:level": "Scene",
+                            "m:order": 1,
+                            "m:type": "File",
+                            "m:words": 0,
+                            "u:active": true,
+                            "u:name": "Scene 2"
                         }
                     ]
                 }
@@ -99,6 +110,17 @@
                             "m:words": 0,
                             "u:active": true,
                             "u:name": "Sideshow Bob"
+                        },
+                        {
+                            "m:characters": 0,
+                            "m:expanded": false,
+                            "m:handle": "c080a29f-f57f-469e-8ef2-b1ad0a440e5e",
+                            "m:level": "Note",
+                            "m:order": 1,
+                            "m:type": "File",
+                            "m:words": 0,
+                            "u:active": true,
+                            "u:name": "Sideshow Mel"
                         }
                     ]
                 }

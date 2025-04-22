@@ -43,6 +43,7 @@ public:
 
     // Getters
     Node *invisibleRoot() const {return m_root;};
+    Node *rootNode(Node *node);
 
     // Methods
     void pack(QJsonObject &data);
@@ -61,9 +62,9 @@ public:
 
     // Model Edit
     void  insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
-    Node *addRoot(QString name, ItemClass itemClass, const QModelIndex &relative);
-    Node *addFolder(QString name, const QModelIndex &relative);
-    Node *addFile(QString name, ItemLevel itemLevel, const QModelIndex &parent, qsizetype pos = -1);
+    Node *addRoot(QString name, ItemClass itemClass, const QModelIndex &selected);
+    Node *addFolder(QString name, const QModelIndex &selected);
+    Node *addFile(QString name, ItemLevel itemLevel, const QModelIndex &selected);
 
 private:
     Node *m_root = nullptr;

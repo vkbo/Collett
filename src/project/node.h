@@ -55,6 +55,7 @@ public:
     // Getters
     ItemType  itemType() const {return m_type;};
     ItemClass itemClass() const {return m_class;};
+    ItemLevel itemLevel() const {return m_level;};
     QUuid     handle() const {return m_handle;};
     QString   name() const {return m_name;};
     Counts    counts() {return m_counts;};
@@ -78,7 +79,7 @@ public:
     // Model Edit
     bool canAddRoot();
     bool canAddFolder();
-    bool canAddFile();
+    bool canAddFile(ItemLevel itemLevel);
 
     void addChild(Node *child, qsizetype pos = -1);
     Node *addRoot(QUuid handle, QString name, ItemClass itemClass, qsizetype pos = -1);

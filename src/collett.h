@@ -51,6 +51,8 @@ enum ItemClass {
     TrashClass     = 8,
 };
 enum ItemLevel {
+    // The int order here matters and must not be changed
+    // See: ProjectModel::suggestParent()
     PageLevel    = 0,
     TitleLevel   = 1,
     ChapterLevel = 2,
