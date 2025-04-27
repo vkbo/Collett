@@ -23,10 +23,12 @@
 #define COLLETT_TREE_H
 
 #include "collett.h"
+#include "node.h"
 #include "projectmodel.h"
 
+#include <QHash>
 #include <QJsonObject>
-#include <QString>
+#include <QUuid>
 
 namespace Collett {
 
@@ -38,15 +40,21 @@ public:
     explicit Tree(QObject *parent = nullptr);
     ~Tree();
 
+    // Getters
+    ProjectModel *model() {return m_model;};
+    Node *node(const QUuid &uuid) {return m_nodes.value(uuid, nullptr);};
+
     // Methods
     void pack(QJsonObject &data);
     void unpack(const QJsonObject &data);
 
-    // Getters
-    ProjectModel *model() {return m_model;};
+    // Data Methods
+    void addNode(Node *node);
+    void removeNode(const QUuid &uuid);
 
 private:
     ProjectModel *m_model;
+    QHash<QUuid, Node*> m_nodes;
 
 };
 } // namespace Collett

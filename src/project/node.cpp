@@ -22,6 +22,7 @@
 #include "node.h"
 #include "theme.h"
 #include "tools.h"
+#include "tree.h"
 
 #include <QIcon>
 #include <QJsonArray>
@@ -37,8 +38,8 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Node::Node(ItemType itemType, QUuid handle, QString name) :
-    m_type(itemType), m_handle(handle), m_name(name)
+Node::Node(Tree *tree, ItemType itemType, QUuid handle, QString name) :
+    m_type(itemType), m_handle(handle), m_name(name), m_tree(tree)
 {
     m_class = ItemClass::NovelClass;
     m_level = ItemLevel::PageLevel;
@@ -78,6 +79,46 @@ void Node::setActive(bool state) {
             m_activeIcon = theme->icons()->getIcon("noncheckable", ThemeColor::FadedColor, theme->baseIconSize());
         }
     }
+}
+
+// Checkers
+// ========
+
+/**!
+ * @brief Return true if the node is allowed to be a novel document.
+ *
+ * Novel documents are only allowed under the Novel root folder, and in
+ * the Archive or Trash folder.
+ *
+ * @return Returns true if the node is of Novel, Archive or Trash class.
+ */
+bool Node::isDocumentAllowed() {
+    switch (m_class) {
+        case ItemClass::NovelClass:
+        case ItemClass::ArchiveClass:
+        case ItemClass::TrashClass:
+            return true;
+        case ItemClass::CharacterClass:
+        case ItemClass::PlotClass:
+        case ItemClass::LocationClass:
+        case ItemClass::ObjectClass:
+        case ItemClass::EntityClass:
+        case ItemClass::CustomClass:
+            return false;
+    }
+    return false;
+}
+
+/**!
+ * @brief Return true if the node is allowed to be a project note.
+ *
+ * Notes are allowed to exist anywhere in the project except under Novel root
+ * folders.
+ *
+ * @return Returns true if the node is allowed to be a project note.
+ */
+bool Node::isNoteAllowed() {
+    return m_class != ItemClass::NovelClass;
 }
 
 // Public Methods
@@ -322,6 +363,27 @@ QList<Node*> Node::allChildren() {
 // Model Edit
 // ==========
 
+void Node::addChild(Node *child, qsizetype pos) {
+    m_tree->addNode(child);
+    child->m_parent = this;
+    if (pos >= 0 && pos < m_children.size()) {
+        m_children.insert(pos, child);
+    } else {
+        m_children.append(child);
+    }
+    child->updateIcon();
+    child->updateValues();
+}
+
+Node *Node::takeChild(qsizetype pos) {
+    if (pos >= 0 && pos < m_children.count()) {
+        Node *child = m_children.takeAt(pos);
+        m_tree->removeNode(child->handle());
+        return child;
+    }
+    return nullptr;
+}
+
 bool Node::canAddRoot() {
     if (m_type == ItemType::InvisibleRoot) {
         return true;
@@ -366,32 +428,20 @@ bool Node::canAddFile(ItemLevel itemLevel) {
     return false;
 }
 
-
-void Node::addChild(Node *child, qsizetype pos) {
-    child->m_parent = this;
-    if (pos >= 0 && pos < m_children.size()) {
-        m_children.insert(pos, child);
-    } else {
-        m_children.append(child);
-    }
-    child->updateIcon();
-    child->updateValues();
-}
-
 Node *Node::createRoot(QUuid handle, QString name, ItemClass itemClass) {
-    Node *node = new Node(ItemType::RootType, handle, name);
+    Node *node = new Node(m_tree, ItemType::RootType, handle, name);
     node->m_class = itemClass;
     return node;
 }
 
 Node *Node::createFolder(QUuid handle, QString name) {
-    Node *node = new Node(ItemType::FolderType, handle, name);
+    Node *node = new Node(m_tree, ItemType::FolderType, handle, name);
     node->m_class = m_class;
     return node;
 }
 
 Node *Node::createFile(QUuid handle, QString name, ItemLevel itemLevel) {
-    Node *node = new Node(ItemType::FileType, handle, name);
+    Node *node = new Node(m_tree, ItemType::FileType, handle, name);
     node->m_class = m_class;
     node->m_level = itemLevel;
     return node;
@@ -403,6 +453,22 @@ void Node::updateIcon() {
         m_icon = QIcon();
     } else {
         m_icon = theme->icons()->getProjectIcon(m_type, m_class, m_level, theme->baseIconSize());
+    }
+}
+
+void Node::updateValues() {
+    if (m_parent && m_parent->itemType() != ItemType::InvisibleRoot) {
+        m_class = m_parent->m_class;
+        if (this->isFileType()) {
+            if (this->isDocument() && !this->isDocumentAllowed()) {
+                m_level = ItemLevel::NoteLevel;
+                this->updateIcon();
+            }
+            if (this->isNote() && !this->isNoteAllowed()) {
+                m_level = ItemLevel::PageLevel;
+                this->updateIcon();
+            }
+        }
     }
 }
 
@@ -496,12 +562,6 @@ void Node::recursiveAppendChildren(QList<Node*> &children) {
     for (Node *child : m_children) {
         children.append(child);
         child->recursiveAppendChildren(children);
-    }
-}
-
-void Node::updateValues() {
-    if (m_parent && m_parent->itemType() != ItemType::InvisibleRoot) {
-        m_class = m_parent->m_class;
     }
 }
 

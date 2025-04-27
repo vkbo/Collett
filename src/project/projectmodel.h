@@ -26,7 +26,6 @@
 #include "node.h"
 
 #include <QAbstractItemModel>
-#include <QHash>
 #include <QJsonObject>
 #include <QList>
 #include <QMimeData>
@@ -37,12 +36,13 @@
 
 namespace Collett {
 
+class Tree;
 class ProjectModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit ProjectModel(QObject *parent=nullptr);
+    explicit ProjectModel(Tree *parent=nullptr);
     ~ProjectModel();
 
     // Getters
@@ -63,10 +63,13 @@ public:
 
     QList<QModelIndex> allExpanded();
     Node *nodeAtIndex(const QModelIndex &index);
-    Node *nodeFromHandle(const QUuid &uuid);
+    QModelIndex indexFromHandle(const QUuid &uuid);
 
     // Model Edit
     void  insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
+    Node *removeChild(const QModelIndex &parent, qsizetype pos);
+    void  multiMove(const QModelIndexList &indexes, const QModelIndex &parent, qsizetype pos = -1);
+
     Node *addRoot(QString name, ItemClass itemClass, const QModelIndex &selected);
     Node *addFolder(QString name, const QModelIndex &selected);
     Node *addFile(QString name, ItemLevel itemLevel, const QModelIndex &selected);
@@ -83,7 +86,7 @@ public:
 
 private:
     Node *m_root = nullptr;
-    QHash<QUuid, Node*> m_nodes;
+    Tree *m_tree = nullptr;
 
 };
 } // namespace Collett

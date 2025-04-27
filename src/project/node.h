@@ -33,6 +33,7 @@
 
 namespace Collett {
 
+class Tree;
 class Node : public QObject
 {
     Q_OBJECT
@@ -44,7 +45,7 @@ class Node : public QObject
     };
 
 public:
-    Node(ItemType itemType, QUuid handle, QString name);
+    Node(Tree *tree, ItemType itemType, QUuid handle, QString name);
     ~Node();
 
     // Methods
@@ -66,6 +67,15 @@ public:
     void setExpanded(bool state) {m_expanded = state;};
     void setActive(bool state);
 
+    // Checkers
+    bool isRootType() {return m_type == ItemType::RootType;};
+    bool isFolderType() {return m_type == ItemType::FolderType;};
+    bool isFileType() {return m_type == ItemType::FileType;};
+    bool isNote() {return m_level == ItemLevel::NoteLevel;};
+    bool isDocument() {return m_level != ItemLevel::NoteLevel;};
+    bool isDocumentAllowed();
+    bool isNoteAllowed();
+
     // Model Access
     int row() const;
     int childCount() const {return m_children.count();};
@@ -77,15 +87,19 @@ public:
     QList<Node*> allChildren();
 
     // Model Edit
+    void  addChild(Node *child, qsizetype pos = -1);
+    Node *takeChild(qsizetype pos);
+
     bool canAddRoot();
     bool canAddFolder();
     bool canAddFile(ItemLevel itemLevel);
 
-    void  addChild(Node *child, qsizetype pos = -1);
     Node *createRoot(QUuid handle, QString name, ItemClass itemClass);
     Node *createFolder(QUuid handle, QString name);
     Node *createFile(QUuid handle, QString name, ItemLevel itemLevel);
-    void  updateIcon();
+
+    void updateIcon();
+    void updateValues();
 
     // Static Methods
     static bool typeFromString(QString value, ItemType &itemType);
@@ -113,12 +127,12 @@ private:
     QString m_accActive = "";
 
     // Structure
+    Tree         *m_tree;
     Node         *m_parent = nullptr;
     QList<Node*>  m_children;
 
     // Methods
     void recursiveAppendChildren(QList<Node*> &children);
-    void updateValues();
 };
 } // namespace Collett
 

@@ -21,6 +21,7 @@
 
 #include "collett.h"
 #include "projectmodel.h"
+#include "tree.h"
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -28,6 +29,7 @@
 #include <QList>
 #include <QMimeData>
 #include <QModelIndex>
+#include <QSet>
 #include <QString>
 #include <QStringList>
 #include <QUuid>
@@ -40,8 +42,8 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-ProjectModel::ProjectModel(QObject *parent) : QAbstractItemModel(parent) {
-    m_root = new Node(ItemType::InvisibleRoot, QUuid::createUuid(), "InvisibleRoot");
+ProjectModel::ProjectModel(Tree *parent) : QAbstractItemModel(parent), m_tree(parent) {
+    m_root = new Node(m_tree, ItemType::InvisibleRoot, QUuid::createUuid(), "InvisibleRoot");
     m_root->setParent(this);
 }
 
@@ -206,17 +208,13 @@ Node *ProjectModel::nodeAtIndex(const QModelIndex &index) {
     return nullptr;
 }
 
-/**!
- * @brief Return the node corresponding to a given handle.
- * 
- * @param uuid   The Handle uuid.
- * @return Node* The node, or nullptr if it does not exist.
- */
-Node *ProjectModel::nodeFromHandle(const QUuid &uuid) {
-    if (m_nodes.contains(uuid)) {
-        return m_nodes.value(uuid);
+QModelIndex ProjectModel::indexFromHandle(const QUuid &uuid) {
+    Node *node = m_tree->node(uuid);
+    if (node) {
+        qDebug() << "Ping!" << node->name() << node->handle();
+        return createIndex(node->row(), 0, node);
     }
-    return nullptr;
+    return QModelIndex();
 }
 
 // Model Edit
@@ -240,8 +238,85 @@ void ProjectModel::insertChild(Node *child, const QModelIndex &parent, qsizetype
     int row = qMin(qMax(pos, 0), node->childCount());
     emit beginInsertRows(parent, row, row);
     node->addChild(child, row);
-    m_nodes.insert(child->handle(), child);
     emit endInsertRows();
+}
+
+/**!
+ * @brief Remove a child from a node index.
+ *
+ * This removes the child from the parent and returns a pointer to it.
+ * The node is also removed from the nodes record in the Tree class, which is
+ * handled internall in the parent node.
+ *
+ * @param parent The parent index of the child.
+ * @param pos    The position of the child in the parent node.
+ * @return Node* The remmoved child node.
+ */
+Node *ProjectModel::removeChild(const QModelIndex &parent, qsizetype pos) {
+
+    Node *node;
+    if (parent.isValid()) {
+        node = static_cast<Node*>(parent.internalPointer());
+    } else {
+        node = m_root;
+    }
+    if (pos >= 0 && pos < node->childCount()) {
+        emit beginRemoveRows(parent, pos, pos);
+        Node *child = node->takeChild(pos);
+        emit endRemoveRows();
+        return child;
+    }
+    return nullptr;
+}
+
+/**!
+ * @brief Move a list of indexes to a new parent node.
+ *
+ * The list of indexes are moved to the new location. If a child and a parent
+ * are both selected, only the parent is moved and the child just follows
+ * along. The internal meta data of the nodes are updated by the parent node
+ * object so that its class and item level info is consistent with its new
+ * location in the project.
+ *
+ * @param indexes A list of indexes to be moved.
+ * @param parent  The parent index to move the indexes to.
+ * @param pos     The position under the parent index to move the indexes to.
+ */
+void ProjectModel::multiMove(const QModelIndexList &indexes, const QModelIndex &parent, qsizetype pos) {
+    if (!parent.isValid()) return;
+
+    // This is a two pass process. First we only select unique non-root items
+    // for move, then we do a second pass and only move those items that don't
+    // have a parent also scheduled for moving or have already been moved.
+    // Child items are moved with the parent.
+
+    QSet<QUuid> handles;
+    QList<Node*> pruned;
+    for (QModelIndex index : indexes) {
+        if (index.isValid()) {
+            Node *node = static_cast<Node*>(index.internalPointer());
+            if (node && !node->isRootType() && !handles.contains(node->handle())) {
+                pruned.prepend(node);  // Built in reverse order
+                handles.insert(node->handle());
+            }
+        }
+    }
+    qDebug() << indexes;
+
+    for (Node *mNode : pruned) {
+        Node *pNode = mNode->parent();
+        if (pNode && !handles.contains(pNode->handle())) {
+            QModelIndex index = createIndex(mNode->row(), 0, mNode);
+            Node *tNode = this->removeChild(index.parent(), index.row());
+            qDebug() << tNode;
+            if (tNode) {
+                this->insertChild(tNode, parent, pos);
+                for (Node *cNode : mNode->allChildren()) {
+                    cNode->updateValues();
+                }
+            }
+        }
+    }
 }
 
 /**!
@@ -291,11 +366,11 @@ Node *ProjectModel::addFolder(QString name, const QModelIndex &selected) {
     QModelIndex parent = selected.parent();
     qsizetype pos = selected.row() + 1;
 
-    if (sNode->itemType() == ItemType::RootType) {
+    if (sNode->isRootType()) {
         // For root folders, it must be a child
         parent = selected;
         pos = sNode->childCount();
-    } else if (sNode->itemType() == ItemType::FolderType && sNode->isExpanded() && sNode->childCount() > 0) {
+    } else if (sNode->isFolderType() && sNode->isExpanded() && sNode->childCount() > 0) {
         // If the node is an expanded folder with children, add the new folder as a child
         parent = selected;
         pos = sNode->childCount();
@@ -346,12 +421,12 @@ Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex
     QModelIndex parent = selected.parent();
     qsizetype pos = selected.row() + 1;
 
-    if (sNode->itemType() == ItemType::RootType || sNode->itemType() == ItemType::FolderType) {
+    if (sNode->isRootType() || sNode->isFolderType()) {
         // Always add as a direct child of any folder
         parent = selected;
         pos = sNode->childCount();
 
-    } else if (sNode->itemType() == ItemType::FileType) {
+    } else if (sNode->isFileType()) {
         Node *pNode = sNode->parent();
 
         int hLevel = static_cast<int>(itemLevel);
@@ -364,7 +439,7 @@ Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex
             sLevel = 0;  // Here we treat selected notes as level 0
         }
 
-        if (pNode && pNode->itemType() == ItemType::FileType && pLevel >= hLevel && sLevel > hLevel) {
+        if (pNode && pNode->isFileType() && pLevel >= hLevel && sLevel > hLevel) {
             // If the selected item's is a higher level than the new item, and
             // the parent level is equal or higher, we make it a sibling of the parent
             parent = parent.parent();
@@ -429,12 +504,11 @@ bool ProjectModel::canDropMimeData(const QMimeData *data, Qt::DropAction action,
 bool ProjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) {
 
     if (this->canDropMimeData(data, action, row, column, parent)) {
-        QList<Node*> nodes;
+        QModelIndexList indexes;
         for (const QUuid handle : decodeMimeHandles(data)) {
-            Node *node = this->nodeFromHandle(handle);
-            if (node) nodes << node;
+            indexes << this->indexFromHandle(handle);
         }
-        // Call move node methods
+        this->multiMove(indexes, parent, row);
         return true;
     }
     return false;
@@ -445,7 +519,7 @@ bool ProjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, in
 
 /**!
  * @brief Static method to decode handles from mime data.
- * 
+ *
  * @param mimeData      The mimedata object.
  * @return QList<QUuid> A list of handle UUIDs.
  */
