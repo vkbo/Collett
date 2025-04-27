@@ -47,7 +47,8 @@ public:
     void closeProjectTasks();
 
     // Actions
-    QAction *a_editItem;
+    QAction *actEditItem;
+    QAction *actDeleteItem;
 
 private:
     // Singletons
@@ -71,6 +72,8 @@ private slots:
     void onNodeExpanded(const QModelIndex &index);
     void onNodeCollapsed(const QModelIndex &index);
     void editSelectedItem();
+    void deleteSelectedItem();
+
 };
 } // namespace Collett
 

@@ -33,11 +33,11 @@ namespace Collett {
 GuiProjectPanel::GuiProjectPanel(QWidget *parent) : QWidget(parent) {
 
     // Components
-    m_projectView = new GuiProjectView(this);
+    projectView = new GuiProjectView(this);
 
     // Assemble
     QVBoxLayout *outerBox = new QVBoxLayout();
-    outerBox->addWidget(m_projectView, 1);
+    outerBox->addWidget(projectView, 1);
 
     this->setLayout(outerBox);
 }
@@ -50,11 +50,11 @@ GuiProjectPanel::~GuiProjectPanel() {
 // ==============
 
 void GuiProjectPanel::openProjectTasks() {
-    if (m_projectView) m_projectView->openProjectTasks();
+    if (projectView) projectView->openProjectTasks();
 }
 
 void GuiProjectPanel::closeProjectTasks() {
-    if (m_projectView) m_projectView->closeProjectTasks();
+    if (projectView) projectView->closeProjectTasks();
 }
 
 } // namespace Collett

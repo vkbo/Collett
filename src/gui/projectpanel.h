@@ -43,13 +43,12 @@ public:
     void openProjectTasks();
     void closeProjectTasks();
 
-private:
-    GuiProjectView *m_projectView = nullptr;
+    GuiProjectView *projectView = nullptr;
 
 public slots:
-    void createFile(const ItemLevel itemLevel) {if(m_projectView) m_projectView->createFile(itemLevel);};
-    void createFolder() {if(m_projectView) m_projectView->createFolder();};
-    void createRoot(const ItemClass itemClass) {if(m_projectView) m_projectView->createRoot(itemClass);};
+    void createFile(const ItemLevel itemLevel) {if(projectView) projectView->createFile(itemLevel);};
+    void createFolder() {if(projectView) projectView->createFolder();};
+    void createRoot(const ItemClass itemClass) {if(projectView) projectView->createRoot(itemClass);};
 
 };
 } // namespace Collett

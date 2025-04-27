@@ -60,14 +60,21 @@ GuiProjectView::GuiProjectView(QWidget *parent) : MTreeView(parent) {
     this->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     // Create Actions
-    a_editItem = new QAction(this);
-    a_editItem->setShortcut(QKeySequence(Qt::Key_F2));
-    this->addAction(a_editItem);
+    actEditItem = new QAction(tr("Edit Project Item"), this);
+    actEditItem->setShortcut(QKeySequence(Qt::Key_F2));
+    actEditItem->setShortcutContext(Qt::WidgetShortcut);
+    this->addAction(actEditItem);
+
+    actDeleteItem = new QAction(tr("Delete Project Item"), this);
+    actDeleteItem->setShortcut(QKeySequence(Qt::Key_Delete));
+    actDeleteItem->setShortcutContext(Qt::WidgetShortcut);
+    this->addAction(actDeleteItem);
 
     // Connect Signals
     this->connect(this, &GuiProjectView::expanded, this, &GuiProjectView::onNodeExpanded);
     this->connect(this, &GuiProjectView::collapsed, this, &GuiProjectView::onNodeCollapsed);
-    this->connect(a_editItem, &QAction::triggered, this, &GuiProjectView::editSelectedItem);
+    this->connect(actEditItem, &QAction::triggered, this, &GuiProjectView::editSelectedItem);
+    this->connect(actDeleteItem, &QAction::triggered, this, &GuiProjectView::deleteSelectedItem);
 }
 
 GuiProjectView::~GuiProjectView() {
@@ -186,6 +193,12 @@ void GuiProjectView::editSelectedItem() {
     Node *node = this->getNode(this->currentIndex());
     if (node){
         EditItemDialog::editNode(this, node);
+    }
+}
+
+void GuiProjectView::deleteSelectedItem() {
+    Node *node = this->getNode(this->currentIndex());
+    if (node){
     }
 }
 

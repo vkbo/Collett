@@ -43,35 +43,35 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     m_theme = Theme::instance();
 
     // Panels
-    m_projectPanel = new GuiProjectPanel(this);
-    m_workPanel    = new GuiWorkPanel(this);
+    projectPanel = new GuiProjectPanel(this);
+    workPanel    = new GuiWorkPanel(this);
 
     // Main Splitter
     QList<int> sizes = {400, 1000};
     m_splitMain = new QSplitter(Qt::Horizontal, this);
     m_splitMain->setContentsMargins(0, 0, 0, 0);
     m_splitMain->setOpaqueResize(false);
-    m_splitMain->addWidget(m_projectPanel);
-    m_splitMain->addWidget(m_workPanel);
+    m_splitMain->addWidget(projectPanel);
+    m_splitMain->addWidget(workPanel);
     m_splitMain->setSizes(m_settings->mainSplitSizes());
 
     // ToolBars
-    m_projectToolBar = new GuiProjectToolBar(this);
+    projectToolBar = new GuiProjectToolBar(this);
 
     // Connect Signals
     connect(m_data, &SharedData::projectLoaded, this, &GuiMain::updateTitle);
 
-    connect(m_projectToolBar->actOpenProject, &QAction::triggered, this, &GuiMain::onProjectOpen);
-    connect(m_projectToolBar->actSaveProject, &QAction::triggered, this, &GuiMain::onProjectSave);
-    connect(m_projectToolBar->actCloseProject, &QAction::triggered, this, &GuiMain::onProjectClose);
+    connect(projectToolBar->actOpenProject, &QAction::triggered, this, &GuiMain::onProjectOpen);
+    connect(projectToolBar->actSaveProject, &QAction::triggered, this, &GuiMain::onProjectSave);
+    connect(projectToolBar->actCloseProject, &QAction::triggered, this, &GuiMain::onProjectClose);
 
-    connect(m_projectToolBar, &GuiProjectToolBar::createFileRequested, m_projectPanel, &GuiProjectPanel::createFile);
-    connect(m_projectToolBar, &GuiProjectToolBar::createFolderRequested, m_projectPanel, &GuiProjectPanel::createFolder);
-    connect(m_projectToolBar, &GuiProjectToolBar::createRootRequested, m_projectPanel, &GuiProjectPanel::createRoot);
+    connect(projectToolBar, &GuiProjectToolBar::createFileRequested, projectPanel, &GuiProjectPanel::createFile);
+    connect(projectToolBar, &GuiProjectToolBar::createFolderRequested, projectPanel, &GuiProjectPanel::createFolder);
+    connect(projectToolBar, &GuiProjectToolBar::createRootRequested, projectPanel, &GuiProjectPanel::createRoot);
 
     // Assemble
     this->setCentralWidget(m_splitMain);
-    this->addToolBar(m_projectToolBar);
+    this->addToolBar(projectToolBar);
 
     // Apply Settings
     this->resize(m_settings->mainWindowSize());
@@ -91,7 +91,7 @@ void GuiMain::openProject(const QString &path) {
     if (!m_data->hasProject()) {
         return;
     }
-    m_projectPanel->openProjectTasks();
+    projectPanel->openProjectTasks();
 }
 
 void GuiMain::saveProject() {
@@ -104,7 +104,7 @@ void GuiMain::closeProject() {
     if (m_data->hasProject()) {
         m_data->closeProject();
     }
-    m_projectPanel->closeProjectTasks();
+    projectPanel->closeProjectTasks();
 }
 
 bool GuiMain::closeMain() {

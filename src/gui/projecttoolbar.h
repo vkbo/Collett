@@ -39,7 +39,7 @@ class GuiProjectToolBar : public QToolBar
     Q_OBJECT
 
 public:
-    explicit GuiProjectToolBar(QWidget *parent = nullptr);
+    explicit GuiProjectToolBar(GuiMain *parent);
     ~GuiProjectToolBar();
 
 signals:

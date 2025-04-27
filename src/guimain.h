@@ -50,18 +50,18 @@ public:
     void closeProject();
     bool closeMain();
 
+    // Components
+    GuiProjectPanel *projectPanel;
+    GuiWorkPanel    *workPanel;
+    
+    // ToolBars
+    GuiProjectToolBar *projectToolBar;
+
 private:
     // Singletons
     SharedData *m_data;
     Settings   *m_settings;
     Theme      *m_theme;
-
-    // Components
-    GuiProjectPanel *m_projectPanel;
-    GuiWorkPanel    *m_workPanel;
-
-    // ToolBars
-    GuiProjectToolBar *m_projectToolBar;
 
     // Layout
     QSplitter *m_splitMain;
