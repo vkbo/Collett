@@ -28,6 +28,7 @@
 
 #include <QHash>
 #include <QJsonObject>
+#include <QPointer>
 #include <QUuid>
 
 namespace Collett {
@@ -42,7 +43,7 @@ public:
 
     // Getters
     ProjectModel *model() {return m_model;};
-    Node *node(const QUuid &uuid) {return m_nodes.value(uuid, nullptr);};
+    QPointer<Node> node(const QUuid &uuid) {return m_nodes.value(uuid, nullptr);};
 
     // Methods
     void pack(QJsonObject &data);
@@ -54,7 +55,7 @@ public:
 
 private:
     ProjectModel *m_model;
-    QHash<QUuid, Node*> m_nodes;
+    QHash<QUuid, QPointer<Node> > m_nodes;
 
 };
 } // namespace Collett
