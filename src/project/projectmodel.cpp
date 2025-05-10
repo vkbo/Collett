@@ -29,6 +29,7 @@
 #include <QList>
 #include <QMimeData>
 #include <QModelIndex>
+#include <QPointer>
 #include <QSet>
 #include <QString>
 #include <QStringList>
@@ -470,7 +471,7 @@ Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex
 // =============
 
 QStringList ProjectModel::mimeTypes() const {
-    return {PROJECT_ITEM_MIME};
+    return QStringList{PROJECT_ITEM_MIME};
 }
 
 QMimeData *ProjectModel::mimeData(const QModelIndexList &indexes) const {
@@ -527,7 +528,7 @@ QList<QUuid> ProjectModel::decodeMimeHandles(const QMimeData *mimeData) {
 
     QList<QUuid> handles;
     for (QByteArray handle : mimeData->data(PROJECT_ITEM_MIME).split(';')) {
-        handles << QUuid(handle);
+        handles << QUuid(QAnyStringView(handle));
     }
     return handles;
 }

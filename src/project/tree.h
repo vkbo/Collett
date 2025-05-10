@@ -43,7 +43,7 @@ public:
 
     // Getters
     ProjectModel *model() {return m_model;};
-    QPointer<Node> node(const QUuid &uuid) {return m_nodes.value(uuid, nullptr);};
+    Node *node(const QUuid &uuid) {return m_nodes.value(uuid).data();};
 
     // Methods
     void pack(QJsonObject &data);
