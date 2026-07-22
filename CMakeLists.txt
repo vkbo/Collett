@@ -39,8 +39,10 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 ${CMAKE_CXX_FLAGS_RELEASE}")
-set(CMAKE_CXX_FLAGS_DEBUG   "-Wall -g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+add_compile_options(-Wall)
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 ${CMAKE_CXX_FLAGS_RELEASE}")
+set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 
 # Qt6 Library
 # ===========
@@ -122,4 +124,4 @@ target_include_directories(Collett PRIVATE
     src/widgets
 )
 target_link_libraries(Collett PRIVATE Qt::Widgets Qt::Svg)
-target_compile_definitions(Collett PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
+target_compile_definitions(Collett PRIVATE "$<$<CONFIG:Debug>:DEBUG>")

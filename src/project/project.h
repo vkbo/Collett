@@ -22,11 +22,15 @@
 #pragma once
 
 #include "collett.h"
+#include "document.h"
 #include "projectdata.h"
 #include "storage.h"
 #include "tree.h"
 
+#include <QHash>
 #include <QJsonObject>
+#include <QTimer>
+#include <QUuid>
 
 namespace Collett {
 
@@ -42,6 +46,11 @@ public:
     bool openProject(const QString &path);
     bool saveProject();
     bool saveProjectAs(const QString &path);
+
+    // Document Methods
+    Document *openDocument(const QUuid &handle);
+    bool saveDocument(const QUuid &handle);
+    bool saveOpenDocuments();
 
     // Getters
     bool isValid() const { return m_isValid; };
@@ -60,5 +69,13 @@ private:
     Storage *m_store = nullptr;
     ProjectData *m_data = nullptr;
     Tree *m_tree = nullptr;
+
+    // Document Cache
+    QHash<QUuid, Document *> m_documents;
+    QUuid m_currentDocHandle;
+    QTimer *m_autoSaveTimer = nullptr;
+
+private slots:
+    void onAutoSave();
 };
 } // namespace Collett

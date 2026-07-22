@@ -38,4 +38,13 @@ GuiTextEditor::~GuiTextEditor()
     qDebug() << "Destructor: GuiTextEditor";
 }
 
+// Public Methods
+// ==============
+
+void GuiTextEditor::openDocument(Document *doc)
+{
+    this->setDocument(doc);
+    this->setEnabled(doc != nullptr);
+}
+
 } // namespace Collett

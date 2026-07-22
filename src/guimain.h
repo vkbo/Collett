@@ -73,6 +73,7 @@ private slots:
     void onProjectOpen();
     void onProjectSave() { saveProject(); };
     void onProjectClose() { closeProject(); };
+    void onNodeActivated(Node *node);
     void updateTitle();
 };
 } // namespace Collett

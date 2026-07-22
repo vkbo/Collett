@@ -1,1 +1,6 @@
+# Build
 build/
+
+# IDE
+.vscode/
+.claude/

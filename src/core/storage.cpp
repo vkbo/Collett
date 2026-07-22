@@ -37,13 +37,16 @@ namespace Collett {
 
 Storage::Storage(const QString &path, bool compact) : m_compactJson(compact)
 {
-
     QFileInfo pathInfo(path);
-    if (pathInfo.isFile() && pathInfo.suffix().toLower() == "collett") {
-        m_isValid = pathInfo.isWritable();
-    } else {
+    if (pathInfo.suffix().toLower() != "collett") {
         m_isValid = false;
         qWarning() << "Invalid path:" << path;
+    } else if (pathInfo.exists()) {
+        m_isValid = pathInfo.isFile() && pathInfo.isWritable();
+    } else {
+        QFileInfo dirInfo(pathInfo.absolutePath());
+        m_isValid = dirInfo.isDir() && dirInfo.isWritable();
+        m_isNewProject = m_isValid;
     }
     if (m_isValid) {
         m_rootPath = pathInfo.absoluteDir();
@@ -98,6 +101,24 @@ bool Storage::writeStructure(const QJsonObject &fileData)
     return false;
 }
 
+bool Storage::readDocument(const QUuid &handle, QJsonObject &fileData)
+{
+    if (m_isValid) {
+        QString file = handle.toString(QUuid::WithoutBraces) + ".json";
+        return this->readJson(m_contentDir.filePath(file), fileData, false);
+    }
+    return false;
+}
+
+bool Storage::writeDocument(const QUuid &handle, const QJsonObject &fileData)
+{
+    if (m_isValid) {
+        QString file = handle.toString(QUuid::WithoutBraces) + ".json";
+        return this->writeJson(m_contentDir.filePath(file), fileData);
+    }
+    return false;
+}
+
 // Getters
 // =======
 
@@ -115,7 +136,6 @@ QString Storage::projectPath() const
 
 bool Storage::readJson(const QString &filePath, QJsonObject &fileData, bool required)
 {
-
     switch (JsonUtils::readJson(filePath, fileData, required)) {
     case JsonUtilsError::FileError:
         m_lastError = tr("Could not open file: %1").arg(filePath);
@@ -130,7 +150,6 @@ bool Storage::readJson(const QString &filePath, QJsonObject &fileData, bool requ
 
 bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData)
 {
-
     switch (JsonUtils::writeJson(filePath, fileData, m_compactJson)) {
     case JsonUtilsError::FileError:
         m_lastError = tr("Could not open file: %1").arg(filePath);

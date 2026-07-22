@@ -43,6 +43,7 @@ namespace Collett {
 
 Document::Document(QObject *parent) : QTextDocument(parent)
 {
+    m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
 }
 
 Document::~Document()

@@ -20,10 +20,12 @@
 */
 
 #include "project.h"
+#include "settings.h"
 #include "storage.h"
 
 #include <QDateTime>
 #include <QJsonObject>
+#include <QUuid>
 
 namespace Collett {
 
@@ -32,6 +34,8 @@ namespace Collett {
 
 Project::Project()
 {
+    m_autoSaveTimer = new QTimer(this);
+    connect(m_autoSaveTimer, &QTimer::timeout, this, &Project::onAutoSave);
 }
 
 Project::~Project()
@@ -52,23 +56,35 @@ bool Project::openProject(const QString &path)
         return false;
     }
 
+    m_data = new ProjectData();
+    m_tree = new Tree(this);
+
+    if (m_store->isNewProject()) {
+        // Brand new project, nothing to read yet. Write out the initial
+        // project files so they exist on disk right away.
+        m_isValid = true;
+        m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
+        m_autoSaveTimer->start();
+        return this->saveProject();
+    }
+
     QJsonObject jData, jTree;
 
     if (!m_store->readProject(jData)) {
         m_lastError = m_store->lastError();
         return false;
     }
-    m_data = new ProjectData();
     m_data->unpack(jData);
 
     if (!m_store->readStructure(jTree)) {
         m_lastError = m_store->lastError();
         return false;
     }
-    m_tree = new Tree(this);
     m_tree->unpack(jTree);
 
     m_isValid = true;
+    m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
+    m_autoSaveTimer->start();
 
     return true;
 }
@@ -101,6 +117,8 @@ bool Project::saveProject()
         return false;
     }
 
+    this->saveOpenDocuments();
+
     return true;
 }
 
@@ -109,6 +127,88 @@ bool Project::saveProjectAs(const QString &path)
     m_store = new Storage(path, false);
     m_isValid = true;
     return this->saveProject();
+}
+
+// Document Methods
+// ================
+
+/**!
+ * @brief Open a document by its handle, loading or creating it as needed.
+ *
+ * The previously open document, if any, is saved before the new one is
+ * loaded. Documents are cached for the lifetime of the project so that
+ * switching back to a previously opened document does not require a
+ * round-trip to disk.
+ *
+ * @param handle     The handle of the document to open.
+ * @return Document* The document, or nullptr if the project has no storage.
+ */
+Document *Project::openDocument(const QUuid &handle)
+{
+    if (!m_store) {
+        return nullptr;
+    }
+
+    if (handle == m_currentDocHandle && m_documents.contains(handle)) {
+        return m_documents.value(handle);
+    }
+
+    this->saveDocument(m_currentDocHandle);
+    m_currentDocHandle = handle;
+
+    if (m_documents.contains(handle)) {
+        return m_documents.value(handle);
+    }
+
+    Document *doc = new Document(this);
+    QJsonObject jDoc;
+    if (m_store->readDocument(handle, jDoc) && !jDoc.isEmpty()) {
+        doc->unpack(jDoc);
+    }
+    m_documents.insert(handle, doc);
+
+    return doc;
+}
+
+/**!
+ * @brief Save a single open document to storage.
+ *
+ * @param handle The handle of the document to save.
+ * @return bool  True if the document was saved, or there was nothing to save.
+ */
+bool Project::saveDocument(const QUuid &handle)
+{
+    if (!m_store || handle.isNull() || !m_documents.contains(handle)) {
+        return false;
+    }
+
+    Document *doc = m_documents.value(handle);
+    QJsonObject jDoc;
+    doc->pack(jDoc);
+
+    return m_store->writeDocument(handle, jDoc);
+}
+
+/**!
+ * @brief Save all currently open (cached) documents to storage.
+ *
+ * @return bool True if all documents were saved successfully.
+ */
+bool Project::saveOpenDocuments()
+{
+    bool result = true;
+    for (const QUuid &handle : m_documents.keys()) {
+        result &= this->saveDocument(handle);
+    }
+    return result;
+}
+
+// Private Slots
+// =============
+
+void Project::onAutoSave()
+{
+    this->saveDocument(m_currentDocHandle);
 }
 
 } // namespace Collett

@@ -95,6 +95,10 @@ void GuiProjectView::openProjectTasks()
         delete m;
         this->adjustHeaders();
         this->restoreExpandedState();
+        this->connect(
+            this->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &GuiProjectView::onCurrentChanged
+        );
     }
 }
 
@@ -200,6 +204,12 @@ void GuiProjectView::onNodeCollapsed(const QModelIndex &index)
 {
     Node *node = this->getNode(index);
     if (node) node->setExpanded(false);
+}
+
+void GuiProjectView::onCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_UNUSED(previous);
+    emit nodeActivated(this->getNode(current));
 }
 
 void GuiProjectView::editSelectedItem()

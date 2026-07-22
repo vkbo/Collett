@@ -24,7 +24,11 @@
 #include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
+#include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QMenu>
+#include <QMessageBox>
 #include <QSplitter>
 #include <QToolButton>
 
@@ -69,6 +73,8 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent)
     connect(projectToolBar, &GuiProjectToolBar::createFileRequested, projectPanel, &GuiProjectPanel::createFile);
     connect(projectToolBar, &GuiProjectToolBar::createFolderRequested, projectPanel, &GuiProjectPanel::createFolder);
     connect(projectToolBar, &GuiProjectToolBar::createRootRequested, projectPanel, &GuiProjectPanel::createRoot);
+
+    connect(projectPanel->projectView, &GuiProjectView::nodeActivated, this, &GuiMain::onNodeActivated);
 
     // Assemble
     this->setCentralWidget(m_splitMain);
@@ -147,6 +153,40 @@ void GuiMain::closeEvent(QCloseEvent *event)
 
 void GuiMain::onProjectOpen()
 {
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Create or Open Project"));
+    if (dir.isEmpty()) {
+        return;
+    }
+
+    QString path = QDir(dir).filePath("CollettProject.collett");
+    if (!QFileInfo::exists(path)) {
+        if (QDir(dir).exists("project") || QDir(dir).exists("content")) {
+            QMessageBox::warning(
+                this, tr("Cannot Create Project"),
+                tr("This folder already contains project data.")
+            );
+            return;
+        }
+    }
+
+    if (m_data->hasProject()) {
+        this->saveProject();
+        this->closeProject();
+    }
+
+    this->openProject(path);
+}
+
+void GuiMain::onNodeActivated(Node *node)
+{
+    if (!m_data->hasProject()) {
+        return;
+    }
+    Document *doc = nullptr;
+    if (node && node->isFileType()) {
+        doc = m_data->project()->openDocument(node->handle());
+    }
+    workPanel->editorView->textEditor->openDocument(doc);
 }
 
 void GuiMain::updateTitle()

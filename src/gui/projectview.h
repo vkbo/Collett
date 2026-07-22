@@ -27,6 +27,7 @@
 #include "mtreeview.h"
 
 #include <QAction>
+#include <QItemSelection>
 #include <QModelIndex>
 #include <QTreeView>
 #include <QWidget>
@@ -49,6 +50,9 @@ public:
     QAction *actEditItem;
     QAction *actDeleteItem;
 
+signals:
+    void nodeActivated(Node *node);
+
 private:
     // Singletons
     SharedData *m_data;
@@ -70,6 +74,7 @@ public slots:
 private slots:
     void onNodeExpanded(const QModelIndex &index);
     void onNodeCollapsed(const QModelIndex &index);
+    void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
     void editSelectedItem();
     void deleteSelectedItem();
 };

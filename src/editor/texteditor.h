@@ -22,6 +22,7 @@
 #pragma once
 
 #include "collett.h"
+#include "document.h"
 
 #include <QTextEdit>
 
@@ -34,5 +35,8 @@ class GuiTextEditor : public QTextEdit
 public:
     explicit GuiTextEditor(QWidget *parent = nullptr);
     ~GuiTextEditor();
+
+    // Methods
+    void openDocument(Document *doc);
 };
 } // namespace Collett

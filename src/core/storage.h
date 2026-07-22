@@ -26,6 +26,7 @@
 #include <QDir>
 #include <QJsonObject>
 #include <QString>
+#include <QUuid>
 
 namespace Collett {
 
@@ -42,9 +43,12 @@ public:
     bool writeProject(const QJsonObject &fileData);
     bool readStructure(QJsonObject &fileData);
     bool writeStructure(const QJsonObject &fileData);
+    bool readDocument(const QUuid &handle, QJsonObject &fileData);
+    bool writeDocument(const QUuid &handle, const QJsonObject &fileData);
 
     // Getters
     bool isValid() const { return m_isValid; };
+    bool isNewProject() const { return m_isNewProject; };
     QString projectPath() const;
 
     // Error Handling
@@ -62,6 +66,7 @@ private:
     bool m_compactJson;
 
     bool m_isValid = false;
+    bool m_isNewProject = false;
     QString m_lastError = "";
 };
 } // namespace Collett
