@@ -1,5 +1,5 @@
 /*
-** Collett – Collett Constants
+** Collett - Collett Constants
 ** ===========================
 **
 ** This file is a part of Collett

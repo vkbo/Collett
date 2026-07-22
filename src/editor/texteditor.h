@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Text Editor Class
+** Collett - GUI Text Editor Class
 ** ===============================
 **
 ** This file is a part of Collett

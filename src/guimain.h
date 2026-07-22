@@ -1,5 +1,5 @@
 /*
-** Collett – Main GUI Class
+** Collett - Main GUI Class
 ** ========================
 **
 ** This file is a part of Collett

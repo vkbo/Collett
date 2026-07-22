@@ -1,5 +1,5 @@
 /*
-** Collett – Project Tree Class
+** Collett - Project Tree Class
 ** ============================
 **
 ** This file is a part of Collett

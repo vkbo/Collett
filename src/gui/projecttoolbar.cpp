@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Project ToolBar
+** Collett - GUI Project ToolBar
 ** =============================
 **
 ** This file is a part of Collett

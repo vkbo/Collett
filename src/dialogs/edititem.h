@@ -1,5 +1,5 @@
 /*
-** Collett – Edit Item Dialog
+** Collett - Edit Item Dialog
 ** ==========================
 **
 ** This file is a part of Collett

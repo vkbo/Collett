@@ -1,5 +1,5 @@
 /*
-** Collett – Main Theme Class
+** Collett - Main Theme Class
 ** ==========================
 **
 ** This file is a part of Collett

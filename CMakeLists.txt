@@ -1,4 +1,4 @@
-# Collett – CMake Build File
+# Collett - CMake Build File
 # ==========================
 #
 # This file is a part of Collett

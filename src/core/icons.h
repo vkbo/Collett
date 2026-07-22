@@ -1,5 +1,5 @@
 /*
-** Collett – Icons Class
+** Collett - Icons Class
 ** =====================
 **
 ** This file is a part of Collett

@@ -1,5 +1,5 @@
 /*
-** Collett – Main Function
+** Collett - Main Function
 ** =======================
 **
 ** This file is a part of Collett

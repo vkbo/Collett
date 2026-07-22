@@ -1,5 +1,5 @@
 /*
-** Collett – Project Node Class
+** Collett - Project Node Class
 ** ============================
 **
 ** This file is a part of Collett

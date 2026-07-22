@@ -1,5 +1,5 @@
 /*
-** Collett – Shared Data Class
+** Collett - Shared Data Class
 ** ===========================
 **
 ** This file is a part of Collett

@@ -1,5 +1,5 @@
 /*
-** Collett – Document Class
+** Collett - Document Class
 ** ========================
 **
 ** This file is a part of Collett

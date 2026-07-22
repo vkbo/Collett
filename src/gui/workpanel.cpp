@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Work Panel Class
+** Collett - GUI Work Panel Class
 ** ==============================
 **
 ** This file is a part of Collett

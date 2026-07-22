@@ -1,5 +1,5 @@
 /*
-** Collett – Core Storage Class
+** Collett - Core Storage Class
 ** ============================
 **
 ** This file is a part of Collett

@@ -1,5 +1,5 @@
 /*
-** Collett – Core Tools
+** Collett - Core Tools
 ** ====================
 **
 ** This file is a part of Collett

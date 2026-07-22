@@ -1,5 +1,5 @@
 /*
-** Collett – Core Data Class
+** Collett - Core Data Class
 ** =========================
 **
 ** This file is a part of Collett

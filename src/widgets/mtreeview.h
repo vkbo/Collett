@@ -1,5 +1,5 @@
 /*
-** Collett – Modified QTreeView Class
+** Collett - Modified QTreeView Class
 ** ==================================
 **
 ** This file is a part of Collett

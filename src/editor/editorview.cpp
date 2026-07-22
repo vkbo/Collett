@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Editor View Class
+** Collett - GUI Editor View Class
 ** ===============================
 **
 ** This file is a part of Collett

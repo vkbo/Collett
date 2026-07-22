@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Project Tree Class
+** Collett - GUI Project Tree Class
 ** ================================
 **
 ** This file is a part of Collett

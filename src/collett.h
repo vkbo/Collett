@@ -1,5 +1,5 @@
 /*
-** Collett – Collett Main Header
+** Collett - Collett Main Header
 ** =============================
 **
 ** This file is a part of Collett

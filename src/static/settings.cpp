@@ -1,5 +1,5 @@
 /*
-** Collett – Main Settings Class
+** Collett - Main Settings Class
 ** =============================
 **
 ** This file is a part of Collett

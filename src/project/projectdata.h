@@ -1,5 +1,5 @@
 /*
-** Collett – Project Data Class
+** Collett - Project Data Class
 ** ============================
 **
 ** This file is a part of Collett
