@@ -23,6 +23,7 @@
 #define COLLETT_GUI_WORK_PANEL_H
 
 #include "collett.h"
+#include "editorview.h"
 
 #include <QWidget>
 
@@ -35,6 +36,8 @@ class GuiWorkPanel : public QWidget
 public:
     explicit GuiWorkPanel(QWidget *parent = nullptr);
     ~GuiWorkPanel();
+
+    GuiEditorView *editorView = nullptr;
 
 };
 } // namespace Collett

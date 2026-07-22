@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Work Panel Class
-** ==============================
+** Collett – Document Class
+** ========================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,32 +19,33 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "collett.h"
-#include "workpanel.h"
-#include "editorview.h"
+#ifndef COLLETT_DOCUMENT_H
+#define COLLETT_DOCUMENT_H
 
-#include <QHBoxLayout>
-#include <QWidget>
+#include "collett.h"
+
+#include <QJsonObject>
+#include <QObject>
+#include <QTextDocument>
 
 namespace Collett {
 
-// Constructor/Destructor
-// ======================
+class Document : public QTextDocument
+{
+    Q_OBJECT
 
-GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent) {
+public:
+    explicit Document(QObject *parent = nullptr);
+    ~Document();
 
-    // Components
-    editorView = new GuiEditorView(this);
+    // Methods
+    void pack(QJsonObject &data);
+    void unpack(const QJsonObject &data);
 
-    // Assemble
-    QHBoxLayout *outerBox = new QHBoxLayout();
-    outerBox->addWidget(editorView, 1);
+private:
+    QString m_createdTime = "";
 
-    this->setLayout(outerBox);
-}
-
-GuiWorkPanel::~GuiWorkPanel() {
-    qDebug() << "Destructor: GuiWorkPanel";
-}
-
+};
 } // namespace Collett
+
+#endif // COLLETT_DOCUMENT_H

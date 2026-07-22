@@ -1,6 +1,6 @@
 /*
-** Collett – GUI Work Panel Class
-** ==============================
+** Collett – GUI Editor View Class
+** ===============================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -20,31 +20,31 @@
 */
 
 #include "collett.h"
-#include "workpanel.h"
 #include "editorview.h"
+#include "texteditor.h"
 
-#include <QHBoxLayout>
 #include <QWidget>
+#include <QVBoxLayout>
 
 namespace Collett {
 
 // Constructor/Destructor
 // ======================
 
-GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent) {
+GuiEditorView::GuiEditorView(QWidget *parent) : QWidget(parent) {
 
     // Components
-    editorView = new GuiEditorView(this);
+    textEditor = new GuiTextEditor(this);
 
     // Assemble
-    QHBoxLayout *outerBox = new QHBoxLayout();
-    outerBox->addWidget(editorView, 1);
+    QVBoxLayout *outerBox = new QVBoxLayout();
+    outerBox->addWidget(textEditor, 1);
 
     this->setLayout(outerBox);
 }
 
-GuiWorkPanel::~GuiWorkPanel() {
-    qDebug() << "Destructor: GuiWorkPanel";
+GuiEditorView::~GuiEditorView() {
+    qDebug() << "Destructor: GuiEditorView";
 }
 
 } // namespace Collett

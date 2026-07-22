@@ -49,7 +49,6 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-Wall -g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 # either a local copy or a symlink to it.
 # set(CMAKE_PREFIX_PATH "lib/qt6/6.5.0/gcc_64/lib/cmake/")
 
-cmake_policy(SET CMP0115 OLD)
 set(QT_DEFAULT_MAJOR_VERSION 6)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Svg LinguistTools)
 if(Qt6Core_FOUND)
@@ -67,48 +66,34 @@ qt_standard_project_setup(
     I18N_TRANSLATED_LANGUAGES en_US nb_NO
 )
 
-set(TS_FILES
-    i18n/collett_en_US.ts
-    i18n/collett_nb_NO.ts
-)
-qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-
 # Sources
 # =======
 
-# Source Folders
-include_directories(
-    src/core
-    src/dialogs
-    src/gui
-    src/project
-    src/static
-    src/widgets
-    src
-)
-
 # Source Files
 list(APPEND SRC_FILES
-    src/core/icons
-    src/core/storage
-    src/core/tools
-    src/dialogs/edititem
-    src/gui/projectpanel
-    src/gui/projecttoolbar
-    src/gui/projectview
-    src/gui/workpanel
-    src/project/node
-    src/project/project
-    src/project/projectdata
-    src/project/projectmodel
-    src/project/tree
-    src/static/data
-    src/static/settings
-    src/static/theme
-    src/widgets/mtreeview
-    src/constants
-    src/guimain
-    src/main
+    src/core/icons.cpp
+    src/core/storage.cpp
+    src/core/tools.cpp
+    src/dialogs/edititem.cpp
+    src/editor/editorview.cpp
+    src/editor/texteditor.cpp
+    src/gui/projectpanel.cpp
+    src/gui/projecttoolbar.cpp
+    src/gui/projectview.cpp
+    src/gui/workpanel.cpp
+    src/project/document.cpp
+    src/project/node.cpp
+    src/project/project.cpp
+    src/project/projectdata.cpp
+    src/project/projectmodel.cpp
+    src/project/tree.cpp
+    src/static/data.cpp
+    src/static/settings.cpp
+    src/static/theme.cpp
+    src/widgets/mtreeview.cpp
+    src/constants.cpp
+    src/guimain.cpp
+    src/main.cpp
 )
 
 # Targets
@@ -126,5 +111,15 @@ add_custom_target(assets
 add_dependencies(Collett assets)
 
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")
+target_include_directories(Collett PRIVATE
+    src
+    src/core
+    src/dialogs
+    src/editor
+    src/gui
+    src/project
+    src/static
+    src/widgets
+)
 target_link_libraries(Collett PRIVATE Qt::Widgets Qt::Svg)
 target_compile_definitions(Collett PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
