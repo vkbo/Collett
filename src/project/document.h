@@ -44,7 +44,6 @@ public:
 
 private:
     QString m_createdTime = "";
-
 };
 } // namespace Collett
 

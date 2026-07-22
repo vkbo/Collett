@@ -53,7 +53,7 @@ public:
 private:
     // Singletons
     SharedData *m_data;
-    Theme      *m_theme;
+    Theme *m_theme;
 
     // Getters
     ProjectModel *getModel();
@@ -73,7 +73,6 @@ private slots:
     void onNodeCollapsed(const QModelIndex &index);
     void editSelectedItem();
     void deleteSelectedItem();
-
 };
 } // namespace Collett
 

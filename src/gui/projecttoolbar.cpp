@@ -33,7 +33,8 @@
 
 namespace Collett {
 
-GuiProjectToolBar::GuiProjectToolBar(GuiMain *parent) : QToolBar(parent) {
+GuiProjectToolBar::GuiProjectToolBar(GuiMain *parent) : QToolBar(parent)
+{
 
     m_theme = Theme::instance();
     QSize size = m_theme->toolButtonIconSize();
@@ -68,8 +69,7 @@ GuiProjectToolBar::GuiProjectToolBar(GuiMain *parent) : QToolBar(parent) {
 
     QAction *actCreateFolder = mnuCreate->addAction(tr("Folder"));
     actCreateFolder->setIcon(m_theme->icons()->getProjectIcon(
-        ItemType::FolderType, ItemClass::NovelClass, ItemLevel::PageLevel, m_theme->baseIconSize()
-    ));
+        ItemType::FolderType, ItemClass::NovelClass, ItemLevel::PageLevel, m_theme->baseIconSize()));
     connect(actCreateFolder, &QAction::triggered, this, &GuiProjectToolBar::createFolderRequested);
 
     mnuCreateRoot = mnuCreate->addMenu(tr("Root Folder"));
@@ -89,27 +89,28 @@ GuiProjectToolBar::GuiProjectToolBar(GuiMain *parent) : QToolBar(parent) {
     this->addWidget(btnCreate);
 }
 
-GuiProjectToolBar::~GuiProjectToolBar() {
+GuiProjectToolBar::~GuiProjectToolBar()
+{
     qDebug() << "Destructor: GuiProjectToolBar";
 }
 
 // Private Helpers
 // ===============
 
-void GuiProjectToolBar::addFileEntry(ItemLevel itemLevel) {
+void GuiProjectToolBar::addFileEntry(ItemLevel itemLevel)
+{
     QAction *action = mnuCreate->addAction(itemLevelNames(itemLevel));
     action->setIcon(m_theme->icons()->getProjectIcon(
-        ItemType::FileType, ItemClass::NovelClass, itemLevel, m_theme->baseIconSize()
-    ));
-    connect(action, &QAction::triggered, this, [=](){emit createFileRequested(itemLevel);});
+        ItemType::FileType, ItemClass::NovelClass, itemLevel, m_theme->baseIconSize()));
+    connect(action, &QAction::triggered, this, [=]() { emit createFileRequested(itemLevel); });
 }
 
-void GuiProjectToolBar::addRootEntry(ItemClass itemClass) {
+void GuiProjectToolBar::addRootEntry(ItemClass itemClass)
+{
     QAction *action = mnuCreateRoot->addAction(itemClassNames(itemClass));
     action->setIcon(m_theme->icons()->getProjectIcon(
-        ItemType::RootType, itemClass, ItemLevel::PageLevel, m_theme->baseIconSize()
-    ));
-    connect(action, &QAction::triggered, this, [=](){emit createRootRequested(itemClass);});
+        ItemType::RootType, itemClass, ItemLevel::PageLevel, m_theme->baseIconSize()));
+    connect(action, &QAction::triggered, this, [=]() { emit createRootRequested(itemClass); });
 }
 
 } // namespace Collett

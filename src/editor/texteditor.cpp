@@ -29,11 +29,12 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-GuiTextEditor::GuiTextEditor(QWidget *parent) : QTextEdit(parent) {
-
+GuiTextEditor::GuiTextEditor(QWidget *parent) : QTextEdit(parent)
+{
 }
 
-GuiTextEditor::~GuiTextEditor() {
+GuiTextEditor::~GuiTextEditor()
+{
     qDebug() << "Destructor: GuiTextEditor";
 }
 

@@ -42,8 +42,8 @@ public:
     ~Tree();
 
     // Getters
-    ProjectModel *model() {return m_model;};
-    Node *node(const QUuid &uuid) {return m_nodes.value(uuid).data();};
+    ProjectModel *model() { return m_model; };
+    Node *node(const QUuid &uuid) { return m_nodes.value(uuid).data(); };
 
     // Methods
     void pack(QJsonObject &data);
@@ -55,8 +55,7 @@ public:
 
 private:
     ProjectModel *m_model;
-    QHash<QUuid, QPointer<Node> > m_nodes;
-
+    QHash<QUuid, QPointer<Node>> m_nodes;
 };
 } // namespace Collett
 

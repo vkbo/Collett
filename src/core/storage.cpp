@@ -35,7 +35,8 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Storage::Storage(const QString &path, bool compact) : m_compactJson(compact) {
+Storage::Storage(const QString &path, bool compact) : m_compactJson(compact)
+{
 
     QFileInfo pathInfo(path);
     if (pathInfo.isFile() && pathInfo.suffix().toLower() == "collett") {
@@ -55,21 +56,24 @@ Storage::Storage(const QString &path, bool compact) : m_compactJson(compact) {
     qDebug() << "Root Path:" << m_rootPath.path();
 };
 
-Storage::~Storage() {
+Storage::~Storage()
+{
     qDebug() << "Destructor: Storage";
 };
 
 // Public Methods
 // ==============
 
-bool Storage::readProject(QJsonObject &fileData) {
+bool Storage::readProject(QJsonObject &fileData)
+{
     if (m_isValid) {
         return this->readJson(m_projectDir.filePath("project.json"), fileData, true);
     }
     return false;
 }
 
-bool Storage::writeProject(const QJsonObject &fileData) {
+bool Storage::writeProject(const QJsonObject &fileData)
+{
     if (m_isValid) {
         writeCollett();
         return this->writeJson(m_projectDir.filePath("project.json"), fileData);
@@ -77,14 +81,16 @@ bool Storage::writeProject(const QJsonObject &fileData) {
     return false;
 }
 
-bool Storage::readStructure(QJsonObject &fileData) {
+bool Storage::readStructure(QJsonObject &fileData)
+{
     if (m_isValid) {
         return this->readJson(m_projectDir.filePath("structure.json"), fileData, false);
     }
     return false;
 }
 
-bool Storage::writeStructure(const QJsonObject &fileData) {
+bool Storage::writeStructure(const QJsonObject &fileData)
+{
     if (m_isValid) {
         writeCollett();
         return this->writeJson(m_projectDir.filePath("structure.json"), fileData);
@@ -95,7 +101,8 @@ bool Storage::writeStructure(const QJsonObject &fileData) {
 // Getters
 // =======
 
-QString Storage::projectPath() const {
+QString Storage::projectPath() const
+{
     if (m_isValid) {
         return m_rootPath.path();
     } else {
@@ -106,33 +113,36 @@ QString Storage::projectPath() const {
 // Private Methods
 // ===============
 
-bool Storage::readJson(const QString &filePath, QJsonObject &fileData, bool required) {
+bool Storage::readJson(const QString &filePath, QJsonObject &fileData, bool required)
+{
 
     switch (JsonUtils::readJson(filePath, fileData, required)) {
-        case JsonUtilsError::FileError:
-            m_lastError = tr("Could not open file: %1").arg(filePath);
-            return false;
-        case JsonUtilsError::JsonError:
-            m_lastError = tr("Could not parse file: %1").arg(filePath);
-            return false;
-        default:
-            return true;
+    case JsonUtilsError::FileError:
+        m_lastError = tr("Could not open file: %1").arg(filePath);
+        return false;
+    case JsonUtilsError::JsonError:
+        m_lastError = tr("Could not parse file: %1").arg(filePath);
+        return false;
+    default:
+        return true;
     }
 }
 
-bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData) {
+bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData)
+{
 
     switch (JsonUtils::writeJson(filePath, fileData, m_compactJson)) {
-        case JsonUtilsError::FileError:
-            m_lastError = tr("Could not open file: %1").arg(filePath);
-            return false;
-        case JsonUtilsError::JsonError: // N/A
-        default:
-            return true;
+    case JsonUtilsError::FileError:
+        m_lastError = tr("Could not open file: %1").arg(filePath);
+        return false;
+    case JsonUtilsError::JsonError: // N/A
+    default:
+        return true;
     }
 }
 
-void Storage::writeCollett() {
+void Storage::writeCollett()
+{
     QFile file(m_rootPath.filePath("CollettProject.collett"));
     if (file.open(QIODevice::WriteOnly)) {
         file.write("Collett " + QByteArray(COL_VERSION_STR));

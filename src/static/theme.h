@@ -45,17 +45,17 @@ public:
     ~Theme();
 
     // Getters
-    bool isDark() const {return m_isDark;};
-    QColor getColor(ThemeColor color) const {return m_colors.at(color);};
-    Icons *icons() const {return m_icons;};
+    bool isDark() const { return m_isDark; };
+    QColor getColor(ThemeColor color) const { return m_colors.at(color); };
+    Icons *icons() const { return m_icons; };
 
-    qreal fontPointSizeF() const {return m_fontPointSizeF;};
-    int   fontPixelSize() const {return m_fontPixelSize;};
-    int   baseIconHeight() const {return m_baseIconHeight;};
-    int   baseButtonHeight() const {return m_baseButtonHeight;};
-    QSize baseIconSize() const {return m_baseIconSize;};
-    QSize buttonIconSize() const {return m_buttonIconSize;};
-    QSize toolButtonIconSize() const {return m_toolButtonIconSize;};
+    qreal fontPointSizeF() const { return m_fontPointSizeF; };
+    int fontPixelSize() const { return m_fontPixelSize; };
+    int baseIconHeight() const { return m_baseIconHeight; };
+    int baseButtonHeight() const { return m_baseButtonHeight; };
+    QSize baseIconSize() const { return m_baseIconSize; };
+    QSize buttonIconSize() const { return m_buttonIconSize; };
+    QSize toolButtonIconSize() const { return m_toolButtonIconSize; };
 
     // Methods
     bool loadTheme(QString theme);
@@ -63,7 +63,7 @@ public:
 private:
     static Theme *staticInstance;
     Settings *m_settings;
-    Icons    *m_icons;
+    Icons *m_icons;
 
     // Meta
     QString m_name = "";
@@ -94,9 +94,9 @@ private:
 
     // Size Info
     qreal m_fontPointSizeF = 12.0;
-    int   m_fontPixelSize = 16;
-    int   m_baseIconHeight = 16;
-    int   m_baseButtonHeight = 16;
+    int m_fontPixelSize = 16;
+    int m_baseIconHeight = 16;
+    int m_baseButtonHeight = 16;
     QSize m_baseIconSize = {16, 16};
     QSize m_buttonIconSize = {14, 14};
     QSize m_toolButtonIconSize = {20, 20};

@@ -32,24 +32,27 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Tree::Tree(QObject *parent) : QObject(parent) {
+Tree::Tree(QObject *parent) : QObject(parent)
+{
     m_model = new ProjectModel(this);
 }
 
-Tree::~Tree() {
+Tree::~Tree()
+{
     qDebug() << "Destructor: Tree";
 }
-
 
 // Public Methods
 // ==============
 
-void Tree::pack(QJsonObject &data) {
+void Tree::pack(QJsonObject &data)
+{
     data["c:format"_L1] = "CollettProjectStructure";
     if (m_model) m_model->pack(data);
 }
 
-void Tree::unpack(const QJsonObject &data) {
+void Tree::unpack(const QJsonObject &data)
+{
     if (m_model) {
         qDebug() << "Unpacking project tree";
         m_model->unpack(data);
@@ -61,19 +64,21 @@ void Tree::unpack(const QJsonObject &data) {
 
 /**!
  * @brief Add a node to the nodes map.
- * 
+ *
  * @param node The node to be added to the map.
  */
-void Tree::addNode(Node *node) {
+void Tree::addNode(Node *node)
+{
     if (node) m_nodes.insert(node->handle(), node);
 }
 
 /**!
  * @brief Remove a node from the nodes map.
- * 
+ *
  * @param uuid The handle of the node to remove.
  */
-void Tree::removeNode(const QUuid &uuid) {
+void Tree::removeNode(const QUuid &uuid)
+{
     if (m_nodes.contains(uuid)) m_nodes.remove(uuid);
 }
 

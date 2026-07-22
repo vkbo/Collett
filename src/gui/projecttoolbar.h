@@ -52,15 +52,15 @@ private:
 
     // Project
     QToolButton *btnProject;
-    QMenu       *mnuProject;
-    QAction     *actOpenProject;
-    QAction     *actSaveProject;
-    QAction     *actCloseProject;
+    QMenu *mnuProject;
+    QAction *actOpenProject;
+    QAction *actSaveProject;
+    QAction *actCloseProject;
 
     // Create New
     QToolButton *btnCreate;
-    QMenu       *mnuCreate;
-    QMenu       *mnuCreateRoot;
+    QMenu *mnuCreate;
+    QMenu *mnuCreateRoot;
 
     // Helpers
     void addFileEntry(ItemLevel itemLevel);

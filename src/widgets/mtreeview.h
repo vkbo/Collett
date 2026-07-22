@@ -43,7 +43,6 @@ public:
 
 signals:
     void middleClicked(const QModelIndex &index);
-
 };
 } // namespace Collett
 

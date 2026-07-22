@@ -41,7 +41,8 @@ namespace Collett {
 // ===============================
 
 Theme *Theme::staticInstance = nullptr;
-Theme *Theme::instance() {
+Theme *Theme::instance()
+{
     if (staticInstance == nullptr) {
         staticInstance = new Theme();
         qDebug() << "Constructor: Theme";
@@ -49,14 +50,16 @@ Theme *Theme::instance() {
     return staticInstance;
 }
 
-void Theme::destroy() {
+void Theme::destroy()
+{
     if (staticInstance != nullptr) {
         qDebug() << "Destructor: Static Theme";
         delete Theme::staticInstance;
     }
 }
 
-Theme::Theme(QObject *parent) : QObject(parent) {
+Theme::Theme(QObject *parent) : QObject(parent)
+{
 
     m_settings = Settings::instance();
     m_icons = new Icons(this);
@@ -68,20 +71,22 @@ Theme::Theme(QObject *parent) : QObject(parent) {
     m_fontPointSizeF = QApplication::font().pointSizeF();
     m_fontPixelSize = metric.height();
     m_baseIconHeight = metric.ascent();
-    m_baseButtonHeight = int(round(1.35*metric.ascent()));
+    m_baseButtonHeight = int(round(1.35 * metric.ascent()));
     m_baseIconSize = QSize(m_baseIconHeight, m_baseIconHeight);
-    m_buttonIconSize = QSize(int(0.9*m_baseIconHeight), int(0.9*m_baseIconHeight));
-    m_toolButtonIconSize = QSize(int(1.2*m_baseIconHeight), int(1.2*m_baseIconHeight));
+    m_buttonIconSize = QSize(int(0.9 * m_baseIconHeight), int(0.9 * m_baseIconHeight));
+    m_toolButtonIconSize = QSize(int(1.2 * m_baseIconHeight), int(1.2 * m_baseIconHeight));
 }
 
-Theme::~Theme() {
+Theme::~Theme()
+{
     qDebug() << "Destructor: Theme";
 }
 
 // Public Methods
 // ==============
 
-bool Theme::loadTheme(QString theme) {
+bool Theme::loadTheme(QString theme)
+{
 
     QFileInfo themeFile = QFileInfo(Settings::assetPath("themes").filePath(theme + ".json"));
     if (!themeFile.exists()) return false;
@@ -101,20 +106,20 @@ bool Theme::loadTheme(QString theme) {
     m_license = JsonUtils::getJsonString(jMeta, "m:license"_L1, "");
 
     // Qt Base Colors
-    QColor window          = QColor::fromString(JsonUtils::getJsonString(jBase, "window"_L1, "white"));
-    QColor windowText      = QColor::fromString(JsonUtils::getJsonString(jBase, "windowText"_L1, "black"));
-    QColor base            = QColor::fromString(JsonUtils::getJsonString(jBase, "base"_L1, "white"));
-    QColor alternateBase   = QColor::fromString(JsonUtils::getJsonString(jBase, "alternateBase"_L1, "grey"));
-    QColor text            = QColor::fromString(JsonUtils::getJsonString(jBase, "text"_L1, "black"));
-    QColor toolTipBase     = QColor::fromString(JsonUtils::getJsonString(jBase, "toolTipBase"_L1, "yellow"));
-    QColor toolTipText     = QColor::fromString(JsonUtils::getJsonString(jBase, "toolTipText"_L1, "black"));
-    QColor button          = QColor::fromString(JsonUtils::getJsonString(jBase, "button"_L1, "white"));
-    QColor buttonText      = QColor::fromString(JsonUtils::getJsonString(jBase, "buttonText"_L1, "black"));
-    QColor brightText      = QColor::fromString(JsonUtils::getJsonString(jBase, "brightText"_L1, "black"));
-    QColor highlight       = QColor::fromString(JsonUtils::getJsonString(jBase, "highlight"_L1, "red"));
+    QColor window = QColor::fromString(JsonUtils::getJsonString(jBase, "window"_L1, "white"));
+    QColor windowText = QColor::fromString(JsonUtils::getJsonString(jBase, "windowText"_L1, "black"));
+    QColor base = QColor::fromString(JsonUtils::getJsonString(jBase, "base"_L1, "white"));
+    QColor alternateBase = QColor::fromString(JsonUtils::getJsonString(jBase, "alternateBase"_L1, "grey"));
+    QColor text = QColor::fromString(JsonUtils::getJsonString(jBase, "text"_L1, "black"));
+    QColor toolTipBase = QColor::fromString(JsonUtils::getJsonString(jBase, "toolTipBase"_L1, "yellow"));
+    QColor toolTipText = QColor::fromString(JsonUtils::getJsonString(jBase, "toolTipText"_L1, "black"));
+    QColor button = QColor::fromString(JsonUtils::getJsonString(jBase, "button"_L1, "white"));
+    QColor buttonText = QColor::fromString(JsonUtils::getJsonString(jBase, "buttonText"_L1, "black"));
+    QColor brightText = QColor::fromString(JsonUtils::getJsonString(jBase, "brightText"_L1, "black"));
+    QColor highlight = QColor::fromString(JsonUtils::getJsonString(jBase, "highlight"_L1, "red"));
     QColor highlightedText = QColor::fromString(JsonUtils::getJsonString(jBase, "highlightedText"_L1, "grey"));
-    QColor link            = QColor::fromString(JsonUtils::getJsonString(jBase, "link"_L1, "blue"));
-    QColor linkVisited     = QColor::fromString(JsonUtils::getJsonString(jBase, "linkVisited"_L1, "purple"));
+    QColor link = QColor::fromString(JsonUtils::getJsonString(jBase, "link"_L1, "blue"));
+    QColor linkVisited = QColor::fromString(JsonUtils::getJsonString(jBase, "linkVisited"_L1, "purple"));
 
     // Theme Colors
     m_colors = {
@@ -162,15 +167,15 @@ bool Theme::loadTheme(QString theme) {
         ref = QColor::fromHslF(window.hueF(), window.saturationF(), 0.15, window.alphaF());
     }
 
-    QColor light     = ref.lighter(150);
-    QColor mid       = ref.darker(130);
-    QColor midLight  = mid.lighter(110);
-    QColor dark      = ref.darker(150);
-    QColor shadow    = dark.darker(135);
-    QColor darkOff   = dark.darker(150);
+    QColor light = ref.lighter(150);
+    QColor mid = ref.darker(130);
+    QColor midLight = mid.lighter(110);
+    QColor dark = ref.darker(150);
+    QColor shadow = dark.darker(135);
+    QColor darkOff = dark.darker(150);
     QColor shadowOff = ref.darker(150);
 
-    QColor grey   = m_isDark ? QColor(120, 120, 120) : QColor(140, 140, 140);
+    QColor grey = m_isDark ? QColor(120, 120, 120) : QColor(140, 140, 140);
     QColor dimmed = m_isDark ? QColor(130, 130, 130) : QColor(190, 190, 190);
 
     QColor placeholder(text);
@@ -191,7 +196,7 @@ bool Theme::loadTheme(QString theme) {
 
     palette.setBrush(QPalette::PlaceholderText, placeholder);
 
-    palette.setBrush(QPalette::Active,   QPalette::Highlight, highlight);
+    palette.setBrush(QPalette::Active, QPalette::Highlight, highlight);
     palette.setBrush(QPalette::Inactive, QPalette::Highlight, highlight);
     palette.setBrush(QPalette::Disabled, QPalette::Highlight, grey);
 

@@ -31,17 +31,20 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-MTreeView::MTreeView(QWidget *parent) : QTreeView(parent) {
+MTreeView::MTreeView(QWidget *parent) : QTreeView(parent)
+{
 }
 
-MTreeView::~MTreeView() {
+MTreeView::~MTreeView()
+{
     qDebug() << "Destructor: MTreeView";
 }
 
 // Events
 // ======
 
-void MTreeView::mousePressEvent(QMouseEvent *event) {
+void MTreeView::mousePressEvent(QMouseEvent *event)
+{
     QModelIndex index = indexAt(event->pos());
     if (event->button() == Qt::MiddleButton && index.isValid()) {
         emit middleClicked(index);

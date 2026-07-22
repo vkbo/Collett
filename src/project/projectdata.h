@@ -42,12 +42,11 @@ public:
     void unpack(const QJsonObject &data);
 
     // Getters
-    QString name() const {return m_projectName;};
+    QString name() const { return m_projectName; };
 
 private:
     QString m_createdTime = "";
     QString m_projectName = "";
-
 };
 } // namespace Collett
 

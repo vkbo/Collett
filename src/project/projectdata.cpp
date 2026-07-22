@@ -34,18 +34,21 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-ProjectData::ProjectData(QObject *parent) : QObject(parent) {
+ProjectData::ProjectData(QObject *parent) : QObject(parent)
+{
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
 }
 
-ProjectData::~ProjectData() {
+ProjectData::~ProjectData()
+{
     qDebug() << "Destructor: ProjectData";
 }
 
 // Public Methods
 // ==============
 
-void ProjectData::pack(QJsonObject &data) {
+void ProjectData::pack(QJsonObject &data)
+{
 
     QJsonObject jMeta, jProject, jSettings;
 
@@ -64,7 +67,8 @@ void ProjectData::pack(QJsonObject &data) {
     data["c:settings"_L1] = jSettings;
 }
 
-void ProjectData::unpack(const QJsonObject &data) {
+void ProjectData::unpack(const QJsonObject &data)
+{
 
     QJsonObject jMeta = data.value("c:meta"_L1).toObject();
     QJsonObject jProject = data.value("c:project"_L1).toObject();

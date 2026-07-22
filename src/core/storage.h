@@ -35,7 +35,7 @@ class Storage : public QObject
     Q_OBJECT
 
 public:
-    explicit Storage(const QString &path, bool compact=false);
+    explicit Storage(const QString &path, bool compact = false);
     ~Storage();
 
     // Methods
@@ -45,12 +45,12 @@ public:
     bool writeStructure(const QJsonObject &fileData);
 
     // Getters
-    bool isValid() const {return m_isValid;};
+    bool isValid() const { return m_isValid; };
     QString projectPath() const;
 
     // Error Handling
-    bool hasError() const {return !m_lastError.isEmpty();};
-    QString lastError() const {return m_lastError;};
+    bool hasError() const { return !m_lastError.isEmpty(); };
+    QString lastError() const { return m_lastError; };
 
 private:
     bool readJson(const QString &filePath, QJsonObject &fileData, bool required);
@@ -64,7 +64,6 @@ private:
 
     bool m_isValid = false;
     QString m_lastError = "";
-
 };
 } // namespace Collett
 

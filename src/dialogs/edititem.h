@@ -43,7 +43,6 @@ public:
 
 private:
     QLineEdit *m_titleValue;
-
 };
 } // namespace Collett
 

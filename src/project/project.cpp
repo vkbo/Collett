@@ -30,17 +30,20 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Project::Project() {
+Project::Project()
+{
 }
 
-Project::~Project() {
+Project::~Project()
+{
     qDebug() << "Destructor: Project";
 }
 
 // Public Methods
 // ==============
 
-bool Project::openProject(const QString &path) {
+bool Project::openProject(const QString &path)
+{
 
     m_store = new Storage(path, false);
     qInfo() << "Loading Project:" << m_store->projectPath();
@@ -70,7 +73,8 @@ bool Project::openProject(const QString &path) {
     return true;
 }
 
-bool Project::saveProject() {
+bool Project::saveProject()
+{
 
     if (m_store == nullptr || m_data == nullptr) {
         qWarning() << "Project storage not initialised, cannot save";
@@ -100,7 +104,8 @@ bool Project::saveProject() {
     return true;
 }
 
-bool Project::saveProjectAs(const QString &path) {
+bool Project::saveProjectAs(const QString &path)
+{
     m_store = new Storage(path, false);
     m_isValid = true;
     return this->saveProject();

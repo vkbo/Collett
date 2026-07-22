@@ -41,7 +41,7 @@ class GuiMain : public QMainWindow
     Q_OBJECT
 
 public:
-    GuiMain(QWidget *parent=nullptr);
+    GuiMain(QWidget *parent = nullptr);
     ~GuiMain();
 
     // Methods
@@ -52,30 +52,29 @@ public:
 
     // Components
     GuiProjectPanel *projectPanel;
-    GuiWorkPanel    *workPanel;
-    
+    GuiWorkPanel *workPanel;
+
     // ToolBars
     GuiProjectToolBar *projectToolBar;
 
 private:
     // Singletons
     SharedData *m_data;
-    Settings   *m_settings;
-    Theme      *m_theme;
+    Settings *m_settings;
+    Theme *m_theme;
 
     // Layout
     QSplitter *m_splitMain;
 
     // Events
-    void closeEvent(QCloseEvent*);
+    void closeEvent(QCloseEvent *);
 
 private slots:
 
     void onProjectOpen();
-    void onProjectSave() {saveProject();};
-    void onProjectClose() {closeProject();};
+    void onProjectSave() { saveProject(); };
+    void onProjectClose() { closeProject(); };
     void updateTitle();
-
 };
 } // namespace Collett
 

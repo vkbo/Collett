@@ -38,7 +38,8 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-EditItemDialog::EditItemDialog(QWidget *parent, Node *node) : QDialog(parent) {
+EditItemDialog::EditItemDialog(QWidget *parent, Node *node) : QDialog(parent)
+{
 
     this->setWindowTitle(tr("Edit Item"));
 
@@ -73,11 +74,13 @@ EditItemDialog::EditItemDialog(QWidget *parent, Node *node) : QDialog(parent) {
     this->connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-EditItemDialog::~EditItemDialog() {
+EditItemDialog::~EditItemDialog()
+{
     qDebug() << "Destructor: EditItemDialog";
 }
 
-void EditItemDialog::editNode(QWidget *parent, Node *node) {
+void EditItemDialog::editNode(QWidget *parent, Node *node)
+{
     QPointer<EditItemDialog> dialog(new EditItemDialog(parent, node));
     dialog->exec();
     if (dialog->result() == QDialog::Accepted) {

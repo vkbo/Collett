@@ -35,7 +35,8 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
+GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent)
+{
 
     // Static Objects
     m_data = SharedData::instance();
@@ -44,7 +45,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
     // Panels
     projectPanel = new GuiProjectPanel(this);
-    workPanel    = new GuiWorkPanel(this);
+    workPanel = new GuiWorkPanel(this);
 
     // Main Splitter
     QList<int> sizes = {400, 1000};
@@ -78,14 +79,16 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     this->updateTitle();
 }
 
-GuiMain::~GuiMain() {
+GuiMain::~GuiMain()
+{
     qDebug() << "Destructor: GuiMain";
 }
 
 // Public Methods
 // ==============
 
-void GuiMain::openProject(const QString &path) {
+void GuiMain::openProject(const QString &path)
+{
 
     m_data->openProject(path);
     if (!m_data->hasProject()) {
@@ -94,20 +97,23 @@ void GuiMain::openProject(const QString &path) {
     projectPanel->openProjectTasks();
 }
 
-void GuiMain::saveProject() {
+void GuiMain::saveProject()
+{
     if (m_data->hasProject()) {
         m_data->saveProject();
     }
 }
 
-void GuiMain::closeProject() {
+void GuiMain::closeProject()
+{
     if (m_data->hasProject()) {
         m_data->closeProject();
     }
     projectPanel->closeProjectTasks();
 }
 
-bool GuiMain::closeMain() {
+bool GuiMain::closeMain()
+{
     this->saveProject();
     this->closeProject();
 
@@ -127,7 +133,8 @@ bool GuiMain::closeMain() {
 // Events
 // ======
 
-void GuiMain::closeEvent(QCloseEvent *event) {
+void GuiMain::closeEvent(QCloseEvent *event)
+{
     if (closeMain()) {
         event->accept();
     } else {
@@ -138,11 +145,12 @@ void GuiMain::closeEvent(QCloseEvent *event) {
 // Private Slots
 // =============
 
-void GuiMain::onProjectOpen() {
-
+void GuiMain::onProjectOpen()
+{
 }
 
-void GuiMain::updateTitle() {
+void GuiMain::updateTitle()
+{
     if (m_data->hasProject()) {
         setWindowTitle(QString("%1 - %2").arg(m_data->project()->data()->name(), qApp->applicationName()));
     } else {

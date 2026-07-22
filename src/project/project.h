@@ -45,23 +45,22 @@ public:
     bool saveProjectAs(const QString &path);
 
     // Getters
-    bool isValid() const {return m_isValid;};
-    Storage *store() {return m_store;};
-    ProjectData *data() {return m_data;};
-    Tree *tree() {return m_tree;};
+    bool isValid() const { return m_isValid; };
+    Storage *store() { return m_store; };
+    ProjectData *data() { return m_data; };
+    Tree *tree() { return m_tree; };
 
     // Error Handling
-    bool hasError() const {return !m_lastError.isEmpty();};
-    QString lastError() const {return m_lastError;};
+    bool hasError() const { return !m_lastError.isEmpty(); };
+    QString lastError() const { return m_lastError; };
 
 private:
-    bool     m_isValid = false;
-    QString  m_lastError = "";
+    bool m_isValid = false;
+    QString m_lastError = "";
 
-    Storage     *m_store = nullptr;
+    Storage *m_store = nullptr;
     ProjectData *m_data = nullptr;
-    Tree        *m_tree = nullptr;
-
+    Tree *m_tree = nullptr;
 };
 } // namespace Collett
 

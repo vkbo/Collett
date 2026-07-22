@@ -46,10 +46,20 @@ public:
     GuiProjectView *projectView = nullptr;
 
 public slots:
-    void createFile(const ItemLevel itemLevel) {if(projectView) projectView->createFile(itemLevel);};
-    void createFolder() {if(projectView) projectView->createFolder();};
-    void createRoot(const ItemClass itemClass) {if(projectView) projectView->createRoot(itemClass);};
+    void createFile(const ItemLevel itemLevel)
+    {
+        if (projectView) projectView->createFile(itemLevel);
+    };
 
+    void createFolder()
+    {
+        if (projectView) projectView->createFolder();
+    };
+
+    void createRoot(const ItemClass itemClass)
+    {
+        if (projectView) projectView->createRoot(itemClass);
+    };
 };
 } // namespace Collett
 

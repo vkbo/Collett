@@ -38,7 +38,6 @@ public:
     ~GuiWorkPanel();
 
     GuiEditorView *editorView = nullptr;
-
 };
 } // namespace Collett
 

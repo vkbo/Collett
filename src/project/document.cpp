@@ -41,19 +41,20 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Document::Document(QObject *parent) : QTextDocument(parent) {
-
+Document::Document(QObject *parent) : QTextDocument(parent)
+{
 }
 
-Document::~Document() {
+Document::~Document()
+{
     qDebug() << "Destructor: Document";
 }
 
 // Public Methods
 // ==============
 
-
-void Document::pack(QJsonObject &data) {
+void Document::pack(QJsonObject &data)
+{
 
     QJsonArray jDoc;
 
@@ -63,7 +64,7 @@ void Document::pack(QJsonObject &data) {
     }
 
     QTextBlock block = this->firstBlock();
-    while(block.isValid()) {
+    while (block.isValid()) {
         QJsonObject jsonBlock;
         QJsonArray jsonFrags;
         QStringList jsonBlockFmt;
@@ -79,12 +80,12 @@ void Document::pack(QJsonObject &data) {
 
         // Block Alignment
         switch (blockFormat.alignment()) {
-            case Qt::AlignLeading:  jsonBlockFmt << "al"; break;
-            case Qt::AlignCenter:   jsonBlockFmt << "ac"; break;
-            case Qt::AlignHCenter:  jsonBlockFmt << "ac"; break;
-            case Qt::AlignTrailing: jsonBlockFmt << "at"; break;
-            case Qt::AlignJustify:  jsonBlockFmt << "aj"; break;
-            default: jsonBlockFmt << "al"; break;
+        case Qt::AlignLeading: jsonBlockFmt << "al"; break;
+        case Qt::AlignCenter: jsonBlockFmt << "ac"; break;
+        case Qt::AlignHCenter: jsonBlockFmt << "ac"; break;
+        case Qt::AlignTrailing: jsonBlockFmt << "at"; break;
+        case Qt::AlignJustify: jsonBlockFmt << "aj"; break;
+        default: jsonBlockFmt << "al"; break;
         }
 
         // Text Indent
@@ -150,7 +151,8 @@ void Document::pack(QJsonObject &data) {
     data["x:content"_L1] = jDoc;
 }
 
-void Document::unpack(const QJsonObject &data) {
+void Document::unpack(const QJsonObject &data)
+{
 
     // Init
     qint64 start = QDateTime::currentMSecsSinceEpoch();
@@ -187,7 +189,7 @@ void Document::unpack(const QJsonObject &data) {
             jsonBlockFmt = jsonBlock["u:fmt"_L1].toString().split(":");
         }
 
-        QTextCharFormat  charFormat = format.charDefault;
+        QTextCharFormat charFormat = format.charDefault;
         QTextBlockFormat blockFormat = format.blockDefault;
 
         // The first block format entry must describe the block type
@@ -260,7 +262,7 @@ void Document::unpack(const QJsonObject &data) {
             QString innerText = fragText.sliced(fmtTagPos + 1).replace('\n', QChar::LineSeparator);
 
             QTextCharFormat fragFormat = charFormat;
-            bool isText = false;;
+            bool isText = false;
             for (const QString &fragFmtTag : fragCharFmt) {
                 if (fragFmtTag == "t") {
                     isText = true;
@@ -283,7 +285,6 @@ void Document::unpack(const QJsonObject &data) {
                 cursor.insertText(innerText, fragFormat);
             }
         }
-
     }
 
     this->setUndoRedoEnabled(true);
@@ -292,6 +293,5 @@ void Document::unpack(const QJsonObject &data) {
     qint64 end = QDateTime::currentMSecsSinceEpoch();
     qDebug() << "Document loaded in" << end - start << "ms";
 }
-
 
 } // namespace Collett

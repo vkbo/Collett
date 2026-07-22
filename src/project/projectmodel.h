@@ -42,11 +42,11 @@ class ProjectModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit ProjectModel(Tree *parent=nullptr);
+    explicit ProjectModel(Tree *parent = nullptr);
     ~ProjectModel();
 
     // Getters
-    Node *invisibleRoot() const {return m_root;};
+    Node *invisibleRoot() const { return m_root; };
     Node *rootNode(Node *node);
 
     // Methods
@@ -66,9 +66,9 @@ public:
     QModelIndex indexFromHandle(const QUuid &uuid);
 
     // Model Edit
-    void  insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
+    void insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
     Node *removeChild(const QModelIndex &parent, qsizetype pos);
-    void  multiMove(const QModelIndexList &indexes, const QModelIndex &parent, qsizetype pos = -1);
+    void multiMove(const QModelIndexList &indexes, const QModelIndex &parent, qsizetype pos = -1);
 
     Node *addRoot(QString name, ItemClass itemClass, const QModelIndex &selected);
     Node *addFolder(QString name, const QModelIndex &selected);
@@ -87,7 +87,6 @@ public:
 private:
     Node *m_root = nullptr;
     Tree *m_tree = nullptr;
-
 };
 } // namespace Collett
 

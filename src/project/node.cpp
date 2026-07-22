@@ -38,8 +38,7 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Node::Node(Tree *tree, ItemType itemType, QUuid handle, QString name) :
-    m_type(itemType), m_handle(handle), m_name(name), m_tree(tree)
+Node::Node(Tree *tree, ItemType itemType, QUuid handle, QString name) : m_type(itemType), m_handle(handle), m_name(name), m_tree(tree)
 {
     m_class = ItemClass::NovelClass;
     m_level = ItemLevel::PageLevel;
@@ -52,15 +51,17 @@ Node::Node(Tree *tree, ItemType itemType, QUuid handle, QString name) :
     }
 }
 
-Node::~Node() {
+Node::~Node()
+{
     qDebug() << "Destructor: Node" << m_name;
-    qDeleteAll(m_children);  // Parent is tracked in m_parent, so we delete explicitly
+    qDeleteAll(m_children); // Parent is tracked in m_parent, so we delete explicitly
 }
 
 // Setters
 // =======
 
-void Node::setActive(bool state) {
+void Node::setActive(bool state)
+{
     Theme *theme = Theme::instance();
     if (m_type == ItemType::InvisibleRoot) {
         m_icon = QIcon();
@@ -92,19 +93,20 @@ void Node::setActive(bool state) {
  *
  * @return Returns true if the node is of Novel, Archive or Trash class.
  */
-bool Node::isDocumentAllowed() {
+bool Node::isDocumentAllowed()
+{
     switch (m_class) {
-        case ItemClass::NovelClass:
-        case ItemClass::ArchiveClass:
-        case ItemClass::TrashClass:
-            return true;
-        case ItemClass::CharacterClass:
-        case ItemClass::PlotClass:
-        case ItemClass::LocationClass:
-        case ItemClass::ObjectClass:
-        case ItemClass::EntityClass:
-        case ItemClass::CustomClass:
-            return false;
+    case ItemClass::NovelClass:
+    case ItemClass::ArchiveClass:
+    case ItemClass::TrashClass:
+        return true;
+    case ItemClass::CharacterClass:
+    case ItemClass::PlotClass:
+    case ItemClass::LocationClass:
+    case ItemClass::ObjectClass:
+    case ItemClass::EntityClass:
+    case ItemClass::CustomClass:
+        return false;
     }
     return false;
 }
@@ -117,18 +119,20 @@ bool Node::isDocumentAllowed() {
  *
  * @return Returns true if the node is allowed to be a project note.
  */
-bool Node::isNoteAllowed() {
+bool Node::isNoteAllowed()
+{
     return m_class != ItemClass::NovelClass;
 }
 
 // Public Methods
 // ==============
 
-void Node::pack(QJsonObject &data) {
+void Node::pack(QJsonObject &data)
+{
 
     QJsonArray children;
 
-    for (qsizetype i=0; i<m_children.size(); ++i) {
+    for (qsizetype i = 0; i < m_children.size(); ++i) {
         QJsonObject child;
         m_children.at(i)->pack(child);
         children.append(child);
@@ -138,33 +142,33 @@ void Node::pack(QJsonObject &data) {
         data["x:items"_L1] = children;
     } else {
         switch (m_type) {
-            case ItemType::RootType:   data["m:type"_L1] = "Root"_L1; break;
-            case ItemType::FolderType: data["m:type"_L1] = "Folder"_L1; break;
-            case ItemType::FileType:   data["m:type"_L1] = "File"_L1; break;
-            default: return;
+        case ItemType::RootType: data["m:type"_L1] = "Root"_L1; break;
+        case ItemType::FolderType: data["m:type"_L1] = "Folder"_L1; break;
+        case ItemType::FileType: data["m:type"_L1] = "File"_L1; break;
+        default: return;
         }
         if (m_type == ItemType::RootType) {
             switch (m_class) {
-                case ItemClass::NovelClass:     data["m:class"_L1] = "Novel"_L1; break;
-                case ItemClass::CharacterClass: data["m:class"_L1] = "Character"_L1; break;
-                case ItemClass::PlotClass:      data["m:class"_L1] = "Plot"_L1; break;
-                case ItemClass::LocationClass:  data["m:class"_L1] = "Location"_L1; break;
-                case ItemClass::ObjectClass:    data["m:class"_L1] = "Object"_L1; break;
-                case ItemClass::EntityClass:    data["m:class"_L1] = "Entity"_L1; break;
-                case ItemClass::CustomClass:    data["m:class"_L1] = "Custom"_L1; break;
-                case ItemClass::ArchiveClass:   data["m:class"_L1] = "Archive"_L1; break;
-                case ItemClass::TrashClass:     data["m:class"_L1] = "Trash"_L1; break;
-                default: return;
+            case ItemClass::NovelClass: data["m:class"_L1] = "Novel"_L1; break;
+            case ItemClass::CharacterClass: data["m:class"_L1] = "Character"_L1; break;
+            case ItemClass::PlotClass: data["m:class"_L1] = "Plot"_L1; break;
+            case ItemClass::LocationClass: data["m:class"_L1] = "Location"_L1; break;
+            case ItemClass::ObjectClass: data["m:class"_L1] = "Object"_L1; break;
+            case ItemClass::EntityClass: data["m:class"_L1] = "Entity"_L1; break;
+            case ItemClass::CustomClass: data["m:class"_L1] = "Custom"_L1; break;
+            case ItemClass::ArchiveClass: data["m:class"_L1] = "Archive"_L1; break;
+            case ItemClass::TrashClass: data["m:class"_L1] = "Trash"_L1; break;
+            default: return;
             }
         }
         if (m_type == ItemType::FileType) {
             switch (m_level) {
-                case ItemLevel::PageLevel:    data["m:level"_L1] = "Page"_L1; break;
-                case ItemLevel::NoteLevel:    data["m:level"_L1] = "Note"_L1; break;
-                case ItemLevel::TitleLevel:   data["m:level"_L1] = "Title"_L1; break;
-                case ItemLevel::ChapterLevel: data["m:level"_L1] = "Chapter"_L1; break;
-                case ItemLevel::SceneLevel:   data["m:level"_L1] = "Scene"_L1; break;
-                default: return;
+            case ItemLevel::PageLevel: data["m:level"_L1] = "Page"_L1; break;
+            case ItemLevel::NoteLevel: data["m:level"_L1] = "Note"_L1; break;
+            case ItemLevel::TitleLevel: data["m:level"_L1] = "Title"_L1; break;
+            case ItemLevel::ChapterLevel: data["m:level"_L1] = "Chapter"_L1; break;
+            case ItemLevel::SceneLevel: data["m:level"_L1] = "Scene"_L1; break;
+            default: return;
             }
             data["u:active"_L1] = m_active;
         }
@@ -180,7 +184,8 @@ void Node::pack(QJsonObject &data) {
     }
 }
 
-void Node::unpack(const QJsonObject &data, int &skipped, int &errors) {
+void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
+{
 
     if (data.isEmpty()) {
         qWarning() << "Received a project node with no data";
@@ -191,14 +196,14 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors) {
 
     bool error = false;
 
-    QString   name      = "";
-    QUuid     handle    = QUuid();
-    ItemType  itemType  = ItemType::FileType;
+    QString name = "";
+    QUuid handle = QUuid();
+    ItemType itemType = ItemType::FileType;
     ItemClass itemClass = ItemClass::NovelClass;
     ItemLevel itemLevel = ItemLevel::PageLevel;
-    Counts    counts    = {0, 0, 0};
-    bool      expanded  = false;
-    bool      active    = false;
+    Counts counts = {0, 0, 0};
+    bool expanded = false;
+    bool active = false;
 
     // Name (Optional)
     if (data.contains("u:name"_L1)) {
@@ -250,28 +255,28 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors) {
 
     Node *node = nullptr;
     switch (itemType) {
-        case ItemType::RootType:
-            if (!Node::classFromString(JsonUtils::getJsonString(data, "m:class"_L1, "Error"), itemClass)) {
-                qWarning() << "Received a project root node with invalid class";
-                errors++;
-            }
-            node = this->createRoot(handle, name, itemClass);
-            this->addChild(node);
-            break;
-        case ItemType::FolderType:
-            node = this->createFolder(handle, name);
-            this->addChild(node);
-            break;
-        case ItemType::FileType:
-            if (!Node::levelFromString(JsonUtils::getJsonString(data, "m:level"_L1, "Error"), itemLevel)) {
-                qWarning() << "Received a project node with invalid level";
-                errors++;
-            }
-            node = this->createFile(handle, name, itemLevel);
-            this->addChild(node);
-            break;
-        default:
-            break;
+    case ItemType::RootType:
+        if (!Node::classFromString(JsonUtils::getJsonString(data, "m:class"_L1, "Error"), itemClass)) {
+            qWarning() << "Received a project root node with invalid class";
+            errors++;
+        }
+        node = this->createRoot(handle, name, itemClass);
+        this->addChild(node);
+        break;
+    case ItemType::FolderType:
+        node = this->createFolder(handle, name);
+        this->addChild(node);
+        break;
+    case ItemType::FileType:
+        if (!Node::levelFromString(JsonUtils::getJsonString(data, "m:level"_L1, "Error"), itemLevel)) {
+            qWarning() << "Received a project node with invalid level";
+            errors++;
+        }
+        node = this->createFile(handle, name, itemLevel);
+        this->addChild(node);
+        break;
+    default:
+        break;
     }
 
     if (node) {
@@ -302,15 +307,17 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors) {
 // Model Access
 // ============
 
-int Node::row() const {
+int Node::row() const
+{
     if (m_parent) {
-        return m_parent->m_children.indexOf(const_cast<Node*>(this));
+        return m_parent->m_children.indexOf(const_cast<Node *>(this));
     } else {
         return 0;
     }
 }
 
-Node *Node::child(int row) {
+Node *Node::child(int row)
+{
     if (row < 0 || row >= m_children.size()) {
         return nullptr;
     } else {
@@ -318,44 +325,46 @@ Node *Node::child(int row) {
     }
 }
 
-QVariant Node::data(int column, int role) const {
+QVariant Node::data(int column, int role) const
+{
     switch (column) {
-        case 0:
-            switch (role) {
-                case Qt::DisplayRole:
-                case Qt::ToolTipRole:
-                case Qt::AccessibleTextRole:
-                    return QVariant::fromValue(m_name);
-                case Qt::DecorationRole:
-                    return QVariant::fromValue(m_icon);
-            }
-            break;
-        case 1:
-            switch (role) {
-                case Qt::DisplayRole:
-                    return QVariant::fromValue(m_counts.words);
-                case Qt::ToolTipRole:
-                case Qt::AccessibleTextRole:
-                    return QVariant::fromValue(m_accWords.arg(m_counts.words));
-                case Qt::TextAlignmentRole:
-                    return QVariant::fromValue(Qt::AlignRight);
-            }
-            break;
-        case 2:
-            switch (role) {
-                case Qt::DecorationRole:
-                    return QVariant::fromValue(m_activeIcon);
-                case Qt::ToolTipRole:
-                case Qt::AccessibleTextRole:
-                    return QVariant::fromValue(m_accActive);
-            }
-            break;
+    case 0:
+        switch (role) {
+        case Qt::DisplayRole:
+        case Qt::ToolTipRole:
+        case Qt::AccessibleTextRole:
+            return QVariant::fromValue(m_name);
+        case Qt::DecorationRole:
+            return QVariant::fromValue(m_icon);
+        }
+        break;
+    case 1:
+        switch (role) {
+        case Qt::DisplayRole:
+            return QVariant::fromValue(m_counts.words);
+        case Qt::ToolTipRole:
+        case Qt::AccessibleTextRole:
+            return QVariant::fromValue(m_accWords.arg(m_counts.words));
+        case Qt::TextAlignmentRole:
+            return QVariant::fromValue(Qt::AlignRight);
+        }
+        break;
+    case 2:
+        switch (role) {
+        case Qt::DecorationRole:
+            return QVariant::fromValue(m_activeIcon);
+        case Qt::ToolTipRole:
+        case Qt::AccessibleTextRole:
+            return QVariant::fromValue(m_accActive);
+        }
+        break;
     }
     return QVariant();
 }
 
-QList<Node*> Node::allChildren() {
-    QList<Node*> children;
+QList<Node *> Node::allChildren()
+{
+    QList<Node *> children;
     this->recursiveAppendChildren(children);
     return children;
 }
@@ -363,7 +372,8 @@ QList<Node*> Node::allChildren() {
 // Model Edit
 // ==========
 
-void Node::addChild(Node *child, qsizetype pos) {
+void Node::addChild(Node *child, qsizetype pos)
+{
     m_tree->addNode(child);
     child->m_parent = this;
     if (pos >= 0 && pos < m_children.size()) {
@@ -375,7 +385,8 @@ void Node::addChild(Node *child, qsizetype pos) {
     child->updateValues();
 }
 
-Node *Node::takeChild(qsizetype pos) {
+Node *Node::takeChild(qsizetype pos)
+{
     if (pos >= 0 && pos < m_children.count()) {
         Node *child = m_children.takeAt(pos);
         m_tree->removeNode(child->handle());
@@ -384,7 +395,8 @@ Node *Node::takeChild(qsizetype pos) {
     return nullptr;
 }
 
-bool Node::canAddRoot() {
+bool Node::canAddRoot()
+{
     if (m_type == ItemType::InvisibleRoot) {
         return true;
     } else {
@@ -393,7 +405,8 @@ bool Node::canAddRoot() {
     }
 }
 
-bool Node::canAddFolder() {
+bool Node::canAddFolder()
+{
     if (m_type != ItemType::InvisibleRoot) {
         return true;
     } else {
@@ -402,52 +415,57 @@ bool Node::canAddFolder() {
     }
 }
 
-bool Node::canAddFile(ItemLevel itemLevel) {
+bool Node::canAddFile(ItemLevel itemLevel)
+{
     if (m_type == ItemType::InvisibleRoot) {
         qWarning() << "File nodes cannot be added to invisible root";
         return false;
     }
 
     switch (m_class) {
-        case ItemClass::NovelClass:
-        case ItemClass::ArchiveClass:
-            return itemLevel != ItemLevel::NoteLevel;
+    case ItemClass::NovelClass:
+    case ItemClass::ArchiveClass:
+        return itemLevel != ItemLevel::NoteLevel;
 
-        case ItemClass::CharacterClass:
-        case ItemClass::PlotClass:
-        case ItemClass::LocationClass:
-        case ItemClass::ObjectClass:
-        case ItemClass::EntityClass:
-        case ItemClass::CustomClass:
-            return itemLevel == ItemLevel::NoteLevel;
+    case ItemClass::CharacterClass:
+    case ItemClass::PlotClass:
+    case ItemClass::LocationClass:
+    case ItemClass::ObjectClass:
+    case ItemClass::EntityClass:
+    case ItemClass::CustomClass:
+        return itemLevel == ItemLevel::NoteLevel;
 
-        case ItemClass::TrashClass:
-            return false;
+    case ItemClass::TrashClass:
+        return false;
     }
 
     return false;
 }
 
-Node *Node::createRoot(QUuid handle, QString name, ItemClass itemClass) {
+Node *Node::createRoot(QUuid handle, QString name, ItemClass itemClass)
+{
     Node *node = new Node(m_tree, ItemType::RootType, handle, name);
     node->m_class = itemClass;
     return node;
 }
 
-Node *Node::createFolder(QUuid handle, QString name) {
+Node *Node::createFolder(QUuid handle, QString name)
+{
     Node *node = new Node(m_tree, ItemType::FolderType, handle, name);
     node->m_class = m_class;
     return node;
 }
 
-Node *Node::createFile(QUuid handle, QString name, ItemLevel itemLevel) {
+Node *Node::createFile(QUuid handle, QString name, ItemLevel itemLevel)
+{
     Node *node = new Node(m_tree, ItemType::FileType, handle, name);
     node->m_class = m_class;
     node->m_level = itemLevel;
     return node;
 }
 
-void Node::updateIcon() {
+void Node::updateIcon()
+{
     Theme *theme = Theme::instance();
     if (m_type == ItemType::InvisibleRoot) {
         m_icon = QIcon();
@@ -456,7 +474,8 @@ void Node::updateIcon() {
     }
 }
 
-void Node::updateValues() {
+void Node::updateValues()
+{
     if (m_parent && m_parent->itemType() != ItemType::InvisibleRoot) {
         m_class = m_parent->m_class;
         if (this->isFileType()) {
@@ -475,7 +494,8 @@ void Node::updateValues() {
 // Static Methods
 // ==============
 
-bool Node::typeFromString(QString value, ItemType &itemType) {
+bool Node::typeFromString(QString value, ItemType &itemType)
+{
     if (value == "File") {
         itemType = ItemType::FileType;
         return true;
@@ -491,7 +511,8 @@ bool Node::typeFromString(QString value, ItemType &itemType) {
     return false;
 }
 
-bool Node::classFromString(QString value, ItemClass &itemClass) {
+bool Node::classFromString(QString value, ItemClass &itemClass)
+{
     if (value == "Novel") {
         itemClass = ItemClass::NovelClass;
         return true;
@@ -531,7 +552,8 @@ bool Node::classFromString(QString value, ItemClass &itemClass) {
     return false;
 }
 
-bool Node::levelFromString(QString value, ItemLevel &itemLevel) {
+bool Node::levelFromString(QString value, ItemLevel &itemLevel)
+{
     if (value == "Page") {
         itemLevel = ItemLevel::PageLevel;
         return true;
@@ -558,7 +580,8 @@ bool Node::levelFromString(QString value, ItemLevel &itemLevel) {
 // Private Methods
 // ===============
 
-void Node::recursiveAppendChildren(QList<Node*> &children) {
+void Node::recursiveAppendChildren(QList<Node *> &children)
+{
     for (Node *child : m_children) {
         children.append(child);
         child->recursiveAppendChildren(children);

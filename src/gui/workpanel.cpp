@@ -31,7 +31,8 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent) {
+GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent)
+{
 
     // Components
     editorView = new GuiEditorView(this);
@@ -43,7 +44,8 @@ GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent) {
     this->setLayout(outerBox);
 }
 
-GuiWorkPanel::~GuiWorkPanel() {
+GuiWorkPanel::~GuiWorkPanel()
+{
     qDebug() << "Destructor: GuiWorkPanel";
 }
 

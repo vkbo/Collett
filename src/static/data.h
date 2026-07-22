@@ -55,7 +55,6 @@ signals:
 private:
     static SharedData *staticInstance;
     QScopedPointer<Project> m_project;
-
 };
 } // namespace Collett
 
