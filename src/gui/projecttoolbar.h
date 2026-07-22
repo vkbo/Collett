@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_GUI_PROJECT_TOOLBAR_H
-#define COLLETT_GUI_PROJECT_TOOLBAR_H
+#pragma once
 
 #include "collett.h"
 #include "theme.h"
@@ -69,5 +68,3 @@ private:
     friend class GuiMain;
 };
 } // namespace Collett
-
-#endif // COLLETT_GUI_PROJECT_TOOLBAR_H

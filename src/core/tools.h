@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_TOOLS_H
-#define COLLETT_TOOLS_H
+#pragma once
 
 #include "collett.h"
 
@@ -37,5 +36,3 @@ public:
     static JsonUtilsError writeJson(const QString &filePath, const QJsonObject &fileData, bool compact);
 };
 } // namespace Collett
-
-#endif // COLLETT_TOOLS_H

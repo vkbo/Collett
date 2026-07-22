@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_MOD_TREE_VIEW_H
-#define COLLETT_MOD_TREE_VIEW_H
+#pragma once
 
 #include "collett.h"
 
@@ -45,5 +44,3 @@ signals:
     void middleClicked(const QModelIndex &index);
 };
 } // namespace Collett
-
-#endif // COLLETT_MOD_TREE_VIEW_H

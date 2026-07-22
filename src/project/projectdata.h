@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_DATA_H
-#define COLLETT_PROJECT_DATA_H
+#pragma once
 
 #include "collett.h"
 
@@ -49,5 +48,3 @@ private:
     QString m_projectName = "";
 };
 } // namespace Collett
-
-#endif // COLLETT_PROJECT_DATA_H

@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_SETTINGS_H
-#define COLLETT_SETTINGS_H
+#pragma once
 
 #include "collett.h"
 
@@ -106,5 +105,3 @@ private:
     void recalculateTextFormats();
 };
 } // namespace Collett
-
-#endif // COLLETT_SETTINGS_H

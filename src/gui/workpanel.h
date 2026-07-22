@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_GUI_WORK_PANEL_H
-#define COLLETT_GUI_WORK_PANEL_H
+#pragma once
 
 #include "collett.h"
 #include "editorview.h"
@@ -40,5 +39,3 @@ public:
     GuiEditorView *editorView = nullptr;
 };
 } // namespace Collett
-
-#endif // COLLETT_GUI_PROJECT_PANEL_H

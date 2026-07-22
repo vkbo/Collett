@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_MAIN_H
-#define GUI_MAIN_H
+#pragma once
 
 #include "collett.h"
 #include "data.h"
@@ -77,5 +76,3 @@ private slots:
     void updateTitle();
 };
 } // namespace Collett
-
-#endif // GUI_MAIN_H

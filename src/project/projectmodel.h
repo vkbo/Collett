@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_MODEL_H
-#define COLLETT_PROJECT_MODEL_H
+#pragma once
 
 #include "collett.h"
 #include "node.h"
@@ -89,5 +88,3 @@ private:
     Tree *m_tree = nullptr;
 };
 } // namespace Collett
-
-#endif // COLLETT_PROJECT_MODEL_H

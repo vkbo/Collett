@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_THEME_H
-#define COLLETT_THEME_H
+#pragma once
 
 #include "collett.h"
 #include "settings.h"
@@ -104,5 +103,3 @@ private:
     friend class Icons;
 };
 } // namespace Collett
-
-#endif // COLLETT_THEME_H

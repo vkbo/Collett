@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_GUI_PROJECT_PANEL_H
-#define COLLETT_GUI_PROJECT_PANEL_H
+#pragma once
 
 #include "collett.h"
 #include "projectview.h"
@@ -62,5 +61,3 @@ public slots:
     };
 };
 } // namespace Collett
-
-#endif // COLLETT_GUI_PROJECT_PANEL_H

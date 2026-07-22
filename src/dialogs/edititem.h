@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_EDIT_ITEM_H
-#define COLLETT_EDIT_ITEM_H
+#pragma once
 
 #include "collett.h"
 
@@ -45,5 +44,3 @@ private:
     QLineEdit *m_titleValue;
 };
 } // namespace Collett
-
-#endif // COLLETT_EDIT_ITEM_H

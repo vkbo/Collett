@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_H
-#define COLLETT_H
+#pragma once
 
 #define COL_VERSION_STR "0.0.1-alpha1"
 #define COL_VERSION_NUM 0x000001a1
@@ -95,5 +94,3 @@ enum JsonUtilsError
 };
 
 } // namespace Collett
-
-#endif // COLLETT_H

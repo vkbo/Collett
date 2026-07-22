@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_DOCUMENT_H
-#define COLLETT_DOCUMENT_H
+#pragma once
 
 #include "collett.h"
 
@@ -46,5 +45,3 @@ private:
     QString m_createdTime = "";
 };
 } // namespace Collett
-
-#endif // COLLETT_DOCUMENT_H

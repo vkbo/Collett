@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_STORAGE_H
-#define COLLETT_STORAGE_H
+#pragma once
 
 #include "collett.h"
 
@@ -66,5 +65,3 @@ private:
     QString m_lastError = "";
 };
 } // namespace Collett
-
-#endif // COLLETT_STORAGE_H

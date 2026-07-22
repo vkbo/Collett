@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_ICONS_H
-#define COLLETT_ICONS_H
+#pragma once
 
 #include "collett.h"
 #include "settings.h"
@@ -67,5 +66,3 @@ private:
     QIcon generateIcon(QString name, ThemeColor color, QSize size);
 };
 } // namespace Collett
-
-#endif // COLLETT_ICONS_H

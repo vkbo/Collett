@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_GUI_TEXT_EDITOR_H
-#define COLLETT_GUI_TEXT_EDITOR_H
+#pragma once
 
 #include "collett.h"
 
@@ -37,5 +36,3 @@ public:
     ~GuiTextEditor();
 };
 } // namespace Collett
-
-#endif // COLLETT_GUI_TEXT_EDITOR_H

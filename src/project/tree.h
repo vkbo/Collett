@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_TREE_H
-#define COLLETT_TREE_H
+#pragma once
 
 #include "collett.h"
 #include "node.h"
@@ -58,5 +57,3 @@ private:
     QHash<QUuid, QPointer<Node>> m_nodes;
 };
 } // namespace Collett
-
-#endif // COLLETT_TREE_H
