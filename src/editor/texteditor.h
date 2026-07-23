@@ -47,6 +47,10 @@ public slots:
     void toggleStrikeOut(bool strikeOut);
     void toggleSuperscript(bool superscript);
     void toggleSubscript(bool subscript);
+    void alignLeft();
+    void alignCenter();
+    void alignRight();
+    void alignJustify();
 
 private:
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);

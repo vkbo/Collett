@@ -25,6 +25,7 @@
 #include "theme.h"
 
 #include <QAction>
+#include <QActionGroup>
 #include <QKeySequence>
 #include <QSize>
 #include <QTextCharFormat>
@@ -73,7 +74,36 @@ GuiEditorToolBar::GuiEditorToolBar(GuiTextEditor *editor, QWidget *parent)
     actSubscript->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal));
     connect(actSubscript, &QAction::toggled, m_editor, &GuiTextEditor::toggleSubscript);
 
+    this->addSeparator();
+
+    QActionGroup *alignGroup = new QActionGroup(this);
+
+    actAlignLeft = this->addAction(m_theme->icons()->getIcon("fmt_align_left", ThemeColor::DefaultColor, size), tr("Align Left"));
+    actAlignLeft->setCheckable(true);
+    actAlignLeft->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
+    alignGroup->addAction(actAlignLeft);
+    connect(actAlignLeft, &QAction::triggered, m_editor, &GuiTextEditor::alignLeft);
+
+    actAlignCenter = this->addAction(m_theme->icons()->getIcon("fmt_align_center", ThemeColor::DefaultColor, size), tr("Align Center"));
+    actAlignCenter->setCheckable(true);
+    actAlignCenter->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
+    alignGroup->addAction(actAlignCenter);
+    connect(actAlignCenter, &QAction::triggered, m_editor, &GuiTextEditor::alignCenter);
+
+    actAlignRight = this->addAction(m_theme->icons()->getIcon("fmt_align_right", ThemeColor::DefaultColor, size), tr("Align Right"));
+    actAlignRight->setCheckable(true);
+    actAlignRight->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
+    alignGroup->addAction(actAlignRight);
+    connect(actAlignRight, &QAction::triggered, m_editor, &GuiTextEditor::alignRight);
+
+    actAlignJustify = this->addAction(m_theme->icons()->getIcon("fmt_align_justify", ThemeColor::DefaultColor, size), tr("Justify"));
+    actAlignJustify->setCheckable(true);
+    actAlignJustify->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_J));
+    alignGroup->addAction(actAlignJustify);
+    connect(actAlignJustify, &QAction::triggered, m_editor, &GuiTextEditor::alignJustify);
+
     connect(m_editor, &QTextEdit::currentCharFormatChanged, this, &GuiEditorToolBar::updateFormatButtons);
+    connect(m_editor, &QTextEdit::cursorPositionChanged, this, &GuiEditorToolBar::updateAlignButtons);
 }
 
 GuiEditorToolBar::~GuiEditorToolBar()
@@ -109,6 +139,24 @@ void GuiEditorToolBar::updateFormatButtons(const QTextCharFormat &format)
     actSubscript->blockSignals(true);
     actSubscript->setChecked(format.verticalAlignment() == QTextCharFormat::AlignSubScript);
     actSubscript->blockSignals(false);
+}
+
+void GuiEditorToolBar::updateAlignButtons()
+{
+    switch (m_editor->alignment()) {
+    case Qt::AlignCenter:
+        actAlignCenter->setChecked(true);
+        break;
+    case Qt::AlignRight:
+        actAlignRight->setChecked(true);
+        break;
+    case Qt::AlignJustify:
+        actAlignJustify->setChecked(true);
+        break;
+    default:
+        actAlignLeft->setChecked(true);
+        break;
+    }
 }
 
 } // namespace Collett

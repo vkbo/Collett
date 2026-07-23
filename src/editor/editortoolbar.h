@@ -42,6 +42,7 @@ public:
 
 private slots:
     void updateFormatButtons(const QTextCharFormat &format);
+    void updateAlignButtons();
 
 private:
     Theme *m_theme;
@@ -53,5 +54,9 @@ private:
     QAction *actStrikethrough;
     QAction *actSuperscript;
     QAction *actSubscript;
+    QAction *actAlignLeft;
+    QAction *actAlignCenter;
+    QAction *actAlignRight;
+    QAction *actAlignJustify;
 };
 } // namespace Collett

@@ -95,6 +95,26 @@ void GuiTextEditor::toggleSubscript(bool subscript)
     this->mergeFormatOnWordOrSelection(format);
 }
 
+void GuiTextEditor::alignLeft()
+{
+    this->setAlignment(Qt::AlignLeft);
+}
+
+void GuiTextEditor::alignCenter()
+{
+    this->setAlignment(Qt::AlignCenter);
+}
+
+void GuiTextEditor::alignRight()
+{
+    this->setAlignment(Qt::AlignRight);
+}
+
+void GuiTextEditor::alignJustify()
+{
+    this->setAlignment(Qt::AlignJustify);
+}
+
 // Private Methods
 // ===============
 
