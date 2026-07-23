@@ -40,6 +40,15 @@ SharedData *SharedData::instance()
     return staticInstance;
 }
 
+void SharedData::destroy()
+{
+    if (staticInstance != nullptr) {
+        qDebug() << "Destructor: Static SharedData";
+        delete SharedData::staticInstance;
+        SharedData::staticInstance = nullptr;
+    }
+}
+
 SharedData::SharedData(QObject *parent) : QObject(parent) {}
 
 SharedData::~SharedData()

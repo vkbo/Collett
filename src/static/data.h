@@ -34,6 +34,7 @@ class SharedData : public QObject
 
 public:
     static SharedData *instance();
+    static void destroy();
 
     SharedData(QObject *parent = nullptr);
     ~SharedData();

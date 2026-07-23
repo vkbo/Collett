@@ -48,14 +48,14 @@ Project::~Project()
 bool Project::openProject(const QString &path)
 {
 
-    m_store = new Storage(path, false);
+    m_store = new Storage(path, false, this);
     qInfo() << "Loading Project:" << m_store->projectPath();
     if (!m_store->isValid()) {
         qWarning() << "Cannot load project from this path";
         return false;
     }
 
-    m_data = new ProjectData();
+    m_data = new ProjectData(this);
     m_tree = new Tree(this);
 
     if (m_store->isNewProject()) {
@@ -123,7 +123,8 @@ bool Project::saveProject()
 
 bool Project::saveProjectAs(const QString &path)
 {
-    m_store = new Storage(path, false);
+    if (m_store) delete m_store;
+    m_store = new Storage(path, false, this);
     m_isValid = true;
     return this->saveProject();
 }

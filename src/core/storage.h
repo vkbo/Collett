@@ -34,7 +34,7 @@ class Storage : public QObject
     Q_OBJECT
 
 public:
-    explicit Storage(const QString &path, bool compact = false);
+    explicit Storage(const QString &path, bool compact = false, QObject *parent = nullptr);
     ~Storage();
 
     // Methods

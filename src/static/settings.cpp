@@ -84,6 +84,7 @@ void Settings::destroy()
     if (staticInstance != nullptr) {
         qDebug() << "Destructor: Static Settings";
         delete Settings::staticInstance;
+        Settings::staticInstance = nullptr;
     }
 }
 

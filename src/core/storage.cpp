@@ -35,7 +35,7 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Storage::Storage(const QString &path, bool compact) : m_compactJson(compact)
+Storage::Storage(const QString &path, bool compact, QObject *parent) : QObject(parent), m_compactJson(compact)
 {
     QFileInfo pathInfo(path);
     if (pathInfo.suffix().toLower() != "collett") {

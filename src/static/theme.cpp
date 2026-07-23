@@ -55,6 +55,7 @@ void Theme::destroy()
     if (staticInstance != nullptr) {
         qDebug() << "Destructor: Static Theme";
         delete Theme::staticInstance;
+        Theme::staticInstance = nullptr;
     }
 }
 

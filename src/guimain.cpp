@@ -134,6 +134,7 @@ bool GuiMain::closeMain()
     }
     m_settings->flushSettings();
 
+    m_data->destroy();
     m_theme->destroy();
     m_settings->destroy();
 
