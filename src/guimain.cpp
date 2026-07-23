@@ -112,6 +112,10 @@ void GuiMain::saveProject()
 
 void GuiMain::closeProject()
 {
+    // The editor may be holding a pointer to a Document owned by the
+    // project. It must be cleared before the project (and its documents)
+    // are destroyed, or the editor is left with a dangling document.
+    workPanel->editorView->textEditor->openDocument(nullptr);
     if (m_data->hasProject()) {
         m_data->closeProject();
     }

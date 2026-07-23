@@ -163,7 +163,7 @@ void Document::unpack(const QJsonObject &data)
 
     // Meta
     QJsonObject jMeta = data.value("c:meta"_L1).toObject();
-    QJsonObject jDoc = data.value("x:content"_L1).toObject();
+    QJsonArray jDoc = data.value("x:content"_L1).toArray();
 
     m_createdTime = JsonUtils::getJsonString(jMeta, "m:created"_L1, "Unknown");
 

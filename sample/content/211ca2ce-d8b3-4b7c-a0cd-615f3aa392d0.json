@@ -2,12 +2,12 @@
     "c:format": "CollettDocument",
     "c:meta": {
         "m:created": "2026-07-23T01:51:24",
-        "m:updated": "2026-07-23T01:51:35"
+        "m:updated": "2026-07-23T02:00:08"
     },
     "x:content": [
         {
             "u:fmt": "p:al",
-            "u:txt": "t|Hi"
+            "u:txt": "t|Hello World!"
         }
     ]
 }
