@@ -1,9 +1,9 @@
 /*
-** Collett - GUI Text Editor Class
-** ===============================
+** Collett - GUI Editor ToolBar
+** ============================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,33 +22,36 @@
 #pragma once
 
 #include "collett.h"
-#include "document.h"
+#include "texteditor.h"
+#include "theme.h"
 
+#include <QAction>
 #include <QTextCharFormat>
-#include <QTextEdit>
+#include <QToolBar>
+#include <QWidget>
 
 namespace Collett {
 
-class GuiTextEditor : public QTextEdit
+class GuiEditorToolBar : public QToolBar
 {
     Q_OBJECT
 
 public:
-    explicit GuiTextEditor(QWidget *parent = nullptr);
-    ~GuiTextEditor();
+    explicit GuiEditorToolBar(GuiTextEditor *editor, QWidget *parent = nullptr);
+    ~GuiEditorToolBar();
 
-    // Methods
-    void openDocument(Document *doc);
-
-public slots:
-    void toggleBold(bool bold);
-    void toggleItalic(bool italic);
-    void toggleUnderline(bool underline);
-    void toggleStrikeOut(bool strikeOut);
-    void toggleSuperscript(bool superscript);
-    void toggleSubscript(bool subscript);
+private slots:
+    void updateFormatButtons(const QTextCharFormat &format);
 
 private:
-    void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
+    Theme *m_theme;
+    GuiTextEditor *m_editor;
+
+    QAction *actBold;
+    QAction *actItalic;
+    QAction *actUnderline;
+    QAction *actStrikethrough;
+    QAction *actSuperscript;
+    QAction *actSubscript;
 };
 } // namespace Collett

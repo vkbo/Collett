@@ -77,6 +77,7 @@ list(APPEND SRC_FILES
     src/core/storage.cpp
     src/core/tools.cpp
     src/dialogs/edititem.cpp
+    src/editor/editortoolbar.cpp
     src/editor/editorview.cpp
     src/editor/texteditor.cpp
     src/gui/projectpanel.cpp

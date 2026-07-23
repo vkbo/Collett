@@ -22,6 +22,9 @@
 #include "collett.h"
 #include "texteditor.h"
 
+#include <QFont>
+#include <QTextCharFormat>
+#include <QTextCursor>
 #include <QTextEdit>
 
 namespace Collett {
@@ -45,6 +48,64 @@ void GuiTextEditor::openDocument(Document *doc)
 {
     this->setDocument(doc);
     this->setEnabled(doc != nullptr);
+}
+
+// Public Slots
+// ============
+
+void GuiTextEditor::toggleBold(bool bold)
+{
+    QTextCharFormat format;
+    format.setFontWeight(bold ? QFont::Bold : QFont::Normal);
+    this->mergeFormatOnWordOrSelection(format);
+}
+
+void GuiTextEditor::toggleItalic(bool italic)
+{
+    QTextCharFormat format;
+    format.setFontItalic(italic);
+    this->mergeFormatOnWordOrSelection(format);
+}
+
+void GuiTextEditor::toggleUnderline(bool underline)
+{
+    QTextCharFormat format;
+    format.setFontUnderline(underline);
+    this->mergeFormatOnWordOrSelection(format);
+}
+
+void GuiTextEditor::toggleStrikeOut(bool strikeOut)
+{
+    QTextCharFormat format;
+    format.setFontStrikeOut(strikeOut);
+    this->mergeFormatOnWordOrSelection(format);
+}
+
+void GuiTextEditor::toggleSuperscript(bool superscript)
+{
+    QTextCharFormat format;
+    format.setVerticalAlignment(superscript ? QTextCharFormat::AlignSuperScript : QTextCharFormat::AlignNormal);
+    this->mergeFormatOnWordOrSelection(format);
+}
+
+void GuiTextEditor::toggleSubscript(bool subscript)
+{
+    QTextCharFormat format;
+    format.setVerticalAlignment(subscript ? QTextCharFormat::AlignSubScript : QTextCharFormat::AlignNormal);
+    this->mergeFormatOnWordOrSelection(format);
+}
+
+// Private Methods
+// ===============
+
+void GuiTextEditor::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
+{
+    QTextCursor cursor = this->textCursor();
+    if (!cursor.hasSelection()) {
+        cursor.select(QTextCursor::WordUnderCursor);
+    }
+    cursor.mergeCharFormat(format);
+    this->mergeCurrentCharFormat(format);
 }
 
 } // namespace Collett

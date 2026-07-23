@@ -22,6 +22,7 @@
 #pragma once
 
 #include "collett.h"
+#include "editortoolbar.h"
 #include "texteditor.h"
 
 #include <QWidget>
@@ -36,6 +37,7 @@ public:
     explicit GuiEditorView(QWidget *parent = nullptr);
     ~GuiEditorView();
 
+    GuiEditorToolBar *toolBar = nullptr;
     GuiTextEditor *textEditor = nullptr;
 };
 } // namespace Collett

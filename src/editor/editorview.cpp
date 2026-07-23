@@ -20,6 +20,7 @@
 */
 
 #include "collett.h"
+#include "editortoolbar.h"
 #include "editorview.h"
 #include "texteditor.h"
 
@@ -36,9 +37,11 @@ GuiEditorView::GuiEditorView(QWidget *parent) : QWidget(parent)
 
     // Components
     textEditor = new GuiTextEditor(this);
+    toolBar = new GuiEditorToolBar(textEditor, this);
 
     // Assemble
     QVBoxLayout *outerBox = new QVBoxLayout();
+    outerBox->addWidget(toolBar);
     outerBox->addWidget(textEditor, 1);
 
     this->setLayout(outerBox);
