@@ -1,5 +1,6 @@
 # Build
 build/
+_temp/
 
 # IDE
 .vscode/

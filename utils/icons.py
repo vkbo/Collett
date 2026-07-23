@@ -3,7 +3,7 @@ Collett - Icon Theme Utils
 ==========================
 
 This file is a part of Collett
-Copyright (C) 2025 Veronica Berglyd Olsen
+Copyright (C) 2026 Veronica Berglyd Olsen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,50 +21,74 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
 
-import subprocess
-import sys
+import urllib.request
+import zipfile
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
 ET.register_namespace("", "http://www.w3.org/2000/svg")
 ROOT_DIR = Path(__file__).parent.parent
+
+ICON_SOURCE = "https://github.com/lucide-icons/lucide/archive/refs/tags/1.24.0.zip"
+ICON_EXTRACT = "lucide-1.24.0"
+
 ICONS = {
+    #
+    # Classes
+    #
     "cls_archive": "archive",
-    "cls_character": "team",
-    "cls_custom": "price-tag-3",
-    "cls_entity": "building",
-    "cls_location": "road-map",
-    "cls_novel": "git-repository",
-    "cls_object": "knife-blood-line",
-    "cls_plot": "puzzle-2",
-    "cls_trash": "delete-bin",
+    "cls_character": "users",
+    "cls_custom": "star",
+    "cls_entity": "university",
+    "cls_location": "map-pin",
+    "cls_novel": "book",
+    "cls_object": "hammer",
+    "cls_plot": "hat-glasses",
+    "cls_trash": "trash-2",
+    #
+    # Formatting
+    #
     "fmt_bold": "bold",
     "fmt_italic": "italic",
     "fmt_strike": "strikethrough",
     "fmt_subscript": "subscript",
     "fmt_superscript": "superscript",
     "fmt_underline": "underline",
+    "fmt_align_left": "text-align-start",
+    "fmt_align_center": "text-align-center",
+    "fmt_align_right": "text-align-end",
+    "fmt_align_justify": "text-align-justify",
+    #
+    # Project
+    #
     "prj_chapter": "file-text",
     "prj_document": "file-text",
-    "prj_folder": "folder-6",
-    "prj_note": "file-4",
+    "prj_folder": "folder",
+    "prj_note": "file-check",
     "prj_scene": "file-text",
     "prj_title": "file-text",
-    "menu_project": "booklet",
-    "add": "add-large",
+    #
+    # Menu
+    #
+    "menu_project": "book-marked",
+    #
+    # Actions
+    #
+    "add": "plus",
     "bookmarks": "bookmark",
-    "checked": "checkbox",
-    "noncheckable": "checkbox-indeterminate",
-    "unchecked": "checkbox-blank",
+    "checked": "circle-check-big",
+    "noncheckable": "circle",
+    "unchecked": "circle-x",
 }
 
 
 def _fixXml(svg: ET.Element) -> str:
     """Clean up the SVG XML and add needed fields."""
-    svg.set("fill", "#000000")
+    svg.set("fill", "none")
+    svg.set("stroke", "#000000")
     svg.set("height", "128")
     svg.set("width", "128")
-    return ET.tostring(svg).decode()
+    return ET.tostring(svg).decode().replace("\n", "")
 
 
 def _writeThemeFile(path: Path, name: str, author: str, license: str, icons: dict[str, ET.Element]) -> None:
@@ -87,88 +111,56 @@ def _writeThemeFile(path: Path, name: str, author: str, license: str, icons: dic
     return
 
 
-def _cloneRepo(repoPath: Path, repoUrl: str) -> None:
-    """Clone or update a local repo of icons."""
-    print(f"Updating: {repoUrl}")
-    if not repoPath.is_dir():
-        subprocess.call(["git", "clone", repoUrl, "--depth", "50"], cwd=repoPath.parent)
-    else:
-        subprocess.call(["git", "pull"], cwd=repoPath)
+def _downloadIconPack(workDir: Path) -> Path:
+    """Download and extract the Lucide icon pack release."""
+    print(f"Downloading: {ICON_SOURCE}")
+    zipFile = workDir / "lucide.zip"
+    urllib.request.urlretrieve(ICON_SOURCE, zipFile)
+    print(f"Extracting: {zipFile.name}")
+    with zipfile.ZipFile(zipFile, "r") as inFile:
+        inFile.extractall(workDir)
     print("")
-    return
+    return workDir / ICON_EXTRACT
 
 
-def processRemix(workDir: Path, iconsDir: Path, jobs: dict) -> None:
-    """Process Remix icons of a given spec and write output file."""
-    srcRepo = workDir / "RemixIcon"
-    _cloneRepo(srcRepo, "https://github.com/Remix-Design/RemixIcon.git")
+def processLucide(workDir: Path, iconsDir: Path) -> None:
+    """Process Lucide icons and write the output file."""
+    srcRepo = workDir / ICON_EXTRACT
+    if not srcRepo.is_dir():
+        srcRepo = _downloadIconPack(workDir)
 
-    for file, job in jobs.items():
-        name: str = job["name"]
-        style = "fill" if job["filled"] else "line"
+    print("Processing: Lucide")
 
-        print(f"Processing: {name}")
-
-        icons: dict[str, ET.Element] = {}
-        iconSrc = srcRepo / "icons"
-        iconGroups = [x for x in iconSrc.iterdir() if x.is_dir()]
-        for key, icon in ICONS.items():
-            if icon.endswith(("-line", "-fill")):
-                fileName = f"{icon}.svg"
-            else:
-                fileName = f"{icon}-{style}.svg"
-            for group in iconGroups:
-                iconFile = group / fileName
-                if iconFile.is_file():
-                    break
-            else:
-                fileName = f"{icon}.svg"
-                for group in iconGroups:
-                    iconFile = group / fileName
-                    if iconFile.is_file():
-                        break
-                else:
-                    print(f"Not Found: {fileName}")
-                    continue
-
+    icons: dict[str, ET.Element] = {}
+    iconSrc = srcRepo / "icons"
+    for key, icon in ICONS.items():
+        iconFile = iconSrc / f"{icon}.svg"
+        if iconFile.is_file():
             icons[key] = ET.fromstring(iconFile.read_text(encoding="utf-8"))
+        else:
+            print(f"Not Found: {iconFile}")
 
-        target = iconsDir / f"{file}.icons"
-        _writeThemeFile(target, name, "Remix Icon", "Apache 2.0", icons)
+    target = iconsDir / "lucide.icons"
+    _writeThemeFile(target, "Lucide", "Cole Bemis, Lucide Contributors", "ISC/MIT License", icons)
 
     print("")
 
     return
 
 
-def main(sources: str) -> None:
+def main() -> None:
     """Build icon themes entry point."""
     print("")
     print("Build Icon Themes")
     print("=================")
     print("")
 
-    workDir = Path(sources).absolute()
-    if not workDir.is_dir():
-        print(f"Source directory not found: {workDir}")
-        sys.exit(1)
+    workDir = ROOT_DIR / "_temp"
+    workDir.mkdir(parents=True, exist_ok=True)
 
     outDir = ROOT_DIR / "assets" / "icons"
     outDir.mkdir(exist_ok=True)
-    processRemix(
-        workDir,
-        outDir,
-        {
-            "remix_outline": {
-                "name": "Remix Icon - Outline",
-                "filled": False,
-            },
-            "remix_filled": {
-                "name": "Remix Icon - Filled",
-                "filled": True,
-            },
-        },
-    )
+    processLucide(workDir, outDir)
 
     print("Done")
     print("")
@@ -178,4 +170,4 @@ def main(sources: str) -> None:
 
 if __name__ == "__main__":
     """Parse command line options and run the commands."""
-    main(sys.argv[-1])
+    main()

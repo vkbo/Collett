@@ -100,7 +100,7 @@ Settings::Settings(QObject *parent) : QObject(parent)
     m_mainWindowSize = settings.value(CNF_MAIN_WINDOW_SIZE, QSize(1200, 800)).toSize();
     m_mainSplitSizes = variantListToInt(settings.value(CNF_MAIN_SPLIT_SIZES, QVariantList() << 300 << 700).toList());
     m_guiTheme = settings.value(CNF_MAIN_GUI_THEME, "default_light").toString();
-    m_iconSet = settings.value(CNF_MAIN_ICON_SET, "remix_outline").toString();
+    m_iconSet = settings.value(CNF_MAIN_ICON_SET, "lucide").toString();
 
     // Check Values
     if (m_mainWindowSize.width() < 400) m_mainWindowSize.setWidth(400);
