@@ -30,7 +30,6 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QTreeView>
-#include <QUuid>
 #include <QWidget>
 
 namespace Collett {

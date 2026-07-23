@@ -30,7 +30,6 @@
 #include <QHash>
 #include <QJsonObject>
 #include <QTimer>
-#include <QUuid>
 
 namespace Collett {
 
@@ -48,8 +47,8 @@ public:
     bool saveProjectAs(const QString &path);
 
     // Document Methods
-    Document *openDocument(const QUuid &handle);
-    bool saveDocument(const QUuid &handle);
+    Document *openDocument(const QString &handle);
+    bool saveDocument(const QString &handle);
     bool saveOpenDocuments();
 
     // Getters
@@ -71,8 +70,8 @@ private:
     Tree *m_tree = nullptr;
 
     // Document Cache
-    QHash<QUuid, Document *> m_documents;
-    QUuid m_currentDocHandle;
+    QHash<QString, Document *> m_documents;
+    QString m_currentDocHandle;
     QTimer *m_autoSaveTimer = nullptr;
 
 private slots:

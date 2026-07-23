@@ -31,7 +31,6 @@
 #include <QModelIndex>
 #include <QString>
 #include <QStringList>
-#include <QUuid>
 
 namespace Collett {
 
@@ -62,7 +61,7 @@ public:
 
     QList<QModelIndex> allExpanded();
     Node *nodeAtIndex(const QModelIndex &index);
-    QModelIndex indexFromHandle(const QUuid &uuid);
+    QModelIndex indexFromHandle(const QString &handle);
 
     // Model Edit
     void insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
@@ -81,7 +80,7 @@ public:
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
 
     // Static Methods
-    static QList<QUuid> decodeMimeHandles(const QMimeData *mimeData);
+    static QList<QString> decodeMimeHandles(const QMimeData *mimeData);
 
 private:
     Node *m_root = nullptr;

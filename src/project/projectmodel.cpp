@@ -33,7 +33,6 @@
 #include <QSet>
 #include <QString>
 #include <QStringList>
-#include <QUuid>
 #include <QVariant>
 
 using namespace Qt::Literals::StringLiterals;
@@ -45,7 +44,7 @@ namespace Collett {
 
 ProjectModel::ProjectModel(Tree *parent) : QAbstractItemModel(parent), m_tree(parent)
 {
-    m_root = new Node(m_tree, ItemType::InvisibleRoot, QUuid::createUuid(), "InvisibleRoot");
+    m_root = new Node(m_tree, ItemType::InvisibleRoot, m_tree->newHandle(), "InvisibleRoot");
     m_root->setParent(this);
 }
 
@@ -222,9 +221,9 @@ Node *ProjectModel::nodeAtIndex(const QModelIndex &index)
     return nullptr;
 }
 
-QModelIndex ProjectModel::indexFromHandle(const QUuid &uuid)
+QModelIndex ProjectModel::indexFromHandle(const QString &handle)
 {
-    Node *node = m_tree->node(uuid);
+    Node *node = m_tree->node(handle);
     if (node) {
         qDebug() << "Ping!" << node->name() << node->handle();
         return createIndex(node->row(), 0, node);
@@ -308,7 +307,7 @@ void ProjectModel::multiMove(const QModelIndexList &indexes, const QModelIndex &
     // have a parent also scheduled for moving or have already been moved.
     // Child items are moved with the parent.
 
-    QSet<QUuid> handles;
+    QSet<QString> handles;
     QList<Node *> pruned;
     for (QModelIndex index : indexes) {
         if (index.isValid()) {
@@ -357,7 +356,7 @@ Node *ProjectModel::addRoot(QString name, ItemClass itemClass, const QModelIndex
         if (sNode) pos = sNode->row() + 1;
     }
 
-    Node *child = m_root->createRoot(QUuid::createUuid(), name, itemClass);
+    Node *child = m_root->createRoot(m_tree->newHandle(), name, itemClass);
     child->setActive(true);
     this->insertChild(child, QModelIndex(), pos);
     return child;
@@ -399,7 +398,7 @@ Node *ProjectModel::addFolder(QString name, const QModelIndex &selected)
     if (parent.isValid()) {
         Node *nNode = static_cast<Node *>(parent.internalPointer());
         if (nNode) {
-            Node *child = nNode->createFolder(QUuid::createUuid(), name);
+            Node *child = nNode->createFolder(m_tree->newHandle(), name);
             child->setActive(true);
             this->insertChild(child, parent, pos);
             return child;
@@ -478,7 +477,7 @@ Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex
     if (parent.isValid()) {
         Node *nNode = static_cast<Node *>(parent.internalPointer());
         if (nNode) {
-            Node *child = nNode->createFile(QUuid::createUuid(), name, itemLevel);
+            Node *child = nNode->createFile(m_tree->newHandle(), name, itemLevel);
             child->setActive(true);
             this->insertChild(child, parent, pos);
             return child;
@@ -504,7 +503,7 @@ QMimeData *ProjectModel::mimeData(const QModelIndexList &indexes) const
     for (QModelIndex index : indexes) {
         if (index.isValid() && index.column() == 0) {
             Node *node = static_cast<Node *>(index.internalPointer());
-            handles << node->handle().toByteArray(QUuid::WithoutBraces);
+            handles << node->handle().toUtf8();
         }
     }
 
@@ -531,7 +530,7 @@ bool ProjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, in
 
     if (this->canDropMimeData(data, action, row, column, parent)) {
         QModelIndexList indexes;
-        for (const QUuid handle : decodeMimeHandles(data)) {
+        for (const QString &handle : decodeMimeHandles(data)) {
             indexes << this->indexFromHandle(handle);
         }
         this->multiMove(indexes, parent, row);
@@ -546,15 +545,15 @@ bool ProjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, in
 /**!
  * @brief Static method to decode handles from mime data.
  *
- * @param mimeData      The mimedata object.
- * @return QList<QUuid> A list of handle UUIDs.
+ * @param mimeData        The mimedata object.
+ * @return QList<QString> A list of handles.
  */
-QList<QUuid> ProjectModel::decodeMimeHandles(const QMimeData *mimeData)
+QList<QString> ProjectModel::decodeMimeHandles(const QMimeData *mimeData)
 {
 
-    QList<QUuid> handles;
-    for (QByteArray handle : mimeData->data(PROJECT_ITEM_MIME).split(';')) {
-        handles << QUuid(QAnyStringView(handle));
+    QList<QString> handles;
+    for (const QByteArray &handle : mimeData->data(PROJECT_ITEM_MIME).split(';')) {
+        handles << QString::fromUtf8(handle);
     }
     return handles;
 }

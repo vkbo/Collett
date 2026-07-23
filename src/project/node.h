@@ -27,7 +27,6 @@
 #include <QJsonObject>
 #include <QList>
 #include <QString>
-#include <QUuid>
 #include <QVariant>
 
 namespace Collett {
@@ -45,7 +44,7 @@ class Node : public QObject
     };
 
 public:
-    Node(Tree *tree, ItemType itemType, QUuid handle, QString name);
+    Node(Tree *tree, ItemType itemType, QString handle, QString name);
     ~Node();
 
     // Methods
@@ -56,7 +55,7 @@ public:
     ItemType itemType() const { return m_type; };
     ItemClass itemClass() const { return m_class; };
     ItemLevel itemLevel() const { return m_level; };
-    QUuid handle() const { return m_handle; };
+    QString handle() const { return m_handle; };
     QString name() const { return m_name; };
     Counts counts() { return m_counts; };
     bool isExpanded() { return m_expanded; };
@@ -94,9 +93,9 @@ public:
     bool canAddFolder();
     bool canAddFile(ItemLevel itemLevel);
 
-    Node *createRoot(QUuid handle, QString name, ItemClass itemClass);
-    Node *createFolder(QUuid handle, QString name);
-    Node *createFile(QUuid handle, QString name, ItemLevel itemLevel);
+    Node *createRoot(QString handle, QString name, ItemClass itemClass);
+    Node *createFolder(QString handle, QString name);
+    Node *createFile(QString handle, QString name, ItemLevel itemLevel);
 
     void updateIcon();
     void updateValues();
@@ -111,7 +110,7 @@ private:
     ItemType m_type;
     ItemClass m_class;
     ItemLevel m_level;
-    QUuid m_handle;
+    QString m_handle;
     QString m_name;
     bool m_active = false;
     Qt::ItemFlags m_flags = Qt::NoItemFlags;

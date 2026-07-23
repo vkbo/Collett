@@ -26,7 +26,6 @@
 #include <QDir>
 #include <QJsonObject>
 #include <QString>
-#include <QUuid>
 
 namespace Collett {
 
@@ -43,8 +42,8 @@ public:
     bool writeProject(const QJsonObject &fileData);
     bool readStructure(QJsonObject &fileData);
     bool writeStructure(const QJsonObject &fileData);
-    bool readDocument(const QUuid &handle, QJsonObject &fileData);
-    bool writeDocument(const QUuid &handle, const QJsonObject &fileData);
+    bool readDocument(const QString &handle, QJsonObject &fileData);
+    bool writeDocument(const QString &handle, const QJsonObject &fileData);
 
     // Getters
     bool isValid() const { return m_isValid; };

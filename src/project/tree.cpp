@@ -23,6 +23,7 @@
 #include "projectmodel.h"
 
 #include <QJsonObject>
+#include <QRandomGenerator>
 #include <QString>
 
 using namespace Qt::Literals::StringLiterals;
@@ -75,11 +76,52 @@ void Tree::addNode(Node *node)
 /**!
  * @brief Remove a node from the nodes map.
  *
- * @param uuid The handle of the node to remove.
+ * @param handle The handle of the node to remove.
  */
-void Tree::removeNode(const QUuid &uuid)
+void Tree::removeNode(const QString &handle)
 {
-    if (m_nodes.contains(uuid)) m_nodes.remove(uuid);
+    if (m_nodes.contains(handle)) m_nodes.remove(handle);
+}
+
+/**!
+ * @brief Generate a new unique node handle.
+ *
+ * The handle is a 13 character lowercase hex string generated from a 52-bit
+ * random number. In the unlikely event that it collides with a handle already
+ * in use, a new one is generated.
+ *
+ * @return QString The new handle.
+ */
+QString Tree::newHandle() const
+{
+    QString handle;
+    do {
+        quint64 value = QRandomGenerator::global()->generate64() & ((Q_UINT64_C(1) << 52) - 1);
+        handle = QString::number(value, 16).rightJustified(13, u'0');
+    } while (m_nodes.contains(handle));
+    return handle;
+}
+
+// Static Methods
+// ==============
+
+/**!
+ * @brief Check if a string is a valid node handle.
+ *
+ * @param value The string to check.
+ * @return bool True if the string is a 13 character lowercase hex string.
+ */
+bool Tree::isHandle(const QString &value)
+{
+    if (value.size() != 13) {
+        return false;
+    }
+    for (const QChar &c : value) {
+        if ((c < u'0' || c > u'9') && (c < u'a' || c > u'f')) {
+            return false;
+        }
+    }
+    return true;
 }
 
 } // namespace Collett

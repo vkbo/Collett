@@ -25,7 +25,6 @@
 
 #include <QDateTime>
 #include <QJsonObject>
-#include <QUuid>
 
 namespace Collett {
 
@@ -143,7 +142,7 @@ bool Project::saveProjectAs(const QString &path)
  * @param handle     The handle of the document to open.
  * @return Document* The document, or nullptr if the project has no storage.
  */
-Document *Project::openDocument(const QUuid &handle)
+Document *Project::openDocument(const QString &handle)
 {
     if (!m_store) {
         return nullptr;
@@ -176,9 +175,9 @@ Document *Project::openDocument(const QUuid &handle)
  * @param handle The handle of the document to save.
  * @return bool  True if the document was saved, or there was nothing to save.
  */
-bool Project::saveDocument(const QUuid &handle)
+bool Project::saveDocument(const QString &handle)
 {
-    if (!m_store || handle.isNull() || !m_documents.contains(handle)) {
+    if (!m_store || handle.isEmpty() || !m_documents.contains(handle)) {
         return false;
     }
 
@@ -197,7 +196,7 @@ bool Project::saveDocument(const QUuid &handle)
 bool Project::saveOpenDocuments()
 {
     bool result = true;
-    for (const QUuid &handle : m_documents.keys()) {
+    for (const QString &handle : m_documents.keys()) {
         result &= this->saveDocument(handle);
     }
     return result;

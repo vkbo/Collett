@@ -28,7 +28,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QString>
-#include <QUuid>
 #include <QVariant>
 
 using namespace Qt::Literals::StringLiterals;
@@ -38,7 +37,7 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Node::Node(Tree *tree, ItemType itemType, QUuid handle, QString name) : m_type(itemType), m_handle(handle), m_name(name), m_tree(tree)
+Node::Node(Tree *tree, ItemType itemType, QString handle, QString name) : m_type(itemType), m_handle(handle), m_name(name), m_tree(tree)
 {
     m_class = ItemClass::NovelClass;
     m_level = ItemLevel::PageLevel;
@@ -173,7 +172,7 @@ void Node::pack(QJsonObject &data)
             data["u:active"_L1] = m_active;
         }
         data["u:name"_L1] = m_name;
-        data["m:handle"_L1] = m_handle.toString(QUuid::WithoutBraces);
+        data["m:handle"_L1] = m_handle;
         data["m:order"_L1] = row();
         data["m:characters"_L1] = m_counts.characters;
         data["m:words"_L1] = m_counts.words;
@@ -197,7 +196,7 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
     bool error = false;
 
     QString name = "";
-    QUuid handle = QUuid();
+    QString handle = "";
     ItemType itemType = ItemType::FileType;
     ItemClass itemClass = ItemClass::NovelClass;
     ItemLevel itemLevel = ItemLevel::PageLevel;
@@ -215,9 +214,9 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
 
     // Handle (Required)
     if (data.contains("m:handle"_L1)) {
-        handle = QUuid(data["m:handle"_L1].toString());
+        handle = data["m:handle"_L1].toString();
     }
-    if (handle.isNull()) {
+    if (!Tree::isHandle(handle)) {
         qWarning() << "Received a project node with invalid handle";
         error &= true;
         errors++;
@@ -280,9 +279,9 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
     }
 
     if (node) {
-        qDebug() << "Added node with handle" << handle.toString(QUuid::WithoutBraces);
+        qDebug() << "Added node with handle" << handle;
     } else {
-        qWarning() << "Failed to add node with handle" << handle.toString(QUuid::WithoutBraces);
+        qWarning() << "Failed to add node with handle" << handle;
         skipped++;
         return;
     }
@@ -442,21 +441,21 @@ bool Node::canAddFile(ItemLevel itemLevel)
     return false;
 }
 
-Node *Node::createRoot(QUuid handle, QString name, ItemClass itemClass)
+Node *Node::createRoot(QString handle, QString name, ItemClass itemClass)
 {
     Node *node = new Node(m_tree, ItemType::RootType, handle, name);
     node->m_class = itemClass;
     return node;
 }
 
-Node *Node::createFolder(QUuid handle, QString name)
+Node *Node::createFolder(QString handle, QString name)
 {
     Node *node = new Node(m_tree, ItemType::FolderType, handle, name);
     node->m_class = m_class;
     return node;
 }
 
-Node *Node::createFile(QUuid handle, QString name, ItemLevel itemLevel)
+Node *Node::createFile(QString handle, QString name, ItemLevel itemLevel)
 {
     Node *node = new Node(m_tree, ItemType::FileType, handle, name);
     node->m_class = m_class;

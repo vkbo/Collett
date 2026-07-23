@@ -101,19 +101,19 @@ bool Storage::writeStructure(const QJsonObject &fileData)
     return false;
 }
 
-bool Storage::readDocument(const QUuid &handle, QJsonObject &fileData)
+bool Storage::readDocument(const QString &handle, QJsonObject &fileData)
 {
     if (m_isValid) {
-        QString file = handle.toString(QUuid::WithoutBraces) + ".json";
+        QString file = handle + ".json";
         return this->readJson(m_contentDir.filePath(file), fileData, false);
     }
     return false;
 }
 
-bool Storage::writeDocument(const QUuid &handle, const QJsonObject &fileData)
+bool Storage::writeDocument(const QString &handle, const QJsonObject &fileData)
 {
     if (m_isValid) {
-        QString file = handle.toString(QUuid::WithoutBraces) + ".json";
+        QString file = handle + ".json";
         return this->writeJson(m_contentDir.filePath(file), fileData);
     }
     return false;

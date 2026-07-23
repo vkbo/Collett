@@ -28,7 +28,7 @@
 #include <QHash>
 #include <QJsonObject>
 #include <QPointer>
-#include <QUuid>
+#include <QString>
 
 namespace Collett {
 
@@ -42,7 +42,7 @@ public:
 
     // Getters
     ProjectModel *model() { return m_model; };
-    Node *node(const QUuid &uuid) { return m_nodes.value(uuid).data(); };
+    Node *node(const QString &handle) { return m_nodes.value(handle).data(); };
 
     // Methods
     void pack(QJsonObject &data);
@@ -50,10 +50,14 @@ public:
 
     // Data Methods
     void addNode(Node *node);
-    void removeNode(const QUuid &uuid);
+    void removeNode(const QString &handle);
+    QString newHandle() const;
+
+    // Static Methods
+    static bool isHandle(const QString &value);
 
 private:
     ProjectModel *m_model;
-    QHash<QUuid, QPointer<Node>> m_nodes;
+    QHash<QString, QPointer<Node>> m_nodes;
 };
 } // namespace Collett
