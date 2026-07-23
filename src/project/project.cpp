@@ -155,6 +155,7 @@ Document *Project::openDocument(const QString &handle)
 
     this->saveDocument(m_currentDocHandle);
     m_currentDocHandle = handle;
+    if (m_data) m_data->setLastEditedHandle(handle);
 
     if (m_documents.contains(handle)) {
         return m_documents.value(handle);

@@ -65,6 +65,7 @@ private:
     // Methods
     void adjustHeaders();
     void restoreExpandedState();
+    void openLastEdited();
 
 public slots:
     void createFile(const ItemLevel itemLevel);

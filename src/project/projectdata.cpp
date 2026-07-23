@@ -60,6 +60,9 @@ void ProjectData::pack(QJsonObject &data)
     // Project Settings
     jProject["u:name"_L1] = m_projectName;
 
+    // Editor Settings
+    jSettings["m:lastEdited"_L1] = m_lastEditedHandle;
+
     // Root Object
     data["c:format"_L1] = "CollettProjectData";
     data["c:meta"_L1] = jMeta;
@@ -79,6 +82,9 @@ void ProjectData::unpack(const QJsonObject &data)
 
     // Project Settings
     m_projectName = JsonUtils::getJsonString(jProject, "u:name"_L1, tr("Unnamed Project"));
+
+    // Editor Settings
+    m_lastEditedHandle = JsonUtils::getJsonString(jSettings, "m:lastEdited"_L1, "");
 }
 
 } // namespace Collett

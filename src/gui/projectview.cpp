@@ -98,6 +98,7 @@ void GuiProjectView::openProjectTasks()
             this->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &GuiProjectView::onCurrentChanged
         );
+        this->openLastEdited();
     }
 }
 
@@ -154,6 +155,29 @@ void GuiProjectView::restoreExpandedState()
             this->setExpanded(index, true);
         }
         this->blockSignals(false);
+    }
+}
+
+/**!
+ * @brief Select and open the document that was open when the project was
+ * last saved, if any, restoring it via the normal current-changed signal
+ * chain used for regular node activation.
+ */
+void GuiProjectView::openLastEdited()
+{
+    if (!m_data->hasProject()) {
+        return;
+    }
+    QString handle = m_data->project()->data()->lastEditedHandle();
+    if (handle.isEmpty()) {
+        return;
+    }
+    ProjectModel *model = this->getModel();
+    if (model) {
+        QModelIndex index = model->indexFromHandle(handle);
+        if (index.isValid()) {
+            this->setCurrentIndex(index);
+        }
     }
 }
 

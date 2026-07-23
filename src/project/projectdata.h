@@ -42,9 +42,14 @@ public:
 
     // Getters
     QString name() const { return m_projectName; };
+    QString lastEditedHandle() const { return m_lastEditedHandle; };
+
+    // Setters
+    void setLastEditedHandle(const QString &handle) { m_lastEditedHandle = handle; };
 
 private:
     QString m_createdTime = "";
     QString m_projectName = "";
+    QString m_lastEditedHandle = "";
 };
 } // namespace Collett

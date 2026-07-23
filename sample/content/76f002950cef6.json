@@ -1,0 +1,13 @@
+{
+    "c:format": "CollettDocument",
+    "c:meta": {
+        "m:created": "2026-07-23T03:38:44",
+        "m:updated": "2026-07-23T03:39:09"
+    },
+    "x:content": [
+        {
+            "u:fmt": "p:al",
+            "u:txt": "t|This is a scene."
+        }
+    ]
+}
