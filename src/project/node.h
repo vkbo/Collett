@@ -89,10 +89,6 @@ public:
     void addChild(Node *child, qsizetype pos = -1);
     Node *takeChild(qsizetype pos);
 
-    bool canAddRoot();
-    bool canAddFolder();
-    bool canAddFile(ItemLevel itemLevel);
-
     Node *createRoot(QString handle, QString name, ItemClass itemClass);
     Node *createFolder(QString handle, QString name);
     Node *createFile(QString handle, QString name, ItemLevel itemLevel);

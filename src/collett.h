@@ -56,7 +56,7 @@ enum ItemClass
 enum ItemLevel
 {
     // The int order here matters and must not be changed
-    // See: ProjectModel::suggestParent()
+    // See: ProjectModel::addFile()
     PageLevel = 0,
     TitleLevel = 1,
     ChapterLevel = 2,

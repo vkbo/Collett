@@ -63,7 +63,7 @@ void Node::setActive(bool state)
 {
     Theme *theme = Theme::instance();
     if (m_type == ItemType::InvisibleRoot) {
-        m_icon = QIcon();
+        m_activeIcon = QIcon();
     } else {
         m_active = state;
         if (m_type == ItemType::FileType) {
@@ -218,14 +218,14 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
     }
     if (!Tree::isHandle(handle)) {
         qWarning() << "Received a project node with invalid handle";
-        error &= true;
+        error = true;
         errors++;
     }
 
     // Item Type (Required)
     if (!Node::typeFromString(JsonUtils::getJsonString(data, "m:type"_L1, "Error"), itemType)) {
         qWarning() << "Received a project node with invalid type";
-        error &= true;
+        error = true;
         errors++;
     }
 
@@ -392,53 +392,6 @@ Node *Node::takeChild(qsizetype pos)
         return child;
     }
     return nullptr;
-}
-
-bool Node::canAddRoot()
-{
-    if (m_type == ItemType::InvisibleRoot) {
-        return true;
-    } else {
-        qWarning() << "Root nodes can only be added to invisible root";
-        return false;
-    }
-}
-
-bool Node::canAddFolder()
-{
-    if (m_type != ItemType::InvisibleRoot) {
-        return true;
-    } else {
-        qWarning() << "Folder nodes cannot be added to invisible root";
-        return false;
-    }
-}
-
-bool Node::canAddFile(ItemLevel itemLevel)
-{
-    if (m_type == ItemType::InvisibleRoot) {
-        qWarning() << "File nodes cannot be added to invisible root";
-        return false;
-    }
-
-    switch (m_class) {
-    case ItemClass::NovelClass:
-    case ItemClass::ArchiveClass:
-        return itemLevel != ItemLevel::NoteLevel;
-
-    case ItemClass::CharacterClass:
-    case ItemClass::PlotClass:
-    case ItemClass::LocationClass:
-    case ItemClass::ObjectClass:
-    case ItemClass::EntityClass:
-    case ItemClass::CustomClass:
-        return itemLevel == ItemLevel::NoteLevel;
-
-    case ItemClass::TrashClass:
-        return false;
-    }
-
-    return false;
 }
 
 Node *Node::createRoot(QString handle, QString name, ItemClass itemClass)

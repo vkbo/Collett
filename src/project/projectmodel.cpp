@@ -108,6 +108,9 @@ void ProjectModel::unpack(const QJsonObject &data)
     } else {
         qWarning() << "No root nodes in project";
     }
+    if (skipped > 0 || errors > 0) {
+        qWarning() << "Project tree loaded with" << skipped << "node(s) skipped and" << errors << "error(s)";
+    }
 }
 
 // Model Access
