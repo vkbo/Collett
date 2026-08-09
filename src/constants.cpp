@@ -1,5 +1,5 @@
 /*
-** Collett – Collett Constants
+** Collett - Collett Constants
 ** ===========================
 **
 ** This file is a part of Collett
@@ -26,7 +26,8 @@
 
 namespace Collett {
 
-QString itemClassNames(ItemClass itemClass) {
+QString itemClassNames(ItemClass itemClass)
+{
 
     static const char *values[] = {
         QT_TRANSLATE_NOOP("ItemClass", "Novel"),
@@ -39,10 +40,11 @@ QString itemClassNames(ItemClass itemClass) {
         QT_TRANSLATE_NOOP("ItemClass", "Archive"),
         QT_TRANSLATE_NOOP("ItemClass", "Trash"),
     };
-    return QCoreApplication:: translate("ItemClass", values[itemClass]);
+    return QCoreApplication::translate("ItemClass", values[itemClass]);
 }
 
-QString itemLevelNames(ItemLevel itemLevel) {
+QString itemLevelNames(ItemLevel itemLevel)
+{
 
     static const char *values[] = {
         QT_TRANSLATE_NOOP("ItemLevel", "Novel Document"),
@@ -51,7 +53,7 @@ QString itemLevelNames(ItemLevel itemLevel) {
         QT_TRANSLATE_NOOP("ItemLevel", "Novel Scene"),
         QT_TRANSLATE_NOOP("ItemLevel", "Project Note"),
     };
-    return QCoreApplication:: translate("ItemLevel", values[itemLevel]);
+    return QCoreApplication::translate("ItemLevel", values[itemLevel]);
 }
 
 } // namespace Collett

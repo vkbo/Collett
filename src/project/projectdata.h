@@ -1,5 +1,5 @@
 /*
-** Collett – Project Data Class
+** Collett - Project Data Class
 ** ============================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_DATA_H
-#define COLLETT_PROJECT_DATA_H
+#pragma once
 
 #include "collett.h"
 
@@ -42,13 +41,15 @@ public:
     void unpack(const QJsonObject &data);
 
     // Getters
-    QString name() const {return m_projectName;};
+    QString name() const { return m_projectName; };
+    QString lastEditedHandle() const { return m_lastEditedHandle; };
+
+    // Setters
+    void setLastEditedHandle(const QString &handle) { m_lastEditedHandle = handle; };
 
 private:
     QString m_createdTime = "";
     QString m_projectName = "";
-
+    QString m_lastEditedHandle = "";
 };
 } // namespace Collett
-
-#endif // COLLETT_PROJECT_DATA_H

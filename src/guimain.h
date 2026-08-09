@@ -1,5 +1,5 @@
 /*
-** Collett – Main GUI Class
+** Collett - Main GUI Class
 ** ========================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_MAIN_H
-#define GUI_MAIN_H
+#pragma once
 
 #include "collett.h"
 #include "data.h"
@@ -41,7 +40,7 @@ class GuiMain : public QMainWindow
     Q_OBJECT
 
 public:
-    GuiMain(QWidget *parent=nullptr);
+    GuiMain(QWidget *parent = nullptr);
     ~GuiMain();
 
     // Methods
@@ -52,31 +51,29 @@ public:
 
     // Components
     GuiProjectPanel *projectPanel;
-    GuiWorkPanel    *workPanel;
-    
+    GuiWorkPanel *workPanel;
+
     // ToolBars
     GuiProjectToolBar *projectToolBar;
 
 private:
     // Singletons
     SharedData *m_data;
-    Settings   *m_settings;
-    Theme      *m_theme;
+    Settings *m_settings;
+    Theme *m_theme;
 
     // Layout
     QSplitter *m_splitMain;
 
     // Events
-    void closeEvent(QCloseEvent*);
+    void closeEvent(QCloseEvent *);
 
 private slots:
 
     void onProjectOpen();
-    void onProjectSave() {saveProject();};
-    void onProjectClose() {closeProject();};
+    void onProjectSave() { saveProject(); };
+    void onProjectClose() { closeProject(); };
+    void onNodeActivated(Node *node);
     void updateTitle();
-
 };
 } // namespace Collett
-
-#endif // GUI_MAIN_H

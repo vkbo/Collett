@@ -1,6 +1,6 @@
 /*
-** Collett - GUI Project Panel Class
-** =================================
+** Collett - Document Class
+** ========================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -22,42 +22,26 @@
 #pragma once
 
 #include "collett.h"
-#include "projectview.h"
 
-#include <QTreeView>
-#include <QWidget>
-#include <QVBoxLayout>
+#include <QJsonObject>
+#include <QObject>
+#include <QTextDocument>
 
 namespace Collett {
 
-class GuiProjectPanel : public QWidget
+class Document : public QTextDocument
 {
     Q_OBJECT
 
 public:
-    explicit GuiProjectPanel(QWidget *parent = nullptr);
-    ~GuiProjectPanel();
+    explicit Document(QObject *parent = nullptr);
+    ~Document();
 
     // Methods
-    void openProjectTasks();
-    void closeProjectTasks();
+    void pack(QJsonObject &data);
+    void unpack(const QJsonObject &data);
 
-    GuiProjectView *projectView = nullptr;
-
-public slots:
-    void createFile(const ItemLevel itemLevel)
-    {
-        if (projectView) projectView->createFile(itemLevel);
-    };
-
-    void createFolder()
-    {
-        if (projectView) projectView->createFolder();
-    };
-
-    void createRoot(const ItemClass itemClass)
-    {
-        if (projectView) projectView->createRoot(itemClass);
-    };
+private:
+    QString m_createdTime = "";
 };
 } // namespace Collett

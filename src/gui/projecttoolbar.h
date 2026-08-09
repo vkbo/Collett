@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Project ToolBar
+** Collett - GUI Project ToolBar
 ** =============================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_GUI_PROJECT_TOOLBAR_H
-#define COLLETT_GUI_PROJECT_TOOLBAR_H
+#pragma once
 
 #include "collett.h"
 #include "theme.h"
@@ -52,15 +51,15 @@ private:
 
     // Project
     QToolButton *btnProject;
-    QMenu       *mnuProject;
-    QAction     *actOpenProject;
-    QAction     *actSaveProject;
-    QAction     *actCloseProject;
+    QMenu *mnuProject;
+    QAction *actOpenProject;
+    QAction *actSaveProject;
+    QAction *actCloseProject;
 
     // Create New
     QToolButton *btnCreate;
-    QMenu       *mnuCreate;
-    QMenu       *mnuCreateRoot;
+    QMenu *mnuCreate;
+    QMenu *mnuCreateRoot;
 
     // Helpers
     void addFileEntry(ItemLevel itemLevel);
@@ -69,5 +68,3 @@ private:
     friend class GuiMain;
 };
 } // namespace Collett
-
-#endif // COLLETT_GUI_PROJECT_TOOLBAR_H

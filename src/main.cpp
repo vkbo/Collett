@@ -1,5 +1,5 @@
 /*
-** Collett – Main Function
+** Collett - Main Function
 ** =======================
 **
 ** This file is a part of Collett
@@ -41,10 +41,12 @@
  * @param context the message context.
  * @param msg     the message text.
  */
-void collettLogHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+void collettLogHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
 
 #ifndef DEBUG
-    if (type == QtDebugMsg) return;
+    if (type == QtDebugMsg)
+        return;
 #endif
 
     QString time = QDateTime::currentDateTime().toString(Qt::ISODateWithMs);
@@ -52,11 +54,21 @@ void collettLogHandler(QtMsgType type, const QMessageLogContext &context, const 
 
     std::cout << "[" << time.toStdString() << "] ";
     switch (type) {
-        case QtDebugMsg:    std::cout << "DEBUG     "; break;
-        case QtInfoMsg:     std::cout << "INFO      "; break;
-        case QtWarningMsg:  std::cout << "WARNING   "; break;
-        case QtCriticalMsg: std::cout << "CRITICAL  "; break;
-        case QtFatalMsg:    std::cout << "FATAL     "; break;
+    case QtDebugMsg:
+        std::cout << "DEBUG     ";
+        break;
+    case QtInfoMsg:
+        std::cout << "INFO      ";
+        break;
+    case QtWarningMsg:
+        std::cout << "WARNING   ";
+        break;
+    case QtCriticalMsg:
+        std::cout << "CRITICAL  ";
+        break;
+    case QtFatalMsg:
+        std::cout << "FATAL     ";
+        break;
     }
     std::cout << msg.toStdString();
 #ifdef DEBUG
@@ -65,7 +77,8 @@ void collettLogHandler(QtMsgType type, const QMessageLogContext &context, const 
     std::cout << std::endl;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
     qInstallMessageHandler(collettLogHandler);
     QApplication app(argc, argv);
@@ -82,8 +95,7 @@ int main(int argc, char *argv[]) {
     QCommandLineOption openPath(
         QStringList() << "o" << "open",
         QCoreApplication::translate("main", "Open the <path> project on launch."),
-        QCoreApplication::translate("main", "path")
-    );
+        QCoreApplication::translate("main", "path"));
     parser.addOption(openPath);
     parser.process(app);
 
@@ -95,8 +107,9 @@ int main(int argc, char *argv[]) {
 
     // Styles
     QFile styles(":/styles/styles.qss");
-    styles.open(QFile::ReadOnly);
-    app.setStyleSheet(QLatin1String(styles.readAll()));
+    if (styles.open(QFile::ReadOnly)) {
+        app.setStyleSheet(QLatin1String(styles.readAll()));
+    }
 
     return app.exec();
 }

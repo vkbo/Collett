@@ -1,5 +1,5 @@
 /*
-** Collett – Collett Constants
+** Collett - Collett Constants
 ** ===========================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_CONSTANTS_H
-#define COLLETT_CONSTANTS_H
+#pragma once
 
 #include "collett.h"
 
@@ -32,5 +31,3 @@ QString itemClassNames(ItemClass itemClass);
 QString itemLevelNames(ItemLevel itemLevel);
 
 } // namespace Collett
-
-#endif // COLLETT_CONSTANTS_H

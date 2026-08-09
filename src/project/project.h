@@ -1,5 +1,5 @@
 /*
-** Collett – Project Class
+** Collett - Project Class
 ** =======================
 **
 ** This file is a part of Collett
@@ -19,15 +19,17 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_H
-#define COLLETT_PROJECT_H
+#pragma once
 
 #include "collett.h"
+#include "document.h"
 #include "projectdata.h"
 #include "storage.h"
 #include "tree.h"
 
+#include <QHash>
 #include <QJsonObject>
+#include <QTimer>
 
 namespace Collett {
 
@@ -44,25 +46,35 @@ public:
     bool saveProject();
     bool saveProjectAs(const QString &path);
 
+    // Document Methods
+    Document *openDocument(const QString &handle);
+    bool saveDocument(const QString &handle);
+    bool saveOpenDocuments();
+
     // Getters
-    bool isValid() const {return m_isValid;};
-    Storage *store() {return m_store;};
-    ProjectData *data() {return m_data;};
-    Tree *tree() {return m_tree;};
+    bool isValid() const { return m_isValid; };
+    Storage *store() { return m_store; };
+    ProjectData *data() { return m_data; };
+    Tree *tree() { return m_tree; };
 
     // Error Handling
-    bool hasError() const {return !m_lastError.isEmpty();};
-    QString lastError() const {return m_lastError;};
+    bool hasError() const { return !m_lastError.isEmpty(); };
+    QString lastError() const { return m_lastError; };
 
 private:
-    bool     m_isValid = false;
-    QString  m_lastError = "";
+    bool m_isValid = false;
+    QString m_lastError = "";
 
-    Storage     *m_store = nullptr;
+    Storage *m_store = nullptr;
     ProjectData *m_data = nullptr;
-    Tree        *m_tree = nullptr;
+    Tree *m_tree = nullptr;
 
+    // Document Cache
+    QHash<QString, Document *> m_documents;
+    QString m_currentDocHandle;
+    QTimer *m_autoSaveTimer = nullptr;
+
+private slots:
+    void onAutoSave();
 };
 } // namespace Collett
-
-#endif // COLLETT_PROJECT_H

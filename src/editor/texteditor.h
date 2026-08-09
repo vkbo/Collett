@@ -1,6 +1,6 @@
 /*
-** Collett - GUI Project Panel Class
-** =================================
+** Collett - GUI Text Editor Class
+** ===============================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -22,42 +22,43 @@
 #pragma once
 
 #include "collett.h"
-#include "projectview.h"
+#include "document.h"
 
-#include <QTreeView>
-#include <QWidget>
-#include <QVBoxLayout>
+#include <QKeyEvent>
+#include <QTextCharFormat>
+#include <QTextEdit>
 
 namespace Collett {
 
-class GuiProjectPanel : public QWidget
+class GuiTextEditor : public QTextEdit
 {
     Q_OBJECT
 
 public:
-    explicit GuiProjectPanel(QWidget *parent = nullptr);
-    ~GuiProjectPanel();
+    explicit GuiTextEditor(QWidget *parent = nullptr);
+    ~GuiTextEditor();
 
     // Methods
-    void openProjectTasks();
-    void closeProjectTasks();
+    void openDocument(Document *doc);
 
-    GuiProjectView *projectView = nullptr;
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
 public slots:
-    void createFile(const ItemLevel itemLevel)
-    {
-        if (projectView) projectView->createFile(itemLevel);
-    };
+    void toggleBold(bool bold);
+    void toggleItalic(bool italic);
+    void toggleUnderline(bool underline);
+    void toggleStrikeOut(bool strikeOut);
+    void toggleSuperscript(bool superscript);
+    void toggleSubscript(bool subscript);
+    void alignLeft();
+    void alignCenter();
+    void alignRight();
+    void alignJustify();
+    void blockIndent();
+    void blockOutdent();
 
-    void createFolder()
-    {
-        if (projectView) projectView->createFolder();
-    };
-
-    void createRoot(const ItemClass itemClass)
-    {
-        if (projectView) projectView->createRoot(itemClass);
-    };
+private:
+    void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
 };
 } // namespace Collett

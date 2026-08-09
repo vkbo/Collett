@@ -1,5 +1,5 @@
 /*
-** Collett – Edit Item Dialog
+** Collett - Edit Item Dialog
 ** ==========================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_EDIT_ITEM_H
-#define COLLETT_EDIT_ITEM_H
+#pragma once
 
 #include "collett.h"
 
@@ -43,8 +42,5 @@ public:
 
 private:
     QLineEdit *m_titleValue;
-
 };
 } // namespace Collett
-
-#endif // COLLETT_EDIT_ITEM_H

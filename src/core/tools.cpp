@@ -1,5 +1,5 @@
 /*
-** Collett – Core Tools
+** Collett - Core Tools
 ** ====================
 **
 ** This file is a part of Collett
@@ -31,8 +31,8 @@
 
 namespace Collett {
 
-
-QString JsonUtils::getJsonString(const QJsonObject &object, const QLatin1String &key, QString def) {
+QString JsonUtils::getJsonString(const QJsonObject &object, const QLatin1String &key, QString def)
+{
     if (object.contains(key)) {
         return object.value(key).toString();
     } else {
@@ -40,7 +40,8 @@ QString JsonUtils::getJsonString(const QJsonObject &object, const QLatin1String 
     }
 }
 
-JsonUtilsError JsonUtils::readJson(const QString &filePath, QJsonObject &fileData, bool required) {
+JsonUtilsError JsonUtils::readJson(const QString &filePath, QJsonObject &fileData, bool required)
+{
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -73,7 +74,8 @@ JsonUtilsError JsonUtils::readJson(const QString &filePath, QJsonObject &fileDat
     return JsonUtilsError::NoError;
 }
 
-JsonUtilsError JsonUtils::writeJson(const QString &filePath, const QJsonObject &fileData, bool compact) {
+JsonUtilsError JsonUtils::writeJson(const QString &filePath, const QJsonObject &fileData, bool compact)
+{
 
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly)) {

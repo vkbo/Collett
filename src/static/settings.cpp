@@ -1,5 +1,5 @@
 /*
-** Collett – Main Settings Class
+** Collett - Main Settings Class
 ** =============================
 **
 ** This file is a part of Collett
@@ -48,7 +48,8 @@ namespace Collett {
 // Converter Functions
 // ===================
 
-QList<int> variantListToInt(const QVariantList &list) {
+QList<int> variantListToInt(const QVariantList &list)
+{
     QList<int> result;
     for (const QVariant &val : list) {
         result.append(val.toInt());
@@ -56,7 +57,8 @@ QList<int> variantListToInt(const QVariantList &list) {
     return result;
 }
 
-QVariantList intListToVariant(const QList<int> &list) {
+QVariantList intListToVariant(const QList<int> &list)
+{
     QVariantList result;
     for (const int &val : list) {
         result.append(val);
@@ -68,7 +70,8 @@ QVariantList intListToVariant(const QList<int> &list) {
 // ===============================
 
 Settings *Settings::staticInstance = nullptr;
-Settings *Settings::instance() {
+Settings *Settings::instance()
+{
     if (staticInstance == nullptr) {
         staticInstance = new Settings();
         qDebug() << "Constructor: Settings";
@@ -76,14 +79,17 @@ Settings *Settings::instance() {
     return staticInstance;
 }
 
-void Settings::destroy() {
+void Settings::destroy()
+{
     if (staticInstance != nullptr) {
         qDebug() << "Destructor: Static Settings";
         delete Settings::staticInstance;
+        Settings::staticInstance = nullptr;
     }
 }
 
-Settings::Settings(QObject *parent) : QObject(parent) {
+Settings::Settings(QObject *parent) : QObject(parent)
+{
 
     // Load Settings
     QSettings settings;
@@ -94,7 +100,7 @@ Settings::Settings(QObject *parent) : QObject(parent) {
     m_mainWindowSize = settings.value(CNF_MAIN_WINDOW_SIZE, QSize(1200, 800)).toSize();
     m_mainSplitSizes = variantListToInt(settings.value(CNF_MAIN_SPLIT_SIZES, QVariantList() << 300 << 700).toList());
     m_guiTheme = settings.value(CNF_MAIN_GUI_THEME, "default_light").toString();
-    m_iconSet = settings.value(CNF_MAIN_ICON_SET, "remix_outline").toString();
+    m_iconSet = settings.value(CNF_MAIN_ICON_SET, "lucide").toString();
 
     // Check Values
     if (m_mainWindowSize.width() < 400) m_mainWindowSize.setWidth(400);
@@ -113,14 +119,16 @@ Settings::Settings(QObject *parent) : QObject(parent) {
     recalculateTextFormats();
 }
 
-Settings::~Settings() {
+Settings::~Settings()
+{
     qDebug() << "Destructor: Settings";
 }
 
 // Public Methods
 // ==============
 
-void Settings::flushSettings() {
+void Settings::flushSettings()
+{
 
     QSettings settings;
 
@@ -139,19 +147,22 @@ void Settings::flushSettings() {
     return;
 }
 
-QDir Settings::assetPath(QString asset) {
+QDir Settings::assetPath(QString asset)
+{
     return QDir(QCoreApplication::applicationDirPath() + "/assets/" + asset);
 }
 
 // Setters
 // =======
 
-void Settings::setTextFontSize(const qreal size) {
+void Settings::setTextFontSize(const qreal size)
+{
     m_textFontSize = size;
     recalculateTextFormats();
 }
 
-void Settings::setTextTabWidth(const qreal width) {
+void Settings::setTextTabWidth(const qreal width)
+{
     m_textTabWidth = width;
     recalculateTextFormats();
 }
@@ -159,11 +170,12 @@ void Settings::setTextTabWidth(const qreal width) {
 // Internal Functions
 // ==================
 
-void Settings::recalculateTextFormats() {
+void Settings::recalculateTextFormats()
+{
 
     // Text Formats
 
-    QTextCharFormat  defaultCharFmt;
+    QTextCharFormat defaultCharFmt;
     QTextBlockFormat defaultBlockFmt;
 
     // Default Values
@@ -172,10 +184,10 @@ void Settings::recalculateTextFormats() {
     qreal defaultTopMargin = 0.5 * m_textFontSize;
     qreal defaultBottomMargin = 0.5 * m_textFontSize;
 
-    qreal header1FontSize = 2.0*m_textFontSize;
-    qreal header2FontSize = 1.7*m_textFontSize;
-    qreal header3FontSize = 1.4*m_textFontSize;
-    qreal header4FontSize = 1.2*m_textFontSize;
+    qreal header1FontSize = 2.0 * m_textFontSize;
+    qreal header2FontSize = 1.7 * m_textFontSize;
+    qreal header3FontSize = 1.4 * m_textFontSize;
+    qreal header4FontSize = 1.2 * m_textFontSize;
 
     qreal headerBottomMargin = 0.7 * m_textFontSize;
 

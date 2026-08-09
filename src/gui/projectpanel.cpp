@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Project Panel Class
+** Collett - GUI Project Panel Class
 ** =================================
 **
 ** This file is a part of Collett
@@ -30,7 +30,8 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-GuiProjectPanel::GuiProjectPanel(QWidget *parent) : QWidget(parent) {
+GuiProjectPanel::GuiProjectPanel(QWidget *parent) : QWidget(parent)
+{
 
     // Components
     projectView = new GuiProjectView(this);
@@ -42,18 +43,21 @@ GuiProjectPanel::GuiProjectPanel(QWidget *parent) : QWidget(parent) {
     this->setLayout(outerBox);
 }
 
-GuiProjectPanel::~GuiProjectPanel() {
+GuiProjectPanel::~GuiProjectPanel()
+{
     qDebug() << "Destructor: GuiProjectPanel";
 }
 
 // Public Methods
 // ==============
 
-void GuiProjectPanel::openProjectTasks() {
+void GuiProjectPanel::openProjectTasks()
+{
     if (projectView) projectView->openProjectTasks();
 }
 
-void GuiProjectPanel::closeProjectTasks() {
+void GuiProjectPanel::closeProjectTasks()
+{
     if (projectView) projectView->closeProjectTasks();
 }
 

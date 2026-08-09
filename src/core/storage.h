@@ -1,5 +1,5 @@
 /*
-** Collett – Core Storage Class
+** Collett - Core Storage Class
 ** ============================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_STORAGE_H
-#define COLLETT_STORAGE_H
+#pragma once
 
 #include "collett.h"
 
@@ -35,7 +34,7 @@ class Storage : public QObject
     Q_OBJECT
 
 public:
-    explicit Storage(const QString &path, bool compact=false);
+    explicit Storage(const QString &path, bool compact = false, QObject *parent = nullptr);
     ~Storage();
 
     // Methods
@@ -43,14 +42,17 @@ public:
     bool writeProject(const QJsonObject &fileData);
     bool readStructure(QJsonObject &fileData);
     bool writeStructure(const QJsonObject &fileData);
+    bool readDocument(const QString &handle, QJsonObject &fileData);
+    bool writeDocument(const QString &handle, const QJsonObject &fileData);
 
     // Getters
-    bool isValid() const {return m_isValid;};
+    bool isValid() const { return m_isValid; };
+    bool isNewProject() const { return m_isNewProject; };
     QString projectPath() const;
 
     // Error Handling
-    bool hasError() const {return !m_lastError.isEmpty();};
-    QString lastError() const {return m_lastError;};
+    bool hasError() const { return !m_lastError.isEmpty(); };
+    QString lastError() const { return m_lastError; };
 
 private:
     bool readJson(const QString &filePath, QJsonObject &fileData, bool required);
@@ -63,9 +65,7 @@ private:
     bool m_compactJson;
 
     bool m_isValid = false;
+    bool m_isNewProject = false;
     QString m_lastError = "";
-
 };
 } // namespace Collett
-
-#endif // COLLETT_STORAGE_H

@@ -1,5 +1,5 @@
 /*
-** Collett – Icons Class
+** Collett - Icons Class
 ** =====================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_ICONS_H
-#define COLLETT_ICONS_H
+#pragma once
 
 #include "collett.h"
 #include "settings.h"
@@ -44,14 +43,14 @@ public:
 
     // Getters
     QIcon getIcon(QString name, ThemeColor color, QSize size);
-    QIcon getIcon(QString name, ThemeColor color) {return getIcon(name, color, QSize(24, 24));};
+    QIcon getIcon(QString name, ThemeColor color) { return getIcon(name, color, QSize(24, 24)); };
     QIcon getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel, QSize size);
 
     // Methods
     bool loadIcons(QString icons);
 
 private:
-    Theme    *m_theme;
+    Theme *m_theme;
     Settings *m_settings;
 
     // Meta
@@ -61,11 +60,9 @@ private:
 
     // Storage
     QMap<QString, QByteArray> m_svg;
-    QMap<QString, QIcon>      m_icons;
+    QMap<QString, QIcon> m_icons;
 
     // Functions
     QIcon generateIcon(QString name, ThemeColor color, QSize size);
 };
 } // namespace Collett
-
-#endif // COLLETT_ICONS_H

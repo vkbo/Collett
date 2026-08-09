@@ -1,5 +1,5 @@
 /*
-** Collett – Shared Data Class
+** Collett - Shared Data Class
 ** ===========================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_SHARED_DATA_H
-#define COLLETT_SHARED_DATA_H
+#pragma once
 
 #include "collett.h"
 #include "project.h"
@@ -35,6 +34,7 @@ class SharedData : public QObject
 
 public:
     static SharedData *instance();
+    static void destroy();
 
     SharedData(QObject *parent = nullptr);
     ~SharedData();
@@ -55,8 +55,5 @@ signals:
 private:
     static SharedData *staticInstance;
     QScopedPointer<Project> m_project;
-
 };
 } // namespace Collett
-
-#endif // COLLETT_SHARED_DATA_H

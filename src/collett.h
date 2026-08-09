@@ -1,5 +1,5 @@
 /*
-** Collett – Collett Main Header
+** Collett - Collett Main Header
 ** =============================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_H
-#define COLLETT_H
+#pragma once
 
 #define COL_VERSION_STR "0.0.1-alpha1"
 #define COL_VERSION_NUM 0x000001a1
@@ -35,56 +34,63 @@ namespace Collett {
 
 // Item Enums
 // Used for distinguishing between the roles of a project node.
-enum ItemType {
+enum ItemType
+{
     InvisibleRoot,
     RootType,
     FolderType,
     FileType,
 };
-enum ItemClass {
-    NovelClass     = 0,
+enum ItemClass
+{
+    NovelClass = 0,
     CharacterClass = 1,
-    PlotClass      = 2,
-    LocationClass  = 3,
-    ObjectClass    = 4,
-    EntityClass    = 5,
-    CustomClass    = 6,
-    ArchiveClass   = 7,
-    TrashClass     = 8,
+    PlotClass = 2,
+    LocationClass = 3,
+    ObjectClass = 4,
+    EntityClass = 5,
+    CustomClass = 6,
+    ArchiveClass = 7,
+    TrashClass = 8,
 };
-enum ItemLevel {
+enum ItemLevel
+{
     // The int order here matters and must not be changed
-    // See: ProjectModel::suggestParent()
-    PageLevel    = 0,
-    TitleLevel   = 1,
+    // See: ProjectModel::addFile()
+    PageLevel = 0,
+    TitleLevel = 1,
     ChapterLevel = 2,
-    SceneLevel   = 3,
-    NoteLevel    = 4,
+    SceneLevel = 3,
+    NoteLevel = 4,
 };
 
 // Theme Colours
 // Used as index keys to look up colours from the Theme class.
-enum ThemeColor {
-    RootColor    = 0,
-    FolderColor  = 1,
-    FileColor    = 2,
-    TitleColor   = 3,
+enum ThemeColor
+{
+    RootColor = 0,
+    FolderColor = 1,
+    FileColor = 2,
+    TitleColor = 3,
     ChapterColor = 4,
-    SceneColor   = 5,
-    NoteColor    = 6,
+    SceneColor = 5,
+    NoteColor = 6,
     DefaultColor = 7,
-    FadedColor   = 8,
-    Red          = 9,
-    Orange       = 10,
-    Yellow       = 11,
-    Green        = 12,
-    Aqua         = 13,
-    Blue         = 14,
-    Purple       = 15,
+    FadedColor = 8,
+    Red = 9,
+    Orange = 10,
+    Yellow = 11,
+    Green = 12,
+    Aqua = 13,
+    Blue = 14,
+    Purple = 15,
 };
 
-enum JsonUtilsError{NoError, FileError, JsonError};
+enum JsonUtilsError
+{
+    NoError,
+    FileError,
+    JsonError
+};
 
 } // namespace Collett
-
-#endif // COLLETT_H

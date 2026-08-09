@@ -1,6 +1,6 @@
 /*
-** Collett - GUI Project Panel Class
-** =================================
+** Collett - GUI Editor View Class
+** ===============================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -19,45 +19,37 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
 #include "collett.h"
-#include "projectview.h"
+#include "editortoolbar.h"
+#include "editorview.h"
+#include "texteditor.h"
 
-#include <QTreeView>
 #include <QWidget>
 #include <QVBoxLayout>
 
 namespace Collett {
 
-class GuiProjectPanel : public QWidget
+// Constructor/Destructor
+// ======================
+
+GuiEditorView::GuiEditorView(QWidget *parent) : QWidget(parent)
 {
-    Q_OBJECT
 
-public:
-    explicit GuiProjectPanel(QWidget *parent = nullptr);
-    ~GuiProjectPanel();
+    // Components
+    textEditor = new GuiTextEditor(this);
+    toolBar = new GuiEditorToolBar(textEditor, this);
 
-    // Methods
-    void openProjectTasks();
-    void closeProjectTasks();
+    // Assemble
+    QVBoxLayout *outerBox = new QVBoxLayout();
+    outerBox->addWidget(toolBar);
+    outerBox->addWidget(textEditor, 1);
 
-    GuiProjectView *projectView = nullptr;
+    this->setLayout(outerBox);
+}
 
-public slots:
-    void createFile(const ItemLevel itemLevel)
-    {
-        if (projectView) projectView->createFile(itemLevel);
-    };
+GuiEditorView::~GuiEditorView()
+{
+    qDebug() << "Destructor: GuiEditorView";
+}
 
-    void createFolder()
-    {
-        if (projectView) projectView->createFolder();
-    };
-
-    void createRoot(const ItemClass itemClass)
-    {
-        if (projectView) projectView->createRoot(itemClass);
-    };
-};
 } // namespace Collett

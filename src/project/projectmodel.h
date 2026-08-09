@@ -1,5 +1,5 @@
 /*
-** Collett – Project Model Class
+** Collett - Project Model Class
 ** =============================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_PROJECT_MODEL_H
-#define COLLETT_PROJECT_MODEL_H
+#pragma once
 
 #include "collett.h"
 #include "node.h"
@@ -32,7 +31,6 @@
 #include <QModelIndex>
 #include <QString>
 #include <QStringList>
-#include <QUuid>
 
 namespace Collett {
 
@@ -42,11 +40,11 @@ class ProjectModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit ProjectModel(Tree *parent=nullptr);
+    explicit ProjectModel(Tree *parent = nullptr);
     ~ProjectModel();
 
     // Getters
-    Node *invisibleRoot() const {return m_root;};
+    Node *invisibleRoot() const { return m_root; };
     Node *rootNode(Node *node);
 
     // Methods
@@ -63,12 +61,12 @@ public:
 
     QList<QModelIndex> allExpanded();
     Node *nodeAtIndex(const QModelIndex &index);
-    QModelIndex indexFromHandle(const QUuid &uuid);
+    QModelIndex indexFromHandle(const QString &handle);
 
     // Model Edit
-    void  insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
+    void insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
     Node *removeChild(const QModelIndex &parent, qsizetype pos);
-    void  multiMove(const QModelIndexList &indexes, const QModelIndex &parent, qsizetype pos = -1);
+    void multiMove(const QModelIndexList &indexes, const QModelIndex &parent, qsizetype pos = -1);
 
     Node *addRoot(QString name, ItemClass itemClass, const QModelIndex &selected);
     Node *addFolder(QString name, const QModelIndex &selected);
@@ -82,13 +80,10 @@ public:
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
 
     // Static Methods
-    static QList<QUuid> decodeMimeHandles(const QMimeData *mimeData);
+    static QList<QString> decodeMimeHandles(const QMimeData *mimeData);
 
 private:
     Node *m_root = nullptr;
     Tree *m_tree = nullptr;
-
 };
 } // namespace Collett
-
-#endif // COLLETT_PROJECT_MODEL_H

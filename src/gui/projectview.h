@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Project Tree Class
+** Collett - GUI Project Tree Class
 ** ================================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_GUI_PROJECT_VIEW_H
-#define COLLETT_GUI_PROJECT_VIEW_H
+#pragma once
 
 #include "collett.h"
 #include "data.h"
@@ -28,6 +27,7 @@
 #include "mtreeview.h"
 
 #include <QAction>
+#include <QItemSelection>
 #include <QModelIndex>
 #include <QTreeView>
 #include <QWidget>
@@ -50,10 +50,13 @@ public:
     QAction *actEditItem;
     QAction *actDeleteItem;
 
+signals:
+    void nodeActivated(Node *node);
+
 private:
     // Singletons
     SharedData *m_data;
-    Theme      *m_theme;
+    Theme *m_theme;
 
     // Getters
     ProjectModel *getModel();
@@ -62,6 +65,7 @@ private:
     // Methods
     void adjustHeaders();
     void restoreExpandedState();
+    void openLastEdited();
 
 public slots:
     void createFile(const ItemLevel itemLevel);
@@ -71,10 +75,8 @@ public slots:
 private slots:
     void onNodeExpanded(const QModelIndex &index);
     void onNodeCollapsed(const QModelIndex &index);
+    void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
     void editSelectedItem();
     void deleteSelectedItem();
-
 };
 } // namespace Collett
-
-#endif // COLLETT_GUI_PROJECT_VIEW_H

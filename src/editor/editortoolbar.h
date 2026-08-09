@@ -1,9 +1,9 @@
 /*
-** Collett - Project Tree Class
+** Collett - GUI Editor ToolBar
 ** ============================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,42 +22,43 @@
 #pragma once
 
 #include "collett.h"
-#include "node.h"
-#include "projectmodel.h"
+#include "texteditor.h"
+#include "theme.h"
 
-#include <QHash>
-#include <QJsonObject>
-#include <QPointer>
-#include <QString>
+#include <QAction>
+#include <QTextCharFormat>
+#include <QToolBar>
+#include <QWidget>
 
 namespace Collett {
 
-class Tree : public QObject
+class GuiEditorToolBar : public QToolBar
 {
     Q_OBJECT
 
 public:
-    explicit Tree(QObject *parent = nullptr);
-    ~Tree();
+    explicit GuiEditorToolBar(GuiTextEditor *editor, QWidget *parent = nullptr);
+    ~GuiEditorToolBar();
 
-    // Getters
-    ProjectModel *model() { return m_model; };
-    Node *node(const QString &handle) { return m_nodes.value(handle).data(); };
-
-    // Methods
-    void pack(QJsonObject &data);
-    void unpack(const QJsonObject &data);
-
-    // Data Methods
-    void addNode(Node *node);
-    void removeNode(const QString &handle);
-    QString newHandle() const;
-
-    // Static Methods
-    static bool isHandle(const QString &value);
+private slots:
+    void updateFormatButtons(const QTextCharFormat &format);
+    void updateAlignButtons();
 
 private:
-    ProjectModel *m_model;
-    QHash<QString, QPointer<Node>> m_nodes;
+    Theme *m_theme;
+    GuiTextEditor *m_editor;
+
+    QAction *actBold;
+    QAction *actItalic;
+    QAction *actUnderline;
+    QAction *actStrikethrough;
+    QAction *actSuperscript;
+    QAction *actSubscript;
+    QAction *actAlignLeft;
+    QAction *actAlignCenter;
+    QAction *actAlignRight;
+    QAction *actAlignJustify;
+    QAction *actIndent;
+    QAction *actOutdent;
 };
 } // namespace Collett

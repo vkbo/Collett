@@ -1,5 +1,5 @@
 /*
-** Collett – Main GUI Class
+** Collett - Main GUI Class
 ** ========================
 **
 ** This file is a part of Collett
@@ -24,7 +24,11 @@
 #include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
+#include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QMenu>
+#include <QMessageBox>
 #include <QSplitter>
 #include <QToolButton>
 
@@ -35,7 +39,8 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
+GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent)
+{
 
     // Static Objects
     m_data = SharedData::instance();
@@ -44,7 +49,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
 
     // Panels
     projectPanel = new GuiProjectPanel(this);
-    workPanel    = new GuiWorkPanel(this);
+    workPanel = new GuiWorkPanel(this);
 
     // Main Splitter
     QList<int> sizes = {400, 1000};
@@ -69,6 +74,8 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     connect(projectToolBar, &GuiProjectToolBar::createFolderRequested, projectPanel, &GuiProjectPanel::createFolder);
     connect(projectToolBar, &GuiProjectToolBar::createRootRequested, projectPanel, &GuiProjectPanel::createRoot);
 
+    connect(projectPanel->projectView, &GuiProjectView::nodeActivated, this, &GuiMain::onNodeActivated);
+
     // Assemble
     this->setCentralWidget(m_splitMain);
     this->addToolBar(projectToolBar);
@@ -78,14 +85,16 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent) {
     this->updateTitle();
 }
 
-GuiMain::~GuiMain() {
+GuiMain::~GuiMain()
+{
     qDebug() << "Destructor: GuiMain";
 }
 
 // Public Methods
 // ==============
 
-void GuiMain::openProject(const QString &path) {
+void GuiMain::openProject(const QString &path)
+{
 
     m_data->openProject(path);
     if (!m_data->hasProject()) {
@@ -94,20 +103,27 @@ void GuiMain::openProject(const QString &path) {
     projectPanel->openProjectTasks();
 }
 
-void GuiMain::saveProject() {
+void GuiMain::saveProject()
+{
     if (m_data->hasProject()) {
         m_data->saveProject();
     }
 }
 
-void GuiMain::closeProject() {
+void GuiMain::closeProject()
+{
+    // The editor may be holding a pointer to a Document owned by the
+    // project. It must be cleared before the project (and its documents)
+    // are destroyed, or the editor is left with a dangling document.
+    workPanel->editorView->textEditor->openDocument(nullptr);
     if (m_data->hasProject()) {
         m_data->closeProject();
     }
     projectPanel->closeProjectTasks();
 }
 
-bool GuiMain::closeMain() {
+bool GuiMain::closeMain()
+{
     this->saveProject();
     this->closeProject();
 
@@ -118,6 +134,7 @@ bool GuiMain::closeMain() {
     }
     m_settings->flushSettings();
 
+    m_data->destroy();
     m_theme->destroy();
     m_settings->destroy();
 
@@ -127,7 +144,8 @@ bool GuiMain::closeMain() {
 // Events
 // ======
 
-void GuiMain::closeEvent(QCloseEvent *event) {
+void GuiMain::closeEvent(QCloseEvent *event)
+{
     if (closeMain()) {
         event->accept();
     } else {
@@ -138,11 +156,46 @@ void GuiMain::closeEvent(QCloseEvent *event) {
 // Private Slots
 // =============
 
-void GuiMain::onProjectOpen() {
+void GuiMain::onProjectOpen()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Create or Open Project"));
+    if (dir.isEmpty()) {
+        return;
+    }
 
+    QString path = QDir(dir).filePath("CollettProject.collett");
+    if (!QFileInfo::exists(path)) {
+        if (QDir(dir).exists("project") || QDir(dir).exists("content")) {
+            QMessageBox::warning(
+                this, tr("Cannot Create Project"),
+                tr("This folder already contains project data.")
+            );
+            return;
+        }
+    }
+
+    if (m_data->hasProject()) {
+        this->saveProject();
+        this->closeProject();
+    }
+
+    this->openProject(path);
 }
 
-void GuiMain::updateTitle() {
+void GuiMain::onNodeActivated(Node *node)
+{
+    if (!m_data->hasProject()) {
+        return;
+    }
+    Document *doc = nullptr;
+    if (node && node->isFileType()) {
+        doc = m_data->project()->openDocument(node->handle());
+    }
+    workPanel->editorView->textEditor->openDocument(doc);
+}
+
+void GuiMain::updateTitle()
+{
     if (m_data->hasProject()) {
         setWindowTitle(QString("%1 - %2").arg(m_data->project()->data()->name(), qApp->applicationName()));
     } else {

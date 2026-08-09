@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Work Panel Class
+** Collett - GUI Work Panel Class
 ** ==============================
 **
 ** This file is a part of Collett
@@ -19,10 +19,10 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_GUI_WORK_PANEL_H
-#define COLLETT_GUI_WORK_PANEL_H
+#pragma once
 
 #include "collett.h"
+#include "editorview.h"
 
 #include <QWidget>
 
@@ -36,7 +36,6 @@ public:
     explicit GuiWorkPanel(QWidget *parent = nullptr);
     ~GuiWorkPanel();
 
+    GuiEditorView *editorView = nullptr;
 };
 } // namespace Collett
-
-#endif // COLLETT_GUI_PROJECT_PANEL_H

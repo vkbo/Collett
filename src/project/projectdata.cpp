@@ -1,5 +1,5 @@
 /*
-** Collett – Project Data Class
+** Collett - Project Data Class
 ** ============================
 **
 ** This file is a part of Collett
@@ -34,18 +34,21 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-ProjectData::ProjectData(QObject *parent) : QObject(parent) {
+ProjectData::ProjectData(QObject *parent) : QObject(parent)
+{
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
 }
 
-ProjectData::~ProjectData() {
+ProjectData::~ProjectData()
+{
     qDebug() << "Destructor: ProjectData";
 }
 
 // Public Methods
 // ==============
 
-void ProjectData::pack(QJsonObject &data) {
+void ProjectData::pack(QJsonObject &data)
+{
 
     QJsonObject jMeta, jProject, jSettings;
 
@@ -57,6 +60,9 @@ void ProjectData::pack(QJsonObject &data) {
     // Project Settings
     jProject["u:name"_L1] = m_projectName;
 
+    // Editor Settings
+    jSettings["m:lastEdited"_L1] = m_lastEditedHandle;
+
     // Root Object
     data["c:format"_L1] = "CollettProjectData";
     data["c:meta"_L1] = jMeta;
@@ -64,7 +70,8 @@ void ProjectData::pack(QJsonObject &data) {
     data["c:settings"_L1] = jSettings;
 }
 
-void ProjectData::unpack(const QJsonObject &data) {
+void ProjectData::unpack(const QJsonObject &data)
+{
 
     QJsonObject jMeta = data.value("c:meta"_L1).toObject();
     QJsonObject jProject = data.value("c:project"_L1).toObject();
@@ -75,6 +82,9 @@ void ProjectData::unpack(const QJsonObject &data) {
 
     // Project Settings
     m_projectName = JsonUtils::getJsonString(jProject, "u:name"_L1, tr("Unnamed Project"));
+
+    // Editor Settings
+    m_lastEditedHandle = JsonUtils::getJsonString(jSettings, "m:lastEdited"_L1, "");
 }
 
 } // namespace Collett

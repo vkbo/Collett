@@ -5,7 +5,7 @@
             "m:characters": 100,
             "m:class": "Novel",
             "m:expanded": true,
-            "m:handle": "b2fa285c-f6b8-4f0a-ab3e-bebce4bf48f8",
+            "m:handle": "5ccaffdf6890c",
             "m:order": 0,
             "m:type": "Root",
             "m:words": 10,
@@ -14,7 +14,7 @@
                 {
                     "m:characters": 0,
                     "m:expanded": false,
-                    "m:handle": "211ca2ce-d8b3-4b7c-a0cd-615f3aa392d0",
+                    "m:handle": "f087f56665c9f",
                     "m:level": "Page",
                     "m:order": 0,
                     "m:type": "File",
@@ -25,7 +25,7 @@
                 {
                     "m:characters": 0,
                     "m:expanded": true,
-                    "m:handle": "083de0b6-f182-4b0f-bb9f-08543095b221",
+                    "m:handle": "8fd4c30510eff",
                     "m:level": "Chapter",
                     "m:order": 1,
                     "m:type": "File",
@@ -36,7 +36,7 @@
                         {
                             "m:characters": 0,
                             "m:expanded": false,
-                            "m:handle": "f18360f6-e70a-4972-ae47-d58038a8e191",
+                            "m:handle": "76f002950cef6",
                             "m:level": "Scene",
                             "m:order": 0,
                             "m:type": "File",
@@ -47,7 +47,7 @@
                         {
                             "m:characters": 0,
                             "m:expanded": false,
-                            "m:handle": "ebd68dac-ba32-47c5-b035-4f5879ec8a19",
+                            "m:handle": "abcecf6a451ec",
                             "m:level": "Scene",
                             "m:order": 1,
                             "m:type": "File",
@@ -63,7 +63,7 @@
             "m:characters": 200,
             "m:class": "Character",
             "m:expanded": true,
-            "m:handle": "0123801b-d9c0-4fad-a1e8-0d7e866a095b",
+            "m:handle": "74c3f17845abb",
             "m:order": 1,
             "m:type": "Root",
             "m:words": 20,
@@ -72,7 +72,7 @@
                 {
                     "m:characters": 0,
                     "m:expanded": false,
-                    "m:handle": "4e4c3e4b-5784-4e94-b175-90eca4c3ee36",
+                    "m:handle": "5ab5a02c086e2",
                     "m:level": "Note",
                     "m:order": 0,
                     "m:type": "File",
@@ -83,7 +83,7 @@
                 {
                     "m:characters": 0,
                     "m:expanded": false,
-                    "m:handle": "3b5e5075-9b92-47b3-9335-d8c28cee38c9",
+                    "m:handle": "c944b972e312e",
                     "m:level": "Note",
                     "m:order": 1,
                     "m:type": "File",
@@ -94,7 +94,7 @@
                 {
                     "m:characters": 0,
                     "m:expanded": true,
-                    "m:handle": "c5d8421e-18c7-44cd-bcf9-cce2fd3f4c3d",
+                    "m:handle": "ed6dafedd6bfc",
                     "m:order": 2,
                     "m:type": "Folder",
                     "m:words": 0,
@@ -103,7 +103,7 @@
                         {
                             "m:characters": 0,
                             "m:expanded": false,
-                            "m:handle": "1681befd-c3d1-4f3a-b91a-48d761df8dcd",
+                            "m:handle": "f46f0001e1b3e",
                             "m:level": "Note",
                             "m:order": 0,
                             "m:type": "File",
@@ -114,7 +114,7 @@
                         {
                             "m:characters": 0,
                             "m:expanded": false,
-                            "m:handle": "c080a29f-f57f-469e-8ef2-b1ad0a440e5e",
+                            "m:handle": "b5c70d75cff2c",
                             "m:level": "Note",
                             "m:order": 1,
                             "m:type": "File",
@@ -130,7 +130,7 @@
             "m:characters": 300,
             "m:class": "Plot",
             "m:expanded": true,
-            "m:handle": "8b17ab7d-9006-4b8c-8cc1-8ee6ca3f3776",
+            "m:handle": "b77f0e1b7eca7",
             "m:order": 2,
             "m:type": "Root",
             "m:words": 30,
@@ -139,7 +139,7 @@
                 {
                     "m:characters": 0,
                     "m:expanded": false,
-                    "m:handle": "3eaca2cb-7725-4b83-b21e-bf42b1a79efa",
+                    "m:handle": "365e1186adf76",
                     "m:level": "Note",
                     "m:order": 0,
                     "m:type": "File",
@@ -150,7 +150,7 @@
                 {
                     "m:characters": 0,
                     "m:expanded": false,
-                    "m:handle": "f673af3d-d949-4244-862f-a5cabadd4bc4",
+                    "m:handle": "d7f89e189dd24",
                     "m:level": "Note",
                     "m:order": 1,
                     "m:type": "File",

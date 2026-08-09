@@ -1,5 +1,5 @@
 /*
-** Collett – Core Data Class
+** Collett - Core Data Class
 ** =========================
 **
 ** This file is a part of Collett
@@ -31,7 +31,8 @@ namespace Collett {
 // ===============================
 
 SharedData *SharedData::staticInstance = nullptr;
-SharedData *SharedData::instance() {
+SharedData *SharedData::instance()
+{
     if (staticInstance == nullptr) {
         staticInstance = new SharedData();
         qDebug() << "Constructor: SharedData";
@@ -39,9 +40,19 @@ SharedData *SharedData::instance() {
     return staticInstance;
 }
 
+void SharedData::destroy()
+{
+    if (staticInstance != nullptr) {
+        qDebug() << "Destructor: Static SharedData";
+        delete SharedData::staticInstance;
+        SharedData::staticInstance = nullptr;
+    }
+}
+
 SharedData::SharedData(QObject *parent) : QObject(parent) {}
 
-SharedData::~SharedData() {
+SharedData::~SharedData()
+{
     qDebug() << "Destructor: SharedData";
     m_project.reset();
 }
@@ -49,7 +60,8 @@ SharedData::~SharedData() {
 // Public Methods
 // ==============
 
-bool SharedData::openProject(const QString &path) {
+bool SharedData::openProject(const QString &path)
+{
 
     m_project.reset(new Project());
     if (!m_project.data()->hasError()) {
@@ -65,7 +77,8 @@ bool SharedData::openProject(const QString &path) {
     return true;
 }
 
-bool SharedData::saveProject() {
+bool SharedData::saveProject()
+{
     if (hasProject()) {
         return m_project.data()->saveProject();
     } else {
@@ -73,7 +86,8 @@ bool SharedData::saveProject() {
     }
 }
 
-bool SharedData::saveProjectAs(const QString &path) {
+bool SharedData::saveProjectAs(const QString &path)
+{
     if (hasProject()) {
         return m_project.data()->saveProjectAs(path);
     } else {
@@ -81,14 +95,16 @@ bool SharedData::saveProjectAs(const QString &path) {
     }
 }
 
-void SharedData::closeProject() {
+void SharedData::closeProject()
+{
     m_project.reset(nullptr);
 }
 
 // Getters
 // =======
 
-bool SharedData::hasProject() const {
+bool SharedData::hasProject() const
+{
     if (m_project.isNull()) {
         return false;
     } else {
@@ -96,13 +112,13 @@ bool SharedData::hasProject() const {
     }
 }
 
-Project *SharedData::project() {
+Project *SharedData::project()
+{
     if (hasProject()) {
         return m_project.data();
     } else {
         return nullptr;
     }
 }
-
 
 } // namespace Collett

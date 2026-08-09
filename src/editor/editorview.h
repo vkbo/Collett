@@ -1,6 +1,6 @@
 /*
-** Collett - GUI Project Panel Class
-** =================================
+** Collett - GUI Editor View Class
+** ===============================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2025 Veronica Berglyd Olsen
@@ -22,42 +22,22 @@
 #pragma once
 
 #include "collett.h"
-#include "projectview.h"
+#include "editortoolbar.h"
+#include "texteditor.h"
 
-#include <QTreeView>
 #include <QWidget>
-#include <QVBoxLayout>
 
 namespace Collett {
 
-class GuiProjectPanel : public QWidget
+class GuiEditorView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit GuiProjectPanel(QWidget *parent = nullptr);
-    ~GuiProjectPanel();
+    explicit GuiEditorView(QWidget *parent = nullptr);
+    ~GuiEditorView();
 
-    // Methods
-    void openProjectTasks();
-    void closeProjectTasks();
-
-    GuiProjectView *projectView = nullptr;
-
-public slots:
-    void createFile(const ItemLevel itemLevel)
-    {
-        if (projectView) projectView->createFile(itemLevel);
-    };
-
-    void createFolder()
-    {
-        if (projectView) projectView->createFolder();
-    };
-
-    void createRoot(const ItemClass itemClass)
-    {
-        if (projectView) projectView->createRoot(itemClass);
-    };
+    GuiEditorToolBar *toolBar = nullptr;
+    GuiTextEditor *textEditor = nullptr;
 };
 } // namespace Collett

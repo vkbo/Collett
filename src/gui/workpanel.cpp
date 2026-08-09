@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Work Panel Class
+** Collett - GUI Work Panel Class
 ** ==============================
 **
 ** This file is a part of Collett
@@ -21,7 +21,9 @@
 
 #include "collett.h"
 #include "workpanel.h"
+#include "editorview.h"
 
+#include <QHBoxLayout>
 #include <QWidget>
 
 namespace Collett {
@@ -29,10 +31,21 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent) {
+GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent)
+{
+
+    // Components
+    editorView = new GuiEditorView(this);
+
+    // Assemble
+    QHBoxLayout *outerBox = new QHBoxLayout();
+    outerBox->addWidget(editorView, 1);
+
+    this->setLayout(outerBox);
 }
 
-GuiWorkPanel::~GuiWorkPanel() {
+GuiWorkPanel::~GuiWorkPanel()
+{
     qDebug() << "Destructor: GuiWorkPanel";
 }
 

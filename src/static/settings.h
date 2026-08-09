@@ -1,5 +1,5 @@
 /*
-** Collett – Main Settings Class
+** Collett - Main Settings Class
 ** =============================
 **
 ** This file is a part of Collett
@@ -19,8 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLLETT_SETTINGS_H
-#define COLLETT_SETTINGS_H
+#pragma once
 
 #include "collett.h"
 
@@ -39,19 +38,20 @@ class Settings : public QObject
     Q_OBJECT
 
 public:
-    struct TextFormat {
+    struct TextFormat
+    {
         QTextBlockFormat blockDefault;
-        QTextCharFormat  charDefault;
+        QTextCharFormat charDefault;
         QTextBlockFormat blockParagraph;
-        QTextCharFormat  charParagraph;
+        QTextCharFormat charParagraph;
         QTextBlockFormat blockHeader1;
-        QTextCharFormat  charHeader1;
+        QTextCharFormat charHeader1;
         QTextBlockFormat blockHeader2;
-        QTextCharFormat  charHeader2;
+        QTextCharFormat charHeader2;
         QTextBlockFormat blockHeader3;
-        QTextCharFormat  charHeader3;
+        QTextCharFormat charHeader3;
         QTextBlockFormat blockHeader4;
-        QTextCharFormat  charHeader4;
+        QTextCharFormat charHeader4;
         qreal fontSize;
         qreal tabWidth;
         qreal lineHeight;
@@ -68,42 +68,40 @@ public:
     static QDir assetPath(QString asset);
 
     // Setters
-    void setMainWindowSize(const QSize size) {m_mainWindowSize = size;};
-    void setMainSplitSizes(const QList<int> &sizes) {m_mainSplitSizes = sizes;};
-    void setMainGuiTheme(const QString theme) {m_guiTheme = theme;};
-    void setMainIconSet(const QString icons) {m_iconSet = icons;};
-    void setEditorAutoSave(const int interval) {m_editorAutoSave = interval;};
+    void setMainWindowSize(const QSize size) { m_mainWindowSize = size; };
+    void setMainSplitSizes(const QList<int> &sizes) { m_mainSplitSizes = sizes; };
+    void setMainGuiTheme(const QString theme) { m_guiTheme = theme; };
+    void setMainIconSet(const QString icons) { m_iconSet = icons; };
+    void setEditorAutoSave(const int interval) { m_editorAutoSave = interval; };
     void setTextFontSize(const qreal size);
     void setTextTabWidth(const qreal width);
 
     // Getters
-    QSize      mainWindowSize() const {return m_mainWindowSize;};
-    QList<int> mainSplitSizes() const {return m_mainSplitSizes;};
-    QString    guiTheme() const {return m_guiTheme;};
-    QString    iconSet() const {return m_iconSet;};
-    int        editorAutoSave() const {return m_editorAutoSave;};
-    TextFormat textFormat() const {return m_textFormat;};
+    QSize mainWindowSize() const { return m_mainWindowSize; };
+    QList<int> mainSplitSizes() const { return m_mainSplitSizes; };
+    QString guiTheme() const { return m_guiTheme; };
+    QString iconSet() const { return m_iconSet; };
+    int editorAutoSave() const { return m_editorAutoSave; };
+    TextFormat textFormat() const { return m_textFormat; };
 
 private:
     static Settings *staticInstance;
 
     // GUI Settings
-    QSize      m_mainWindowSize;
+    QSize m_mainWindowSize;
     QList<int> m_mainSplitSizes;
-    QString    m_guiTheme;
-    QString    m_iconSet;
+    QString m_guiTheme;
+    QString m_iconSet;
 
     // Editor
     int m_editorAutoSave;
 
     // Text Format
-    qreal      m_textFontSize;
-    qreal      m_textTabWidth;
+    qreal m_textFontSize;
+    qreal m_textTabWidth;
     TextFormat m_textFormat;
 
     // Internal Functions
     void recalculateTextFormats();
 };
 } // namespace Collett
-
-#endif // COLLETT_SETTINGS_H

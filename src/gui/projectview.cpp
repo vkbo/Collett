@@ -1,5 +1,5 @@
 /*
-** Collett – GUI Project Tree Class
+** Collett - GUI Project Tree Class
 ** ================================
 **
 ** This file is a part of Collett
@@ -30,7 +30,6 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QTreeView>
-#include <QUuid>
 #include <QWidget>
 
 namespace Collett {
@@ -38,7 +37,8 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-GuiProjectView::GuiProjectView(QWidget *parent) : MTreeView(parent) {
+GuiProjectView::GuiProjectView(QWidget *parent) : MTreeView(parent)
+{
 
     m_data = SharedData::instance();
     m_theme = Theme::instance();
@@ -54,7 +54,7 @@ GuiProjectView::GuiProjectView(QWidget *parent) : MTreeView(parent) {
     // Allow Move by Drag & Drop
     this->setDragEnabled(true);
     this->setDragDropMode(QAbstractItemView::InternalMove);
-    
+
     // Set selection options
     this->setSelectionMode(QAbstractItemView::ExtendedSelection);
     this->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -77,14 +77,16 @@ GuiProjectView::GuiProjectView(QWidget *parent) : MTreeView(parent) {
     this->connect(actDeleteItem, &QAction::triggered, this, &GuiProjectView::deleteSelectedItem);
 }
 
-GuiProjectView::~GuiProjectView() {
+GuiProjectView::~GuiProjectView()
+{
     qDebug() << "Destructor: GuiProjectView";
 }
 
 // Public Methods
 // ==============
 
-void GuiProjectView::openProjectTasks() {
+void GuiProjectView::openProjectTasks()
+{
     ProjectModel *model = this->getModel();
     if (model) {
         QItemSelectionModel *m = this->selectionModel();
@@ -92,10 +94,16 @@ void GuiProjectView::openProjectTasks() {
         delete m;
         this->adjustHeaders();
         this->restoreExpandedState();
+        this->connect(
+            this->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &GuiProjectView::onCurrentChanged
+        );
+        this->openLastEdited();
     }
 }
 
-void GuiProjectView::closeProjectTasks() {
+void GuiProjectView::closeProjectTasks()
+{
     QItemSelectionModel *m = this->selectionModel();
     this->setModel(nullptr);
     delete m;
@@ -104,14 +112,16 @@ void GuiProjectView::closeProjectTasks() {
 // Private Getters
 // ===============
 
-ProjectModel *GuiProjectView::getModel() {
+ProjectModel *GuiProjectView::getModel()
+{
     if (m_data->hasProject()) {
         return m_data->project()->tree()->model();
     }
     return nullptr;
 }
 
-Node *GuiProjectView::getNode(const QModelIndex &index) {
+Node *GuiProjectView::getNode(const QModelIndex &index)
+{
     if (m_data->hasProject()) {
         ProjectModel *model = m_data->project()->tree()->model();
         if (model) return model->nodeAtIndex(index);
@@ -122,7 +132,8 @@ Node *GuiProjectView::getNode(const QModelIndex &index) {
 // Private Methods
 // ===============
 
-void GuiProjectView::adjustHeaders() {
+void GuiProjectView::adjustHeaders()
+{
     QHeaderView *header = this->header();
     if (header) {
         header->setStretchLastSection(false);
@@ -135,7 +146,8 @@ void GuiProjectView::adjustHeaders() {
     }
 }
 
-void GuiProjectView::restoreExpandedState() {
+void GuiProjectView::restoreExpandedState()
+{
     ProjectModel *model = this->getModel();
     if (model) {
         this->blockSignals(true);
@@ -146,10 +158,34 @@ void GuiProjectView::restoreExpandedState() {
     }
 }
 
+/**!
+ * @brief Select and open the document that was open when the project was
+ * last saved, if any, restoring it via the normal current-changed signal
+ * chain used for regular node activation.
+ */
+void GuiProjectView::openLastEdited()
+{
+    if (!m_data->hasProject()) {
+        return;
+    }
+    QString handle = m_data->project()->data()->lastEditedHandle();
+    if (handle.isEmpty()) {
+        return;
+    }
+    ProjectModel *model = this->getModel();
+    if (model) {
+        QModelIndex index = model->indexFromHandle(handle);
+        if (index.isValid()) {
+            this->setCurrentIndex(index);
+        }
+    }
+}
+
 // Public Slots
 // ============
 
-void GuiProjectView::createFile(const ItemLevel itemLevel) {
+void GuiProjectView::createFile(const ItemLevel itemLevel)
+{
     ProjectModel *model = this->getModel();
     QModelIndex current = this->currentIndex();
     if (model && current.isValid()) {
@@ -158,7 +194,8 @@ void GuiProjectView::createFile(const ItemLevel itemLevel) {
     }
 }
 
-void GuiProjectView::createFolder() {
+void GuiProjectView::createFolder()
+{
     ProjectModel *model = this->getModel();
     QModelIndex current = this->currentIndex();
     if (model && current.isValid()) {
@@ -167,7 +204,8 @@ void GuiProjectView::createFolder() {
     }
 }
 
-void GuiProjectView::createRoot(const ItemClass itemClass) {
+void GuiProjectView::createRoot(const ItemClass itemClass)
+{
     ProjectModel *model = this->getModel();
     QModelIndex current = this->currentIndex();
     if (model && current.isValid()) {
@@ -179,26 +217,36 @@ void GuiProjectView::createRoot(const ItemClass itemClass) {
 // Private Slots
 // =============
 
-void GuiProjectView::onNodeExpanded(const QModelIndex &index) {
+void GuiProjectView::onNodeExpanded(const QModelIndex &index)
+{
     Node *node = this->getNode(index);
     if (node) node->setExpanded(true);
 }
 
-void GuiProjectView::onNodeCollapsed(const QModelIndex &index) {
+void GuiProjectView::onNodeCollapsed(const QModelIndex &index)
+{
     Node *node = this->getNode(index);
     if (node) node->setExpanded(false);
 }
 
-void GuiProjectView::editSelectedItem() {
+void GuiProjectView::onCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_UNUSED(previous);
+    emit nodeActivated(this->getNode(current));
+}
+
+void GuiProjectView::editSelectedItem()
+{
     Node *node = this->getNode(this->currentIndex());
-    if (node){
+    if (node) {
         EditItemDialog::editNode(this, node);
     }
 }
 
-void GuiProjectView::deleteSelectedItem() {
+void GuiProjectView::deleteSelectedItem()
+{
     Node *node = this->getNode(this->currentIndex());
-    if (node){
+    if (node) {
     }
 }
 
