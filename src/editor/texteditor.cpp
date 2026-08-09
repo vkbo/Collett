@@ -23,6 +23,7 @@
 #include "texteditor.h"
 
 #include <QFont>
+#include <QTextBlockFormat>
 #include <QTextCharFormat>
 #include <QTextCursor>
 #include <QTextEdit>
@@ -113,6 +114,34 @@ void GuiTextEditor::alignRight()
 void GuiTextEditor::alignJustify()
 {
     this->setAlignment(Qt::AlignJustify);
+}
+
+/**!
+ * @brief Increase the block indent of the current paragraph.
+ *
+ * The document format supports a block indent from 0 to 9, so the value is
+ * clamped to a maximum of 9.
+ */
+void GuiTextEditor::blockIndent()
+{
+    QTextCursor cursor = this->textCursor();
+    QTextBlockFormat format = cursor.blockFormat();
+    format.setIndent(qMin(format.indent() + 1, 9));
+    cursor.setBlockFormat(format);
+}
+
+/**!
+ * @brief Decrease the block indent of the current paragraph.
+ *
+ * The document format supports a block indent from 0 to 9, so the value is
+ * clamped to a minimum of 0.
+ */
+void GuiTextEditor::blockOutdent()
+{
+    QTextCursor cursor = this->textCursor();
+    QTextBlockFormat format = cursor.blockFormat();
+    format.setIndent(qMax(format.indent() - 1, 0));
+    cursor.setBlockFormat(format);
 }
 
 // Private Methods

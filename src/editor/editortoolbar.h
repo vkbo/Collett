@@ -58,5 +58,7 @@ private:
     QAction *actAlignCenter;
     QAction *actAlignRight;
     QAction *actAlignJustify;
+    QAction *actIndent;
+    QAction *actOutdent;
 };
 } // namespace Collett

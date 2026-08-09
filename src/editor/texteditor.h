@@ -51,6 +51,8 @@ public slots:
     void alignCenter();
     void alignRight();
     void alignJustify();
+    void blockIndent();
+    void blockOutdent();
 
 private:
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);

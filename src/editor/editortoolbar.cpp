@@ -102,6 +102,16 @@ GuiEditorToolBar::GuiEditorToolBar(GuiTextEditor *editor, QWidget *parent)
     alignGroup->addAction(actAlignJustify);
     connect(actAlignJustify, &QAction::triggered, m_editor, &GuiTextEditor::alignJustify);
 
+    this->addSeparator();
+
+    actIndent = this->addAction(m_theme->icons()->getIcon("fmt_indent", ThemeColor::DefaultColor, size), tr("Increase Indent"));
+    actIndent->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_M));
+    connect(actIndent, &QAction::triggered, m_editor, &GuiTextEditor::blockIndent);
+
+    actOutdent = this->addAction(m_theme->icons()->getIcon("fmt_outdent", ThemeColor::DefaultColor, size), tr("Decrease Indent"));
+    actOutdent->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_M));
+    connect(actOutdent, &QAction::triggered, m_editor, &GuiTextEditor::blockOutdent);
+
     connect(m_editor, &QTextEdit::currentCharFormatChanged, this, &GuiEditorToolBar::updateFormatButtons);
     connect(m_editor, &QTextEdit::cursorPositionChanged, this, &GuiEditorToolBar::updateAlignButtons);
 }

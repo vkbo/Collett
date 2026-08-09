@@ -58,6 +58,8 @@ ICONS = {
     "fmt_align_center": "text-align-center",
     "fmt_align_right": "text-align-end",
     "fmt_align_justify": "text-align-justify",
+    "fmt_indent": "list-indent-increase",
+    "fmt_outdent": "list-indent-decrease",
     #
     # Project
     #
