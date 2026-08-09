@@ -40,7 +40,7 @@ constexpr const char *ANSI_YELLOW = "\033[93m";
 constexpr const char *ANSI_RED = "\033[91m";
 constexpr const char *ANSI_WHITE = "\033[97m";
 constexpr const char *ANSI_RESET = "\033[0m";
-constexpr int LOG_FILE_WIDTH = 19;
+constexpr int LOG_FILE_WIDTH = 18;
 constexpr int LOG_LINE_WIDTH = 4;
 } // namespace
 
@@ -93,14 +93,13 @@ void collettLogHandler(QtMsgType type, const QMessageLogContext &context, const 
         break;
     }
 
-    std::cout << "[" << time.toStdString() << "] ";
+    std::cout << "[" << time.toStdString() << "]  ";
 #ifdef DEBUG
     QFileInfo file(context.file ? context.file : "");
     std::string fileName = file.fileName().toStdString();
     if (useColor) {
-        std::cout << ANSI_BLUE << std::setw(LOG_FILE_WIDTH) << std::right << fileName
-                  << ANSI_RESET << ":" << ANSI_WHITE << std::setw(LOG_LINE_WIDTH) << std::left
-                  << context.line << ANSI_RESET << "  ";
+        std::cout << ANSI_BLUE << std::setw(LOG_FILE_WIDTH) << std::right << fileName << ANSI_RESET << ":"
+                  << ANSI_WHITE << std::setw(LOG_LINE_WIDTH) << std::left << context.line << ANSI_RESET << "  ";
     } else {
         std::cout << std::setw(LOG_FILE_WIDTH) << std::right << fileName << ":"
                   << std::setw(LOG_LINE_WIDTH) << std::left << context.line << "  ";
