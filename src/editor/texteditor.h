@@ -24,6 +24,7 @@
 #include "collett.h"
 #include "document.h"
 
+#include <QKeyEvent>
 #include <QTextCharFormat>
 #include <QTextEdit>
 
@@ -39,6 +40,9 @@ public:
 
     // Methods
     void openDocument(Document *doc);
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
 public slots:
     void toggleBold(bool bold);

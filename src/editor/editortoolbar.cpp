@@ -154,7 +154,7 @@ void GuiEditorToolBar::updateFormatButtons(const QTextCharFormat &format)
 void GuiEditorToolBar::updateAlignButtons()
 {
     switch (m_editor->alignment()) {
-    case Qt::AlignCenter:
+    case Qt::AlignHCenter:
         actAlignCenter->setChecked(true);
         break;
     case Qt::AlignRight:

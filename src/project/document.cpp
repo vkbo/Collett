@@ -59,12 +59,11 @@ void Document::pack(QJsonObject &data)
 
     QJsonArray jDoc;
 
-    if (this->blockCount() == 1 && this->firstBlock().text().trimmed().isEmpty()) {
-        // No text content
-        return;
-    }
+    // Skip walking the blocks for an empty document, but still write the
+    // metadata and format marker below so the file stays well-formed.
+    bool hasContent = !(this->blockCount() == 1 && this->firstBlock().text().trimmed().isEmpty());
 
-    QTextBlock block = this->firstBlock();
+    QTextBlock block = hasContent ? this->firstBlock() : QTextBlock();
     while (block.isValid()) {
         QJsonObject jsonBlock;
         QJsonArray jsonFrags;
@@ -74,7 +73,7 @@ void Document::pack(QJsonObject &data)
 
         // Block Type
         if (blockFormat.headingLevel() > 0) {
-            jsonBlockFmt << QString().setNum(blockFormat.headingLevel()).prepend("h");
+            jsonBlockFmt << QString().setNum(qBound(1, blockFormat.headingLevel(), 4)).prepend("h");
         } else {
             jsonBlockFmt << "p";
         }
@@ -92,8 +91,6 @@ void Document::pack(QJsonObject &data)
         // Text Indent
         if (blockFormat.textIndent() > 0.0) {
             jsonBlockFmt << "ti";
-        } else if (blockFormat.textIndent() < 0.0) {
-            jsonBlockFmt << "sg";
         }
 
         // Block Indent
@@ -227,11 +224,8 @@ void Document::unpack(const QJsonObject &data)
                 blockFormat.setAlignment(Qt::AlignJustify);
             } else if (blockFmtTag == "ti") {
                 blockFormat.setTextIndent(format.tabWidth);
-            } else if (blockFmtTag == "sg") {
-                blockFormat.setTextIndent(-format.tabWidth);
-                blockFormat.setLeftMargin(format.tabWidth);
             } else if (blockFmtTag.startsWith("in")) {
-                blockFormat.setIndent(blockFmtTag.last(1).toInt());
+                blockFormat.setIndent(qBound(0, blockFmtTag.sliced(2).toInt(), 9));
             }
         }
 

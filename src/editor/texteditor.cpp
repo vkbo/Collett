@@ -20,9 +20,11 @@
 */
 
 #include "collett.h"
+#include "settings.h"
 #include "texteditor.h"
 
 #include <QFont>
+#include <QKeyEvent>
 #include <QTextBlockFormat>
 #include <QTextCharFormat>
 #include <QTextCursor>
@@ -49,6 +51,44 @@ void GuiTextEditor::openDocument(Document *doc)
 {
     this->setDocument(doc);
     this->setEnabled(doc != nullptr);
+}
+
+// Protected Methods
+// =================
+
+/**!
+ * @brief Intercept key presses for first-line indent handling.
+ *
+ * Pressing Tab at the start of a paragraph block toggles on a first-line
+ * indent instead of inserting a tab character. Pressing Backspace at the start
+ * of a block that has a first-line indent removes it instead of merging with
+ * the previous block. In all other cases the key is passed on to the base
+ * class, so Tab elsewhere still inserts a literal tab.
+ *
+ * @param event The key event.
+ */
+void GuiTextEditor::keyPressEvent(QKeyEvent *event)
+{
+    QTextCursor cursor = this->textCursor();
+    int key = event->key();
+
+    if (key == Qt::Key_Tab && !cursor.hasSelection() && cursor.atBlockStart()) {
+        QTextBlockFormat format = cursor.blockFormat();
+        if (format.headingLevel() == 0 && format.textIndent() <= 0.0) {
+            format.setTextIndent(Settings::instance()->textFormat().tabWidth);
+            cursor.setBlockFormat(format);
+            return;
+        }
+    } else if (key == Qt::Key_Backspace && !cursor.hasSelection() && cursor.atBlockStart()) {
+        QTextBlockFormat format = cursor.blockFormat();
+        if (format.textIndent() > 0.0) {
+            format.setTextIndent(0.0);
+            cursor.setBlockFormat(format);
+            return;
+        }
+    }
+
+    QTextEdit::keyPressEvent(event);
 }
 
 // Public Slots
@@ -103,7 +143,7 @@ void GuiTextEditor::alignLeft()
 
 void GuiTextEditor::alignCenter()
 {
-    this->setAlignment(Qt::AlignCenter);
+    this->setAlignment(Qt::AlignHCenter);
 }
 
 void GuiTextEditor::alignRight()
