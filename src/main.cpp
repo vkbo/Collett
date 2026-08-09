@@ -19,6 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <iomanip>
 #include <iostream>
 
 #include "collett.h"
@@ -31,11 +32,25 @@
 #include <QFile>
 #include <QFileInfo>
 
+// ANSI colours for the log output
+namespace {
+constexpr const char *ANSI_BLUE = "\033[94m";
+constexpr const char *ANSI_GREEN = "\033[92m";
+constexpr const char *ANSI_YELLOW = "\033[93m";
+constexpr const char *ANSI_RED = "\033[91m";
+constexpr const char *ANSI_WHITE = "\033[97m";
+constexpr const char *ANSI_RESET = "\033[0m";
+constexpr int LOG_FILE_WIDTH = 19;
+constexpr int LOG_LINE_WIDTH = 4;
+} // namespace
+
 /**!
- * @brief Log message handler
+ * @brief Log message handler&
  *
- * Custom message handler that adds a timestamp and log level to the log message
- * as well as a filename and line number if DEBUG is enabled.
+ * Custom message handler that prints a timestamp, and if DEBUG is enabled the
+ * source file name and line number aligned on the colon, followed by the log
+ * level and the message. The file name, line number and log level are coloured
+ * with ANSI escapes unless the NOCOLOR environment variable is set.
  *
  * @param type    the message type.
  * @param context the message context.
@@ -49,32 +64,54 @@ void collettLogHandler(QtMsgType type, const QMessageLogContext &context, const 
         return;
 #endif
 
-    QString time = QDateTime::currentDateTime().toString(Qt::ISODateWithMs);
-    QFileInfo file(context.file ? context.file : "");
+    static const bool useColor = !qEnvironmentVariableIsSet("NOCOLOR");
 
-    std::cout << "[" << time.toStdString() << "] ";
+    QString time = QDateTime::currentDateTime().toString(Qt::ISODateWithMs);
+
+    const char *color = "";
+    const char *label = "";
     switch (type) {
     case QtDebugMsg:
-        std::cout << "DEBUG     ";
+        color = ANSI_BLUE;
+        label = "DEBUG     ";
         break;
     case QtInfoMsg:
-        std::cout << "INFO      ";
+        color = ANSI_GREEN;
+        label = "INFO      ";
         break;
     case QtWarningMsg:
-        std::cout << "WARNING   ";
+        color = ANSI_YELLOW;
+        label = "WARNING   ";
         break;
     case QtCriticalMsg:
-        std::cout << "CRITICAL  ";
+        color = ANSI_RED;
+        label = "CRITICAL  ";
         break;
     case QtFatalMsg:
-        std::cout << "FATAL     ";
+        color = ANSI_RED;
+        label = "FATAL     ";
         break;
     }
-    std::cout << msg.toStdString();
+
+    std::cout << "[" << time.toStdString() << "] ";
 #ifdef DEBUG
-    std::cout << " [" << file.fileName().toStdString() << ":" << context.line << "]";
+    QFileInfo file(context.file ? context.file : "");
+    std::string fileName = file.fileName().toStdString();
+    if (useColor) {
+        std::cout << ANSI_BLUE << std::setw(LOG_FILE_WIDTH) << std::right << fileName
+                  << ANSI_RESET << ":" << ANSI_WHITE << std::setw(LOG_LINE_WIDTH) << std::left
+                  << context.line << ANSI_RESET << "  ";
+    } else {
+        std::cout << std::setw(LOG_FILE_WIDTH) << std::right << fileName << ":"
+                  << std::setw(LOG_LINE_WIDTH) << std::left << context.line << "  ";
+    }
 #endif
-    std::cout << std::endl;
+    if (useColor) {
+        std::cout << color << label << ANSI_RESET;
+    } else {
+        std::cout << label;
+    }
+    std::cout << msg.toStdString() << std::endl;
 }
 
 int main(int argc, char *argv[])
