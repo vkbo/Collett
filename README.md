@@ -1,3 +1,6 @@
+[![Build and Test](https://github.com/vkbo/Collett/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/vkbo/Collett/actions/workflows/build-and-test.yml)
+[![CodeQL](https://github.com/vkbo/Collett/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/vkbo/Collett/actions/workflows/github-code-scanning/codeql)
+
 # Collett
 
 A rich text editor for novels written in Qt/C++.

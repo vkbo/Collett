@@ -22,6 +22,7 @@
 #pragma once
 
 #include "collett.h"
+#include "counting.h"
 #include "document.h"
 #include "highlighter.h"
 #include "runnables.h"
@@ -83,9 +84,14 @@ public slots:
     void alignJustify();
     void blockIndent();
     void blockOutdent();
+    void runDocumentTasks();
+
+signals:
+    void documentCountsChanged(const QString &handle, const Collett::TextCounts &counts);
 
 private slots:
     void onContentsChange(int pos, int removed, int added);
+    void onCountsReady(const Collett::TextCounts &counts);
     void dispatchTextCheck();
     void onTextCheckResults(int jobId, const QList<Collett::TextCheckResult> &results);
     void updateCheckMarkers();
@@ -122,6 +128,13 @@ private:
     GuiDocHighlighter *m_highlighter = nullptr;
     SpellChecker *m_spell = nullptr;
     QMetaObject::Connection m_docConnection;
+    QString m_docHandle;
+
+    // Document Tasks
+    WordCounterDispatcher *m_wordCounter = nullptr;
+    QTimer *m_timerDocTasks = nullptr;
+    bool m_docTasksPending = false;
+    QString m_countHandle;
 
     // Text Checks
     bool m_checkSpelling = true;

@@ -161,7 +161,7 @@ Document *Project::openDocument(const QString &handle)
         return m_documents.value(handle);
     }
 
-    Document *doc = new Document(this);
+    Document *doc = new Document(handle, this);
     QJsonObject jDoc;
     if (m_store->readDocument(handle, jDoc) && !jDoc.isEmpty()) {
         doc->unpack(jDoc);

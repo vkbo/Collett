@@ -25,6 +25,64 @@
 
 namespace Collett {
 
+// WordCounterDispatcher
+// =====================
+
+WordCounterDispatcher::WordCounterDispatcher(QObject *parent) : QObject(parent)
+{
+    qRegisterMetaType<TextCounts>();
+}
+
+WordCounterDispatcher::~WordCounterDispatcher()
+{
+    qDebug() << "Destructor: WordCounterDispatcher";
+}
+
+/**! @brief Queue a count job in the global thread pool.
+ *
+ * The runnable's finished signal is delivered to onFinished with a queued
+ * connection, so the result arrives on the GUI thread. If the dispatcher is
+ * gone by then, Qt drops the delivery.
+ *
+ * @return Returns false if a job is already in flight and nothing was queued.
+ */
+bool WordCounterDispatcher::count(const CountBlockList &blocks)
+{
+    if (m_busy) {
+        return false;
+    }
+    m_busy = true;
+    BackgroundWordCounter *job = new BackgroundWordCounter(blocks);
+    connect(job, &BackgroundWordCounter::finished, this, &WordCounterDispatcher::onFinished, Qt::QueuedConnection);
+    QThreadPool::globalInstance()->start(job);
+    return true;
+}
+
+/**! @brief Clear the busy state before forwarding the result.
+ *
+ * This way the receiver is free to dispatch another count right away.
+ */
+void WordCounterDispatcher::onFinished(const TextCounts &counts)
+{
+    m_busy = false;
+    emit countsReady(counts);
+}
+
+// BackgroundWordCounter
+// =====================
+
+BackgroundWordCounter::BackgroundWordCounter(const CountBlockList &blocks) : m_blocks(blocks)
+{
+    this->setAutoDelete(true);
+}
+
+/**! @brief Run the standard counter on the snapshot and emit the result.
+ */
+void BackgroundWordCounter::run()
+{
+    emit finished(TextCounter::standardCount(m_blocks));
+}
+
 // TextCheckDispatcher
 // ===================
 

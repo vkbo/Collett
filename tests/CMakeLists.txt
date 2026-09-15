@@ -33,6 +33,7 @@ function(collett_add_test subdir name)
     )
 endfunction()
 
+collett_add_test(core tst_counting)
 collett_add_test(editor tst_highlighter)
 collett_add_test(editor tst_textcheck)
 collett_add_test(editor tst_texteditor)

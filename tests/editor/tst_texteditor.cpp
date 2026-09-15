@@ -49,6 +49,7 @@ private slots:
     void cursorWordNotMarked();
     void contextMenuSuggestions();
     void contextMenuAddWord();
+    void documentCounts();
     void noDocument();
 
 private:
@@ -344,6 +345,56 @@ void TestTextEditor::contextMenuAddWord()
     QVERIFY(spell.checkWord("helo"));
     QCOMPARE(selectionCount(editor, QTextCharFormat::SpellCheckUnderline), 0);
     QCOMPARE(spell.userDictionary()->count(), 2);
+
+    editor.openDocument(nullptr);
+}
+
+/**! @brief Opening a document counts it, and edits are recounted.
+ */
+void TestTextEditor::documentCounts()
+{
+    GuiTextEditor editor;
+    editor.resize(500, 400);
+    editor.show();
+    QSignalSpy spy(&editor, &GuiTextEditor::documentCountsChanged);
+
+    Document doc("0123456789abc");
+    QTextCursor cursor(&doc);
+    cursor.insertText("hello world");
+    editor.openDocument(&doc);
+
+    // The count on open runs in the background
+    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, 5000);
+    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("0123456789abc"));
+    TextCounts counts = spy.at(0).at(1).value<TextCounts>();
+    QCOMPARE(counts.words, 2);
+    QCOMPARE(counts.characters, 11);
+    QCOMPARE(counts.paragraphs, 1);
+
+    // An edit schedules the document tasks, which the test runs directly
+    // instead of waiting for the timer
+    QTextCursor edit = editor.textCursor();
+    edit.movePosition(QTextCursor::End);
+    edit.insertBlock();
+    edit.insertText("and more text");
+    editor.runDocumentTasks();
+    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 2, 5000);
+    counts = spy.at(1).at(1).value<TextCounts>();
+    QCOMPARE(counts.words, 5);
+    QCOMPARE(counts.paragraphs, 2);
+
+    // Nothing pending, so nothing is counted again
+    editor.runDocumentTasks();
+    QTest::qWait(200);
+    QCOMPARE(spy.count(), 2);
+
+    // A document without a handle is not reported
+    Document anon;
+    QTextCursor other(&anon);
+    other.insertText("no handle");
+    editor.openDocument(&anon);
+    QTest::qWait(200);
+    QCOMPARE(spy.count(), 2);
 
     editor.openDocument(nullptr);
 }

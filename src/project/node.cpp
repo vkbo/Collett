@@ -200,7 +200,7 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
     ItemType itemType = ItemType::FileType;
     ItemClass itemClass = ItemClass::NovelClass;
     ItemLevel itemLevel = ItemLevel::PageLevel;
-    Counts counts = {0, 0, 0};
+    TextCounts counts;
     bool expanded = false;
     bool active = false;
 

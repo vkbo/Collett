@@ -489,6 +489,27 @@ Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex
     return nullptr;
 }
 
+/**!
+ * @brief Store new text counts on a node and refresh its count column.
+ *
+ * The view is only notified if the counts actually changed.
+ *
+ * @param handle The handle of the node to update.
+ * @param counts The new counts.
+ * @return bool  True if the node exists and its counts changed.
+ */
+bool ProjectModel::updateCounts(const QString &handle, const TextCounts &counts)
+{
+    Node *node = m_tree->node(handle);
+    if (node == nullptr || node->counts() == counts) {
+        return false;
+    }
+    node->setCounts(counts);
+    QModelIndex index = createIndex(node->row(), 1, node);
+    emit dataChanged(index, index, {Qt::DisplayRole, Qt::ToolTipRole, Qt::AccessibleTextRole});
+    return true;
+}
+
 // Drag and Drop
 // =============
 

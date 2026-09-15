@@ -22,6 +22,7 @@
 #pragma once
 
 #include "collett.h"
+#include "counting.h"
 #include "spellchecker.h"
 #include "textblock.h"
 
@@ -31,6 +32,58 @@
 #include <QString>
 
 namespace Collett {
+
+/**! @brief Dispatches background word count jobs, one at a time.
+ *
+ * A job counts a snapshot of the document blocks in the thread pool, and
+ * the result comes back on the GUI thread through the countsReady signal.
+ * Only one job runs at a time. While it is in flight, isBusy() is true and
+ * count() refuses new jobs, so the caller must retry later.
+ */
+class WordCounterDispatcher : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit WordCounterDispatcher(QObject *parent = nullptr);
+    ~WordCounterDispatcher();
+
+    // Methods
+    bool count(const CountBlockList &blocks);
+
+    // Getters
+    bool isBusy() const { return m_busy; };
+
+signals:
+    void countsReady(const Collett::TextCounts &counts);
+
+private slots:
+    void onFinished(const Collett::TextCounts &counts);
+
+private:
+    bool m_busy = false;
+};
+
+/**! @brief The off-GUI thread word counter.
+ *
+ * A one-shot runnable that counts a batch of block snapshots in the thread
+ * pool, and emits the result when done.
+ */
+class BackgroundWordCounter : public QObject, public QRunnable
+{
+    Q_OBJECT
+
+public:
+    explicit BackgroundWordCounter(const CountBlockList &blocks);
+
+    void run() override;
+
+signals:
+    void finished(const Collett::TextCounts &counts);
+
+private:
+    CountBlockList m_blocks;
+};
 
 /**! @brief A block text snapshot sent to the background text check.
  *

@@ -35,6 +35,7 @@ class Document : public QTextDocument
 
 public:
     explicit Document(QObject *parent = nullptr);
+    explicit Document(const QString &handle, QObject *parent = nullptr);
     ~Document();
 
     // Methods
@@ -42,10 +43,12 @@ public:
     void unpack(const QJsonObject &data);
 
     // Getters
+    QString handle() const { return m_handle; };
     QString createdTime() const { return m_createdTime; };
     QString updatedTime() const { return m_updatedTime; };
 
 private:
+    QString m_handle = "";
     QString m_createdTime = "";
     QString m_updatedTime = "";
 };

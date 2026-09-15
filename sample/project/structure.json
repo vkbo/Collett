@@ -12,13 +12,13 @@
             "u:name": "Novel",
             "x:items": [
                 {
-                    "m:characters": 0,
+                    "m:characters": 12,
                     "m:expanded": false,
                     "m:handle": "f087f56665c9f",
                     "m:level": "Page",
                     "m:order": 0,
                     "m:type": "File",
-                    "m:words": 0,
+                    "m:words": 2,
                     "u:active": true,
                     "u:name": "Title Page"
                 },
@@ -34,13 +34,13 @@
                     "u:name": "Chapter 1",
                     "x:items": [
                         {
-                            "m:characters": 0,
+                            "m:characters": 16,
                             "m:expanded": false,
                             "m:handle": "76f002950cef6",
                             "m:level": "Scene",
                             "m:order": 0,
                             "m:type": "File",
-                            "m:words": 0,
+                            "m:words": 4,
                             "u:active": true,
                             "u:name": "Scene 1"
                         },

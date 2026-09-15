@@ -22,6 +22,7 @@
 #pragma once
 
 #include "collett.h"
+#include "counting.h"
 #include "node.h"
 
 #include <QAbstractItemModel>
@@ -71,6 +72,8 @@ public:
     Node *addRoot(QString name, ItemClass itemClass, const QModelIndex &selected);
     Node *addFolder(QString name, const QModelIndex &selected);
     Node *addFile(QString name, ItemLevel itemLevel, const QModelIndex &selected);
+
+    bool updateCounts(const QString &handle, const TextCounts &counts);
 
     // Drag and Drop
     QStringList mimeTypes() const;

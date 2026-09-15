@@ -57,12 +57,25 @@ static const int MARKER_DELAY = 150;
 // Maximum number of spelling suggestions shown in the context menu
 static const int MAX_SUGGESTIONS = 15;
 
+// Milliseconds after an edit before the document tasks, like the word
+// counter, are run. Further edits in that window do not push it back.
+static const int DOC_TASK_DELAY = 5000;
+
 // Constructor/Destructor
 // ======================
 
 GuiTextEditor::GuiTextEditor(QWidget *parent) : QTextEdit(parent)
 {
     m_highlighter = new GuiDocHighlighter(this);
+
+    // Document Tasks
+    m_wordCounter = new WordCounterDispatcher(this);
+    connect(m_wordCounter, &WordCounterDispatcher::countsReady, this, &GuiTextEditor::onCountsReady);
+
+    m_timerDocTasks = new QTimer(this);
+    m_timerDocTasks->setSingleShot(true);
+    m_timerDocTasks->setInterval(DOC_TASK_DELAY);
+    connect(m_timerDocTasks, &QTimer::timeout, this, &GuiTextEditor::runDocumentTasks);
 
     // Text Checks
     m_dispatcher = new TextCheckDispatcher(this);
@@ -98,19 +111,26 @@ GuiTextEditor::~GuiTextEditor()
  *
  * The highlighter follows the document and is run right away, so every block
  * has its data before the text check pass starts. Any check job in flight
- * for the previous document is dropped.
+ * for the previous document is dropped, and the document tasks are run at
+ * once so the new document's counts are up to date.
  */
 void GuiTextEditor::openDocument(Document *doc)
 {
     if (m_docConnection) {
         disconnect(m_docConnection);
     }
+    m_timerDocTasks->stop();
+    m_docTasksPending = false;
+    m_docHandle = doc != nullptr ? doc->handle() : QString();
+
     this->setDocument(doc);
     m_highlighter->setDocument(doc);
     this->setEnabled(doc != nullptr);
     if (doc != nullptr) {
         m_docConnection = connect(doc, &QTextDocument::contentsChange, this, &GuiTextEditor::onContentsChange);
         m_highlighter->rehighlight();
+        m_docTasksPending = true;
+        this->runDocumentTasks();
     }
     this->beginCheckPass();
 }
@@ -408,19 +428,51 @@ void GuiTextEditor::blockOutdent()
     cursor.setBlockFormat(format);
 }
 
+/**! @brief Run the tasks that follow an edit, if any edit is pending.
+ *
+ * Currently this sends a snapshot of the document to the background word
+ * counter. If a count is still in flight, the tasks are tried again after
+ * the usual delay, so the edits made during the count are not lost.
+ */
+void GuiTextEditor::runDocumentTasks()
+{
+    QTextDocument *doc = m_highlighter->document();
+    if (!m_docTasksPending || doc == nullptr || m_docHandle.isEmpty()) {
+        return;
+    }
+    if (m_wordCounter->isBusy()) {
+        m_timerDocTasks->start();
+        return;
+    }
+    qDebug() << "Running document tasks";
+    m_docTasksPending = false;
+    m_countHandle = m_docHandle;
+    m_wordCounter->count(TextCounter::snapshot(doc));
+}
+
 // Private Slots
 // =============
 
 /**! @brief Queue the blocks touched by an edit for the background text check.
  *
  * The highlighter has already re-snapshotted these blocks and cleared their
- * cached errors by the time this runs, so the markers are refreshed too.
+ * cached errors by the time this runs, so the markers are refreshed too. The
+ * document tasks are also scheduled, unless they already are.
  */
 void GuiTextEditor::onContentsChange(int pos, int removed, int added)
 {
     Q_UNUSED(removed);
     QTextDocument *doc = m_highlighter->document();
-    if (doc == nullptr || (!m_checkSpelling && !m_checkFormatting)) {
+    if (doc == nullptr) {
+        return;
+    }
+
+    m_docTasksPending = true;
+    if (!m_timerDocTasks->isActive()) {
+        m_timerDocTasks->start();
+    }
+
+    if (!m_checkSpelling && !m_checkFormatting) {
         return;
     }
     QTextBlock block = doc->findBlock(pos);
@@ -430,6 +482,18 @@ void GuiTextEditor::onContentsChange(int pos, int removed, int added)
     }
     m_timerTextCheck->start();
     m_timerMarkers->start();
+}
+
+/**! @brief Forward the counts from the background word counter.
+ *
+ * The result is dropped if the editor has moved on to another document
+ * since the count was dispatched.
+ */
+void GuiTextEditor::onCountsReady(const TextCounts &counts)
+{
+    if (!m_countHandle.isEmpty() && m_countHandle == m_docHandle) {
+        emit documentCountsChanged(m_countHandle, counts);
+    }
 }
 
 /**! @brief Send the next batch of blocks to the background text check.
