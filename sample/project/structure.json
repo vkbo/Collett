@@ -2,23 +2,20 @@
     "c:format": "CollettProjectStructure",
     "x:items": [
         {
-            "m:characters": 100,
             "m:class": "Novel",
             "m:expanded": true,
             "m:handle": "5ccaffdf6890c",
             "m:order": 0,
             "m:type": "Root",
-            "m:words": 10,
             "u:name": "Novel",
             "x:items": [
                 {
-                    "m:characters": 0,
-                    "m:expanded": false,
+                    "m:characters": 12,
                     "m:handle": "f087f56665c9f",
                     "m:level": "Page",
                     "m:order": 0,
                     "m:type": "File",
-                    "m:words": 0,
+                    "m:words": 2,
                     "u:active": true,
                     "u:name": "Title Page"
                 },
@@ -34,19 +31,17 @@
                     "u:name": "Chapter 1",
                     "x:items": [
                         {
-                            "m:characters": 0,
-                            "m:expanded": false,
+                            "m:characters": 16,
                             "m:handle": "76f002950cef6",
                             "m:level": "Scene",
                             "m:order": 0,
                             "m:type": "File",
-                            "m:words": 0,
+                            "m:words": 4,
                             "u:active": true,
                             "u:name": "Scene 1"
                         },
                         {
                             "m:characters": 0,
-                            "m:expanded": false,
                             "m:handle": "abcecf6a451ec",
                             "m:level": "Scene",
                             "m:order": 1,
@@ -60,18 +55,15 @@
             ]
         },
         {
-            "m:characters": 200,
             "m:class": "Character",
             "m:expanded": true,
             "m:handle": "74c3f17845abb",
             "m:order": 1,
             "m:type": "Root",
-            "m:words": 20,
             "u:name": "Characters",
             "x:items": [
                 {
                     "m:characters": 0,
-                    "m:expanded": false,
                     "m:handle": "5ab5a02c086e2",
                     "m:level": "Note",
                     "m:order": 0,
@@ -82,7 +74,6 @@
                 },
                 {
                     "m:characters": 0,
-                    "m:expanded": false,
                     "m:handle": "c944b972e312e",
                     "m:level": "Note",
                     "m:order": 1,
@@ -92,17 +83,14 @@
                     "u:name": "John Smith"
                 },
                 {
-                    "m:characters": 0,
                     "m:expanded": true,
                     "m:handle": "ed6dafedd6bfc",
                     "m:order": 2,
                     "m:type": "Folder",
-                    "m:words": 0,
                     "u:name": "Side Characters",
                     "x:items": [
                         {
                             "m:characters": 0,
-                            "m:expanded": false,
                             "m:handle": "f46f0001e1b3e",
                             "m:level": "Note",
                             "m:order": 0,
@@ -113,7 +101,6 @@
                         },
                         {
                             "m:characters": 0,
-                            "m:expanded": false,
                             "m:handle": "b5c70d75cff2c",
                             "m:level": "Note",
                             "m:order": 1,
@@ -127,18 +114,15 @@
             ]
         },
         {
-            "m:characters": 300,
             "m:class": "Plot",
             "m:expanded": true,
             "m:handle": "b77f0e1b7eca7",
             "m:order": 2,
             "m:type": "Root",
-            "m:words": 30,
             "u:name": "Plot",
             "x:items": [
                 {
                     "m:characters": 0,
-                    "m:expanded": false,
                     "m:handle": "365e1186adf76",
                     "m:level": "Note",
                     "m:order": 0,
@@ -149,7 +133,6 @@
                 },
                 {
                     "m:characters": 0,
-                    "m:expanded": false,
                     "m:handle": "d7f89e189dd24",
                     "m:level": "Note",
                     "m:order": 1,

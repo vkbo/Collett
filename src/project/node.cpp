@@ -81,6 +81,15 @@ void Node::setActive(bool state)
     }
 }
 
+/**!
+ * @brief Set the node's own text counts and update the totals up the tree.
+ */
+void Node::setCounts(const TextCounts &counts)
+{
+    m_counts = counts;
+    this->updateTotals();
+}
+
 // Checkers
 // ========
 
@@ -174,10 +183,14 @@ void Node::pack(QJsonObject &data)
         data["u:name"_L1] = m_name;
         data["m:handle"_L1] = m_handle;
         data["m:order"_L1] = row();
-        data["m:characters"_L1] = m_counts.characters;
-        data["m:words"_L1] = m_counts.words;
-        data["m:expanded"_L1] = m_expanded;
+        if (m_type == ItemType::FileType) {
+            // Only files have counts of their own, the rest are totals
+            data["m:characters"_L1] = m_counts.characters;
+            data["m:words"_L1] = m_counts.words;
+        }
         if (children.size() > 0) {
+            // Only a node with children can be expanded
+            data["m:expanded"_L1] = m_expanded;
             data["x:items"_L1] = children;
         }
     }
@@ -200,7 +213,7 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
     ItemType itemType = ItemType::FileType;
     ItemClass itemClass = ItemClass::NovelClass;
     ItemLevel itemLevel = ItemLevel::PageLevel;
-    Counts counts = {0, 0, 0};
+    TextCounts counts;
     bool expanded = false;
     bool active = false;
 
@@ -235,11 +248,16 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
     }
 
     // Meta Values
-    if (data.contains("m:words"_L1)) {
-        counts.words = data["m:words"_L1].toInt();
-    }
-    if (data.contains("m:characters"_L1)) {
-        counts.characters = data["m:characters"_L1].toInt();
+    // Only files carry counts of their own. Anything stored on a root or a
+    // folder, as older project files may have, is ignored so the totals are
+    // rebuilt from the files alone.
+    if (itemType == ItemType::FileType) {
+        if (data.contains("m:words"_L1)) {
+            counts.words = qMax(data["m:words"_L1].toInt(), 0);
+        }
+        if (data.contains("m:characters"_L1)) {
+            counts.characters = qMax(data["m:characters"_L1].toInt(), 0);
+        }
     }
     if (data.contains("m:expanded"_L1)) {
         expanded = data["m:expanded"_L1].toBool();
@@ -340,10 +358,10 @@ QVariant Node::data(int column, int role) const
     case 1:
         switch (role) {
         case Qt::DisplayRole:
-            return QVariant::fromValue(m_counts.words);
+            return QVariant::fromValue(m_totals.words);
         case Qt::ToolTipRole:
         case Qt::AccessibleTextRole:
-            return QVariant::fromValue(m_accWords.arg(m_counts.words));
+            return QVariant::fromValue(m_accWords.arg(m_totals.words));
         case Qt::TextAlignmentRole:
             return QVariant::fromValue(Qt::AlignRight);
         }
@@ -382,6 +400,7 @@ void Node::addChild(Node *child, qsizetype pos)
     }
     child->updateIcon();
     child->updateValues();
+    this->updateTotals();
 }
 
 Node *Node::takeChild(qsizetype pos)
@@ -389,6 +408,7 @@ Node *Node::takeChild(qsizetype pos)
     if (pos >= 0 && pos < m_children.count()) {
         Node *child = m_children.takeAt(pos);
         m_tree->removeNode(child->handle());
+        this->updateTotals();
         return child;
     }
     return nullptr;
@@ -440,6 +460,26 @@ void Node::updateValues()
                 this->updateIcon();
             }
         }
+    }
+}
+
+/**!
+ * @brief Recompute the totals from the node's own counts and its children.
+ *
+ * The totals are what the tree shows, so a folder or a chapter shows the sum
+ * of everything under it, as in novelWriter. The change is propagated to the
+ * parent by default, so the totals stay correct all the way up to the root.
+ *
+ * @param propagate Also update the ancestors.
+ */
+void Node::updateTotals(bool propagate)
+{
+    m_totals = m_counts;
+    for (const Node *child : std::as_const(m_children)) {
+        m_totals += child->m_totals;
+    }
+    if (propagate && m_parent) {
+        m_parent->updateTotals(true);
     }
 }
 

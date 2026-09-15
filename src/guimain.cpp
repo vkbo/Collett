@@ -75,6 +75,7 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent)
     connect(projectToolBar, &GuiProjectToolBar::createRootRequested, projectPanel, &GuiProjectPanel::createRoot);
 
     connect(projectPanel->projectView, &GuiProjectView::nodeActivated, this, &GuiMain::onNodeActivated);
+    connect(workPanel->editorView->textEditor, &GuiTextEditor::documentCountsChanged, this, &GuiMain::onDocumentCountsChanged);
 
     // Assemble
     this->setCentralWidget(m_splitMain);
@@ -192,6 +193,15 @@ void GuiMain::onNodeActivated(Node *node)
         doc = m_data->project()->openDocument(node->handle());
     }
     workPanel->editorView->textEditor->openDocument(doc);
+}
+
+/**! @brief Store the counts from the editor on the project node.
+ */
+void GuiMain::onDocumentCountsChanged(const QString &handle, const TextCounts &counts)
+{
+    if (m_data->hasProject()) {
+        m_data->project()->tree()->model()->updateCounts(handle, counts);
+    }
 }
 
 void GuiMain::updateTitle()

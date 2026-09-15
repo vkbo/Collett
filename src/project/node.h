@@ -22,6 +22,7 @@
 #pragma once
 
 #include "collett.h"
+#include "counting.h"
 
 #include <QIcon>
 #include <QJsonObject>
@@ -35,13 +36,6 @@ class Tree;
 class Node : public QObject
 {
     Q_OBJECT
-
-    struct Counts
-    {
-        qint32 characters;
-        qint32 words;
-        qint32 paragraphs;
-    };
 
 public:
     Node(Tree *tree, ItemType itemType, QString handle, QString name);
@@ -57,12 +51,13 @@ public:
     ItemLevel itemLevel() const { return m_level; };
     QString handle() const { return m_handle; };
     QString name() const { return m_name; };
-    Counts counts() { return m_counts; };
+    TextCounts counts() const { return m_counts; };
+    TextCounts totals() const { return m_totals; };
     bool isExpanded() { return m_expanded; };
 
     // Setters
     void setName(QString name) { m_name = name.simplified(); };
-    void setCounts(Counts counts) { m_counts = counts; };
+    void setCounts(const TextCounts &counts);
     void setExpanded(bool state) { m_expanded = state; };
     void setActive(bool state);
 
@@ -95,6 +90,7 @@ public:
 
     void updateIcon();
     void updateValues();
+    void updateTotals(bool propagate = true);
 
     // Static Methods
     static bool typeFromString(QString value, ItemType &itemType);
@@ -113,7 +109,8 @@ private:
 
     // Meta
     QIcon m_icon;
-    Counts m_counts = {0, 0, 0};
+    TextCounts m_counts;
+    TextCounts m_totals;
     bool m_expanded = false;
     QIcon m_activeIcon;
 

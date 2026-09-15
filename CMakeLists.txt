@@ -80,6 +80,7 @@ qt_standard_project_setup(
 
 # Source Files
 list(APPEND SRC_FILES
+    src/core/counting.cpp
     src/core/icons.cpp
     src/core/storage.cpp
     src/core/tools.cpp

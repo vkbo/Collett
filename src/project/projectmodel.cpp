@@ -257,6 +257,7 @@ void ProjectModel::insertChild(Node *child, const QModelIndex &parent, qsizetype
     emit beginInsertRows(parent, row, row);
     node->addChild(child, row);
     emit endInsertRows();
+    this->notifyCountsChanged(node);
 }
 
 /**!
@@ -283,6 +284,7 @@ Node *ProjectModel::removeChild(const QModelIndex &parent, qsizetype pos)
         emit beginRemoveRows(parent, pos, pos);
         Node *child = node->takeChild(pos);
         emit endRemoveRows();
+        this->notifyCountsChanged(node);
         return child;
     }
     return nullptr;
@@ -489,6 +491,28 @@ Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex
     return nullptr;
 }
 
+/**!
+ * @brief Store new text counts on a node and refresh the count column.
+ *
+ * The node's totals, and those of its ancestors, are updated too, and the
+ * view is notified for all of them. Nothing happens if the counts are
+ * unchanged.
+ *
+ * @param handle The handle of the node to update.
+ * @param counts The new counts.
+ * @return bool  True if the node exists and its counts changed.
+ */
+bool ProjectModel::updateCounts(const QString &handle, const TextCounts &counts)
+{
+    Node *node = m_tree->node(handle);
+    if (node == nullptr || node->counts() == counts) {
+        return false;
+    }
+    node->setCounts(counts);
+    this->notifyCountsChanged(node);
+    return true;
+}
+
 // Drag and Drop
 // =============
 
@@ -540,6 +564,26 @@ bool ProjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, in
         return true;
     }
     return false;
+}
+
+// Private Methods
+// ===============
+
+/**!
+ * @brief Emit dataChanged for the count column of a node and its ancestors.
+ *
+ * Totals propagate upwards, so every node from the given one up to, but not
+ * including, the invisible root may show a new value.
+ *
+ * @param node The lowest node whose totals changed.
+ */
+void ProjectModel::notifyCountsChanged(Node *node)
+{
+    while (node && node != m_root) {
+        QModelIndex index = createIndex(node->row(), 1, node);
+        emit dataChanged(index, index, {Qt::DisplayRole, Qt::ToolTipRole, Qt::AccessibleTextRole});
+        node = node->parent();
+    }
 }
 
 // Static Methods

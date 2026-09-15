@@ -22,6 +22,7 @@
 #pragma once
 
 #include "collett.h"
+#include "counting.h"
 #include "data.h"
 #include "projectpanel.h"
 #include "projecttoolbar.h"
@@ -74,6 +75,7 @@ private slots:
     void onProjectSave() { saveProject(); };
     void onProjectClose() { closeProject(); };
     void onNodeActivated(Node *node);
+    void onDocumentCountsChanged(const QString &handle, const Collett::TextCounts &counts);
     void updateTitle();
 };
 } // namespace Collett

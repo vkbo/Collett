@@ -46,6 +46,16 @@ Document::Document(QObject *parent) : QTextDocument(parent)
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
 }
 
+/**! @brief Create a document tied to a project node by its handle.
+ *
+ * The handle lets the editor report results, like word counts, back to the
+ * right node without holding on to the node itself.
+ */
+Document::Document(const QString &handle, QObject *parent) : Document(parent)
+{
+    m_handle = handle;
+}
+
 Document::~Document()
 {
     qDebug() << "Destructor: Document";
