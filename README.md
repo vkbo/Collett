@@ -15,7 +15,7 @@ This is an experimental repo for the time being. It is not a usable application 
 On Debian or Ubuntu:
 
 ```bash
-sudo apt install cmake ninja-build \
+sudo apt install cmake \
     qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools \
     libnuspell-dev
 ```
@@ -27,12 +27,13 @@ installed with `pip install gcovr`.
 ### Build
 
 ```bash
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ./build/collett
 ```
 
-Use `-DCMAKE_BUILD_TYPE=Debug` for a debug build.
+Use `-DCMAKE_BUILD_TYPE=Debug` for a debug build. Add `-j` to the build
+command to compile in parallel, for instance `cmake --build build -j 8`.
 
 ### Tests
 
@@ -52,6 +53,6 @@ The coverage build instruments the core library and adds a `coverage` target
 that runs the tests and writes a report to `build_cov/coverage/index.html`:
 
 ```bash
-cmake -S . -B build_cov -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOLLETT_COVERAGE=ON
+cmake -S . -B build_cov -DCMAKE_BUILD_TYPE=Debug -DCOLLETT_COVERAGE=ON
 cmake --build build_cov --target coverage
 ```
