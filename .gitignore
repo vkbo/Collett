@@ -1,6 +1,19 @@
 # Build
 build/
+build_cov/
 _temp/
 
 # IDE
 .vscode/
+
+# No AI files
+AGENTS.md
+CLAUSE.md
+GEMINI.md
+.claude/
+.cursor*
+.codex/
+.gemini/
+
+# Other
+.config

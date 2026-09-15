@@ -52,7 +52,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 # set(CMAKE_PREFIX_PATH "lib/qt6/6.5.0/gcc_64/lib/cmake/")
 
 set(QT_DEFAULT_MAJOR_VERSION 6)
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Svg LinguistTools)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Svg LinguistTools Test)
 if(Qt6Core_FOUND)
     message(STATUS "Found Qt6Core Version: ${Qt6Core_VERSION}")
 endif()
@@ -96,13 +96,66 @@ list(APPEND SRC_FILES
     src/widgets/mtreeview.cpp
     src/constants.cpp
     src/guimain.cpp
-    src/main.cpp
 )
+
+# Coverage
+# ========
+option(COLLETT_COVERAGE "Instrument the core library for gcov coverage" OFF)
+if(COLLETT_COVERAGE)
+    message(STATUS "Coverage instrumentation: ON")
+    add_compile_options(--coverage -O0 -g)
+    add_link_options(--coverage)
+
+    # A "coverage" target that runs the tests and renders a report. Requires
+    # gcovr (pip install gcovr); the target is only defined when it is found.
+    find_program(GCOVR_EXECUTABLE gcovr)
+    if(GCOVR_EXECUTABLE)
+        add_custom_target(coverage
+            COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+                ${CMAKE_BINARY_DIR}/coverage
+            COMMAND ${GCOVR_EXECUTABLE}
+                --root ${CMAKE_SOURCE_DIR}
+                --filter ${CMAKE_SOURCE_DIR}/src/
+                --exclude ".*autogen.*"
+                --gcov-ignore-parse-errors
+                --txt
+                --html-details ${CMAKE_BINARY_DIR}/coverage/index.html
+                --cobertura-pretty --cobertura ${CMAKE_BINARY_DIR}/coverage/coverage.xml
+                --lcov ${CMAKE_BINARY_DIR}/coverage/lcov.info
+                ${CMAKE_BINARY_DIR}
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMENT "Running tests and generating coverage report"
+            USES_TERMINAL
+        )
+    else()
+        message(STATUS "gcovr not found; 'coverage' target unavailable")
+    endif()
+endif()
 
 # Targets
 # =======
 
-qt_add_executable(Collett ${SRC_FILES})
+# Core library
+# ------------
+qt_add_library(CollettCore STATIC ${SRC_FILES})
+target_include_directories(CollettCore PUBLIC
+    src
+    src/core
+    src/dialogs
+    src/editor
+    src/gui
+    src/project
+    src/static
+    src/widgets
+)
+target_link_libraries(CollettCore PUBLIC Qt::Widgets Qt::Svg)
+target_compile_definitions(CollettCore PUBLIC "$<$<CONFIG:Debug>:DEBUG>")
+
+# Executable
+# ----------
+qt_add_executable(Collett src/main.cpp)
+target_link_libraries(Collett PRIVATE CollettCore)
 qt_add_translations(Collett TS_FILE_DIR i18n)
 qt_add_resources(Collett "assets" PREFIX "/styles" BASE "assets/" FILES
     assets/styles.qss
@@ -114,15 +167,12 @@ add_custom_target(assets
 add_dependencies(Collett assets)
 
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")
-target_include_directories(Collett PRIVATE
-    src
-    src/core
-    src/dialogs
-    src/editor
-    src/gui
-    src/project
-    src/static
-    src/widgets
-)
-target_link_libraries(Collett PRIVATE Qt::Widgets Qt::Svg)
-target_compile_definitions(Collett PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
+
+# Tests
+# =====
+
+option(COLLETT_BUILD_TESTS "Build the Collett unit tests" ON)
+if(COLLETT_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
