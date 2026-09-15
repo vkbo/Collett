@@ -43,6 +43,13 @@ struct TextCounts
         return characters == other.characters && words == other.words && paragraphs == other.paragraphs;
     }
     bool operator!=(const TextCounts &other) const { return !(*this == other); }
+    TextCounts &operator+=(const TextCounts &other)
+    {
+        characters += other.characters;
+        words += other.words;
+        paragraphs += other.paragraphs;
+        return *this;
+    }
 };
 
 /**! @brief A block snapshot for counting, detached from the document.

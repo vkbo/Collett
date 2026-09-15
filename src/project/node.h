@@ -52,11 +52,12 @@ public:
     QString handle() const { return m_handle; };
     QString name() const { return m_name; };
     TextCounts counts() const { return m_counts; };
+    TextCounts totals() const { return m_totals; };
     bool isExpanded() { return m_expanded; };
 
     // Setters
     void setName(QString name) { m_name = name.simplified(); };
-    void setCounts(const TextCounts &counts) { m_counts = counts; };
+    void setCounts(const TextCounts &counts);
     void setExpanded(bool state) { m_expanded = state; };
     void setActive(bool state);
 
@@ -89,6 +90,7 @@ public:
 
     void updateIcon();
     void updateValues();
+    void updateTotals(bool propagate = true);
 
     // Static Methods
     static bool typeFromString(QString value, ItemType &itemType);
@@ -108,6 +110,7 @@ private:
     // Meta
     QIcon m_icon;
     TextCounts m_counts;
+    TextCounts m_totals;
     bool m_expanded = false;
     QIcon m_activeIcon;
 

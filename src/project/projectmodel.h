@@ -88,5 +88,7 @@ public:
 private:
     Node *m_root = nullptr;
     Tree *m_tree = nullptr;
+
+    void notifyCountsChanged(Node *node);
 };
 } // namespace Collett

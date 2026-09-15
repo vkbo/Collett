@@ -81,6 +81,15 @@ void Node::setActive(bool state)
     }
 }
 
+/**!
+ * @brief Set the node's own text counts and update the totals up the tree.
+ */
+void Node::setCounts(const TextCounts &counts)
+{
+    m_counts = counts;
+    this->updateTotals();
+}
+
 // Checkers
 // ========
 
@@ -340,10 +349,10 @@ QVariant Node::data(int column, int role) const
     case 1:
         switch (role) {
         case Qt::DisplayRole:
-            return QVariant::fromValue(m_counts.words);
+            return QVariant::fromValue(m_totals.words);
         case Qt::ToolTipRole:
         case Qt::AccessibleTextRole:
-            return QVariant::fromValue(m_accWords.arg(m_counts.words));
+            return QVariant::fromValue(m_accWords.arg(m_totals.words));
         case Qt::TextAlignmentRole:
             return QVariant::fromValue(Qt::AlignRight);
         }
@@ -382,6 +391,7 @@ void Node::addChild(Node *child, qsizetype pos)
     }
     child->updateIcon();
     child->updateValues();
+    this->updateTotals();
 }
 
 Node *Node::takeChild(qsizetype pos)
@@ -389,6 +399,7 @@ Node *Node::takeChild(qsizetype pos)
     if (pos >= 0 && pos < m_children.count()) {
         Node *child = m_children.takeAt(pos);
         m_tree->removeNode(child->handle());
+        this->updateTotals();
         return child;
     }
     return nullptr;
@@ -440,6 +451,26 @@ void Node::updateValues()
                 this->updateIcon();
             }
         }
+    }
+}
+
+/**!
+ * @brief Recompute the totals from the node's own counts and its children.
+ *
+ * The totals are what the tree shows, so a folder or a chapter shows the sum
+ * of everything under it, as in novelWriter. The change is propagated to the
+ * parent by default, so the totals stay correct all the way up to the root.
+ *
+ * @param propagate Also update the ancestors.
+ */
+void Node::updateTotals(bool propagate)
+{
+    m_totals = m_counts;
+    for (const Node *child : std::as_const(m_children)) {
+        m_totals += child->m_totals;
+    }
+    if (propagate && m_parent) {
+        m_parent->updateTotals(true);
     }
 }
 
