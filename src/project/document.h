@@ -41,7 +41,12 @@ public:
     void pack(QJsonObject &data);
     void unpack(const QJsonObject &data);
 
+    // Getters
+    QString createdTime() const { return m_createdTime; };
+    QString updatedTime() const { return m_updatedTime; };
+
 private:
     QString m_createdTime = "";
+    QString m_updatedTime = "";
 };
 } // namespace Collett
