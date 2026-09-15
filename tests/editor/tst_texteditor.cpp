@@ -25,6 +25,8 @@
 #include "texteditor.h"
 #include "theme.h"
 
+#include <QAction>
+#include <QMenu>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QtTest>
@@ -45,6 +47,8 @@ private slots:
     void editsAreRechecked();
     void backgroundPass();
     void cursorWordNotMarked();
+    void contextMenuSuggestions();
+    void contextMenuAddWord();
     void noDocument();
 
 private:
@@ -237,6 +241,109 @@ void TestTextEditor::cursorWordNotMarked()
     editor.setTextCursor(move);
     QTRY_COMPARE_WITH_TIMEOUT(selectionCount(editor, QTextCharFormat::SingleUnderline), 0, 5000);
     QCOMPARE(selectionCount(editor, QTextCharFormat::SpellCheckUnderline), 1);
+
+    editor.openDocument(nullptr);
+}
+
+/**! @brief Find a menu action by its text, or return null.
+ */
+static QAction *findAction(const QMenu *menu, const QString &text)
+{
+    const QList<QAction *> actions = menu->actions();
+    for (QAction *action : actions) {
+        if (action->text() == text) {
+            return action;
+        }
+    }
+    return nullptr;
+}
+
+/**! @brief The context menu on a misspelled word offers suggestions that replace it.
+ */
+void TestTextEditor::contextMenuSuggestions()
+{
+    SpellChecker spell;
+    spell.setDictionaryPaths({DATA_DIR});
+    spell.setLanguage(TEST_TAG);
+
+    GuiTextEditor editor;
+    editor.resize(500, 400);
+    editor.show();
+    editor.setSpellChecker(&spell);
+
+    Document doc;
+    QTextCursor cursor(&doc);
+    cursor.insertText("hello helo");
+    editor.openDocument(&doc);
+
+    // On the misspelled word
+    QTextCursor inWord(&doc);
+    inWord.setPosition(8);
+    QMenu *menu = editor.buildContextMenu(editor.cursorRect(inWord).center());
+    QVERIFY(findAction(menu, "Add Word to Dictionary") != nullptr);
+    QVERIFY(findAction(menu, "Ignore Word") != nullptr);
+    QVERIFY(findAction(menu, "Spelling Suggestion(s)") != nullptr);
+    QVERIFY(!findAction(menu, "Spelling Suggestion(s)")->isEnabled());
+
+    QAction *suggestion = findAction(menu, QString::fromUtf8("– hello"));
+    QVERIFY(suggestion != nullptr);
+    suggestion->trigger();
+    QCOMPARE(doc.toPlainText(), QStringLiteral("hello hello"));
+    QCOMPARE(editor.textCursor().position(), 6);
+    delete menu;
+
+    // On a correct word there is no spelling section
+    QTextCursor inGood(&doc);
+    inGood.setPosition(2);
+    menu = editor.buildContextMenu(editor.cursorRect(inGood).center());
+    QVERIFY(findAction(menu, "Add Word to Dictionary") == nullptr);
+    QVERIFY(findAction(menu, "Ignore Word") == nullptr);
+    delete menu;
+
+    editor.openDocument(nullptr);
+}
+
+/**! @brief Ignoring or adding a word removes its marker via a recheck.
+ */
+void TestTextEditor::contextMenuAddWord()
+{
+    SpellChecker spell;
+    spell.setDictionaryPaths({DATA_DIR});
+    spell.setLanguage(TEST_TAG);
+
+    GuiTextEditor editor;
+    editor.resize(500, 400);
+    editor.show();
+    editor.setSpellChecker(&spell);
+
+    Document doc;
+    QTextCursor cursor(&doc);
+    cursor.insertText("hello wrld helo");
+    editor.openDocument(&doc);
+    QCOMPARE(selectionCount(editor, QTextCharFormat::SpellCheckUnderline), 2);
+
+    // Ignore the first word for the session
+    QTextCursor first(&doc);
+    first.setPosition(7);
+    QMenu *menu = editor.buildContextMenu(editor.cursorRect(first).center());
+    QAction *ignore = findAction(menu, "Ignore Word");
+    QVERIFY(ignore != nullptr);
+    ignore->trigger();
+    delete menu;
+    QVERIFY(spell.checkWord("wrld"));
+    QCOMPARE(selectionCount(editor, QTextCharFormat::SpellCheckUnderline), 1);
+
+    // Add the second word to the dictionary
+    QTextCursor second(&doc);
+    second.setPosition(13);
+    menu = editor.buildContextMenu(editor.cursorRect(second).center());
+    QAction *add = findAction(menu, "Add Word to Dictionary");
+    QVERIFY(add != nullptr);
+    add->trigger();
+    delete menu;
+    QVERIFY(spell.checkWord("helo"));
+    QCOMPARE(selectionCount(editor, QTextCharFormat::SpellCheckUnderline), 0);
+    QCOMPARE(spell.userDictionary()->count(), 2);
 
     editor.openDocument(nullptr);
 }

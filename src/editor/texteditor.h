@@ -28,9 +28,12 @@
 #include "spellchecker.h"
 #include "textblock.h"
 
+#include <QContextMenuEvent>
 #include <QHash>
 #include <QKeyEvent>
 #include <QList>
+#include <QMenu>
+#include <QPoint>
 #include <QResizeEvent>
 #include <QTextBlock>
 #include <QTextCharFormat>
@@ -51,6 +54,7 @@ public:
     void openDocument(Document *doc);
     void updateTheme();
     void beginCheckPass();
+    QMenu *buildContextMenu(const QPoint &pos);
 
     // Setters
     void setSpellChecker(SpellChecker *spell);
@@ -64,6 +68,7 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 public slots:
     void toggleBold(bool bold);
@@ -105,6 +110,9 @@ private:
     };
 
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
+    bool spellErrorAt(int pos, QTextBlock &block, TextCheck &error) const;
+    void correctWord(QTextCursor cursor, const QString &word);
+    void addWord(const QString &word, bool save);
     void visibleBlockRange(QTextBlock &first, int &last) const;
     QList<QTextEdit::ExtraSelection> buildSelections(
         const QTextBlock &block, const QTextCharFormat &format, const TextCheckList &errors

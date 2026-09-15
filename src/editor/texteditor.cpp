@@ -27,8 +27,11 @@
 #include "texteditor.h"
 #include "theme.h"
 
+#include <QAction>
+#include <QContextMenuEvent>
 #include <QFont>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QRect>
 #include <QResizeEvent>
 #include <QScrollBar>
@@ -50,6 +53,9 @@ static const int TEXT_CHECK_DELAY = 300;
 
 // Milliseconds of quiet before the error markers are refreshed
 static const int MARKER_DELAY = 150;
+
+// Maximum number of spelling suggestions shown in the context menu
+static const int MAX_SUGGESTIONS = 15;
 
 // Constructor/Destructor
 // ======================
@@ -147,6 +153,47 @@ void GuiTextEditor::beginCheckPass()
         this->dispatchTextCheck();
     }
     this->updateCheckMarkers();
+}
+
+/**! @brief Build the context menu for a position in the viewport.
+ *
+ * The standard edit actions come first. If the position is on a misspelled
+ * word, the spelling suggestions follow, with actions to ignore the word for
+ * the session or add it to the project dictionary. The caller owns the menu.
+ */
+QMenu *GuiTextEditor::buildContextMenu(const QPoint &pos)
+{
+    QMenu *menu = this->createStandardContextMenu(pos);
+
+    QTextBlock block;
+    TextCheck error;
+    if (m_checkSpelling && m_spell != nullptr && this->spellErrorAt(this->cursorForPosition(pos).position(), block, error)) {
+        qDebug() << "Word" << error.text << "is misspelled";
+        QTextCursor cursor(block);
+        cursor.setPosition(block.position() + error.start);
+        cursor.setPosition(block.position() + error.end, QTextCursor::KeepAnchor);
+
+        menu->addSeparator();
+        const QStringList suggestions = m_spell->suggestWords(error.text);
+        if (suggestions.isEmpty()) {
+            menu->addAction(tr("No Suggestions"))->setEnabled(false);
+        } else {
+            menu->addAction(tr("Spelling Suggestion(s)"))->setEnabled(false);
+            for (const QString &option : suggestions.first(qMin(suggestions.size(), qsizetype(MAX_SUGGESTIONS)))) {
+                QAction *action = menu->addAction(u"– %1"_s.arg(option));
+                connect(action, &QAction::triggered, this, [this, cursor, option]() { this->correctWord(cursor, option); });
+            }
+        }
+
+        menu->addSeparator();
+        QString word = error.text;
+        QAction *ignore = menu->addAction(tr("Ignore Word"));
+        connect(ignore, &QAction::triggered, this, [this, word]() { this->addWord(word, false); });
+        QAction *add = menu->addAction(tr("Add Word to Dictionary"));
+        connect(add, &QAction::triggered, this, [this, word]() { this->addWord(word, true); });
+    }
+
+    return menu;
 }
 
 // Setters
@@ -259,6 +306,13 @@ void GuiTextEditor::resizeEvent(QResizeEvent *event)
 {
     QTextEdit::resizeEvent(event);
     this->restartMarkerTimer();
+}
+
+void GuiTextEditor::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu *menu = this->buildContextMenu(event->pos());
+    menu->exec(event->globalPos());
+    delete menu;
 }
 
 // Public Slots
@@ -537,6 +591,62 @@ void GuiTextEditor::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     }
     cursor.mergeCharFormat(format);
     this->mergeCurrentCharFormat(format);
+}
+
+/**! @brief Look up the misspelled word at a document position, if any.
+ *
+ * Uses the errors cached in the block data by the last check, so the word is
+ * one that is currently marked. On success the block and the error, with
+ * positions relative to the block, are returned.
+ */
+bool GuiTextEditor::spellErrorAt(int pos, QTextBlock &block, TextCheck &error) const
+{
+    QTextDocument *doc = m_highlighter->document();
+    if (doc == nullptr) {
+        return false;
+    }
+    block = doc->findBlock(pos);
+    TextBlockData *data = dynamic_cast<TextBlockData *>(block.userData());
+    if (!block.isValid() || data == nullptr) {
+        return false;
+    }
+    int check = pos - block.position();
+    const TextCheckList errors = data->spellErrors();
+    for (const TextCheck &item : errors) {
+        if (item.start <= check && check <= item.end) {
+            error = item;
+            return true;
+        }
+    }
+    return false;
+}
+
+/**! @brief Replace the selected misspelled word with a suggestion.
+ *
+ * The cursor is left at the start of the replaced word.
+ */
+void GuiTextEditor::correctWord(QTextCursor cursor, const QString &word)
+{
+    int pos = cursor.selectionStart();
+    cursor.beginEditBlock();
+    cursor.removeSelectedText();
+    cursor.insertText(word);
+    cursor.endEditBlock();
+    cursor.setPosition(pos);
+    this->setTextCursor(cursor);
+}
+
+/**! @brief Add a word to the project dictionary, or ignore it for the session.
+ *
+ * The spell checker signals the change, which triggers a recheck of the
+ * document so the word's markers disappear.
+ */
+void GuiTextEditor::addWord(const QString &word, bool save)
+{
+    if (m_spell != nullptr) {
+        qDebug() << "Adding" << word << "to project dictionary," << (save ? "saved" : "unsaved");
+        m_spell->addWord(word, save);
+    }
 }
 
 /**! @brief Find the first visible block and the number of the last one.
