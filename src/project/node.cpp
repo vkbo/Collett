@@ -183,10 +183,14 @@ void Node::pack(QJsonObject &data)
         data["u:name"_L1] = m_name;
         data["m:handle"_L1] = m_handle;
         data["m:order"_L1] = row();
-        data["m:characters"_L1] = m_counts.characters;
-        data["m:words"_L1] = m_counts.words;
-        data["m:expanded"_L1] = m_expanded;
+        if (m_type == ItemType::FileType) {
+            // Only files have counts of their own, the rest are totals
+            data["m:characters"_L1] = m_counts.characters;
+            data["m:words"_L1] = m_counts.words;
+        }
         if (children.size() > 0) {
+            // Only a node with children can be expanded
+            data["m:expanded"_L1] = m_expanded;
             data["x:items"_L1] = children;
         }
     }
@@ -244,11 +248,16 @@ void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
     }
 
     // Meta Values
-    if (data.contains("m:words"_L1)) {
-        counts.words = data["m:words"_L1].toInt();
-    }
-    if (data.contains("m:characters"_L1)) {
-        counts.characters = data["m:characters"_L1].toInt();
+    // Only files carry counts of their own. Anything stored on a root or a
+    // folder, as older project files may have, is ignored so the totals are
+    // rebuilt from the files alone.
+    if (itemType == ItemType::FileType) {
+        if (data.contains("m:words"_L1)) {
+            counts.words = qMax(data["m:words"_L1].toInt(), 0);
+        }
+        if (data.contains("m:characters"_L1)) {
+            counts.characters = qMax(data["m:characters"_L1].toInt(), 0);
+        }
     }
     if (data.contains("m:expanded"_L1)) {
         expanded = data["m:expanded"_L1].toBool();

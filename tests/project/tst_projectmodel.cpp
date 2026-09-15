@@ -25,6 +25,7 @@
 #include "theme.h"
 #include "tree.h"
 
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QModelIndex>
 #include <QSignalSpy>
@@ -42,6 +43,7 @@ private slots:
     void countsPropagate();
     void countsFollowMoves();
     void countsSurviveReload();
+    void countsOnlyOnFiles();
 
 private:
     int shownWords(ProjectModel *model, Node *node) const;
@@ -176,6 +178,72 @@ void TestProjectModel::countsSurviveReload()
     QCOMPARE(lChapter->totals().words, 15);
     QCOMPARE(lRoot->totals().words, 15);
     QCOMPARE(lRoot->totals().characters, 70);
+}
+
+/**! @brief Counts stored on roots and folders are dropped on load and not saved.
+ */
+void TestProjectModel::countsOnlyOnFiles()
+{
+    QJsonObject file;
+    file["m:type"] = "File";
+    file["m:level"] = "Scene";
+    file["m:handle"] = "0000000000003";
+    file["u:name"] = "Scene";
+    file["m:words"] = 4;
+    file["m:characters"] = 16;
+
+    QJsonObject folder;
+    folder["m:type"] = "Folder";
+    folder["m:handle"] = "0000000000002";
+    folder["u:name"] = "Folder";
+    folder["m:words"] = 50;
+    folder["m:characters"] = 500;
+    folder["x:items"] = QJsonArray{file};
+
+    QJsonObject root;
+    root["m:type"] = "Root";
+    root["m:class"] = "Novel";
+    root["m:handle"] = "0000000000001";
+    root["u:name"] = "Novel";
+    root["m:words"] = 100;
+    root["m:characters"] = 1000;
+    root["x:items"] = QJsonArray{folder};
+
+    QJsonObject data;
+    data["x:items"] = QJsonArray{root};
+
+    Tree tree;
+    tree.unpack(data);
+    Node *lRoot = tree.node("0000000000001");
+    Node *lFolder = tree.node("0000000000002");
+    Node *lFile = tree.node("0000000000003");
+    QVERIFY(lRoot && lFolder && lFile);
+
+    // The stale counts are gone, and the totals come from the file alone
+    QCOMPARE(lRoot->counts(), TextCounts());
+    QCOMPARE(lFolder->counts(), TextCounts());
+    QCOMPARE(lFile->counts().words, 4);
+    QCOMPARE(lFolder->totals().words, 4);
+    QCOMPARE(lRoot->totals().words, 4);
+    QCOMPARE(lRoot->totals().characters, 16);
+
+    // Saving writes counts for the file only
+    QJsonObject saved;
+    tree.pack(saved);
+    QJsonObject sRoot = saved["x:items"].toArray().at(0).toObject();
+    QJsonObject sFolder = sRoot["x:items"].toArray().at(0).toObject();
+    QJsonObject sFile = sFolder["x:items"].toArray().at(0).toObject();
+    QVERIFY(!sRoot.contains("m:words"));
+    QVERIFY(!sRoot.contains("m:characters"));
+    QVERIFY(!sFolder.contains("m:words"));
+    QVERIFY(!sFolder.contains("m:characters"));
+    QCOMPARE(sFile["m:words"].toInt(), 4);
+    QCOMPARE(sFile["m:characters"].toInt(), 16);
+
+    // The expanded flag is only written for nodes with children
+    QVERIFY(sRoot.contains("m:expanded"));
+    QVERIFY(sFolder.contains("m:expanded"));
+    QVERIFY(!sFile.contains("m:expanded"));
 }
 
 QTEST_MAIN(TestProjectModel)
