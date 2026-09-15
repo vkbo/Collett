@@ -23,6 +23,7 @@
 
 #include "collett.h"
 #include "document.h"
+#include "highlighter.h"
 
 #include <QKeyEvent>
 #include <QTextCharFormat>
@@ -40,6 +41,7 @@ public:
 
     // Methods
     void openDocument(Document *doc);
+    void updateTheme();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -60,5 +62,11 @@ public slots:
 
 private:
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
+
+    GuiDocHighlighter *m_highlighter = nullptr;
+
+    // Error Marker Formats
+    QTextCharFormat m_spellErrorFormat;
+    QTextCharFormat m_formatErrorFormat;
 };
 } // namespace Collett

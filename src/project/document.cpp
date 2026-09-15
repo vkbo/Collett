@@ -74,6 +74,8 @@ void Document::pack(QJsonObject &data)
         // Block Type
         if (blockFormat.headingLevel() > 0) {
             jsonBlockFmt << QString().setNum(qBound(1, blockFormat.headingLevel(), 4)).prepend("h");
+        } else if (blockFormat.intProperty(BlockTypeProperty) == CommentBlock) {
+            jsonBlockFmt << "c";
         } else {
             jsonBlockFmt << "p";
         }
@@ -208,6 +210,9 @@ void Document::unpack(const QJsonObject &data)
             } else if (blockFmtType == "h4") {
                 charFormat = format.charHeader4;
                 blockFormat = format.blockHeader4;
+            } else if (blockFmtType == "c") {
+                charFormat = format.charComment;
+                blockFormat = format.blockComment;
             }
             jsonBlockFmt.removeFirst();
         }

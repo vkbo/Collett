@@ -2,12 +2,16 @@
     "c:format": "CollettDocument",
     "c:meta": {
         "m:created": "2026-07-23T03:38:44",
-        "m:updated": "2026-09-15T22:38:39"
+        "m:updated": "2026-09-15T23:15:32"
     },
     "x:content": [
         {
             "u:fmt": "p:al",
-            "u:txt": "t|This is a scene."
+            "x:txt": [
+                "t|This is a ",
+                "t:b|scene",
+                "t|."
+            ]
         }
     ]
 }

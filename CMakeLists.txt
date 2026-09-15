@@ -86,7 +86,9 @@ list(APPEND SRC_FILES
     src/dialogs/edititem.cpp
     src/editor/editortoolbar.cpp
     src/editor/editorview.cpp
+    src/editor/highlighter.cpp
     src/editor/texteditor.cpp
+    src/editor/textblock.cpp
     src/gui/projectpanel.cpp
     src/gui/projecttoolbar.cpp
     src/gui/projectview.cpp

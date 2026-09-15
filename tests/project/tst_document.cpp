@@ -23,6 +23,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTextBlock>
 #include <QTextCharFormat>
 #include <QTextCursor>
 #include <QtTest>
@@ -37,6 +38,7 @@ private slots:
     void initTestCase();
     void packSimpleFormatting();
     void roundTripIsStable();
+    void commentBlock();
 };
 
 /**! @brief Set an org/app name so the Settings singleton's QSettings works.
@@ -120,6 +122,35 @@ void TestDocument::roundTripIsStable()
     third.pack(data3);
 
     QCOMPARE(data3.value("x:content"), data2.value("x:content"));
+}
+
+/**! @brief A comment block is stored with type "c" and restored with its property.
+ */
+void TestDocument::commentBlock()
+{
+    Document original;
+    QTextCursor cursor(&original);
+
+    cursor.insertText("Text");
+    QTextBlockFormat comment;
+    comment.setProperty(BlockTypeProperty, CommentBlock);
+    cursor.insertBlock(comment);
+    cursor.insertText("A comment");
+
+    QJsonObject data;
+    original.pack(data);
+    QJsonArray content = data.value("x:content").toArray();
+    QCOMPARE(content.size(), 2);
+    QCOMPARE(content.at(0).toObject().value("u:fmt").toString(), QStringLiteral("p:al"));
+    QCOMPARE(content.at(1).toObject().value("u:fmt").toString(), QStringLiteral("c:al"));
+
+    Document restored;
+    restored.unpack(data);
+    QCOMPARE(restored.blockCount(), 2);
+    QTextBlock second = restored.firstBlock().next();
+    QCOMPARE(second.text(), QStringLiteral("A comment"));
+    QCOMPARE(second.blockFormat().intProperty(BlockTypeProperty), int(CommentBlock));
+    QCOMPARE(restored.firstBlock().blockFormat().intProperty(BlockTypeProperty), int(TextBlock));
 }
 
 QTEST_MAIN(TestDocument)

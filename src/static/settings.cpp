@@ -225,6 +225,14 @@ void Settings::recalculateTextFormats()
     m_textFormat.blockParagraph = defaultBlockFmt;
     m_textFormat.charParagraph = defaultCharFmt;
 
+    // Comment Formats
+    // A comment is a paragraph flagged by a block property. Its colouring is
+    // handled by the editor's highlighter, not by the stored formats.
+
+    m_textFormat.blockComment = defaultBlockFmt;
+    m_textFormat.blockComment.setProperty(BlockTypeProperty, CommentBlock);
+    m_textFormat.charComment = defaultCharFmt;
+
     // Header 1 Formats
 
     m_textFormat.blockHeader1 = defaultBlockFmt;

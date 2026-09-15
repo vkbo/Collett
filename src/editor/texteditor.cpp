@@ -20,8 +20,10 @@
 */
 
 #include "collett.h"
+#include "highlighter.h"
 #include "settings.h"
 #include "texteditor.h"
+#include "theme.h"
 
 #include <QFont>
 #include <QKeyEvent>
@@ -37,6 +39,8 @@ namespace Collett {
 
 GuiTextEditor::GuiTextEditor(QWidget *parent) : QTextEdit(parent)
 {
+    m_highlighter = new GuiDocHighlighter(this);
+    this->updateTheme();
 }
 
 GuiTextEditor::~GuiTextEditor()
@@ -47,10 +51,39 @@ GuiTextEditor::~GuiTextEditor()
 // Public Methods
 // ==============
 
+/**! @brief Show a document in the editor, or none if null.
+ *
+ * The highlighter follows the document, so it rehighlights the new one with
+ * the current theme.
+ */
 void GuiTextEditor::openDocument(Document *doc)
 {
     this->setDocument(doc);
+    m_highlighter->setDocument(doc);
     this->setEnabled(doc != nullptr);
+}
+
+/**! @brief Rebuild the theme-dependent formats and rehighlight.
+ *
+ * The spell and format error formats are used for the extra selections that
+ * mark errors found by the background text checks.
+ */
+void GuiTextEditor::updateTheme()
+{
+    Theme *theme = Theme::instance();
+
+    m_spellErrorFormat = QTextCharFormat();
+    m_spellErrorFormat.setUnderlineColor(theme->getSyntaxColor(SyntaxSpellLine));
+    m_spellErrorFormat.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+
+    m_formatErrorFormat = QTextCharFormat();
+    m_formatErrorFormat.setUnderlineColor(theme->getSyntaxColor(SyntaxErrorLine));
+    m_formatErrorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+
+    m_highlighter->updateTheme();
+    if (m_highlighter->document() != nullptr) {
+        m_highlighter->rehighlight();
+    }
 }
 
 // Protected Methods
