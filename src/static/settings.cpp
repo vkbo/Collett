@@ -26,6 +26,7 @@
 #include <QDir>
 #include <QFont>
 #include <QList>
+#include <QLocale>
 #include <QSettings>
 #include <QSize>
 #include <QTextBlockFormat>
@@ -40,6 +41,7 @@ using namespace Qt::Literals::StringLiterals;
 #define CNF_MAIN_WINDOW_SIZE "Main/windowSize"_L1
 #define CNF_MAIN_GUI_THEME "Main/guiTheme"_L1
 #define CNF_MAIN_ICON_SET "Main/iconSet"_L1
+#define CNF_SPELL_LANGUAGE "SpellCheck/language"_L1
 #define CNF_TEXT_FONT_SIZE "TextFormat/fontSize"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
 
@@ -111,6 +113,13 @@ Settings::Settings(QObject *parent) : QObject(parent)
 
     m_editorAutoSave = qMax(settings.value(CNF_EDITOR_AUTO_SAVE, 30).toInt(), 5);
 
+    // Spell Check
+    // -----------
+
+    // The default is the system locale, like "en_GB". If no dictionary exists
+    // for it, the spell checker falls back to accepting all words.
+    m_spellLanguage = settings.value(CNF_SPELL_LANGUAGE, QLocale::system().name()).toString();
+
     // Text Format
     // -----------
 
@@ -138,6 +147,8 @@ void Settings::flushSettings()
     settings.setValue(CNF_MAIN_ICON_SET, m_iconSet);
 
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
+
+    settings.setValue(CNF_SPELL_LANGUAGE, m_spellLanguage);
 
     settings.setValue(CNF_TEXT_FONT_SIZE, m_textFontSize);
     settings.setValue(CNF_TEXT_TAB_WIDTH, m_textTabWidth);

@@ -73,6 +73,7 @@ public:
     void setMainGuiTheme(const QString theme) { m_guiTheme = theme; };
     void setMainIconSet(const QString icons) { m_iconSet = icons; };
     void setEditorAutoSave(const int interval) { m_editorAutoSave = interval; };
+    void setSpellLanguage(const QString &language) { m_spellLanguage = language.trimmed(); };
     void setTextFontSize(const qreal size);
     void setTextTabWidth(const qreal width);
 
@@ -82,6 +83,7 @@ public:
     QString guiTheme() const { return m_guiTheme; };
     QString iconSet() const { return m_iconSet; };
     int editorAutoSave() const { return m_editorAutoSave; };
+    QString spellLanguage() const { return m_spellLanguage; };
     TextFormat textFormat() const { return m_textFormat; };
 
 private:
@@ -95,6 +97,9 @@ private:
 
     // Editor
     int m_editorAutoSave;
+
+    // Spell Check
+    QString m_spellLanguage;
 
     // Text Format
     qreal m_textFontSize;

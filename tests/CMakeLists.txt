@@ -34,4 +34,6 @@ function(collett_add_test subdir name)
 endfunction()
 
 collett_add_test(project tst_document)
+collett_add_test(project tst_projectdata)
 collett_add_test(spellcheck tst_spellcheck)
+collett_add_test(static tst_settings)

@@ -25,6 +25,7 @@
 
 #include <QDateTime>
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QString>
 
 using namespace Qt::Literals::StringLiterals;
@@ -63,6 +64,9 @@ void ProjectData::pack(QJsonObject &data)
     // Editor Settings
     jSettings["m:lastEdited"_L1] = m_lastEditedHandle;
 
+    // Spell Check Settings
+    jSettings["u:spellLanguage"_L1] = m_spellLanguage.isEmpty() ? QJsonValue() : QJsonValue(m_spellLanguage);
+
     // Root Object
     data["c:format"_L1] = "CollettProjectData";
     data["c:meta"_L1] = jMeta;
@@ -85,6 +89,10 @@ void ProjectData::unpack(const QJsonObject &data)
 
     // Editor Settings
     m_lastEditedHandle = JsonUtils::getJsonString(jSettings, "m:lastEdited"_L1, "");
+
+    // Spell Check Settings
+    // A null or missing value means the global setting applies
+    this->setSpellLanguage(jSettings.value("u:spellLanguage"_L1).toString());
 }
 
 } // namespace Collett
