@@ -44,6 +44,8 @@ public:
     bool writeStructure(const QJsonObject &fileData);
     bool readDocument(const QString &handle, QJsonObject &fileData);
     bool writeDocument(const QString &handle, const QJsonObject &fileData);
+    bool readDictionary(QJsonObject &fileData);
+    bool writeDictionary(const QJsonObject &fileData);
 
     // Getters
     bool isValid() const { return m_isValid; };

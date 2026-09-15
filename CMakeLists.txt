@@ -60,6 +60,13 @@ if(Qt6Widgets_FOUND)
     message(STATUS "Found Qt6Widgets Version: ${Qt6Widgets_VERSION}")
 endif()
 
+# Nuspell Library
+# ===============
+
+# Spell checking engine. Reads the same .aff/.dic dictionaries as Hunspell.
+find_package(Nuspell REQUIRED)
+message(STATUS "Found Nuspell Version: ${Nuspell_VERSION}")
+
 # i18n
 # ====
 
@@ -90,6 +97,10 @@ list(APPEND SRC_FILES
     src/project/projectdata.cpp
     src/project/projectmodel.cpp
     src/project/tree.cpp
+    src/spellcheck/nuspellengine.cpp
+    src/spellcheck/spellchecker.cpp
+    src/spellcheck/spellengine.cpp
+    src/spellcheck/userdictionary.cpp
     src/static/data.cpp
     src/static/settings.cpp
     src/static/theme.cpp
@@ -146,10 +157,11 @@ target_include_directories(CollettCore PUBLIC
     src/editor
     src/gui
     src/project
+    src/spellcheck
     src/static
     src/widgets
 )
-target_link_libraries(CollettCore PUBLIC Qt::Widgets Qt::Svg)
+target_link_libraries(CollettCore PUBLIC Qt::Widgets Qt::Svg PRIVATE Nuspell::nuspell)
 target_compile_definitions(CollettCore PUBLIC "$<$<CONFIG:Debug>:DEBUG>")
 
 # Executable

@@ -119,6 +119,22 @@ bool Storage::writeDocument(const QString &handle, const QJsonObject &fileData)
     return false;
 }
 
+bool Storage::readDictionary(QJsonObject &fileData)
+{
+    if (m_isValid) {
+        return this->readJson(m_projectDir.filePath("dictionary.json"), fileData, false);
+    }
+    return false;
+}
+
+bool Storage::writeDictionary(const QJsonObject &fileData)
+{
+    if (m_isValid) {
+        return this->writeJson(m_projectDir.filePath("dictionary.json"), fileData);
+    }
+    return false;
+}
+
 // Getters
 // =======
 
