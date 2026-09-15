@@ -21,7 +21,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             cmake ninja-build \
-            qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools
+            qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools \
+            libnuspell-dev
 
       - name: Configure
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release

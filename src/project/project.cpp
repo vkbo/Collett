@@ -187,7 +187,14 @@ bool Project::saveDocument(const QString &handle)
     QJsonObject jDoc;
     doc->pack(jDoc);
 
-    return m_store->writeDocument(handle, jDoc);
+    if (!m_store->writeDocument(handle, jDoc)) {
+        return false;
+    }
+
+    // What is on disk now matches the document, so further saves keep its
+    // updated timestamp until it is edited again
+    doc->setModified(false);
+    return true;
 }
 
 /**!

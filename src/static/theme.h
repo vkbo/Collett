@@ -46,6 +46,7 @@ public:
     // Getters
     bool isDark() const { return m_isDark; };
     QColor getColor(ThemeColor color) const { return m_colors.at(color); };
+    QColor getSyntaxColor(SyntaxColor color) const { return m_syntaxColors.at(color); };
     Icons *icons() const { return m_icons; };
 
     qreal fontPointSizeF() const { return m_fontPointSizeF; };
@@ -63,6 +64,15 @@ private:
     static Theme *staticInstance;
     Settings *m_settings;
     Icons *m_icons;
+
+    // Syntax Colors
+    QList<QColor> m_syntaxColors = {
+        QColor::fromString("blue"),   // SyntaxColor::SyntaxHeader
+        QColor::fromString("green"),  // SyntaxColor::SyntaxEmphasis
+        QColor::fromString("grey"),   // SyntaxColor::SyntaxComment
+        QColor::fromString("red"),    // SyntaxColor::SyntaxSpellLine
+        QColor::fromString("orange"), // SyntaxColor::SyntaxErrorLine
+    };
 
     // Meta
     QString m_name = "";

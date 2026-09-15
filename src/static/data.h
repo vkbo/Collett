@@ -23,6 +23,7 @@
 
 #include "collett.h"
 #include "project.h"
+#include "spellchecker.h"
 
 #include <QScopedPointer>
 
@@ -44,10 +45,12 @@ public:
     bool saveProject();
     bool saveProjectAs(const QString &path);
     void closeProject();
+    void updateSpellCheckLanguage();
 
     // Getters
     bool hasProject() const;
     Project *project();
+    SpellChecker *spelling() { return m_spelling; };
 
 signals:
     void projectLoaded();
@@ -55,5 +58,6 @@ signals:
 private:
     static SharedData *staticInstance;
     QScopedPointer<Project> m_project;
+    SpellChecker *m_spelling = nullptr;
 };
 } // namespace Collett

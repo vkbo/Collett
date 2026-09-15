@@ -39,5 +39,12 @@
         "aqua": "#3e999f",
         "blue": "#4271ae",
         "purple": "#8959a8"
+    },
+    "c:syntaxColors": {
+        "header": "#718c00",
+        "emphasis": "#f5871f",
+        "comment": "#bb9200",
+        "spellCheckLine": "#f02829",
+        "errorLine": "#718c00"
     }
 }

@@ -29,6 +29,7 @@
 
 #include <QDebug>
 #include <QObject>
+#include <QTextFormat>
 
 namespace Collett {
 
@@ -84,6 +85,29 @@ enum ThemeColor
     Aqua = 13,
     Blue = 14,
     Purple = 15,
+};
+
+// Syntax Colours
+// Used as index keys to look up editor highlighting colours from the Theme class.
+enum SyntaxColor
+{
+    SyntaxHeader = 0,
+    SyntaxEmphasis = 1,
+    SyntaxComment = 2,
+    SyntaxSpellLine = 3,
+    SyntaxErrorLine = 4,
+};
+
+// Text Format Properties
+// Custom properties stored on the block formats of a document.
+enum TextProperty
+{
+    BlockTypeProperty = QTextFormat::UserProperty + 1,
+};
+enum BlockType
+{
+    TextBlock = 0,
+    CommentBlock = 1,
 };
 
 enum JsonUtilsError

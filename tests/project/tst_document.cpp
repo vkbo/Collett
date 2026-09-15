@@ -23,6 +23,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTextBlock>
 #include <QTextCharFormat>
 #include <QTextCursor>
 #include <QtTest>
@@ -37,6 +38,8 @@ private slots:
     void initTestCase();
     void packSimpleFormatting();
     void roundTripIsStable();
+    void commentBlock();
+    void updatedTimestamp();
 };
 
 /**! @brief Set an org/app name so the Settings singleton's QSettings works.
@@ -120,6 +123,77 @@ void TestDocument::roundTripIsStable()
     third.pack(data3);
 
     QCOMPARE(data3.value("x:content"), data2.value("x:content"));
+}
+
+/**! @brief A comment block is stored with type "c" and restored with its property.
+ */
+void TestDocument::commentBlock()
+{
+    Document original;
+    QTextCursor cursor(&original);
+
+    cursor.insertText("Text");
+    QTextBlockFormat comment;
+    comment.setProperty(BlockTypeProperty, CommentBlock);
+    cursor.insertBlock(comment);
+    cursor.insertText("A comment");
+
+    QJsonObject data;
+    original.pack(data);
+    QJsonArray content = data.value("x:content").toArray();
+    QCOMPARE(content.size(), 2);
+    QCOMPARE(content.at(0).toObject().value("u:fmt").toString(), QStringLiteral("p:al"));
+    QCOMPARE(content.at(1).toObject().value("u:fmt").toString(), QStringLiteral("c:al"));
+
+    Document restored;
+    restored.unpack(data);
+    QCOMPARE(restored.blockCount(), 2);
+    QTextBlock second = restored.firstBlock().next();
+    QCOMPARE(second.text(), QStringLiteral("A comment"));
+    QCOMPARE(second.blockFormat().intProperty(BlockTypeProperty), int(CommentBlock));
+    QCOMPARE(restored.firstBlock().blockFormat().intProperty(BlockTypeProperty), int(TextBlock));
+}
+
+/**! @brief The updated timestamp only changes when the content has changed.
+ */
+void TestDocument::updatedTimestamp()
+{
+    const QString oldTime = QStringLiteral("2020-01-01T00:00:00");
+
+    // A new document gets a timestamp on first pack
+    Document fresh;
+    QTextCursor cursor(&fresh);
+    cursor.insertText("Text");
+    QJsonObject data;
+    fresh.pack(data);
+    QVERIFY(!data.value("c:meta").toObject().value("m:updated").toString().isEmpty());
+
+    // Give the stored document an old timestamp
+    QJsonObject meta = data.value("c:meta").toObject();
+    meta["m:updated"] = oldTime;
+    data["c:meta"] = meta;
+
+    // Loading and saving without edits keeps it
+    Document loaded;
+    loaded.unpack(data);
+    QVERIFY(!loaded.isModified());
+    QCOMPARE(loaded.updatedTime(), oldTime);
+    QJsonObject saved;
+    loaded.pack(saved);
+    QCOMPARE(saved.value("c:meta").toObject().value("m:updated").toString(), oldTime);
+
+    // An edit moves it, and it stays put after the modified flag is cleared
+    // the way Project does after writing to disk
+    QTextCursor edit(&loaded);
+    edit.movePosition(QTextCursor::End);
+    edit.insertText("!");
+    QVERIFY(loaded.isModified());
+    loaded.pack(saved);
+    QString newTime = saved.value("c:meta").toObject().value("m:updated").toString();
+    QVERIFY(newTime != oldTime);
+    loaded.setModified(false);
+    loaded.pack(saved);
+    QCOMPARE(saved.value("c:meta").toObject().value("m:updated").toString(), newTime);
 }
 
 QTEST_MAIN(TestDocument)

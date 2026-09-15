@@ -74,6 +74,8 @@ void Document::pack(QJsonObject &data)
         // Block Type
         if (blockFormat.headingLevel() > 0) {
             jsonBlockFmt << QString().setNum(qBound(1, blockFormat.headingLevel(), 4)).prepend("h");
+        } else if (blockFormat.intProperty(BlockTypeProperty) == CommentBlock) {
+            jsonBlockFmt << "c";
         } else {
             jsonBlockFmt << "p";
         }
@@ -140,9 +142,16 @@ void Document::pack(QJsonObject &data)
     }
 
     // Populate Object
+    // The updated time only moves when the content has changed since the
+    // document was loaded or last saved, so a routine save of an untouched
+    // document writes the same timestamp it read.
+    if (this->isModified() || m_updatedTime.isEmpty()) {
+        m_updatedTime = QDateTime::currentDateTime().toString(Qt::ISODate);
+    }
+
     QJsonObject jMeta;
     jMeta["m:created"_L1] = m_createdTime;
-    jMeta["m:updated"_L1] = QDateTime::currentDateTime().toString(Qt::ISODate);
+    jMeta["m:updated"_L1] = m_updatedTime;
 
     data["c:format"_L1] = "CollettDocument";
     data["c:meta"_L1] = jMeta;
@@ -163,6 +172,7 @@ void Document::unpack(const QJsonObject &data)
     QJsonArray jDoc = data.value("x:content"_L1).toArray();
 
     m_createdTime = JsonUtils::getJsonString(jMeta, "m:created"_L1, "Unknown");
+    m_updatedTime = JsonUtils::getJsonString(jMeta, "m:updated"_L1, "");
 
     // Unpack Text
     QTextCursor cursor = QTextCursor(this);
@@ -208,6 +218,9 @@ void Document::unpack(const QJsonObject &data)
             } else if (blockFmtType == "h4") {
                 charFormat = format.charHeader4;
                 blockFormat = format.blockHeader4;
+            } else if (blockFmtType == "c") {
+                charFormat = format.charComment;
+                blockFormat = format.blockComment;
             }
             jsonBlockFmt.removeFirst();
         }

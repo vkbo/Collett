@@ -1,9 +1,9 @@
 /*
-** Collett - Document Class
-** ========================
+** Collett - Spell Check Engine Interface
+** ======================================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -19,34 +19,23 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include "collett.h"
-
-#include <QJsonObject>
-#include <QObject>
-#include <QTextDocument>
+#include "spellengine.h"
 
 namespace Collett {
 
-class Document : public QTextDocument
+// NullSpellEngine
+// ===============
+
+bool NullSpellEngine::spell(const QString &word) const
 {
-    Q_OBJECT
+    Q_UNUSED(word);
+    return true;
+}
 
-public:
-    explicit Document(QObject *parent = nullptr);
-    ~Document();
+QStringList NullSpellEngine::suggest(const QString &word) const
+{
+    Q_UNUSED(word);
+    return QStringList();
+}
 
-    // Methods
-    void pack(QJsonObject &data);
-    void unpack(const QJsonObject &data);
-
-    // Getters
-    QString createdTime() const { return m_createdTime; };
-    QString updatedTime() const { return m_updatedTime; };
-
-private:
-    QString m_createdTime = "";
-    QString m_updatedTime = "";
-};
 } // namespace Collett

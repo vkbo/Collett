@@ -20,6 +20,7 @@
 */
 
 #include "collett.h"
+#include "data.h"
 #include "editortoolbar.h"
 #include "editorview.h"
 #include "texteditor.h"
@@ -37,6 +38,7 @@ GuiEditorView::GuiEditorView(QWidget *parent) : QWidget(parent)
 
     // Components
     textEditor = new GuiTextEditor(this);
+    textEditor->setSpellChecker(SharedData::instance()->spelling());
     toolBar = new GuiEditorToolBar(textEditor, this);
 
     // Assemble

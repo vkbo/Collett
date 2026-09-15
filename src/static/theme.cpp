@@ -99,12 +99,22 @@ bool Theme::loadTheme(QString theme)
     QJsonObject jMeta = data.value("c:meta"_L1).toObject();
     QJsonObject jBase = data.value("c:baseColors"_L1).toObject();
     QJsonObject jTheme = data.value("c:themeColors"_L1).toObject();
+    QJsonObject jSyntax = data.value("c:syntaxColors"_L1).toObject();
 
     // Theme Meta
     m_name = JsonUtils::getJsonString(jMeta, "m:name"_L1, "Unknown");
     m_author = JsonUtils::getJsonString(jMeta, "m:author"_L1, "");
     m_credit = JsonUtils::getJsonString(jMeta, "m:credit"_L1, "");
     m_license = JsonUtils::getJsonString(jMeta, "m:license"_L1, "");
+
+    // Syntax Colors
+    m_syntaxColors = {
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "header"_L1, "blue")),          // SyntaxColor::SyntaxHeader
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "emphasis"_L1, "green")),       // SyntaxColor::SyntaxEmphasis
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "comment"_L1, "grey")),         // SyntaxColor::SyntaxComment
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "spellCheckLine"_L1, "red")),   // SyntaxColor::SyntaxSpellLine
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "errorLine"_L1, "orange")),     // SyntaxColor::SyntaxErrorLine
+    };
 
     // Qt Base Colors
     QColor window = QColor::fromString(JsonUtils::getJsonString(jBase, "window"_L1, "white"));
