@@ -87,6 +87,7 @@ list(APPEND SRC_FILES
     src/editor/editortoolbar.cpp
     src/editor/editorview.cpp
     src/editor/highlighter.cpp
+    src/editor/runnables.cpp
     src/editor/texteditor.cpp
     src/editor/textblock.cpp
     src/gui/projectpanel.cpp

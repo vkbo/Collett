@@ -55,6 +55,7 @@ bool SpellChecker::checkWord(const QString &word)
     if (word.isEmpty()) {
         return true;
     }
+    QMutexLocker locker(&m_mutex);
     auto cached = m_cache.constFind(word);
     if (cached != m_cache.constEnd()) {
         return cached.value();
@@ -71,6 +72,7 @@ bool SpellChecker::checkWord(const QString &word)
  */
 QStringList SpellChecker::suggestWords(const QString &word) const
 {
+    QMutexLocker locker(&m_mutex);
     return m_engine->suggest(word);
 }
 
@@ -83,16 +85,19 @@ QStringList SpellChecker::suggestWords(const QString &word) const
 bool SpellChecker::addWord(const QString &word, bool save)
 {
     QString entry = word.trimmed();
-    if (!m_userDict.add(entry)) {
-        return false;
-    }
-    if (UserDictionary::isStem(entry)) {
-        m_cache.clear();
-    } else {
-        m_cache.insert(entry, true);
-    }
-    if (save) {
-        m_userDict.save();
+    {
+        QMutexLocker locker(&m_mutex);
+        if (!m_userDict.add(entry)) {
+            return false;
+        }
+        if (UserDictionary::isStem(entry)) {
+            m_cache.clear();
+        } else {
+            m_cache.insert(entry, true);
+        }
+        if (save) {
+            m_userDict.save();
+        }
     }
     emit userDictionaryChanged();
     return true;
@@ -145,9 +150,12 @@ QString SpellChecker::languageName(const QString &tag)
  */
 void SpellChecker::setStorage(Storage *store)
 {
-    m_userDict.setStorage(store);
-    m_userDict.load();
-    m_cache.clear();
+    {
+        QMutexLocker locker(&m_mutex);
+        m_userDict.setStorage(store);
+        m_userDict.load();
+        m_cache.clear();
+    }
     emit userDictionaryChanged();
 }
 
@@ -158,20 +166,31 @@ void SpellChecker::setStorage(Storage *store)
  */
 void SpellChecker::setLanguage(const QString &language)
 {
-    m_requested = language;
-    m_cache.clear();
-
-    auto engine = std::make_unique<NuspellEngine>();
+    // The dictionary is loaded outside the lock, since it can take a moment
+    // and the workers can keep using the old engine meanwhile.
+    std::unique_ptr<SpellEngine> engine;
     if (language.isEmpty()) {
-        m_engine = std::make_unique<NullSpellEngine>();
-    } else if (engine->loadLanguage(language, m_dictPaths)) {
-        qInfo() << "Spell checking for language" << language << "loaded";
-        m_engine = std::move(engine);
+        engine = std::make_unique<NullSpellEngine>();
     } else {
-        qWarning() << "No spell checking available for language" << language;
-        m_engine = std::make_unique<NullSpellEngine>();
+        auto nuspell = std::make_unique<NuspellEngine>();
+        if (nuspell->loadLanguage(language, m_dictPaths)) {
+            qInfo() << "Spell checking for language" << language << "loaded";
+            engine = std::move(nuspell);
+        } else {
+            qWarning() << "No spell checking available for language" << language;
+            engine = std::make_unique<NullSpellEngine>();
+        }
     }
-    emit languageChanged(m_engine->language());
+
+    QString loaded;
+    {
+        QMutexLocker locker(&m_mutex);
+        m_requested = language;
+        m_cache.clear();
+        m_engine = std::move(engine);
+        loaded = m_engine->language();
+    }
+    emit languageChanged(loaded);
 }
 
 /**! @brief Set extra directories to search for dictionaries.

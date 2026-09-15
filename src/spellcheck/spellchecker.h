@@ -28,6 +28,7 @@
 
 #include <QHash>
 #include <QList>
+#include <QMutex>
 #include <QString>
 #include <QStringList>
 
@@ -42,6 +43,11 @@ namespace Collett {
  * is accepted if either the engine or the user dictionary accepts it. When
  * the requested language cannot be loaded, a null engine that accepts every
  * word is used instead, so lookups always work.
+ *
+ * Word checks run on worker threads while the GUI thread may swap the
+ * language or add words, so every access to the engine, the user dictionary
+ * and the cache is guarded by a mutex. Signals are emitted outside the lock,
+ * so a slot is free to call back into the checker.
  */
 class SpellChecker : public QObject
 {
@@ -84,6 +90,7 @@ signals:
     void userDictionaryChanged();
 
 private:
+    mutable QMutex m_mutex;
     std::unique_ptr<SpellEngine> m_engine;
     UserDictionary m_userDict;
     QHash<QString, bool> m_cache;

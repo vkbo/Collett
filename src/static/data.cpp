@@ -21,6 +21,7 @@
 
 #include "data.h"
 #include "project.h"
+#include "settings.h"
 
 #include <QWidget>
 #include <QVariant>
@@ -49,11 +50,15 @@ void SharedData::destroy()
     }
 }
 
-SharedData::SharedData(QObject *parent) : QObject(parent) {}
+SharedData::SharedData(QObject *parent) : QObject(parent)
+{
+    m_spelling = new SpellChecker(this);
+}
 
 SharedData::~SharedData()
 {
     qDebug() << "Destructor: SharedData";
+    m_spelling->setStorage(nullptr);
     m_project.reset();
 }
 
@@ -63,6 +68,7 @@ SharedData::~SharedData()
 bool SharedData::openProject(const QString &path)
 {
 
+    this->closeProject();
     m_project.reset(new Project());
     if (!m_project.data()->hasError()) {
         m_project.data()->openProject(path);
@@ -71,6 +77,9 @@ bool SharedData::openProject(const QString &path)
         m_project.reset(nullptr);
         return false;
     }
+
+    m_spelling->setStorage(m_project.data()->store());
+    this->updateSpellCheckLanguage();
 
     emit projectLoaded();
 
@@ -97,7 +106,26 @@ bool SharedData::saveProjectAs(const QString &path)
 
 void SharedData::closeProject()
 {
+    // The user dictionary points at the project's storage, so it must let go
+    // before the project is destroyed
+    m_spelling->setStorage(nullptr);
     m_project.reset(nullptr);
+}
+
+/**! @brief Load the spell check language from the settings.
+ *
+ * The project's own language, if set, overrides the global setting. The
+ * dictionary is only reloaded when the language actually changes.
+ */
+void SharedData::updateSpellCheckLanguage()
+{
+    QString language = Settings::instance()->spellLanguage();
+    if (this->hasProject() && m_project.data()->data()->hasSpellLanguage()) {
+        language = m_project.data()->data()->spellLanguage();
+    }
+    if (language != m_spelling->requestedLanguage()) {
+        m_spelling->setLanguage(language);
+    }
 }
 
 // Getters

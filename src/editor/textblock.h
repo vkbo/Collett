@@ -22,6 +22,7 @@
 #pragma once
 
 #include "collett.h"
+#include "spellchecker.h"
 
 #include <QList>
 #include <QString>
@@ -81,5 +82,11 @@ private:
     TextCheckList m_spellErrors;
     TextCheckList m_formatErrors;
 };
+
+// Text Check Functions
+// These only work on plain strings, so they are safe to call from a worker
+// thread.
+TextCheckList spellCheckText(const QString &text, SpellChecker *spell);
+TextCheckList formatCheckText(const QString &text);
 
 } // namespace Collett

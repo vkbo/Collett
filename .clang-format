@@ -8,3 +8,5 @@ SortIncludes: false
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortCaseLabelsOnASingleLine: true
 BreakBeforeBraces: Mozilla
+AlignAfterOpenBracket: BlockIndent
+BinPackParameters: false
