@@ -39,7 +39,9 @@ using namespace Qt::Literals::StringLiterals;
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
 #define CNF_MAIN_SPLIT_SIZES "Main/mainSplitSizes"_L1
 #define CNF_MAIN_WINDOW_SIZE "Main/windowSize"_L1
-#define CNF_MAIN_GUI_THEME "Main/guiTheme"_L1
+#define CNF_MAIN_THEME_MODE "Main/themeMode"_L1
+#define CNF_MAIN_LIGHT_THEME "Main/lightTheme"_L1
+#define CNF_MAIN_DARK_THEME "Main/darkTheme"_L1
 #define CNF_MAIN_ICON_SET "Main/iconSet"_L1
 #define CNF_MAIN_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
 #define CNF_SPELL_LANGUAGE "SpellCheck/language"_L1
@@ -103,7 +105,9 @@ Settings::Settings(QObject *parent) : QObject(parent)
     m_mainWindowSize = settings.value(CNF_MAIN_WINDOW_SIZE, QSize(1200, 800)).toSize();
     m_mainSplitSizes = variantListToInt(settings.value(CNF_MAIN_SPLIT_SIZES, QVariantList() << 300 << 700).toList());
     m_prefsWindowSize = settings.value(CNF_MAIN_PREFS_WINDOW_SIZE, QSize(700, 615)).toSize();
-    m_guiTheme = settings.value(CNF_MAIN_GUI_THEME, "default_light").toString();
+    m_themeMode = ThemeMode(qBound(int(ThemeMode::AutoTheme), settings.value(CNF_MAIN_THEME_MODE, int(ThemeMode::AutoTheme)).toInt(), int(ThemeMode::DarkTheme)));
+    m_lightTheme = settings.value(CNF_MAIN_LIGHT_THEME, COL_DEFAULT_LIGHT_THEME).toString();
+    m_darkTheme = settings.value(CNF_MAIN_DARK_THEME, COL_DEFAULT_DARK_THEME).toString();
     m_iconSet = settings.value(CNF_MAIN_ICON_SET, "lucide").toString();
 
     // Check Values
@@ -148,7 +152,9 @@ void Settings::flushSettings()
     settings.setValue(CNF_MAIN_WINDOW_SIZE, m_mainWindowSize);
     settings.setValue(CNF_MAIN_SPLIT_SIZES, intListToVariant(m_mainSplitSizes));
     settings.setValue(CNF_MAIN_PREFS_WINDOW_SIZE, m_prefsWindowSize);
-    settings.setValue(CNF_MAIN_GUI_THEME, m_guiTheme);
+    settings.setValue(CNF_MAIN_THEME_MODE, int(m_themeMode));
+    settings.setValue(CNF_MAIN_LIGHT_THEME, m_lightTheme);
+    settings.setValue(CNF_MAIN_DARK_THEME, m_darkTheme);
     settings.setValue(CNF_MAIN_ICON_SET, m_iconSet);
 
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);

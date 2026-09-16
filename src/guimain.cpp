@@ -166,6 +166,9 @@ void GuiMain::showPreferencesDialog()
     QPointer<PreferencesDialog> dialog(new PreferencesDialog(this));
     dialog->exec();
     dialog->deleteLater();
+
+    // The dialog may have changed the theme mode
+    projectPanel->appToolBar->updateThemeMode();
 }
 
 void GuiMain::onProjectOpen()

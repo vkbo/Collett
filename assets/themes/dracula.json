@@ -2,6 +2,7 @@
     "c:format": "CollettTheme",
     "c:meta": {
         "m:name": "Dracula",
+        "m:mode": "dark",
         "m:author": "Veronica Berglyd Olsen (adaptation)",
         "m:credit": "Zeno Rocha",
         "m:license": "MIT"

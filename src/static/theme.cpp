@@ -26,7 +26,12 @@
 #include "mpushbutton.h"
 
 #include <QString>
+#include <QDir>
 #include <QFileInfo>
+#include <QFileInfoList>
+#include <QGuiApplication>
+#include <QStyle>
+#include <QStyleHints>
 #include <QJsonObject>
 #include <QPalette>
 #include <QColor>
@@ -34,6 +39,8 @@
 #include <QCoreApplication>
 #include <QFontMetrics>
 #include <QSize>
+
+#include <algorithm>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -83,8 +90,11 @@ Theme::Theme(QObject *parent) : QObject(parent)
     m_settings = Settings::instance();
     m_icons = new Icons(this);
 
-    this->loadTheme(m_settings->guiTheme());
+    this->scanThemes(Settings::assetPath("themes"));
+    this->loadTheme();
     m_icons->loadIcons(m_settings->iconSet());
+
+    connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &Theme::onColorSchemeChanged);
 
     QFontMetrics metric(QApplication::font());
     m_fontPointSizeF = QApplication::font().pointSizeF();
@@ -101,18 +111,149 @@ Theme::~Theme()
     qDebug() << "Destructor: Theme";
 }
 
+// Getters
+// =======
+
+/**! @brief The available light themes, in display order.
+ */
+QList<ThemeEntry> Theme::lightThemes() const
+{
+    QList<ThemeEntry> result;
+    for (const ThemeEntry &entry : m_themes) {
+        if (!entry.dark) result.append(entry);
+    }
+    return result;
+}
+
+/**! @brief The available dark themes, in display order.
+ */
+QList<ThemeEntry> Theme::darkThemes() const
+{
+    QList<ThemeEntry> result;
+    for (const ThemeEntry &entry : m_themes) {
+        if (entry.dark) result.append(entry);
+    }
+    return result;
+}
+
+/**! @brief Whether a theme with the given key was found by the scan.
+ */
+bool Theme::hasTheme(const QString &key) const
+{
+    for (const ThemeEntry &entry : m_themes) {
+        if (entry.key == key) return true;
+    }
+    return false;
+}
+
+/**! @brief Whether the desktop is in dark mode.
+ *
+ * The style's own palette is checked when the platform does not report a
+ * colour scheme, since the application palette is overridden by the theme.
+ */
+bool Theme::isDesktopDarkMode() const
+{
+    if (QStyleHints *hints = QGuiApplication::styleHints()) {
+        const Qt::ColorScheme scheme = hints->colorScheme();
+        if (scheme != Qt::ColorScheme::Unknown) {
+            return scheme == Qt::ColorScheme::Dark;
+        }
+    }
+    const QPalette palette = QApplication::style()->standardPalette();
+    return palette.windowText().color().lightnessF() > palette.window().color().lightnessF();
+}
+
 // Public Methods
 // ==============
 
-bool Theme::loadTheme(QString theme)
+/**! @brief Scan a folder for theme files and record their name and mode.
+ *
+ * Files without a name, or with a mode other than light or dark, are
+ * skipped. The default themes are listed first, then the rest by name.
+ */
+void Theme::scanThemes(const QDir &dir)
 {
+    m_themes.clear();
 
-    QFileInfo themeFile = QFileInfo(Settings::assetPath("themes").filePath(theme + ".json"));
-    if (!themeFile.exists()) return false;
-    qInfo() << "Loading Theme:" << theme;
+    const QFileInfoList files = dir.entryInfoList({"*.json"_L1}, QDir::Files | QDir::Readable, QDir::Name);
+    for (const QFileInfo &file : files) {
+        QJsonObject data;
+        if (JsonUtils::readJson(file.absoluteFilePath(), data, true) != JsonUtilsError::NoError) continue;
+
+        const QJsonObject jMeta = data.value("c:meta"_L1).toObject();
+        const QString name = JsonUtils::getJsonString(jMeta, "m:name"_L1, "");
+        const QString mode = JsonUtils::getJsonString(jMeta, "m:mode"_L1, "").toLower();
+        if (name.isEmpty() || (mode != "light"_L1 && mode != "dark"_L1)) {
+            qWarning() << "Skipping theme file:" << file.fileName();
+            continue;
+        }
+        m_themes.append({file.completeBaseName(), name, mode == "dark"_L1, file.absoluteFilePath()});
+    }
+
+    std::sort(m_themes.begin(), m_themes.end(), [](const ThemeEntry &a, const ThemeEntry &b) {
+        const bool aDefault = a.key.startsWith("default"_L1);
+        const bool bDefault = b.key.startsWith("default"_L1);
+        if (aDefault != bDefault) return aDefault;
+        return a.name.localeAwareCompare(b.name) < 0;
+    });
+
+    qInfo() << "Found" << m_themes.count() << "themes";
+}
+
+/**! @brief Load the theme selected by the current settings.
+ *
+ * The theme mode decides whether the light or dark theme is used, following
+ * the desktop when set to auto. An unknown theme falls back to the default
+ * for that mode and the setting is corrected. Returns true if a theme was
+ * loaded, and false if it failed or was already the current theme.
+ */
+bool Theme::loadTheme()
+{
+    bool darkMode = false;
+    switch (m_settings->themeMode()) {
+        case ThemeMode::LightTheme: darkMode = false; break;
+        case ThemeMode::DarkTheme: darkMode = true; break;
+        default: darkMode = this->isDesktopDarkMode(); break;
+    }
+
+    QString key = darkMode ? m_settings->darkTheme() : m_settings->lightTheme();
+    if (!this->hasTheme(key)) {
+        qWarning() << "Could not find theme:" << key;
+        key = darkMode ? COL_DEFAULT_DARK_THEME : COL_DEFAULT_LIGHT_THEME;
+        if (darkMode) {
+            m_settings->setDarkTheme(key);
+        } else {
+            m_settings->setLightTheme(key);
+        }
+    }
+
+    if (key == m_currentTheme) {
+        qInfo() << "Theme already loaded:" << key;
+        return false;
+    }
+    return this->loadTheme(key);
+}
+
+/**! @brief Load a theme by key and apply it to the application palette.
+ */
+bool Theme::loadTheme(const QString &key)
+{
+    QString path;
+    for (const ThemeEntry &entry : std::as_const(m_themes)) {
+        if (entry.key == key) {
+            path = entry.path;
+            break;
+        }
+    }
+    if (path.isEmpty()) {
+        qWarning() << "Unknown theme:" << key;
+        return false;
+    }
+    qInfo() << "Loading Theme:" << key;
 
     QJsonObject data;
-    if (JsonUtils::readJson(themeFile.absoluteFilePath(), data, true) != JsonUtilsError::NoError) return false;
+    if (JsonUtils::readJson(path, data, true) != JsonUtilsError::NoError) return false;
+    m_currentTheme = key;
 
     QJsonObject jMeta = data.value("c:meta"_L1).toObject();
     QJsonObject jBase = data.value("c:baseColors"_L1).toObject();
@@ -271,6 +412,20 @@ bool Theme::loadTheme(QString theme)
     emit themeChanged();
 
     return true;
+}
+
+// Private Slots
+// =============
+
+/**! @brief Reload the theme when the desktop switches between light and dark.
+ *
+ * Only applies when the theme mode follows the desktop.
+ */
+void Theme::onColorSchemeChanged()
+{
+    if (m_settings->themeMode() == ThemeMode::AutoTheme) {
+        this->loadTheme();
+    }
 }
 
 /**! @brief Create a push button with the standard label and icon.

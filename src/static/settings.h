@@ -73,7 +73,9 @@ public:
     void setMainWindowSize(const QSize size) { m_mainWindowSize = size; };
     void setMainSplitSizes(const QList<int> &sizes) { m_mainSplitSizes = sizes; };
     void setPrefsWindowSize(const QSize size) { m_prefsWindowSize = size; };
-    void setMainGuiTheme(const QString theme) { m_guiTheme = theme; };
+    void setThemeMode(const ThemeMode mode) { m_themeMode = mode; };
+    void setLightTheme(const QString &theme) { m_lightTheme = theme; };
+    void setDarkTheme(const QString &theme) { m_darkTheme = theme; };
     void setMainIconSet(const QString icons) { m_iconSet = icons; };
     void setEditorAutoSave(const int interval) { m_editorAutoSave = interval; };
     void setSpellLanguage(const QString &language) { m_spellLanguage = language.trimmed(); };
@@ -84,7 +86,9 @@ public:
     QSize mainWindowSize() const { return m_mainWindowSize; };
     QList<int> mainSplitSizes() const { return m_mainSplitSizes; };
     QSize prefsWindowSize() const { return m_prefsWindowSize; };
-    QString guiTheme() const { return m_guiTheme; };
+    ThemeMode themeMode() const { return m_themeMode; };
+    QString lightTheme() const { return m_lightTheme; };
+    QString darkTheme() const { return m_darkTheme; };
     QString iconSet() const { return m_iconSet; };
     int editorAutoSave() const { return m_editorAutoSave; };
     QString spellLanguage() const { return m_spellLanguage; };
@@ -97,7 +101,9 @@ private:
     QSize m_mainWindowSize;
     QList<int> m_mainSplitSizes;
     QSize m_prefsWindowSize;
-    QString m_guiTheme;
+    ThemeMode m_themeMode;
+    QString m_lightTheme;
+    QString m_darkTheme;
     QString m_iconSet;
 
     // Editor

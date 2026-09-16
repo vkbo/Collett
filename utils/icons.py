@@ -86,6 +86,9 @@ ICONS = {
     "checked": "circle-check-big",
     "noncheckable": "circle",
     "settings": "settings",
+    "theme_auto": "contrast",
+    "theme_dark": "moon",
+    "theme_light": "sun",
     "unchecked": "circle-x",
 }
 
