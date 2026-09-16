@@ -60,18 +60,24 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent)
     m_splitMain->addWidget(workPanel);
     m_splitMain->setSizes(m_settings->mainSplitSizes());
 
+    // Main Menu
+    mainMenu = new GuiMainMenu(projectPanel->projectView, this);
+
     // Connect Signals
     connect(m_data, &SharedData::projectLoaded, this, &GuiMain::updateTitle);
 
-    connect(projectPanel->projectToolBar->actOpenProject, &QAction::triggered, this, &GuiMain::onProjectOpen);
-    connect(projectPanel->projectToolBar->actSaveProject, &QAction::triggered, this, &GuiMain::onProjectSave);
-    connect(projectPanel->projectToolBar->actCloseProject, &QAction::triggered, this, &GuiMain::onProjectClose);
+    connect(mainMenu->actOpenProject, &QAction::triggered, this, &GuiMain::onProjectOpen);
+    connect(mainMenu->actSaveProject, &QAction::triggered, this, &GuiMain::onProjectSave);
+    connect(mainMenu->actCloseProject, &QAction::triggered, this, &GuiMain::onProjectClose);
+    connect(mainMenu->actExit, &QAction::triggered, this, &GuiMain::close);
 
     connect(projectPanel->projectView, &GuiProjectView::nodeActivated, this, &GuiMain::onNodeActivated);
     connect(workPanel->editorView->textEditor, &GuiTextEditor::documentCountsChanged, this, &GuiMain::onDocumentCountsChanged);
 
     // Assemble
+    this->setMenuBar(mainMenu);
     this->setCentralWidget(m_splitMain);
+    this->setContentsMargins(4, 4, 4, 4);
 
     // Apply Settings
     this->resize(m_settings->mainWindowSize());

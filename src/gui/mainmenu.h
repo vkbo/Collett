@@ -1,9 +1,9 @@
 /*
-** Collett - GUI Work Panel Class
-** ==============================
+** Collett - GUI Main Menu
+** =======================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -19,35 +19,38 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "collett.h"
-#include "workpanel.h"
-#include "editorview.h"
+#pragma once
 
-#include <QHBoxLayout>
+#include "collett.h"
+#include "projectview.h"
+
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
 #include <QWidget>
 
 namespace Collett {
 
-// Constructor/Destructor
-// ======================
-
-GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent)
+class GuiMain;
+class GuiMainMenu : public QMenuBar
 {
+    Q_OBJECT
 
-    // Components
-    editorView = new GuiEditorView(this);
+public:
+    explicit GuiMainMenu(GuiProjectView *view, QWidget *parent = nullptr);
+    ~GuiMainMenu();
 
-    // Assemble
-    QHBoxLayout *outerBox = new QHBoxLayout();
-    outerBox->addWidget(editorView, 1);
-    outerBox->setContentsMargins(0, 0, 0, 0);
+private:
+    // Project Menu
+    QMenu *mnuProject;
+    QAction *actOpenProject;
+    QAction *actSaveProject;
+    QAction *actCloseProject;
+    QAction *actExit;
 
-    this->setLayout(outerBox);
-}
+    // Builders
+    void buildProjectMenu(GuiProjectView *view);
 
-GuiWorkPanel::~GuiWorkPanel()
-{
-    qDebug() << "Destructor: GuiWorkPanel";
-}
-
+    friend class GuiMain;
+};
 } // namespace Collett

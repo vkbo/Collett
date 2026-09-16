@@ -24,6 +24,7 @@
 #include "collett.h"
 #include "counting.h"
 #include "data.h"
+#include "mainmenu.h"
 #include "projectpanel.h"
 #include "settings.h"
 #include "theme.h"
@@ -49,6 +50,7 @@ public:
     bool closeMain();
 
     // Components
+    GuiMainMenu *mainMenu;
     GuiProjectPanel *projectPanel;
     GuiWorkPanel *workPanel;
 

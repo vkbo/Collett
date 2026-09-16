@@ -45,6 +45,8 @@ GuiEditorView::GuiEditorView(QWidget *parent) : QWidget(parent)
     QVBoxLayout *outerBox = new QVBoxLayout();
     outerBox->addWidget(toolBar);
     outerBox->addWidget(textEditor, 1);
+    outerBox->setSpacing(2);
+    outerBox->setContentsMargins(0, 0, 0, 0);
 
     this->setLayout(outerBox);
 }

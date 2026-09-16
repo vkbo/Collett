@@ -35,7 +35,7 @@ GuiProjectPanel::GuiProjectPanel(QWidget *parent) : QWidget(parent)
 
     // Components
     projectView = new GuiProjectView(this);
-    projectToolBar = new GuiProjectToolBar(projectView, this);
+    projectToolBar = new GuiProjectToolBar(this);
     appToolBar = new GuiAppToolBar(this);
 
     // Connect Signals
@@ -48,6 +48,8 @@ GuiProjectPanel::GuiProjectPanel(QWidget *parent) : QWidget(parent)
     outerBox->addWidget(projectToolBar);
     outerBox->addWidget(projectView, 1);
     outerBox->addWidget(appToolBar);
+    outerBox->setSpacing(2);
+    outerBox->setContentsMargins(0, 0, 0, 0);
 
     this->setLayout(outerBox);
 }

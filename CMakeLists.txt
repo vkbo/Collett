@@ -92,6 +92,7 @@ list(APPEND SRC_FILES
     src/editor/texteditor.cpp
     src/editor/textblock.cpp
     src/gui/apptoolbar.cpp
+    src/gui/mainmenu.cpp
     src/gui/projectpanel.cpp
     src/gui/projecttoolbar.cpp
     src/gui/projectview.cpp

@@ -22,7 +22,6 @@
 #pragma once
 
 #include "collett.h"
-#include "projectview.h"
 #include "theme.h"
 
 #include <QAction>
@@ -33,13 +32,12 @@
 
 namespace Collett {
 
-class GuiMain;
 class GuiProjectToolBar : public QToolBar
 {
     Q_OBJECT
 
 public:
-    explicit GuiProjectToolBar(GuiProjectView *view, QWidget *parent = nullptr);
+    explicit GuiProjectToolBar(QWidget *parent = nullptr);
     ~GuiProjectToolBar();
 
 signals:
@@ -50,13 +48,6 @@ signals:
 private:
     Theme *m_theme;
 
-    // Project
-    QToolButton *btnProject;
-    QMenu *mnuProject;
-    QAction *actOpenProject;
-    QAction *actSaveProject;
-    QAction *actCloseProject;
-
     // Create New
     QToolButton *btnCreate;
     QMenu *mnuCreate;
@@ -65,7 +56,5 @@ private:
     // Helpers
     void addFileEntry(ItemLevel itemLevel);
     void addRootEntry(ItemClass itemClass);
-
-    friend class GuiMain;
 };
 } // namespace Collett

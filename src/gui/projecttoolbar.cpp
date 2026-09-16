@@ -21,7 +21,6 @@
 
 #include "constants.h"
 #include "projecttoolbar.h"
-#include "projectview.h"
 #include "theme.h"
 
 #include <QAction>
@@ -36,30 +35,13 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-GuiProjectToolBar::GuiProjectToolBar(GuiProjectView *view, QWidget *parent) : QToolBar(parent)
+GuiProjectToolBar::GuiProjectToolBar(QWidget *parent) : QToolBar(parent)
 {
 
     m_theme = Theme::instance();
     QSize size = m_theme->toolButtonIconSize();
 
     this->setIconSize(size);
-
-    // Project Button
-    btnProject = new QToolButton(this);
-    mnuProject = new QMenu(btnProject);
-
-    actOpenProject = mnuProject->addAction(tr("Create or Open Project"));
-    actSaveProject = mnuProject->addAction(tr("Save Project"));
-    actCloseProject = mnuProject->addAction(tr("Close Project"));
-
-    mnuProject->addSeparator();
-    mnuProject->addAction(view->actEditItem);
-    mnuProject->addAction(view->actDeleteItem);
-
-    btnProject->setIcon(m_theme->icons()->getIcon("menu_project", ThemeColor::Blue, size));
-    btnProject->setMenu(mnuProject);
-    btnProject->setPopupMode(QToolButton::InstantPopup);
-    this->addWidget(btnProject);
 
     // Create Button
     btnCreate = new QToolButton(this);
@@ -72,7 +54,8 @@ GuiProjectToolBar::GuiProjectToolBar(GuiProjectView *view, QWidget *parent) : QT
 
     QAction *actCreateFolder = mnuCreate->addAction(tr("Folder"));
     actCreateFolder->setIcon(m_theme->icons()->getProjectIcon(
-        ItemType::FolderType, ItemClass::NovelClass, ItemLevel::PageLevel, m_theme->baseIconSize()));
+        ItemType::FolderType, ItemClass::NovelClass, ItemLevel::PageLevel, m_theme->baseIconSize()
+    ));
     connect(actCreateFolder, &QAction::triggered, this, &GuiProjectToolBar::createFolderRequested);
 
     mnuCreateRoot = mnuCreate->addMenu(tr("Root Folder"));
@@ -104,7 +87,8 @@ void GuiProjectToolBar::addFileEntry(ItemLevel itemLevel)
 {
     QAction *action = mnuCreate->addAction(itemLevelNames(itemLevel));
     action->setIcon(m_theme->icons()->getProjectIcon(
-        ItemType::FileType, ItemClass::NovelClass, itemLevel, m_theme->baseIconSize()));
+        ItemType::FileType, ItemClass::NovelClass, itemLevel, m_theme->baseIconSize()
+    ));
     connect(action, &QAction::triggered, this, [=]() { emit createFileRequested(itemLevel); });
 }
 
@@ -112,7 +96,8 @@ void GuiProjectToolBar::addRootEntry(ItemClass itemClass)
 {
     QAction *action = mnuCreateRoot->addAction(itemClassNames(itemClass));
     action->setIcon(m_theme->icons()->getProjectIcon(
-        ItemType::RootType, itemClass, ItemLevel::PageLevel, m_theme->baseIconSize()));
+        ItemType::RootType, itemClass, ItemLevel::PageLevel, m_theme->baseIconSize()
+    ));
     connect(action, &QAction::triggered, this, [=]() { emit createRootRequested(itemClass); });
 }
 
