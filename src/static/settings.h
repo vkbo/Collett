@@ -102,6 +102,9 @@ public:
     QFont monoFont() const { return m_monoFont; };
     TextFormat textFormat() const { return m_textFormat; };
 
+signals:
+    void textFormatChanged();
+
 private:
     static Settings *staticInstance;
 

@@ -213,12 +213,14 @@ void Settings::setTextFont(const QFont &font)
     m_textFont = font;
     m_textFontSize = qMax(font.pointSizeF(), 5.0);
     recalculateTextFormats();
+    emit textFormatChanged();
 }
 
 void Settings::setTextTabWidth(const qreal width)
 {
     m_textTabWidth = width;
     recalculateTextFormats();
+    emit textFormatChanged();
 }
 
 // Internal Functions

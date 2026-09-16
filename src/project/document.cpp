@@ -41,9 +41,18 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
+/**! @brief Create an empty document.
+ *
+ * The document follows the text format settings, so a font change in the
+ * preferences is applied to every loaded document.
+ */
 Document::Document(QObject *parent) : QTextDocument(parent)
 {
     m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
+
+    Settings *settings = Settings::instance();
+    this->setDefaultFont(settings->textFont());
+    connect(settings, &Settings::textFormatChanged, this, &Document::refreshTextFormat);
 }
 
 /**! @brief Create a document tied to a project node by its handle.
@@ -310,6 +319,66 @@ void Document::unpack(const QJsonObject &data)
 
     qint64 end = QDateTime::currentMSecsSinceEpoch();
     qDebug() << "Document loaded in" << end - start << "ms";
+}
+
+// Public Slots
+// ============
+
+/**! @brief Reapply the font and spacing from the current text format settings.
+ *
+ * Each block keeps its type, alignment and indent, and each fragment keeps
+ * its bold, italic and other flags. Only the font family and size, and the
+ * margins that depend on the size, are replaced. The undo history is
+ * cleared, since a settings change is not an edit, and the modified state
+ * is left as it was.
+ */
+void Document::refreshTextFormat()
+{
+    Settings *settings = Settings::instance();
+    const Settings::TextFormat format = settings->textFormat();
+    const bool wasModified = this->isModified();
+
+    this->setDefaultFont(settings->textFont());
+    this->setUndoRedoEnabled(false);
+
+    QTextCursor cursor(this);
+    for (QTextBlock block = this->begin(); block.isValid(); block = block.next()) {
+        QTextBlockFormat blockFormat = block.blockFormat();
+        QTextBlockFormat baseBlock = format.blockParagraph;
+        QTextCharFormat baseChar = format.charParagraph;
+        switch (blockFormat.headingLevel()) {
+            case 1: baseBlock = format.blockHeader1; baseChar = format.charHeader1; break;
+            case 2: baseBlock = format.blockHeader2; baseChar = format.charHeader2; break;
+            case 3: baseBlock = format.blockHeader3; baseChar = format.charHeader3; break;
+            case 4: baseBlock = format.blockHeader4; baseChar = format.charHeader4; break;
+            default:
+                if (blockFormat.intProperty(BlockTypeProperty) == CommentBlock) {
+                    baseBlock = format.blockComment;
+                    baseChar = format.charComment;
+                }
+                break;
+        }
+
+        blockFormat.setTopMargin(baseBlock.topMargin());
+        blockFormat.setBottomMargin(baseBlock.bottomMargin());
+        blockFormat.setLineHeight(baseBlock.lineHeight(), baseBlock.lineHeightType());
+        if (blockFormat.textIndent() > 0.0) {
+            blockFormat.setTextIndent(format.tabWidth);
+        }
+
+        QTextCharFormat fontFormat;
+        fontFormat.setFontFamilies(baseChar.fontFamilies().toStringList());
+        fontFormat.setFontPointSize(baseChar.fontPointSize());
+
+        cursor.setPosition(block.position());
+        cursor.setBlockFormat(blockFormat);
+        cursor.mergeBlockCharFormat(fontFormat);
+        cursor.setPosition(block.position() + block.length() - 1, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fontFormat);
+    }
+
+    this->setUndoRedoEnabled(true);
+    this->setModified(wasModified);
 }
 
 } // namespace Collett
