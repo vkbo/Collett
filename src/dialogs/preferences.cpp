@@ -20,6 +20,7 @@
 */
 
 #include "collett.h"
+#include "fontdialog.h"
 #include "mcombobox.h"
 #include "miconbutton.h"
 #include "mpagedsidebar.h"
@@ -34,7 +35,6 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFont>
-#include <QFontDialog>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -125,12 +125,8 @@ QLineEdit *PrefsAppearancePage::addFontRow(const QString &label, const QString &
  */
 void PrefsAppearancePage::selectFont(QFont &font, QLineEdit *edit)
 {
-    QFontDialog::FontDialogOptions options;
-    if (!nativeFontDialog->isChecked()) {
-        options |= QFontDialog::DontUseNativeDialog;
-    }
     bool ok = false;
-    const QFont selected = QFontDialog::getFont(&ok, font, this, tr("Select Font"), options);
+    const QFont selected = FontDialog::selectFont(font, this, tr("Select Font"), nativeFontDialog->isChecked(), &ok);
     if (ok) {
         font = selected;
         edit->setText(FontUtils::describeFont(font));

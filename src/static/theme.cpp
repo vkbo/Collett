@@ -60,6 +60,7 @@ struct StandardButtonDef
 constexpr StandardButtonDef standardButtons[] = {
     {QT_TRANSLATE_NOOP("Button", "Save"), "btn_save", ThemeColor::ActionColor},     // StandardButton::SaveButton
     {QT_TRANSLATE_NOOP("Button", "Cancel"), "btn_cancel", ThemeColor::RejectColor}, // StandardButton::CancelButton
+    {QT_TRANSLATE_NOOP("Button", "OK"), "btn_ok", ThemeColor::ActionColor},         // StandardButton::OkButton
 };
 // Tool tip, icon key and icon colour of each tool button, indexed by the
 // ToolButton enum.

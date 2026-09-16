@@ -136,6 +136,7 @@ enum StandardButton
 {
     SaveButton = 0,
     CancelButton = 1,
+    OkButton = 2,
 };
 
 // Text Format Properties

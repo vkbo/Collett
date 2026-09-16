@@ -74,6 +74,10 @@ void TestSettings::prefsWindowSize()
 
     settings->setPrefsWindowSize(QSize(800, 700));
     QCOMPARE(settings->prefsWindowSize(), QSize(800, 700));
+
+    QCOMPARE(settings->fontWindowSize(), QSize(700, 550));
+    settings->setFontWindowSize(QSize(600, 400));
+    QCOMPARE(settings->fontWindowSize(), QSize(600, 400));
 }
 
 /**! @brief The text font drives the text format size, and the fonts have defaults.

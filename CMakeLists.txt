@@ -85,6 +85,7 @@ list(APPEND SRC_FILES
     src/core/storage.cpp
     src/core/tools.cpp
     src/dialogs/edititem.cpp
+    src/dialogs/fontdialog.cpp
     src/dialogs/preferences.cpp
     src/editor/editortoolbar.cpp
     src/editor/editorview.cpp

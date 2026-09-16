@@ -77,6 +77,7 @@ ICONS = {
     # Buttons
     #
     "btn_cancel": "circle-slash",
+    "btn_ok": "circle-check-big",
     "btn_save": "save",
     #
     # Actions

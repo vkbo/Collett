@@ -48,6 +48,7 @@ using namespace Qt::Literals::StringLiterals;
 #define CNF_MAIN_GUI_FONT "Main/guiFont"_L1
 #define CNF_MAIN_NATIVE_FONT_DIALOG "Main/nativeFontDialog"_L1
 #define CNF_MAIN_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
+#define CNF_MAIN_FONT_WINDOW_SIZE "Main/fontWindowSize"_L1
 #define CNF_SPELL_LANGUAGE "SpellCheck/language"_L1
 #define CNF_TEXT_FONT "TextFormat/textFont"_L1
 #define CNF_TEXT_MONO_FONT "TextFormat/monoFont"_L1
@@ -125,6 +126,7 @@ Settings::Settings(QObject *parent) : QObject(parent)
     m_mainWindowSize = settings.value(CNF_MAIN_WINDOW_SIZE, QSize(1200, 800)).toSize();
     m_mainSplitSizes = variantListToInt(settings.value(CNF_MAIN_SPLIT_SIZES, QVariantList() << 300 << 700).toList());
     m_prefsWindowSize = settings.value(CNF_MAIN_PREFS_WINDOW_SIZE, QSize(700, 615)).toSize();
+    m_fontWindowSize = settings.value(CNF_MAIN_FONT_WINDOW_SIZE, QSize(700, 550)).toSize();
     m_themeMode = ThemeMode(qBound(int(ThemeMode::AutoTheme), settings.value(CNF_MAIN_THEME_MODE, int(ThemeMode::AutoTheme)).toInt(), int(ThemeMode::DarkTheme)));
     m_lightTheme = settings.value(CNF_MAIN_LIGHT_THEME, COL_DEFAULT_LIGHT_THEME).toString();
     m_darkTheme = settings.value(CNF_MAIN_DARK_THEME, COL_DEFAULT_DARK_THEME).toString();
@@ -137,6 +139,8 @@ Settings::Settings(QObject *parent) : QObject(parent)
     if (m_mainWindowSize.height() < 300) m_mainWindowSize.setHeight(300);
     if (m_prefsWindowSize.width() < 600) m_prefsWindowSize.setWidth(600);
     if (m_prefsWindowSize.height() < 500) m_prefsWindowSize.setHeight(500);
+    if (m_fontWindowSize.width() < 400) m_fontWindowSize.setWidth(400);
+    if (m_fontWindowSize.height() < 300) m_fontWindowSize.setHeight(300);
 
     // Editor Settings
     // ---------------
@@ -178,6 +182,7 @@ void Settings::flushSettings()
     settings.setValue(CNF_MAIN_WINDOW_SIZE, m_mainWindowSize);
     settings.setValue(CNF_MAIN_SPLIT_SIZES, intListToVariant(m_mainSplitSizes));
     settings.setValue(CNF_MAIN_PREFS_WINDOW_SIZE, m_prefsWindowSize);
+    settings.setValue(CNF_MAIN_FONT_WINDOW_SIZE, m_fontWindowSize);
     settings.setValue(CNF_MAIN_THEME_MODE, int(m_themeMode));
     settings.setValue(CNF_MAIN_LIGHT_THEME, m_lightTheme);
     settings.setValue(CNF_MAIN_DARK_THEME, m_darkTheme);

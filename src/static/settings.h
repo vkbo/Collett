@@ -74,6 +74,7 @@ public:
     void setMainWindowSize(const QSize size) { m_mainWindowSize = size; };
     void setMainSplitSizes(const QList<int> &sizes) { m_mainSplitSizes = sizes; };
     void setPrefsWindowSize(const QSize size) { m_prefsWindowSize = size; };
+    void setFontWindowSize(const QSize size) { m_fontWindowSize = size; };
     void setThemeMode(const ThemeMode mode) { m_themeMode = mode; };
     void setLightTheme(const QString &theme) { m_lightTheme = theme; };
     void setDarkTheme(const QString &theme) { m_darkTheme = theme; };
@@ -90,6 +91,7 @@ public:
     QSize mainWindowSize() const { return m_mainWindowSize; };
     QList<int> mainSplitSizes() const { return m_mainSplitSizes; };
     QSize prefsWindowSize() const { return m_prefsWindowSize; };
+    QSize fontWindowSize() const { return m_fontWindowSize; };
     ThemeMode themeMode() const { return m_themeMode; };
     QString lightTheme() const { return m_lightTheme; };
     QString darkTheme() const { return m_darkTheme; };
@@ -112,6 +114,7 @@ private:
     QSize m_mainWindowSize;
     QList<int> m_mainSplitSizes;
     QSize m_prefsWindowSize;
+    QSize m_fontWindowSize;
     ThemeMode m_themeMode;
     QString m_lightTheme;
     QString m_darkTheme;
