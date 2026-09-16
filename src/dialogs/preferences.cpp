@@ -20,6 +20,7 @@
 */
 
 #include "collett.h"
+#include "mcombobox.h"
 #include "miconbutton.h"
 #include "mpagedsidebar.h"
 #include "mpushbutton.h"
@@ -30,15 +31,13 @@
 #include "theme.h"
 #include "tools.h"
 
-#include <QComboBox>
-#include <QFont>
-#include <QFontDialog>
-#include <QLineEdit>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFont>
+#include <QFontDialog>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPalette>
 #include <QStackedWidget>
 #include <QVBoxLayout>
@@ -61,35 +60,31 @@ PrefsAppearancePage::PrefsAppearancePage(QWidget *parent) : MScrollableForm(pare
 
     this->addGroupLabel(tr("Colour Theme"));
 
-    themeMode = new QComboBox(this);
+    themeMode = new MComboBox(this);
     themeMode->setMinimumWidth(200);
     themeMode->addItem(tr("Follow Desktop"), ThemeMode::AutoTheme);
     themeMode->addItem(tr("Light"), ThemeMode::LightTheme);
     themeMode->addItem(tr("Dark"), ThemeMode::DarkTheme);
-    themeMode->setCurrentIndex(qMax(0, themeMode->findData(settings->themeMode())));
+    themeMode->setCurrentData(settings->themeMode(), ThemeMode::AutoTheme);
     this->addRow(tr("Theme mode"), themeMode, tr("Use the light or dark colour theme, or switch with the desktop."));
 
-    lightTheme = new QComboBox(this);
+    lightTheme = new MComboBox(this);
     lightTheme->setMinimumWidth(200);
     for (const ThemeEntry &entry : theme->lightThemes()) {
         lightTheme->addItem(entry.name, entry.key);
     }
-    lightTheme->setCurrentIndex(qMax(0, lightTheme->findData(settings->lightTheme())));
+    lightTheme->setCurrentData(settings->lightTheme(), COL_DEFAULT_LIGHT_THEME);
     this->addRow(tr("Light colour theme"), lightTheme, tr("The colour theme used in light mode."));
 
-    darkTheme = new QComboBox(this);
+    darkTheme = new MComboBox(this);
     darkTheme->setMinimumWidth(200);
     for (const ThemeEntry &entry : theme->darkThemes()) {
         darkTheme->addItem(entry.name, entry.key);
     }
-    darkTheme->setCurrentIndex(qMax(0, darkTheme->findData(settings->darkTheme())));
+    darkTheme->setCurrentData(settings->darkTheme(), COL_DEFAULT_DARK_THEME);
     this->addRow(tr("Dark colour theme"), darkTheme, tr("The colour theme used in dark mode."));
 
     this->addGroupLabel(tr("Fonts"));
-
-    nativeFontDialog = new MSwitch(this);
-    nativeFontDialog->setChecked(settings->nativeFontDialog());
-    this->addRow(tr("Use the system's font selection dialog"), nativeFontDialog, tr("Turn off to use the Qt font dialog, which may have more options."));
 
     m_guiFont = settings->guiFont();
     m_textFont = settings->textFont();
@@ -98,6 +93,10 @@ PrefsAppearancePage::PrefsAppearancePage(QWidget *parent) : MScrollableForm(pare
     guiFontEdit = this->addFontRow(tr("User interface font"), tr("Requires restart to take effect."), m_guiFont, &PrefsAppearancePage::selectGuiFont);
     textFontEdit = this->addFontRow(tr("Text font"), tr("The font used for document text in the editor."), m_textFont, &PrefsAppearancePage::selectTextFont);
     monoFontEdit = this->addFontRow(tr("Monospace font"), tr("The fixed width font used in the editor."), m_monoFont, &PrefsAppearancePage::selectMonoFont);
+
+    nativeFontDialog = new MSwitch(this);
+    nativeFontDialog->setChecked(settings->nativeFontDialog());
+    this->addRow(tr("Use the system's font selection dialog"), nativeFontDialog, tr("Turn off to use the Qt font dialog, which may have more options."));
 
     this->finalise();
 }

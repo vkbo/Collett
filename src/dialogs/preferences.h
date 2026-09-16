@@ -22,13 +22,13 @@
 #pragma once
 
 #include "collett.h"
+#include "mcombobox.h"
 #include "mpagedsidebar.h"
 #include "mpushbutton.h"
 #include "mswitch.h"
 #include "scrollableform.h"
 #include "settings.h"
 
-#include <QComboBox>
 #include <QDialog>
 #include <QFont>
 #include <QLabel>
@@ -53,9 +53,9 @@ public:
     QFont textFont() const { return m_textFont; };
     QFont monoFont() const { return m_monoFont; };
 
-    QComboBox *themeMode;
-    QComboBox *lightTheme;
-    QComboBox *darkTheme;
+    MComboBox *themeMode;
+    MComboBox *lightTheme;
+    MComboBox *darkTheme;
     MSwitch *nativeFontDialog;
     QLineEdit *guiFontEdit;
     QLineEdit *textFontEdit;
