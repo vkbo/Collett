@@ -19,6 +19,7 @@
         "brightText": "#44475a",
         "highlight": "#a681da",
         "highlightedText": "#f8f8f2",
+        "accent": "#a681da",
         "link": "#8be9fd",
         "linkVisited": "#8be9fd"
     },

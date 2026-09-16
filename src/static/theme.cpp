@@ -133,6 +133,10 @@ bool Theme::loadTheme(QString theme)
     QColor link = QColor::fromString(JsonUtils::getJsonString(jBase, "link"_L1, "blue"));
     QColor linkVisited = QColor::fromString(JsonUtils::getJsonString(jBase, "linkVisited"_L1, "purple"));
 
+    // The accent colour falls back to the highlight colour
+    QColor accent = QColor::fromString(JsonUtils::getJsonString(jBase, "accent"_L1, ""));
+    m_accentColor = accent.isValid() ? accent : highlight;
+
     // Theme Colors
     m_colors = {
         QColor::fromString(JsonUtils::getJsonString(jTheme, "root"_L1, "black")),    // ThemeColor::RootColor
@@ -235,6 +239,10 @@ bool Theme::loadTheme(QString theme)
     palette.setBrush(QPalette::Active, QPalette::Highlight, highlight);
     palette.setBrush(QPalette::Inactive, QPalette::Highlight, highlight);
     palette.setBrush(QPalette::Disabled, QPalette::Highlight, grey);
+
+    palette.setBrush(QPalette::Active, QPalette::Accent, m_accentColor);
+    palette.setBrush(QPalette::Inactive, QPalette::Accent, m_accentColor);
+    palette.setBrush(QPalette::Disabled, QPalette::Accent, grey);
 
     QApplication::setPalette(palette);
 
