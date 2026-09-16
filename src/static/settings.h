@@ -72,6 +72,7 @@ public:
     // Setters
     void setMainWindowSize(const QSize size) { m_mainWindowSize = size; };
     void setMainSplitSizes(const QList<int> &sizes) { m_mainSplitSizes = sizes; };
+    void setPrefsWindowSize(const QSize size) { m_prefsWindowSize = size; };
     void setMainGuiTheme(const QString theme) { m_guiTheme = theme; };
     void setMainIconSet(const QString icons) { m_iconSet = icons; };
     void setEditorAutoSave(const int interval) { m_editorAutoSave = interval; };
@@ -82,6 +83,7 @@ public:
     // Getters
     QSize mainWindowSize() const { return m_mainWindowSize; };
     QList<int> mainSplitSizes() const { return m_mainSplitSizes; };
+    QSize prefsWindowSize() const { return m_prefsWindowSize; };
     QString guiTheme() const { return m_guiTheme; };
     QString iconSet() const { return m_iconSet; };
     int editorAutoSave() const { return m_editorAutoSave; };
@@ -94,6 +96,7 @@ private:
     // GUI Settings
     QSize m_mainWindowSize;
     QList<int> m_mainSplitSizes;
+    QSize m_prefsWindowSize;
     QString m_guiTheme;
     QString m_iconSet;
 

@@ -23,6 +23,7 @@
 
 #include "collett.h"
 #include "mpushbutton.h"
+#include "settings.h"
 
 #include <QDialog>
 #include <QWidget>
@@ -37,7 +38,12 @@ public:
     explicit PreferencesDialog(QWidget *parent = nullptr);
     ~PreferencesDialog();
 
+    // Methods
+    void done(int result) override;
+
 private:
+    Settings *m_settings;
+
     MPushButton *m_btnSave;
     MPushButton *m_btnCancel;
 

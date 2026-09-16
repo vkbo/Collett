@@ -34,6 +34,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
     void spellLanguage();
+    void prefsWindowSize();
 };
 
 /**! @brief Isolate QSettings from a real Collett install.
@@ -61,6 +62,17 @@ void TestSettings::spellLanguage()
 
     settings->setSpellLanguage("nb_NO");
     QCOMPARE(settings->spellLanguage(), QStringLiteral("nb_NO"));
+}
+
+/**! @brief The preferences window size has a default and can be changed.
+ */
+void TestSettings::prefsWindowSize()
+{
+    Settings *settings = Settings::instance();
+    QCOMPARE(settings->prefsWindowSize(), QSize(700, 615));
+
+    settings->setPrefsWindowSize(QSize(800, 700));
+    QCOMPARE(settings->prefsWindowSize(), QSize(800, 700));
 }
 
 QTEST_MAIN(TestSettings)

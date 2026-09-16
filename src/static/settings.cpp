@@ -41,6 +41,7 @@ using namespace Qt::Literals::StringLiterals;
 #define CNF_MAIN_WINDOW_SIZE "Main/windowSize"_L1
 #define CNF_MAIN_GUI_THEME "Main/guiTheme"_L1
 #define CNF_MAIN_ICON_SET "Main/iconSet"_L1
+#define CNF_MAIN_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
 #define CNF_SPELL_LANGUAGE "SpellCheck/language"_L1
 #define CNF_TEXT_FONT_SIZE "TextFormat/fontSize"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
@@ -101,12 +102,15 @@ Settings::Settings(QObject *parent) : QObject(parent)
 
     m_mainWindowSize = settings.value(CNF_MAIN_WINDOW_SIZE, QSize(1200, 800)).toSize();
     m_mainSplitSizes = variantListToInt(settings.value(CNF_MAIN_SPLIT_SIZES, QVariantList() << 300 << 700).toList());
+    m_prefsWindowSize = settings.value(CNF_MAIN_PREFS_WINDOW_SIZE, QSize(700, 615)).toSize();
     m_guiTheme = settings.value(CNF_MAIN_GUI_THEME, "default_light").toString();
     m_iconSet = settings.value(CNF_MAIN_ICON_SET, "lucide").toString();
 
     // Check Values
     if (m_mainWindowSize.width() < 400) m_mainWindowSize.setWidth(400);
     if (m_mainWindowSize.height() < 300) m_mainWindowSize.setHeight(300);
+    if (m_prefsWindowSize.width() < 600) m_prefsWindowSize.setWidth(600);
+    if (m_prefsWindowSize.height() < 500) m_prefsWindowSize.setHeight(500);
 
     // Editor Settings
     // ---------------
@@ -143,6 +147,7 @@ void Settings::flushSettings()
 
     settings.setValue(CNF_MAIN_WINDOW_SIZE, m_mainWindowSize);
     settings.setValue(CNF_MAIN_SPLIT_SIZES, intListToVariant(m_mainSplitSizes));
+    settings.setValue(CNF_MAIN_PREFS_WINDOW_SIZE, m_prefsWindowSize);
     settings.setValue(CNF_MAIN_GUI_THEME, m_guiTheme);
     settings.setValue(CNF_MAIN_ICON_SET, m_iconSet);
 

@@ -22,6 +22,7 @@
 #include "collett.h"
 #include "mpushbutton.h"
 #include "preferences.h"
+#include "settings.h"
 #include "theme.h"
 
 #include <QDialog>
@@ -37,9 +38,11 @@ namespace Collett {
 PreferencesDialog::PreferencesDialog(QWidget *parent) : QDialog(parent)
 {
     Theme *theme = Theme::instance();
+    m_settings = Settings::instance();
 
     this->setWindowTitle(tr("Preferences"));
     this->setMinimumSize(600, 500);
+    this->resize(m_settings->prefsWindowSize());
 
     // Buttons
     m_btnSave = theme->getStandardButton(StandardButton::SaveButton, this);
@@ -64,6 +67,20 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) : QDialog(parent)
 PreferencesDialog::~PreferencesDialog()
 {
     qDebug() << "Destructor: PreferencesDialog";
+}
+
+// Public Methods
+// ==============
+
+/**! @brief Remember the window size when the dialog closes.
+ *
+ * All ways of closing the dialog end up here, including the window close
+ * button, which rejects the dialog.
+ */
+void PreferencesDialog::done(int result)
+{
+    m_settings->setPrefsWindowSize(this->size());
+    QDialog::done(result);
 }
 
 // Private Slots
