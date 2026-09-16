@@ -33,6 +33,7 @@
         "note": "#eab700",
         "default": "#484848",
         "faded": "#6c6c6c",
+        "helpText": "#5c5c5c",
         "red": "#f02829",
         "orange": "#f5871f",
         "yellow": "#eab700",

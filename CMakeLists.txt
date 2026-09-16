@@ -111,6 +111,7 @@ list(APPEND SRC_FILES
     src/static/data.cpp
     src/static/settings.cpp
     src/static/theme.cpp
+    src/widgets/mpagedsidebar.cpp
     src/widgets/mpushbutton.cpp
     src/widgets/mswitch.cpp
     src/widgets/mtoolbutton.cpp

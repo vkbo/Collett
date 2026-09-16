@@ -49,6 +49,7 @@ public:
     QColor getColor(ThemeColor color) const { return m_colors.at(color); };
     QColor getSyntaxColor(SyntaxColor color) const { return m_syntaxColors.at(color); };
     QColor accentColor() const { return m_accentColor; };
+    QColor helpTextColor() const { return m_helpTextColor; };
     Icons *icons() const { return m_icons; };
 
     qreal fontPointSizeF() const { return m_fontPointSizeF; };
@@ -89,6 +90,7 @@ private:
     // Colors
     bool m_isDark = false;
     QColor m_accentColor = QColor::fromString("purple");
+    QColor m_helpTextColor = QColor::fromString("grey");
     QList<QColor> m_colors = {
         QColor::fromString("black"),  // ThemeColor::RootColor
         QColor::fromString("yellow"), // ThemeColor::Folder Color

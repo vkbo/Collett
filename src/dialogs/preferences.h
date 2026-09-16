@@ -22,10 +22,13 @@
 #pragma once
 
 #include "collett.h"
+#include "mpagedsidebar.h"
 #include "mpushbutton.h"
 #include "settings.h"
 
 #include <QDialog>
+#include <QLabel>
+#include <QStackedWidget>
 #include <QWidget>
 
 namespace Collett {
@@ -35,6 +38,17 @@ class PreferencesDialog : public QDialog
     Q_OBJECT
 
 public:
+    // Pages
+    // The ids double as the index of the page in the stack, so they must
+    // match the order the pages are added in.
+    enum Page
+    {
+        GeneralPage = 0,
+        AppearancePage = 1,
+        TextEditorPage = 2,
+        SpellCheckPage = 3,
+    };
+
     explicit PreferencesDialog(QWidget *parent = nullptr);
     ~PreferencesDialog();
 
@@ -44,10 +58,15 @@ public:
 private:
     Settings *m_settings;
 
+    // Components
+    QLabel *m_titleLabel;
+    MPagedSideBar *m_sideBar;
+    QStackedWidget *m_stack;
     MPushButton *m_btnSave;
     MPushButton *m_btnCancel;
 
 private slots:
+    void onSideBarClicked(int pageId);
     void doSave();
 };
 } // namespace Collett

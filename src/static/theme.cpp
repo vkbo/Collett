@@ -175,6 +175,10 @@ bool Theme::loadTheme(QString theme)
         QColor::fromString(JsonUtils::getJsonString(jTheme, "purple"_L1, "purple")), // ThemeColor::Purple
     };
 
+    // The help text colour falls back to the faded colour
+    QColor helpText = QColor::fromString(JsonUtils::getJsonString(jTheme, "helpText"_L1, ""));
+    m_helpTextColor = helpText.isValid() ? helpText : m_colors.at(ThemeColor::FadedColor);
+
     // Icon Colors
     // Each category falls back to one of the theme colours above.
     auto iconColor = [&](QLatin1StringView key, ThemeColor fallback) -> QColor {
