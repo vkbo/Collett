@@ -24,6 +24,8 @@
 #include "collett.h"
 #include "mpagedsidebar.h"
 #include "mpushbutton.h"
+#include "mswitch.h"
+#include "scrollableform.h"
 #include "settings.h"
 
 #include <QDialog>
@@ -33,12 +35,61 @@
 
 namespace Collett {
 
+// Pages
+// =====
+
+class PrefsGeneralPage : public MScrollableForm
+{
+    Q_OBJECT
+
+public:
+    explicit PrefsGeneralPage(QWidget *parent = nullptr);
+
+    MSwitch *openLastProject;
+    MSwitch *autoSaveProject;
+};
+
+class PrefsAppearancePage : public MScrollableForm
+{
+    Q_OBJECT
+
+public:
+    explicit PrefsAppearancePage(QWidget *parent = nullptr);
+
+    MSwitch *darkMode;
+    MSwitch *showToolBarLabels;
+};
+
+class PrefsTextEditorPage : public MScrollableForm
+{
+    Q_OBJECT
+
+public:
+    explicit PrefsTextEditorPage(QWidget *parent = nullptr);
+
+    MSwitch *highlightCurrentLine;
+    MSwitch *autoCloseQuotes;
+};
+
+class PrefsSpellCheckPage : public MScrollableForm
+{
+    Q_OBJECT
+
+public:
+    explicit PrefsSpellCheckPage(QWidget *parent = nullptr);
+
+    MSwitch *checkWhileTyping;
+    MSwitch *ignoreUpperCase;
+};
+
+// Dialog
+// ======
+
 class PreferencesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    // Pages
     // The ids double as the index of the page in the stack, so they must
     // match the order the pages are added in.
     enum Page
@@ -64,6 +115,12 @@ private:
     QStackedWidget *m_stack;
     MPushButton *m_btnSave;
     MPushButton *m_btnCancel;
+
+    // Pages
+    PrefsGeneralPage *m_generalPage;
+    PrefsAppearancePage *m_appearancePage;
+    PrefsTextEditorPage *m_textEditorPage;
+    PrefsSpellCheckPage *m_spellCheckPage;
 
 private slots:
     void onSideBarClicked(int pageId);

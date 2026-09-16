@@ -22,7 +22,9 @@
 #include "collett.h"
 #include "mpagedsidebar.h"
 #include "mpushbutton.h"
+#include "mswitch.h"
 #include "preferences.h"
+#include "scrollableform.h"
 #include "settings.h"
 #include "theme.h"
 
@@ -42,6 +44,66 @@ namespace {
 // Font scale of the dialog title relative to the default font
 constexpr qreal titleScale = 1.25;
 } // namespace
+
+// Pages
+// =====
+
+// The settings on these pages are placeholders until the values they control
+// exist in the Settings class.
+
+PrefsGeneralPage::PrefsGeneralPage(QWidget *parent) : MScrollableForm(parent)
+{
+    this->addGroupLabel(tr("Startup"));
+
+    openLastProject = new MSwitch(this);
+    this->addRow(tr("Open last project"), openLastProject, tr("Reopen the project that was open when the application last closed."));
+
+    autoSaveProject = new MSwitch(this);
+    this->addRow(tr("Save project automatically"), autoSaveProject, tr("Save changes to the project in the background at regular intervals."));
+
+    this->finalise();
+}
+
+PrefsAppearancePage::PrefsAppearancePage(QWidget *parent) : MScrollableForm(parent)
+{
+    this->addGroupLabel(tr("Theme"));
+
+    darkMode = new MSwitch(this);
+    this->addRow(tr("Dark mode"), darkMode, tr("Use the dark colour theme for the user interface."));
+
+    this->addGroupLabel(tr("Layout"));
+
+    showToolBarLabels = new MSwitch(this);
+    this->addRow(tr("Show tool bar labels"), showToolBarLabels, tr("Show a text label under each tool bar button."));
+
+    this->finalise();
+}
+
+PrefsTextEditorPage::PrefsTextEditorPage(QWidget *parent) : MScrollableForm(parent)
+{
+    this->addGroupLabel(tr("Editing"));
+
+    highlightCurrentLine = new MSwitch(this);
+    this->addRow(tr("Highlight current line"), highlightCurrentLine, tr("Draw a subtle background behind the line the cursor is on."));
+
+    autoCloseQuotes = new MSwitch(this);
+    this->addRow(tr("Auto-close quotes"), autoCloseQuotes, tr("Insert the closing quote when an opening quote is typed."));
+
+    this->finalise();
+}
+
+PrefsSpellCheckPage::PrefsSpellCheckPage(QWidget *parent) : MScrollableForm(parent)
+{
+    this->addGroupLabel(tr("Spell Checking"));
+
+    checkWhileTyping = new MSwitch(this);
+    this->addRow(tr("Check spelling while typing"), checkWhileTyping, tr("Underline misspelled words as you type."));
+
+    ignoreUpperCase = new MSwitch(this);
+    this->addRow(tr("Ignore words in upper case"), ignoreUpperCase, tr("Skip words written entirely in capital letters, such as acronyms."));
+
+    this->finalise();
+}
 
 // Constructor/Destructor
 // ======================
@@ -80,11 +142,16 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) : QDialog(parent)
 
     // Pages
     // Added in the order of the Page enum, which is the stack index
+    m_generalPage = new PrefsGeneralPage(this);
+    m_appearancePage = new PrefsAppearancePage(this);
+    m_textEditorPage = new PrefsTextEditorPage(this);
+    m_spellCheckPage = new PrefsSpellCheckPage(this);
+
     m_stack = new QStackedWidget(this);
-    m_stack->addWidget(new QWidget(this)); // Page::GeneralPage
-    m_stack->addWidget(new QWidget(this)); // Page::AppearancePage
-    m_stack->addWidget(new QWidget(this)); // Page::TextEditorPage
-    m_stack->addWidget(new QWidget(this)); // Page::SpellCheckPage
+    m_stack->addWidget(m_generalPage);    // Page::GeneralPage
+    m_stack->addWidget(m_appearancePage); // Page::AppearancePage
+    m_stack->addWidget(m_textEditorPage); // Page::TextEditorPage
+    m_stack->addWidget(m_spellCheckPage); // Page::SpellCheckPage
 
     // Buttons
     m_btnSave = theme->getStandardButton(StandardButton::SaveButton, this);

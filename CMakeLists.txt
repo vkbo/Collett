@@ -98,6 +98,7 @@ list(APPEND SRC_FILES
     src/gui/projecttoolbar.cpp
     src/gui/projectview.cpp
     src/gui/workpanel.cpp
+    src/layouts/scrollableform.cpp
     src/project/document.cpp
     src/project/node.cpp
     src/project/project.cpp
@@ -167,6 +168,7 @@ target_include_directories(CollettCore PUBLIC
     src/dialogs
     src/editor
     src/gui
+    src/layouts
     src/project
     src/spellcheck
     src/static
