@@ -25,6 +25,8 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFont>
+#include <QFontDatabase>
+#include <QGuiApplication>
 #include <QList>
 #include <QLocale>
 #include <QSettings>
@@ -43,15 +45,33 @@ using namespace Qt::Literals::StringLiterals;
 #define CNF_MAIN_LIGHT_THEME "Main/lightTheme"_L1
 #define CNF_MAIN_DARK_THEME "Main/darkTheme"_L1
 #define CNF_MAIN_ICON_SET "Main/iconSet"_L1
+#define CNF_MAIN_GUI_FONT "Main/guiFont"_L1
+#define CNF_MAIN_NATIVE_FONT_DIALOG "Main/nativeFontDialog"_L1
 #define CNF_MAIN_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
 #define CNF_SPELL_LANGUAGE "SpellCheck/language"_L1
-#define CNF_TEXT_FONT_SIZE "TextFormat/fontSize"_L1
+#define CNF_TEXT_FONT "TextFormat/textFont"_L1
+#define CNF_TEXT_MONO_FONT "TextFormat/monoFont"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
 
 namespace Collett {
 
 // Converter Functions
 // ===================
+
+/**! @brief Read a font from settings, falling back to a default.
+ *
+ * Fonts are stored in the string form used by QFont, so a missing or
+ * unreadable value returns the fallback untouched.
+ */
+QFont fontFromSettings(const QSettings &settings, const QLatin1StringView key, const QFont &fallback)
+{
+    QFont font;
+    const QString value = settings.value(key, QString()).toString();
+    if (!value.isEmpty() && font.fromString(value)) {
+        return font;
+    }
+    return fallback;
+}
 
 QList<int> variantListToInt(const QVariantList &list)
 {
@@ -109,6 +129,8 @@ Settings::Settings(QObject *parent) : QObject(parent)
     m_lightTheme = settings.value(CNF_MAIN_LIGHT_THEME, COL_DEFAULT_LIGHT_THEME).toString();
     m_darkTheme = settings.value(CNF_MAIN_DARK_THEME, COL_DEFAULT_DARK_THEME).toString();
     m_iconSet = settings.value(CNF_MAIN_ICON_SET, "lucide").toString();
+    m_guiFont = fontFromSettings(settings, CNF_MAIN_GUI_FONT, QGuiApplication::font());
+    m_nativeFontDialog = settings.value(CNF_MAIN_NATIVE_FONT_DIALOG, true).toBool();
 
     // Check Values
     if (m_mainWindowSize.width() < 400) m_mainWindowSize.setWidth(400);
@@ -131,7 +153,11 @@ Settings::Settings(QObject *parent) : QObject(parent)
     // Text Format
     // -----------
 
-    m_textFontSize = qMax(settings.value(CNF_TEXT_FONT_SIZE, (qreal)13.0).toReal(), 5.0);
+    QFont defaultTextFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+    defaultTextFont.setPointSizeF(13.0);
+    m_textFont = fontFromSettings(settings, CNF_TEXT_FONT, defaultTextFont);
+    m_monoFont = fontFromSettings(settings, CNF_TEXT_MONO_FONT, QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    m_textFontSize = qMax(m_textFont.pointSizeF(), 5.0);
     m_textTabWidth = qMax(settings.value(CNF_TEXT_TAB_WIDTH, (qreal)40.0).toReal(), 0.0);
     recalculateTextFormats();
 }
@@ -156,12 +182,15 @@ void Settings::flushSettings()
     settings.setValue(CNF_MAIN_LIGHT_THEME, m_lightTheme);
     settings.setValue(CNF_MAIN_DARK_THEME, m_darkTheme);
     settings.setValue(CNF_MAIN_ICON_SET, m_iconSet);
+    settings.setValue(CNF_MAIN_GUI_FONT, m_guiFont.toString());
+    settings.setValue(CNF_MAIN_NATIVE_FONT_DIALOG, m_nativeFontDialog);
 
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
 
     settings.setValue(CNF_SPELL_LANGUAGE, m_spellLanguage);
 
-    settings.setValue(CNF_TEXT_FONT_SIZE, m_textFontSize);
+    settings.setValue(CNF_TEXT_FONT, m_textFont.toString());
+    settings.setValue(CNF_TEXT_MONO_FONT, m_monoFont.toString());
     settings.setValue(CNF_TEXT_TAB_WIDTH, m_textTabWidth);
 
     qDebug() << "Settings values saved";
@@ -177,9 +206,12 @@ QDir Settings::assetPath(QString asset)
 // Setters
 // =======
 
-void Settings::setTextFontSize(const qreal size)
+/**! @brief Set the document font and rebuild the text formats from it.
+ */
+void Settings::setTextFont(const QFont &font)
 {
-    m_textFontSize = size;
+    m_textFont = font;
+    m_textFontSize = qMax(font.pointSizeF(), 5.0);
     recalculateTextFormats();
 }
 
@@ -228,6 +260,7 @@ void Settings::recalculateTextFormats()
     defaultBlockFmt.setTextIndent(0.0);
     m_textFormat.blockDefault = defaultBlockFmt;
 
+    defaultCharFmt.setFontFamilies({m_textFont.family()});
     defaultCharFmt.setFontPointSize(m_textFontSize);
     m_textFormat.charDefault = defaultCharFmt;
 

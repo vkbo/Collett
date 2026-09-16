@@ -20,14 +20,20 @@
 */
 
 #include "collett.h"
+#include "miconbutton.h"
 #include "mpagedsidebar.h"
 #include "mpushbutton.h"
+#include "mswitch.h"
 #include "preferences.h"
 #include "scrollableform.h"
 #include "settings.h"
 #include "theme.h"
+#include "tools.h"
 
 #include <QComboBox>
+#include <QFont>
+#include <QFontDialog>
+#include <QLineEdit>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFont>
@@ -79,7 +85,73 @@ PrefsAppearancePage::PrefsAppearancePage(QWidget *parent) : MScrollableForm(pare
     darkTheme->setCurrentIndex(qMax(0, darkTheme->findData(settings->darkTheme())));
     this->addRow(tr("Dark colour theme"), darkTheme, tr("The colour theme used in dark mode."));
 
+    this->addGroupLabel(tr("Fonts"));
+
+    nativeFontDialog = new MSwitch(this);
+    nativeFontDialog->setChecked(settings->nativeFontDialog());
+    this->addRow(tr("Use the system's font selection dialog"), nativeFontDialog, tr("Turn off to use the Qt font dialog, which may have more options."));
+
+    m_guiFont = settings->guiFont();
+    m_textFont = settings->textFont();
+    m_monoFont = settings->monoFont();
+
+    guiFontEdit = this->addFontRow(tr("User interface font"), tr("Requires restart to take effect."), m_guiFont, &PrefsAppearancePage::selectGuiFont);
+    textFontEdit = this->addFontRow(tr("Text font"), tr("The font used for document text in the editor."), m_textFont, &PrefsAppearancePage::selectTextFont);
+    monoFontEdit = this->addFontRow(tr("Monospace font"), tr("The fixed width font used in the editor."), m_monoFont, &PrefsAppearancePage::selectMonoFont);
+
     this->finalise();
+}
+
+/**! @brief Add a row with a read-only font description and a select button.
+ */
+QLineEdit *PrefsAppearancePage::addFontRow(const QString &label, const QString &helpText, const QFont &font, void (PrefsAppearancePage::*slot)())
+{
+    QLineEdit *edit = new QLineEdit(this);
+    edit->setReadOnly(true);
+    edit->setMinimumWidth(200);
+    edit->setText(FontUtils::describeFont(font));
+    edit->setCursorPosition(0);
+
+    MIconButton *button = Theme::instance()->getIconButton(ToolButton::FontButton, this);
+    connect(button, &MIconButton::clicked, this, slot);
+
+    this->addRow(label, edit, helpText, button);
+    return edit;
+}
+
+/**! @brief Open the font dialog and store the result if accepted.
+ *
+ * The native dialog switch on the page decides whether the platform dialog
+ * or the Qt one is used.
+ */
+void PrefsAppearancePage::selectFont(QFont &font, QLineEdit *edit)
+{
+    QFontDialog::FontDialogOptions options;
+    if (!nativeFontDialog->isChecked()) {
+        options |= QFontDialog::DontUseNativeDialog;
+    }
+    bool ok = false;
+    const QFont selected = QFontDialog::getFont(&ok, font, this, tr("Select Font"), options);
+    if (ok) {
+        font = selected;
+        edit->setText(FontUtils::describeFont(font));
+        edit->setCursorPosition(0);
+    }
+}
+
+void PrefsAppearancePage::selectGuiFont()
+{
+    this->selectFont(m_guiFont, guiFontEdit);
+}
+
+void PrefsAppearancePage::selectTextFont()
+{
+    this->selectFont(m_textFont, textFontEdit);
+}
+
+void PrefsAppearancePage::selectMonoFont()
+{
+    this->selectFont(m_monoFont, monoFontEdit);
 }
 
 // Constructor/Destructor
@@ -201,6 +273,11 @@ void PreferencesDialog::doSave()
     if (lightTheme.isValid()) m_settings->setLightTheme(lightTheme.toString());
     if (darkTheme.isValid()) m_settings->setDarkTheme(darkTheme.toString());
     Theme::instance()->loadTheme();
+
+    m_settings->setNativeFontDialog(m_appearancePage->nativeFontDialog->isChecked());
+    m_settings->setGuiFont(m_appearancePage->guiFont());
+    m_settings->setTextFont(m_appearancePage->textFont());
+    m_settings->setMonoFont(m_appearancePage->monoFont());
 
     this->accept();
 }

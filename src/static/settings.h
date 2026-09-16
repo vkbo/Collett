@@ -24,6 +24,7 @@
 #include "collett.h"
 
 #include <QDir>
+#include <QFont>
 #include <QList>
 #include <QScopedPointer>
 #include <QSize>
@@ -77,9 +78,12 @@ public:
     void setLightTheme(const QString &theme) { m_lightTheme = theme; };
     void setDarkTheme(const QString &theme) { m_darkTheme = theme; };
     void setMainIconSet(const QString icons) { m_iconSet = icons; };
+    void setGuiFont(const QFont &font) { m_guiFont = font; };
+    void setNativeFontDialog(const bool native) { m_nativeFontDialog = native; };
     void setEditorAutoSave(const int interval) { m_editorAutoSave = interval; };
     void setSpellLanguage(const QString &language) { m_spellLanguage = language.trimmed(); };
-    void setTextFontSize(const qreal size);
+    void setTextFont(const QFont &font);
+    void setMonoFont(const QFont &font) { m_monoFont = font; };
     void setTextTabWidth(const qreal width);
 
     // Getters
@@ -90,8 +94,12 @@ public:
     QString lightTheme() const { return m_lightTheme; };
     QString darkTheme() const { return m_darkTheme; };
     QString iconSet() const { return m_iconSet; };
+    QFont guiFont() const { return m_guiFont; };
+    bool nativeFontDialog() const { return m_nativeFontDialog; };
     int editorAutoSave() const { return m_editorAutoSave; };
     QString spellLanguage() const { return m_spellLanguage; };
+    QFont textFont() const { return m_textFont; };
+    QFont monoFont() const { return m_monoFont; };
     TextFormat textFormat() const { return m_textFormat; };
 
 private:
@@ -105,6 +113,8 @@ private:
     QString m_lightTheme;
     QString m_darkTheme;
     QString m_iconSet;
+    QFont m_guiFont;
+    bool m_nativeFontDialog;
 
     // Editor
     int m_editorAutoSave;
@@ -113,6 +123,8 @@ private:
     QString m_spellLanguage;
 
     // Text Format
+    QFont m_textFont;
+    QFont m_monoFont;
     qreal m_textFontSize;
     qreal m_textTabWidth;
     TextFormat m_textFormat;

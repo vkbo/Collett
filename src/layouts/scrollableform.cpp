@@ -50,6 +50,8 @@ constexpr int rowPaddingH = 12;
 constexpr int rowPaddingV = 10;
 // Corner radius of the group background
 constexpr qreal groupRadius = 6.0;
+// Alpha of the base colour used for the group background
+constexpr int groupAlpha = 96;
 // Alpha of the text colour used for the divider between rows
 constexpr int dividerAlpha = 40;
 } // namespace
@@ -96,7 +98,7 @@ void MScrollableForm::addGroupLabel(const QString &text)
 {
     QLabel *label = new QLabel(text, m_content);
     QFont font = label->font();
-    font.setBold(true);
+    font.setWeight(QFont::Medium);
     label->setFont(font);
     label->setContentsMargins(0, 4, 0, 4);
 
@@ -113,10 +115,11 @@ void MScrollableForm::addGroupLabel(const QString &text)
 /**! @brief Add a setting to the current group.
  *
  * The label and optional help text fill the space to the left of the widget.
+ * An optional button is placed to the right of the widget.
  */
-void MScrollableForm::addRow(const QString &label, QWidget *widget, const QString &helpText)
+void MScrollableForm::addRow(const QString &label, QWidget *widget, const QString &helpText, QWidget *button)
 {
-    this->currentGroup()->addRow(label, widget, helpText);
+    this->currentGroup()->addRow(label, widget, helpText, button);
 }
 
 /**! @brief Push the groups to the top once all rows have been added.
@@ -158,7 +161,7 @@ MSettingsGroup::~MSettingsGroup() {}
  * The label is drawn in a demi-bold weight and the help text wraps. Both take
  * the space left over by the control, which is placed on the right.
  */
-void MSettingsGroup::addRow(const QString &label, QWidget *widget, const QString &helpText)
+void MSettingsGroup::addRow(const QString &label, QWidget *widget, const QString &helpText, QWidget *button)
 {
     QWidget *row = new QWidget(this);
 
@@ -187,7 +190,16 @@ void MSettingsGroup::addRow(const QString &label, QWidget *widget, const QString
     rowBox->setContentsMargins(rowPaddingH, rowPaddingV, rowPaddingH, rowPaddingV);
     rowBox->setSpacing(rowSpacing);
     rowBox->addLayout(textBox, 1);
-    rowBox->addWidget(widget, 0, Qt::AlignRight | Qt::AlignVCenter);
+    if (button) {
+        QHBoxLayout *controlBox = new QHBoxLayout();
+        controlBox->setContentsMargins(0, 0, 0, 0);
+        controlBox->setSpacing(4);
+        controlBox->addWidget(widget, 1);
+        controlBox->addWidget(button, 0);
+        rowBox->addLayout(controlBox, 0);
+    } else {
+        rowBox->addWidget(widget, 0, Qt::AlignRight | Qt::AlignVCenter);
+    }
     row->setLayout(rowBox);
 
     m_layout->addWidget(row);
@@ -205,7 +217,9 @@ void MSettingsGroup::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setPen(Qt::NoPen);
-    painter.setBrush(palette.base());
+    QColor background = palette.base().color();
+    background.setAlpha(groupAlpha);
+    painter.setBrush(background);
     painter.drawRoundedRect(QRectF(this->rect()), groupRadius, groupRadius);
 
     QColor divider = palette.text().color();

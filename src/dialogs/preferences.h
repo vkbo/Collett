@@ -24,12 +24,15 @@
 #include "collett.h"
 #include "mpagedsidebar.h"
 #include "mpushbutton.h"
+#include "mswitch.h"
 #include "scrollableform.h"
 #include "settings.h"
 
 #include <QComboBox>
 #include <QDialog>
+#include <QFont>
 #include <QLabel>
+#include <QLineEdit>
 #include <QStackedWidget>
 #include <QWidget>
 
@@ -45,9 +48,32 @@ class PrefsAppearancePage : public MScrollableForm
 public:
     explicit PrefsAppearancePage(QWidget *parent = nullptr);
 
+    // Getters
+    QFont guiFont() const { return m_guiFont; };
+    QFont textFont() const { return m_textFont; };
+    QFont monoFont() const { return m_monoFont; };
+
     QComboBox *themeMode;
     QComboBox *lightTheme;
     QComboBox *darkTheme;
+    MSwitch *nativeFontDialog;
+    QLineEdit *guiFontEdit;
+    QLineEdit *textFontEdit;
+    QLineEdit *monoFontEdit;
+
+private:
+    QFont m_guiFont;
+    QFont m_textFont;
+    QFont m_monoFont;
+
+    // Helpers
+    QLineEdit *addFontRow(const QString &label, const QString &helpText, const QFont &font, void (PrefsAppearancePage::*slot)());
+    void selectFont(QFont &font, QLineEdit *edit);
+
+private slots:
+    void selectGuiFont();
+    void selectTextFont();
+    void selectMonoFont();
 };
 
 // Dialog

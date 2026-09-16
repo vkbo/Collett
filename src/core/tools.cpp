@@ -25,11 +25,34 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QFont>
+#include <QFontInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
 
 namespace Collett {
+
+// Font Utils
+// ==========
+
+/**! @brief Describe a font for display, like "12 pt Sans Serif Bold".
+ *
+ * The style words already contained in the family name are left out.
+ */
+QString FontUtils::describeFont(const QFont &font)
+{
+    const QFontInfo info(font);
+    const QString family = info.family();
+    QStringList parts = {QStringLiteral("%1 pt").arg(info.pointSize()), family};
+    for (const QString &word : info.styleName().split(u' ', Qt::SkipEmptyParts)) {
+        if (!family.contains(word)) parts.append(word);
+    }
+    return parts.join(u' ');
+}
+
+// JSON Utils
+// ==========
 
 QString JsonUtils::getJsonString(const QJsonObject &object, const QLatin1String &key, QString def)
 {

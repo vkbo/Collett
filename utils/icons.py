@@ -84,6 +84,7 @@ ICONS = {
     "add": "plus",
     "bookmarks": "bookmark",
     "checked": "circle-check-big",
+    "font": "type",
     "noncheckable": "circle",
     "settings": "settings",
     "theme_auto": "contrast",

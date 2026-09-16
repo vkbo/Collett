@@ -48,7 +48,7 @@ public:
 
     // Methods
     void addGroupLabel(const QString &text);
-    void addRow(const QString &label, QWidget *widget, const QString &helpText = QString());
+    void addRow(const QString &label, QWidget *widget, const QString &helpText = QString(), QWidget *button = nullptr);
     void finalise();
 
 private:
@@ -72,7 +72,7 @@ public:
     int rowCount() const { return m_rows.count(); };
 
     // Methods
-    void addRow(const QString &label, QWidget *widget, const QString &helpText);
+    void addRow(const QString &label, QWidget *widget, const QString &helpText, QWidget *button);
 
 protected:
     // Events

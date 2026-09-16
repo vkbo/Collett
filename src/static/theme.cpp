@@ -23,6 +23,7 @@
 #include "theme.h"
 #include "tools.h"
 #include "icons.h"
+#include "miconbutton.h"
 #include "mpushbutton.h"
 
 #include <QString>
@@ -59,6 +60,11 @@ struct StandardButtonDef
 constexpr StandardButtonDef standardButtons[] = {
     {QT_TRANSLATE_NOOP("Button", "Save"), "btn_save", ThemeColor::ActionColor},     // StandardButton::SaveButton
     {QT_TRANSLATE_NOOP("Button", "Cancel"), "btn_cancel", ThemeColor::RejectColor}, // StandardButton::CancelButton
+};
+// Tool tip, icon key and icon colour of each tool button, indexed by the
+// ToolButton enum.
+constexpr StandardButtonDef toolButtons[] = {
+    {QT_TRANSLATE_NOOP("Button", "Select Font"), "font", ThemeColor::ToolColor}, // ToolButton::FontButton
 };
 } // namespace
 
@@ -426,6 +432,19 @@ void Theme::onColorSchemeChanged()
     if (m_settings->themeMode() == ThemeMode::AutoTheme) {
         this->loadTheme();
     }
+}
+
+/**! @brief Create an icon-only tool button with the standard tool tip and icon.
+ *
+ * The caller owns the button through its parent.
+ */
+MIconButton *Theme::getIconButton(ToolButton button, QWidget *parent) const
+{
+    const StandardButtonDef &def = toolButtons[button];
+    MIconButton *iconButton = new MIconButton(parent);
+    iconButton->setThemeIcon(def.icon, def.color);
+    iconButton->setToolTip(QCoreApplication::translate("Button", def.text));
+    return iconButton;
 }
 
 /**! @brief Create a push button with the standard label and icon.

@@ -24,6 +24,7 @@
 
 #include "collett.h"
 #include "guimain.h"
+#include "settings.h"
 
 #include <QApplication>
 #include <QCommandLineOption>
@@ -122,6 +123,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("vkbo.net");
     QCoreApplication::setApplicationName("Collett");
     QCoreApplication::setApplicationVersion(COL_VERSION_STR);
+
+    // The settings need the application names above, and the font must be
+    // set before any widget measures itself
+    QApplication::setFont(Collett::Settings::instance()->guiFont());
 
     QCommandLineParser parser;
     parser.addHelpOption();

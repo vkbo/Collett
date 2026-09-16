@@ -22,6 +22,7 @@
 #include "scrollableform.h"
 
 #include <QCheckBox>
+#include <QPushButton>
 #include <QtTest>
 
 using namespace Collett;
@@ -33,6 +34,7 @@ class TestScrollableForm : public QObject
 private slots:
     void groups();
     void rowWidget();
+    void rowButton();
 };
 
 /**! @brief Rows go into the latest group, and an unlabelled group is created on demand.
@@ -73,6 +75,20 @@ void TestScrollableForm::rowWidget()
     QVERIFY(form.isAncestorOf(box));
     QCOMPARE(box->accessibleName(), QStringLiteral("Setting"));
     QCOMPARE(box->accessibleDescription(), QStringLiteral("Explanation"));
+}
+
+/**! @brief A row can carry an extra button beside its widget.
+ */
+void TestScrollableForm::rowButton()
+{
+    MScrollableForm form;
+    QCheckBox *box = new QCheckBox();
+    QPushButton *button = new QPushButton();
+    form.addRow("Setting", box, "Help", button);
+
+    QCOMPARE(form.rowCount(), 1);
+    QVERIFY(form.isAncestorOf(box));
+    QVERIFY(form.isAncestorOf(button));
 }
 
 QTEST_MAIN(TestScrollableForm)

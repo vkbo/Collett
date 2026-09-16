@@ -123,6 +123,13 @@ enum ThemeMode
     DarkTheme = 2,
 };
 
+// Tool Buttons
+// Icon-only buttons with a shared tool tip and icon, created by the Theme class.
+enum ToolButton
+{
+    FontButton = 0,
+};
+
 // Standard Buttons
 // Dialog buttons with a shared label and icon, created by the Theme class.
 enum StandardButton

@@ -41,6 +41,7 @@ struct ThemeEntry
     QString path;
 };
 
+class MIconButton;
 class MPushButton;
 class Theme : public QObject
 {
@@ -80,6 +81,7 @@ public:
     bool loadTheme();
     bool loadTheme(const QString &key);
     MPushButton *getStandardButton(StandardButton button, QWidget *parent) const;
+    MIconButton *getIconButton(ToolButton button, QWidget *parent) const;
 
 signals:
     void themeChanged();
