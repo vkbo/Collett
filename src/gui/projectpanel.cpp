@@ -35,10 +35,19 @@ GuiProjectPanel::GuiProjectPanel(QWidget *parent) : QWidget(parent)
 
     // Components
     projectView = new GuiProjectView(this);
+    projectToolBar = new GuiProjectToolBar(projectView, this);
+    appToolBar = new GuiAppToolBar(this);
+
+    // Connect Signals
+    connect(projectToolBar, &GuiProjectToolBar::createFileRequested, projectView, &GuiProjectView::createFile);
+    connect(projectToolBar, &GuiProjectToolBar::createFolderRequested, projectView, &GuiProjectView::createFolder);
+    connect(projectToolBar, &GuiProjectToolBar::createRootRequested, projectView, &GuiProjectView::createRoot);
 
     // Assemble
     QVBoxLayout *outerBox = new QVBoxLayout();
+    outerBox->addWidget(projectToolBar);
     outerBox->addWidget(projectView, 1);
+    outerBox->addWidget(appToolBar);
 
     this->setLayout(outerBox);
 }

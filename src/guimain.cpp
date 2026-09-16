@@ -60,26 +60,18 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent)
     m_splitMain->addWidget(workPanel);
     m_splitMain->setSizes(m_settings->mainSplitSizes());
 
-    // ToolBars
-    projectToolBar = new GuiProjectToolBar(this);
-
     // Connect Signals
     connect(m_data, &SharedData::projectLoaded, this, &GuiMain::updateTitle);
 
-    connect(projectToolBar->actOpenProject, &QAction::triggered, this, &GuiMain::onProjectOpen);
-    connect(projectToolBar->actSaveProject, &QAction::triggered, this, &GuiMain::onProjectSave);
-    connect(projectToolBar->actCloseProject, &QAction::triggered, this, &GuiMain::onProjectClose);
-
-    connect(projectToolBar, &GuiProjectToolBar::createFileRequested, projectPanel, &GuiProjectPanel::createFile);
-    connect(projectToolBar, &GuiProjectToolBar::createFolderRequested, projectPanel, &GuiProjectPanel::createFolder);
-    connect(projectToolBar, &GuiProjectToolBar::createRootRequested, projectPanel, &GuiProjectPanel::createRoot);
+    connect(projectPanel->projectToolBar->actOpenProject, &QAction::triggered, this, &GuiMain::onProjectOpen);
+    connect(projectPanel->projectToolBar->actSaveProject, &QAction::triggered, this, &GuiMain::onProjectSave);
+    connect(projectPanel->projectToolBar->actCloseProject, &QAction::triggered, this, &GuiMain::onProjectClose);
 
     connect(projectPanel->projectView, &GuiProjectView::nodeActivated, this, &GuiMain::onNodeActivated);
     connect(workPanel->editorView->textEditor, &GuiTextEditor::documentCountsChanged, this, &GuiMain::onDocumentCountsChanged);
 
     // Assemble
     this->setCentralWidget(m_splitMain);
-    this->addToolBar(projectToolBar);
 
     // Apply Settings
     this->resize(m_settings->mainWindowSize());

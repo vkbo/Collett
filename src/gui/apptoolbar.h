@@ -1,9 +1,9 @@
 /*
-** Collett - GUI Project ToolBar
-** =============================
+** Collett - GUI App ToolBar
+** =========================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,49 +22,27 @@
 #pragma once
 
 #include "collett.h"
-#include "projectview.h"
 #include "theme.h"
 
 #include <QAction>
-#include <QMenu>
 #include <QToolBar>
-#include <QToolButton>
 #include <QWidget>
 
 namespace Collett {
 
 class GuiMain;
-class GuiProjectToolBar : public QToolBar
+class GuiAppToolBar : public QToolBar
 {
     Q_OBJECT
 
 public:
-    explicit GuiProjectToolBar(GuiProjectView *view, QWidget *parent = nullptr);
-    ~GuiProjectToolBar();
-
-signals:
-    void createFileRequested(ItemLevel itemLevel);
-    void createFolderRequested();
-    void createRootRequested(ItemClass itemClass);
+    explicit GuiAppToolBar(QWidget *parent = nullptr);
+    ~GuiAppToolBar();
 
 private:
     Theme *m_theme;
 
-    // Project
-    QToolButton *btnProject;
-    QMenu *mnuProject;
-    QAction *actOpenProject;
-    QAction *actSaveProject;
-    QAction *actCloseProject;
-
-    // Create New
-    QToolButton *btnCreate;
-    QMenu *mnuCreate;
-    QMenu *mnuCreateRoot;
-
-    // Helpers
-    void addFileEntry(ItemLevel itemLevel);
-    void addRootEntry(ItemClass itemClass);
+    QAction *actSettings;
 
     friend class GuiMain;
 };

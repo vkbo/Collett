@@ -91,6 +91,7 @@ list(APPEND SRC_FILES
     src/editor/runnables.cpp
     src/editor/texteditor.cpp
     src/editor/textblock.cpp
+    src/gui/apptoolbar.cpp
     src/gui/projectpanel.cpp
     src/gui/projecttoolbar.cpp
     src/gui/projectview.cpp
@@ -173,9 +174,6 @@ target_compile_definitions(CollettCore PUBLIC "$<$<CONFIG:Debug>:DEBUG>")
 qt_add_executable(Collett src/main.cpp)
 target_link_libraries(Collett PRIVATE CollettCore)
 qt_add_translations(Collett TS_FILE_DIR i18n)
-qt_add_resources(Collett "assets" PREFIX "/styles" BASE "assets/" FILES
-    assets/styles.qss
-)
 add_custom_target(assets
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets

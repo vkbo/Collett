@@ -20,8 +20,8 @@
 */
 
 #include "constants.h"
-#include "guimain.h"
 #include "projecttoolbar.h"
+#include "projectview.h"
 #include "theme.h"
 
 #include <QAction>
@@ -33,7 +33,10 @@
 
 namespace Collett {
 
-GuiProjectToolBar::GuiProjectToolBar(GuiMain *parent) : QToolBar(parent)
+// Constructor/Destructor
+// ======================
+
+GuiProjectToolBar::GuiProjectToolBar(GuiProjectView *view, QWidget *parent) : QToolBar(parent)
 {
 
     m_theme = Theme::instance();
@@ -50,8 +53,8 @@ GuiProjectToolBar::GuiProjectToolBar(GuiMain *parent) : QToolBar(parent)
     actCloseProject = mnuProject->addAction(tr("Close Project"));
 
     mnuProject->addSeparator();
-    mnuProject->addAction(parent->projectPanel->projectView->actEditItem);
-    mnuProject->addAction(parent->projectPanel->projectView->actDeleteItem);
+    mnuProject->addAction(view->actEditItem);
+    mnuProject->addAction(view->actDeleteItem);
 
     btnProject->setIcon(m_theme->icons()->getIcon("menu_project", ThemeColor::Blue, size));
     btnProject->setMenu(mnuProject);

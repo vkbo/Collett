@@ -1,9 +1,9 @@
 /*
-** Collett - GUI Project Panel Class
-** =================================
+** Collett - GUI App ToolBar
+** =========================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -19,33 +19,32 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
 #include "apptoolbar.h"
 #include "collett.h"
-#include "projecttoolbar.h"
-#include "projectview.h"
+#include "theme.h"
 
-#include <QTreeView>
+#include <QAction>
+#include <QSize>
+#include <QToolBar>
 #include <QWidget>
-#include <QVBoxLayout>
 
 namespace Collett {
 
-class GuiProjectPanel : public QWidget
+// Constructor/Destructor
+// ======================
+
+GuiAppToolBar::GuiAppToolBar(QWidget *parent) : QToolBar(parent)
 {
-    Q_OBJECT
+    m_theme = Theme::instance();
+    QSize size = m_theme->toolButtonIconSize();
+    this->setIconSize(size);
 
-public:
-    explicit GuiProjectPanel(QWidget *parent = nullptr);
-    ~GuiProjectPanel();
+    actSettings = this->addAction(m_theme->icons()->getIcon("settings", ThemeColor::DefaultColor, size), tr("Settings"));
+}
 
-    // Methods
-    void openProjectTasks();
-    void closeProjectTasks();
+GuiAppToolBar::~GuiAppToolBar()
+{
+    qDebug() << "Destructor: GuiAppToolBar";
+}
 
-    GuiProjectToolBar *projectToolBar = nullptr;
-    GuiProjectView *projectView = nullptr;
-    GuiAppToolBar *appToolBar = nullptr;
-};
 } // namespace Collett
