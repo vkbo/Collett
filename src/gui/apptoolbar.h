@@ -22,7 +22,6 @@
 #pragma once
 
 #include "collett.h"
-#include "theme.h"
 
 #include <QAction>
 #include <QToolBar>
@@ -40,8 +39,6 @@ public:
     ~GuiAppToolBar();
 
 private:
-    Theme *m_theme;
-
     QAction *actSettings;
 
     friend class GuiMain;

@@ -40,6 +40,20 @@
         "blue": "#4271ae",
         "purple": "#8959a8"
     },
+    "c:iconColors": {
+        "tool": "#484848",
+        "accept": "#718c00",
+        "reject": "#f02829",
+        "action": "#4271ae",
+        "option": "#f5871f",
+        "apply": "#718c00",
+        "create": "#eab700",
+        "destroy": "#6c6c6c",
+        "reset": "#718c00",
+        "add": "#718c00",
+        "change": "#718c00",
+        "remove": "#f02829"
+    },
     "c:syntaxColors": {
         "header": "#718c00",
         "emphasis": "#f5871f",

@@ -85,6 +85,20 @@ enum ThemeColor
     Aqua = 13,
     Blue = 14,
     Purple = 15,
+
+    // Icons
+    ToolColor = 16,
+    AcceptColor = 17,
+    RejectColor = 18,
+    ActionColor = 19,
+    OptionColor = 20,
+    ApplyColor = 21,
+    CreateColor = 22,
+    DestroyColor = 23,
+    ResetColor = 24,
+    AddColor = 25,
+    ChangeColor = 26,
+    RemoveColor = 27,
 };
 
 // Syntax Colours

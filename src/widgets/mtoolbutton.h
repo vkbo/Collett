@@ -22,12 +22,13 @@
 #pragma once
 
 #include "collett.h"
+#include "theme.h"
 
-#include <QColor>
-#include <QLinearGradient>
 #include <QPainter>
 #include <QPaintEvent>
 #include <QRect>
+#include <QSize>
+#include <QString>
 #include <QStyle>
 #include <QStyleOptionToolButton>
 #include <QToolButton>
@@ -43,24 +44,41 @@ public:
     explicit MToolButton(QWidget *parent = nullptr);
     ~MToolButton();
 
+    // Getters
+    QSize buttonSize() const { return m_buttonSize; };
+    qreal padding() const { return m_padding; };
+
+    // Setters
+    void setButtonSize(const QSize &size);
+    void setPadding(qreal padding);
+
+    // Methods
+    void setThemeIcon(const QString &name, ThemeColor color);
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override { return sizeHint(); };
+
+public slots:
+    void refreshTheme();
+
 protected:
     // Events
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    // Painters
-    void drawPanel(QPainter *painter, const QStyleOptionToolButton &option, const QRect &rect, QStyle::State state);
-    void drawFocusRect(QPainter *painter, const QStyleOptionToolButton &option, const QRect &rect);
-    void drawLabel(QPainter *painter, const QStyleOptionToolButton &option, const QRect &rect, QStyle::State state);
-    void drawArrow(QPainter *painter, const QStyleOptionToolButton &option, const QRect &rect);
+    Theme *m_theme;
 
-    // Colours
-    QColor outlineColor(const QPalette &palette) const;
-    QColor highlightedOutlineColor(const QPalette &palette) const;
-    QColor buttonColor(const QPalette &palette) const;
-    QLinearGradient panelGradient(const QRect &rect, const QColor &baseColor) const;
+    // Theme Icon
+    QString m_iconName;
+    ThemeColor m_iconColor = ThemeColor::DefaultColor;
+
+    // Layout
+    QSize m_buttonSize;
+    qreal m_padding = 0.2;
 
     // Helpers
-    int dpiScaled(int value) const;
+    void updateIconSize();
+
+    // Painters
+    void drawLabel(QPainter *painter, const QStyleOptionToolButton &option, const QRect &rect, QStyle::State state);
 };
 } // namespace Collett

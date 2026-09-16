@@ -38,11 +38,7 @@ namespace Collett {
 
 GuiProjectToolBar::GuiProjectToolBar(QWidget *parent) : QToolBar(parent)
 {
-
     m_theme = Theme::instance();
-    QSize size = m_theme->toolButtonIconSize();
-
-    this->setIconSize(size);
 
     // Create Button
     btnCreate = new MToolButton(this);
@@ -70,7 +66,7 @@ GuiProjectToolBar::GuiProjectToolBar(QWidget *parent) : QToolBar(parent)
     mnuCreateRoot->addSeparator();
     this->addRootEntry(ItemClass::ArchiveClass);
 
-    btnCreate->setIcon(m_theme->icons()->getIcon("add", ThemeColor::Green, size));
+    btnCreate->setThemeIcon("add", ThemeColor::AddColor);
     btnCreate->setMenu(mnuCreate);
     btnCreate->setPopupMode(QToolButton::InstantPopup);
     this->addWidget(btnCreate);

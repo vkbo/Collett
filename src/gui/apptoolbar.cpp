@@ -21,10 +21,9 @@
 
 #include "apptoolbar.h"
 #include "collett.h"
-#include "theme.h"
+#include "mtoolbutton.h"
 
 #include <QAction>
-#include <QSize>
 #include <QToolBar>
 #include <QWidget>
 
@@ -35,11 +34,12 @@ namespace Collett {
 
 GuiAppToolBar::GuiAppToolBar(QWidget *parent) : QToolBar(parent)
 {
-    m_theme = Theme::instance();
-    QSize size = m_theme->toolButtonIconSize();
-    this->setIconSize(size);
+    actSettings = new QAction(tr("Settings"), this);
 
-    actSettings = this->addAction(m_theme->icons()->getIcon("settings", ThemeColor::DefaultColor, size), tr("Settings"));
+    MToolButton *btnSettings = new MToolButton(this);
+    btnSettings->setDefaultAction(actSettings);
+    btnSettings->setThemeIcon("settings", ThemeColor::ToolColor);
+    this->addWidget(btnSettings);
 }
 
 GuiAppToolBar::~GuiAppToolBar()

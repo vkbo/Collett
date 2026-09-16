@@ -75,7 +75,7 @@ Theme::Theme(QObject *parent) : QObject(parent)
     m_baseButtonHeight = int(round(1.35 * metric.ascent()));
     m_baseIconSize = QSize(m_baseIconHeight, m_baseIconHeight);
     m_buttonIconSize = QSize(int(0.9 * m_baseIconHeight), int(0.9 * m_baseIconHeight));
-    m_toolButtonIconSize = QSize(int(1.2 * m_baseIconHeight), int(1.2 * m_baseIconHeight));
+    m_toolButtonSize = QSize(int(1.8 * m_baseIconHeight), int(1.8 * m_baseIconHeight));
 }
 
 Theme::~Theme()
@@ -99,6 +99,7 @@ bool Theme::loadTheme(QString theme)
     QJsonObject jMeta = data.value("c:meta"_L1).toObject();
     QJsonObject jBase = data.value("c:baseColors"_L1).toObject();
     QJsonObject jTheme = data.value("c:themeColors"_L1).toObject();
+    QJsonObject jIcon = data.value("c:iconColors"_L1).toObject();
     QJsonObject jSyntax = data.value("c:syntaxColors"_L1).toObject();
 
     // Theme Meta
@@ -109,11 +110,11 @@ bool Theme::loadTheme(QString theme)
 
     // Syntax Colors
     m_syntaxColors = {
-        QColor::fromString(JsonUtils::getJsonString(jSyntax, "header"_L1, "blue")),          // SyntaxColor::SyntaxHeader
-        QColor::fromString(JsonUtils::getJsonString(jSyntax, "emphasis"_L1, "green")),       // SyntaxColor::SyntaxEmphasis
-        QColor::fromString(JsonUtils::getJsonString(jSyntax, "comment"_L1, "grey")),         // SyntaxColor::SyntaxComment
-        QColor::fromString(JsonUtils::getJsonString(jSyntax, "spellCheckLine"_L1, "red")),   // SyntaxColor::SyntaxSpellLine
-        QColor::fromString(JsonUtils::getJsonString(jSyntax, "errorLine"_L1, "orange")),     // SyntaxColor::SyntaxErrorLine
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "header"_L1, "blue")),        // SyntaxColor::SyntaxHeader
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "emphasis"_L1, "green")),     // SyntaxColor::SyntaxEmphasis
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "comment"_L1, "grey")),       // SyntaxColor::SyntaxComment
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "spellCheckLine"_L1, "red")), // SyntaxColor::SyntaxSpellLine
+        QColor::fromString(JsonUtils::getJsonString(jSyntax, "errorLine"_L1, "orange")),   // SyntaxColor::SyntaxErrorLine
     };
 
     // Qt Base Colors
@@ -151,6 +152,30 @@ bool Theme::loadTheme(QString theme)
         QColor::fromString(JsonUtils::getJsonString(jTheme, "blue"_L1, "blue")),     // ThemeColor::Blue
         QColor::fromString(JsonUtils::getJsonString(jTheme, "purple"_L1, "purple")), // ThemeColor::Purple
     };
+
+    // Icon Colors
+    // Each category falls back to one of the theme colours above.
+    auto iconColor = [&](QLatin1StringView key, ThemeColor fallback) -> QColor {
+        QColor color = QColor::fromString(JsonUtils::getJsonString(jIcon, key, ""));
+        return color.isValid() ? color : m_colors.at(fallback);
+    };
+    m_colors.append({
+        iconColor("tool"_L1, ThemeColor::DefaultColor),  // ThemeColor::ToolColor
+        iconColor("accept"_L1, ThemeColor::Green),       // ThemeColor::AcceptColor
+        iconColor("reject"_L1, ThemeColor::Red),         // ThemeColor::RejectColor
+        iconColor("action"_L1, ThemeColor::Blue),        // ThemeColor::ActionColor
+        iconColor("option"_L1, ThemeColor::Orange),      // ThemeColor::OptionColor
+        iconColor("apply"_L1, ThemeColor::Green),        // ThemeColor::ApplyColor
+        iconColor("create"_L1, ThemeColor::Yellow),      // ThemeColor::CreateColor
+        iconColor("destroy"_L1, ThemeColor::FadedColor), // ThemeColor::DestroyColor
+        iconColor("reset"_L1, ThemeColor::Green),        // ThemeColor::ResetColor
+        iconColor("add"_L1, ThemeColor::Green),          // ThemeColor::AddColor
+        iconColor("change"_L1, ThemeColor::Green),       // ThemeColor::ChangeColor
+        iconColor("remove"_L1, ThemeColor::Red),         // ThemeColor::RemoveColor
+    });
+
+    // Cached icons were rendered with the previous colours
+    m_icons->clearCache();
 
     // Generate Palette
     QPalette palette;
@@ -212,6 +237,8 @@ bool Theme::loadTheme(QString theme)
     palette.setBrush(QPalette::Disabled, QPalette::Highlight, grey);
 
     QApplication::setPalette(palette);
+
+    emit themeChanged();
 
     return true;
 }

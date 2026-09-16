@@ -21,13 +21,12 @@
 
 #include "collett.h"
 #include "editortoolbar.h"
+#include "mtoolbutton.h"
 #include "texteditor.h"
-#include "theme.h"
 
 #include <QAction>
 #include <QActionGroup>
 #include <QKeySequence>
-#include <QSize>
 #include <QTextCharFormat>
 #include <QTextEdit>
 #include <QToolBar>
@@ -40,36 +39,38 @@ namespace Collett {
 GuiEditorToolBar::GuiEditorToolBar(GuiTextEditor *editor, QWidget *parent)
     : QToolBar(parent), m_editor(editor)
 {
-    m_theme = Theme::instance();
-    QSize size = m_theme->toolButtonIconSize();
-    this->setIconSize(size);
-
-    actBold = this->addAction(m_theme->icons()->getIcon("fmt_bold", ThemeColor::DefaultColor, size), tr("Bold"));
+    actBold = new QAction(tr("Bold"), this);
+    this->addToolButton(actBold, "fmt_bold", ThemeColor::ToolColor);
     actBold->setCheckable(true);
     actBold->setShortcut(QKeySequence::Bold);
     connect(actBold, &QAction::toggled, m_editor, &GuiTextEditor::toggleBold);
 
-    actItalic = this->addAction(m_theme->icons()->getIcon("fmt_italic", ThemeColor::DefaultColor, size), tr("Italic"));
+    actItalic = new QAction(tr("Italic"), this);
+    this->addToolButton(actItalic, "fmt_italic", ThemeColor::ToolColor);
     actItalic->setCheckable(true);
     actItalic->setShortcut(QKeySequence::Italic);
     connect(actItalic, &QAction::toggled, m_editor, &GuiTextEditor::toggleItalic);
 
-    actUnderline = this->addAction(m_theme->icons()->getIcon("fmt_underline", ThemeColor::DefaultColor, size), tr("Underline"));
+    actUnderline = new QAction(tr("Underline"), this);
+    this->addToolButton(actUnderline, "fmt_underline", ThemeColor::ToolColor);
     actUnderline->setCheckable(true);
     actUnderline->setShortcut(QKeySequence::Underline);
     connect(actUnderline, &QAction::toggled, m_editor, &GuiTextEditor::toggleUnderline);
 
-    actStrikethrough = this->addAction(m_theme->icons()->getIcon("fmt_strike", ThemeColor::DefaultColor, size), tr("Strikethrough"));
+    actStrikethrough = new QAction(tr("Strikethrough"), this);
+    this->addToolButton(actStrikethrough, "fmt_strike", ThemeColor::ToolColor);
     actStrikethrough->setCheckable(true);
     actStrikethrough->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
     connect(actStrikethrough, &QAction::toggled, m_editor, &GuiTextEditor::toggleStrikeOut);
 
-    actSuperscript = this->addAction(m_theme->icons()->getIcon("fmt_superscript", ThemeColor::DefaultColor, size), tr("Superscript"));
+    actSuperscript = new QAction(tr("Superscript"), this);
+    this->addToolButton(actSuperscript, "fmt_superscript", ThemeColor::ToolColor);
     actSuperscript->setCheckable(true);
     actSuperscript->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Equal));
     connect(actSuperscript, &QAction::toggled, m_editor, &GuiTextEditor::toggleSuperscript);
 
-    actSubscript = this->addAction(m_theme->icons()->getIcon("fmt_subscript", ThemeColor::DefaultColor, size), tr("Subscript"));
+    actSubscript = new QAction(tr("Subscript"), this);
+    this->addToolButton(actSubscript, "fmt_subscript", ThemeColor::ToolColor);
     actSubscript->setCheckable(true);
     actSubscript->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal));
     connect(actSubscript, &QAction::toggled, m_editor, &GuiTextEditor::toggleSubscript);
@@ -78,25 +79,29 @@ GuiEditorToolBar::GuiEditorToolBar(GuiTextEditor *editor, QWidget *parent)
 
     QActionGroup *alignGroup = new QActionGroup(this);
 
-    actAlignLeft = this->addAction(m_theme->icons()->getIcon("fmt_align_left", ThemeColor::DefaultColor, size), tr("Align Left"));
+    actAlignLeft = new QAction(tr("Align Left"), this);
+    this->addToolButton(actAlignLeft, "fmt_align_left", ThemeColor::ToolColor);
     actAlignLeft->setCheckable(true);
     actAlignLeft->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
     alignGroup->addAction(actAlignLeft);
     connect(actAlignLeft, &QAction::triggered, m_editor, &GuiTextEditor::alignLeft);
 
-    actAlignCenter = this->addAction(m_theme->icons()->getIcon("fmt_align_center", ThemeColor::DefaultColor, size), tr("Align Center"));
+    actAlignCenter = new QAction(tr("Align Center"), this);
+    this->addToolButton(actAlignCenter, "fmt_align_center", ThemeColor::ToolColor);
     actAlignCenter->setCheckable(true);
     actAlignCenter->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
     alignGroup->addAction(actAlignCenter);
     connect(actAlignCenter, &QAction::triggered, m_editor, &GuiTextEditor::alignCenter);
 
-    actAlignRight = this->addAction(m_theme->icons()->getIcon("fmt_align_right", ThemeColor::DefaultColor, size), tr("Align Right"));
+    actAlignRight = new QAction(tr("Align Right"), this);
+    this->addToolButton(actAlignRight, "fmt_align_right", ThemeColor::ToolColor);
     actAlignRight->setCheckable(true);
     actAlignRight->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
     alignGroup->addAction(actAlignRight);
     connect(actAlignRight, &QAction::triggered, m_editor, &GuiTextEditor::alignRight);
 
-    actAlignJustify = this->addAction(m_theme->icons()->getIcon("fmt_align_justify", ThemeColor::DefaultColor, size), tr("Justify"));
+    actAlignJustify = new QAction(tr("Justify"), this);
+    this->addToolButton(actAlignJustify, "fmt_align_justify", ThemeColor::ToolColor);
     actAlignJustify->setCheckable(true);
     actAlignJustify->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_J));
     alignGroup->addAction(actAlignJustify);
@@ -104,11 +109,13 @@ GuiEditorToolBar::GuiEditorToolBar(GuiTextEditor *editor, QWidget *parent)
 
     this->addSeparator();
 
-    actIndent = this->addAction(m_theme->icons()->getIcon("fmt_indent", ThemeColor::DefaultColor, size), tr("Increase Indent"));
+    actIndent = new QAction(tr("Increase Indent"), this);
+    this->addToolButton(actIndent, "fmt_indent", ThemeColor::ToolColor);
     actIndent->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_M));
     connect(actIndent, &QAction::triggered, m_editor, &GuiTextEditor::blockIndent);
 
-    actOutdent = this->addAction(m_theme->icons()->getIcon("fmt_outdent", ThemeColor::DefaultColor, size), tr("Decrease Indent"));
+    actOutdent = new QAction(tr("Decrease Indent"), this);
+    this->addToolButton(actOutdent, "fmt_outdent", ThemeColor::ToolColor);
     actOutdent->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_M));
     connect(actOutdent, &QAction::triggered, m_editor, &GuiTextEditor::blockOutdent);
 
@@ -119,6 +126,19 @@ GuiEditorToolBar::GuiEditorToolBar(GuiTextEditor *editor, QWidget *parent)
 GuiEditorToolBar::~GuiEditorToolBar()
 {
     qDebug() << "Destructor: GuiEditorToolBar";
+}
+
+// Private Helpers
+// ===============
+
+/**! @brief Add a tool button for an action with an icon from the theme.
+ */
+void GuiEditorToolBar::addToolButton(QAction *action, const QString &icon, ThemeColor color)
+{
+    MToolButton *button = new MToolButton(this);
+    button->setDefaultAction(action);
+    button->setThemeIcon(icon, color);
+    this->addWidget(button);
 }
 
 // Private Slots
