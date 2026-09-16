@@ -74,6 +74,11 @@ ICONS = {
     #
     "menu_project": "book-marked",
     #
+    # Buttons
+    #
+    "btn_cancel": "circle-slash",
+    "btn_save": "save",
+    #
     # Actions
     #
     "add": "plus",

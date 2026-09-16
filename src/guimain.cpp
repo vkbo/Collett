@@ -20,6 +20,7 @@
 */
 
 #include "guimain.h"
+#include "preferences.h"
 
 #include <QAction>
 #include <QApplication>
@@ -29,6 +30,7 @@
 #include <QFileInfo>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPointer>
 #include <QSplitter>
 #include <QToolButton>
 
@@ -70,6 +72,8 @@ GuiMain::GuiMain(QWidget *parent) : QMainWindow(parent)
     connect(mainMenu->actSaveProject, &QAction::triggered, this, &GuiMain::onProjectSave);
     connect(mainMenu->actCloseProject, &QAction::triggered, this, &GuiMain::onProjectClose);
     connect(mainMenu->actExit, &QAction::triggered, this, &GuiMain::close);
+    connect(mainMenu->actPreferences, &QAction::triggered, this, &GuiMain::showPreferencesDialog);
+    connect(projectPanel->appToolBar->actSettings, &QAction::triggered, this, &GuiMain::showPreferencesDialog);
 
     connect(projectPanel->projectView, &GuiProjectView::nodeActivated, this, &GuiMain::onNodeActivated);
     connect(workPanel->editorView->textEditor, &GuiTextEditor::documentCountsChanged, this, &GuiMain::onDocumentCountsChanged);
@@ -154,6 +158,15 @@ void GuiMain::closeEvent(QCloseEvent *event)
 
 // Private Slots
 // =============
+
+/**! @brief Open the preferences dialog.
+ */
+void GuiMain::showPreferencesDialog()
+{
+    QPointer<PreferencesDialog> dialog(new PreferencesDialog(this));
+    dialog->exec();
+    dialog->deleteLater();
+}
 
 void GuiMain::onProjectOpen()
 {

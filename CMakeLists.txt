@@ -85,6 +85,7 @@ list(APPEND SRC_FILES
     src/core/storage.cpp
     src/core/tools.cpp
     src/dialogs/edititem.cpp
+    src/dialogs/preferences.cpp
     src/editor/editortoolbar.cpp
     src/editor/editorview.cpp
     src/editor/highlighter.cpp
@@ -110,6 +111,7 @@ list(APPEND SRC_FILES
     src/static/data.cpp
     src/static/settings.cpp
     src/static/theme.cpp
+    src/widgets/mpushbutton.cpp
     src/widgets/mswitch.cpp
     src/widgets/mtoolbutton.cpp
     src/widgets/mtreeview.cpp

@@ -37,6 +37,7 @@ namespace Collett {
 GuiMainMenu::GuiMainMenu(GuiProjectView *view, QWidget *parent) : QMenuBar(parent)
 {
     this->buildProjectMenu(view);
+    this->buildToolsMenu();
 }
 
 GuiMainMenu::~GuiMainMenu()
@@ -72,6 +73,17 @@ void GuiMainMenu::buildProjectMenu(GuiProjectView *view)
     mnuProject->addSeparator();
     actExit = mnuProject->addAction(tr("Exit"));
     actExit->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+}
+
+/**! @brief Build the Tools menu.
+ */
+void GuiMainMenu::buildToolsMenu()
+{
+    mnuTools = this->addMenu(tr("&Tools"));
+
+    actPreferences = mnuTools->addAction(tr("Preferences"));
+    actPreferences->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Comma));
+    actPreferences->setMenuRole(QAction::PreferencesRole);
 }
 
 } // namespace Collett

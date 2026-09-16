@@ -112,6 +112,14 @@ enum SyntaxColor
     SyntaxErrorLine = 4,
 };
 
+// Standard Buttons
+// Dialog buttons with a shared label and icon, created by the Theme class.
+enum StandardButton
+{
+    SaveButton = 0,
+    CancelButton = 1,
+};
+
 // Text Format Properties
 // Custom properties stored on the block formats of a document.
 enum TextProperty

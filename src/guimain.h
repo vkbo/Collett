@@ -71,6 +71,7 @@ private slots:
     void onProjectOpen();
     void onProjectSave() { saveProject(); };
     void onProjectClose() { closeProject(); };
+    void showPreferencesDialog();
     void onNodeActivated(Node *node);
     void onDocumentCountsChanged(const QString &handle, const Collett::TextCounts &counts);
     void updateTitle();

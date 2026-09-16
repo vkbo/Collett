@@ -1,6 +1,6 @@
 /*
-** Collett - GUI Main Menu
-** =======================
+** Collett - Preferences Dialog
+** ============================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2026 Veronica Berglyd Olsen
@@ -22,40 +22,26 @@
 #pragma once
 
 #include "collett.h"
-#include "projectview.h"
+#include "mpushbutton.h"
 
-#include <QAction>
-#include <QMenu>
-#include <QMenuBar>
+#include <QDialog>
 #include <QWidget>
 
 namespace Collett {
 
-class GuiMain;
-class GuiMainMenu : public QMenuBar
+class PreferencesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit GuiMainMenu(GuiProjectView *view, QWidget *parent = nullptr);
-    ~GuiMainMenu();
+    explicit PreferencesDialog(QWidget *parent = nullptr);
+    ~PreferencesDialog();
 
 private:
-    // Project Menu
-    QMenu *mnuProject;
-    QAction *actOpenProject;
-    QAction *actSaveProject;
-    QAction *actCloseProject;
-    QAction *actExit;
+    MPushButton *m_btnSave;
+    MPushButton *m_btnCancel;
 
-    // Tools Menu
-    QMenu *mnuTools;
-    QAction *actPreferences;
-
-    // Builders
-    void buildProjectMenu(GuiProjectView *view);
-    void buildToolsMenu();
-
-    friend class GuiMain;
+private slots:
+    void doSave();
 };
 } // namespace Collett

@@ -32,6 +32,7 @@
 
 namespace Collett {
 
+class MPushButton;
 class Theme : public QObject
 {
     Q_OBJECT
@@ -60,6 +61,7 @@ public:
 
     // Methods
     bool loadTheme(QString theme);
+    MPushButton *getStandardButton(StandardButton button, QWidget *parent) const;
 
 signals:
     void themeChanged();

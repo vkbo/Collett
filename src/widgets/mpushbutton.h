@@ -1,6 +1,6 @@
 /*
-** Collett - GUI Main Menu
-** =======================
+** Collett - Modified QPushButton Class
+** ====================================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2026 Veronica Berglyd Olsen
@@ -22,40 +22,33 @@
 #pragma once
 
 #include "collett.h"
-#include "projectview.h"
+#include "theme.h"
 
-#include <QAction>
-#include <QMenu>
-#include <QMenuBar>
+#include <QPushButton>
+#include <QString>
 #include <QWidget>
 
 namespace Collett {
 
-class GuiMain;
-class GuiMainMenu : public QMenuBar
+class MPushButton : public QPushButton
 {
     Q_OBJECT
 
 public:
-    explicit GuiMainMenu(GuiProjectView *view, QWidget *parent = nullptr);
-    ~GuiMainMenu();
+    explicit MPushButton(const QString &text, QWidget *parent = nullptr);
+    ~MPushButton();
+
+    // Methods
+    void setThemeIcon(const QString &name, ThemeColor color);
+
+public slots:
+    void refreshTheme();
 
 private:
-    // Project Menu
-    QMenu *mnuProject;
-    QAction *actOpenProject;
-    QAction *actSaveProject;
-    QAction *actCloseProject;
-    QAction *actExit;
+    Theme *m_theme;
 
-    // Tools Menu
-    QMenu *mnuTools;
-    QAction *actPreferences;
-
-    // Builders
-    void buildProjectMenu(GuiProjectView *view);
-    void buildToolsMenu();
-
-    friend class GuiMain;
+    // Theme Icon
+    QString m_iconName;
+    ThemeColor m_iconColor = ThemeColor::DefaultColor;
 };
 } // namespace Collett

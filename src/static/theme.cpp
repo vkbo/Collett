@@ -23,6 +23,7 @@
 #include "theme.h"
 #include "tools.h"
 #include "icons.h"
+#include "mpushbutton.h"
 
 #include <QString>
 #include <QFileInfo>
@@ -30,12 +31,29 @@
 #include <QPalette>
 #include <QColor>
 #include <QApplication>
+#include <QCoreApplication>
 #include <QFontMetrics>
 #include <QSize>
 
 using namespace Qt::Literals::StringLiterals;
 
 namespace Collett {
+
+namespace {
+// Label, icon key and icon colour of each standard button, indexed by the
+// StandardButton enum. The labels share one translation context so each
+// only needs translating once.
+struct StandardButtonDef
+{
+    const char *text;
+    const char *icon;
+    ThemeColor color;
+};
+constexpr StandardButtonDef standardButtons[] = {
+    {QT_TRANSLATE_NOOP("Button", "Save"), "btn_save", ThemeColor::ActionColor},     // StandardButton::SaveButton
+    {QT_TRANSLATE_NOOP("Button", "Cancel"), "btn_cancel", ThemeColor::RejectColor}, // StandardButton::CancelButton
+};
+} // namespace
 
 // Constructor/Destructor/Instance
 // ===============================
@@ -249,6 +267,18 @@ bool Theme::loadTheme(QString theme)
     emit themeChanged();
 
     return true;
+}
+
+/**! @brief Create a push button with the standard label and icon.
+ *
+ * The caller owns the button through its parent.
+ */
+MPushButton *Theme::getStandardButton(StandardButton button, QWidget *parent) const
+{
+    const StandardButtonDef &def = standardButtons[button];
+    MPushButton *pushButton = new MPushButton(QCoreApplication::translate("Button", def.text), parent);
+    pushButton->setThemeIcon(def.icon, def.color);
+    return pushButton;
 }
 
 } // namespace Collett
