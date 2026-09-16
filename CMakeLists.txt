@@ -110,6 +110,7 @@ list(APPEND SRC_FILES
     src/static/data.cpp
     src/static/settings.cpp
     src/static/theme.cpp
+    src/widgets/mtoolbutton.cpp
     src/widgets/mtreeview.cpp
     src/constants.cpp
     src/guimain.cpp

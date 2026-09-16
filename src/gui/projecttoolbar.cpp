@@ -20,6 +20,7 @@
 */
 
 #include "constants.h"
+#include "mtoolbutton.h"
 #include "projecttoolbar.h"
 #include "theme.h"
 
@@ -44,7 +45,7 @@ GuiProjectToolBar::GuiProjectToolBar(QWidget *parent) : QToolBar(parent)
     this->setIconSize(size);
 
     // Create Button
-    btnCreate = new QToolButton(this);
+    btnCreate = new MToolButton(this);
     mnuCreate = new QMenu(btnCreate);
     this->addFileEntry(ItemLevel::SceneLevel);
     this->addFileEntry(ItemLevel::ChapterLevel);

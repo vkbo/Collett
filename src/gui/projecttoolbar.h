@@ -22,12 +22,12 @@
 #pragma once
 
 #include "collett.h"
+#include "mtoolbutton.h"
 #include "theme.h"
 
 #include <QAction>
 #include <QMenu>
 #include <QToolBar>
-#include <QToolButton>
 #include <QWidget>
 
 namespace Collett {
@@ -49,7 +49,7 @@ private:
     Theme *m_theme;
 
     // Create New
-    QToolButton *btnCreate;
+    MToolButton *btnCreate;
     QMenu *mnuCreate;
     QMenu *mnuCreateRoot;
 
