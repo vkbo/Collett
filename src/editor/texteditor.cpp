@@ -96,6 +96,10 @@ GuiTextEditor::GuiTextEditor(QWidget *parent) : QTextEdit(parent)
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, &GuiTextEditor::restartMarkerTimer);
     connect(this, &QTextEdit::cursorPositionChanged, this, &GuiTextEditor::restartMarkerTimer);
 
+    // The widget font is the fallback for text without an explicit format
+    this->updateTextFont();
+    connect(Settings::instance(), &Settings::textFormatChanged, this, &GuiTextEditor::updateTextFont);
+
     this->updateTheme();
 }
 
@@ -459,6 +463,13 @@ void GuiTextEditor::runDocumentTasks()
  * cached errors by the time this runs, so the markers are refreshed too. The
  * document tasks are also scheduled, unless they already are.
  */
+/**! @brief Set the widget font from the text font setting.
+ */
+void GuiTextEditor::updateTextFont()
+{
+    this->setFont(Settings::instance()->textFont());
+}
+
 void GuiTextEditor::onContentsChange(int pos, int removed, int added)
 {
     Q_UNUSED(removed);

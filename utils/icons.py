@@ -74,13 +74,23 @@ ICONS = {
     #
     "menu_project": "book-marked",
     #
+    # Buttons
+    #
+    "btn_cancel": "circle-slash",
+    "btn_ok": "circle-check-big",
+    "btn_save": "save",
+    #
     # Actions
     #
     "add": "plus",
     "bookmarks": "bookmark",
     "checked": "circle-check-big",
+    "font": "type",
     "noncheckable": "circle",
     "settings": "settings",
+    "theme_auto": "contrast",
+    "theme_dark": "moon",
+    "theme_light": "sun",
     "unchecked": "circle-x",
 }
 

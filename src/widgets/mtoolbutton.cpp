@@ -56,10 +56,7 @@ MToolButton::MToolButton(QWidget *parent) : QToolButton(parent)
     connect(m_theme, &Theme::themeChanged, this, &MToolButton::refreshTheme);
 }
 
-MToolButton::~MToolButton()
-{
-    qDebug() << "Destructor: MToolButton";
-}
+MToolButton::~MToolButton() {}
 
 // Setters
 // =======

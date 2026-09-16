@@ -1,9 +1,9 @@
 /*
-** Collett - Core Tools
-** ====================
+** Collett - Icon Button Widget
+** ============================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,25 +22,36 @@
 #pragma once
 
 #include "collett.h"
+#include "theme.h"
 
-#include <QDir>
-#include <QFont>
-#include <QJsonObject>
+#include <QSize>
 #include <QString>
+#include <QToolButton>
+#include <QWidget>
 
 namespace Collett {
 
-class JsonUtils
+class MIconButton : public QToolButton
 {
-public:
-    static QString getJsonString(const QJsonObject &object, const QLatin1String &key, QString def);
-    static JsonUtilsError readJson(const QString &filePath, QJsonObject &fileData, bool required);
-    static JsonUtilsError writeJson(const QString &filePath, const QJsonObject &fileData, bool compact);
-};
+    Q_OBJECT
 
-class FontUtils
-{
 public:
-    static QString describeFont(const QFont &font);
+    explicit MIconButton(QWidget *parent = nullptr);
+    ~MIconButton();
+
+    // Methods
+    void setThemeIcon(const QString &name, ThemeColor color);
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override { return sizeHint(); };
+
+public slots:
+    void refreshTheme();
+
+private:
+    Theme *m_theme;
+
+    // Theme Icon
+    QString m_iconName;
+    ThemeColor m_iconColor = ThemeColor::DefaultColor;
 };
 } // namespace Collett

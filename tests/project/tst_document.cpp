@@ -20,12 +20,14 @@
 */
 
 #include "document.h"
+#include "settings.h"
 
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QTextBlock>
 #include <QTextCharFormat>
 #include <QTextCursor>
+#include <QFont>
 #include <QtTest>
 
 using namespace Collett;
@@ -40,6 +42,7 @@ private slots:
     void roundTripIsStable();
     void commentBlock();
     void updatedTimestamp();
+    void refreshTextFormat();
 };
 
 /**! @brief Set an org/app name so the Settings singleton's QSettings works.
@@ -194,6 +197,60 @@ void TestDocument::updatedTimestamp()
     loaded.setModified(false);
     loaded.pack(saved);
     QCOMPARE(saved.value("c:meta").toObject().value("m:updated").toString(), newTime);
+}
+
+/**! @brief Changing the text font restyles a loaded document in place.
+ *
+ * Headers scale with the base size, fragment flags like bold survive, the
+ * document takes the new family, and the modified state is untouched.
+ */
+void TestDocument::refreshTextFormat()
+{
+    Settings *settings = Settings::instance();
+    QFont font = settings->textFont();
+    font.setPointSizeF(13.0);
+    settings->setTextFont(font);
+
+    QJsonObject header;
+    header["u:fmt"] = "h1";
+    header["u:txt"] = "t|Title";
+    QJsonObject paragraph;
+    paragraph["u:fmt"] = "p";
+    paragraph["x:txt"] = QJsonArray({"t|Plain ", "t:b|bold"});
+    QJsonObject data;
+    data["c:format"] = "CollettDocument";
+    data["x:content"] = QJsonArray({header, paragraph});
+
+    Document doc;
+    doc.unpack(data);
+    QCOMPARE(doc.blockCount(), 2);
+    QCOMPARE(doc.firstBlock().begin().fragment().charFormat().fontPointSize(), 26.0);
+    QVERIFY(!doc.isModified());
+
+    font.setPointSizeF(20.0);
+    settings->setTextFont(font);
+
+    const QTextBlock first = doc.firstBlock();
+    const QTextBlock second = first.next();
+    QCOMPARE(first.begin().fragment().charFormat().fontPointSize(), 40.0);
+    QCOMPARE(first.begin().fragment().charFormat().fontWeight(), int(QFont::Bold));
+
+    QTextBlock::iterator it = second.begin();
+    QCOMPARE(it.fragment().text(), QStringLiteral("Plain "));
+    QCOMPARE(it.fragment().charFormat().fontPointSize(), 20.0);
+    QCOMPARE(it.fragment().charFormat().fontWeight(), int(QFont::Normal));
+    QCOMPARE(it.fragment().charFormat().fontFamilies().toStringList().first(), font.family());
+    ++it;
+    QCOMPARE(it.fragment().text(), QStringLiteral("bold"));
+    QCOMPARE(it.fragment().charFormat().fontPointSize(), 20.0);
+    QCOMPARE(it.fragment().charFormat().fontWeight(), int(QFont::Bold));
+
+    QCOMPARE(doc.defaultFont().pointSizeF(), 20.0);
+    QVERIFY(!doc.isModified());
+
+    // Restore the default for any test that follows
+    font.setPointSizeF(13.0);
+    settings->setTextFont(font);
 }
 
 QTEST_MAIN(TestDocument)

@@ -47,6 +47,9 @@ public:
     QString createdTime() const { return m_createdTime; };
     QString updatedTime() const { return m_updatedTime; };
 
+public slots:
+    void refreshTextFormat();
+
 private:
     QString m_handle = "";
     QString m_createdTime = "";

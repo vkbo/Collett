@@ -22,6 +22,9 @@
 #pragma once
 
 #include "collett.h"
+#include "mtoolbutton.h"
+#include "settings.h"
+#include "theme.h"
 
 #include <QAction>
 #include <QToolBar>
@@ -38,9 +41,19 @@ public:
     explicit GuiAppToolBar(QWidget *parent = nullptr);
     ~GuiAppToolBar();
 
+public slots:
+    void updateThemeMode();
+
 private:
+    Settings *m_settings;
+    Theme *m_theme;
+
     QAction *actSettings;
+    MToolButton *m_btnTheme;
 
     friend class GuiMain;
+
+private slots:
+    void cycleThemeMode();
 };
 } // namespace Collett

@@ -112,6 +112,33 @@ enum SyntaxColor
     SyntaxErrorLine = 4,
 };
 
+// Theme Mode
+// Which of the light and dark themes is loaded.
+#define COL_DEFAULT_LIGHT_THEME "default_light"
+#define COL_DEFAULT_DARK_THEME "default_dark"
+enum ThemeMode
+{
+    AutoTheme = 0,
+    LightTheme = 1,
+    DarkTheme = 2,
+};
+
+// Tool Buttons
+// Icon-only buttons with a shared tool tip and icon, created by the Theme class.
+enum ToolButton
+{
+    FontButton = 0,
+};
+
+// Standard Buttons
+// Dialog buttons with a shared label and icon, created by the Theme class.
+enum StandardButton
+{
+    SaveButton = 0,
+    CancelButton = 1,
+    OkButton = 2,
+};
+
 // Text Format Properties
 // Custom properties stored on the block formats of a document.
 enum TextProperty

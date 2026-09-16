@@ -17,3 +17,15 @@ GEMINI.md
 
 # Other
 .config
+
+# Sandbox placeholders
+.bash_profile
+.bashrc
+.gitconfig
+.gitmodules
+.idea
+.mcp.json
+.profile
+.ripgreprc
+.zprofile
+.zshrc

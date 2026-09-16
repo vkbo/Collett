@@ -96,6 +96,7 @@ private slots:
     void onTextCheckResults(int jobId, const QList<Collett::TextCheckResult> &results);
     void updateCheckMarkers();
     void restartMarkerTimer();
+    void updateTextFont();
 
 private:
     // A block queued in a text check job, with the data revision it was

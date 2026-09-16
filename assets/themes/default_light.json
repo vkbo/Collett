@@ -2,6 +2,7 @@
     "c:format": "CollettTheme",
     "c:meta": {
         "m:name": "Collett Default Light",
+        "m:mode": "light",
         "m:author": "Veronica Berglyd Olsen",
         "m:credit": "Veronica Berglyd Olsen",
         "m:license": "GPLv3"
@@ -19,6 +20,7 @@
         "brightText": "#ffffff",
         "highlight": "#3087c6",
         "highlightedText": "#ffffff",
+        "accent": "#3087c6",
         "link": "#4271ae",
         "linkVisited": "#4271ae"
     },
@@ -32,6 +34,7 @@
         "note": "#eab700",
         "default": "#484848",
         "faded": "#6c6c6c",
+        "helpText": "#5c5c5c",
         "red": "#f02829",
         "orange": "#f5871f",
         "yellow": "#eab700",

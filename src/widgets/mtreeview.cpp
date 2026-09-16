@@ -35,10 +35,7 @@ MTreeView::MTreeView(QWidget *parent) : QTreeView(parent)
 {
 }
 
-MTreeView::~MTreeView()
-{
-    qDebug() << "Destructor: MTreeView";
-}
+MTreeView::~MTreeView() {}
 
 // Events
 // ======

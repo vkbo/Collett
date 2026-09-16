@@ -1,9 +1,9 @@
 /*
-** Collett - Core Tools
-** ====================
+** Collett - Font Dialog
+** =====================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,25 +22,29 @@
 #pragma once
 
 #include "collett.h"
+#include "settings.h"
 
-#include <QDir>
 #include <QFont>
-#include <QJsonObject>
+#include <QFontDialog>
 #include <QString>
+#include <QWidget>
 
 namespace Collett {
 
-class JsonUtils
+class FontDialog : public QFontDialog
 {
-public:
-    static QString getJsonString(const QJsonObject &object, const QLatin1String &key, QString def);
-    static JsonUtilsError readJson(const QString &filePath, QJsonObject &fileData, bool required);
-    static JsonUtilsError writeJson(const QString &filePath, const QJsonObject &fileData, bool compact);
-};
+    Q_OBJECT
 
-class FontUtils
-{
 public:
-    static QString describeFont(const QFont &font);
+    explicit FontDialog(const QFont &initial, QWidget *parent = nullptr);
+    ~FontDialog();
+
+    static QFont selectFont(const QFont &initial, QWidget *parent, const QString &title, bool native, bool *ok);
+
+    // Methods
+    void done(int result) override;
+
+private:
+    Settings *m_settings;
 };
 } // namespace Collett

@@ -1,9 +1,9 @@
 /*
-** Collett - Core Tools
-** ====================
+** Collett - Modified QComboBox Class
+** ==================================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -23,24 +23,26 @@
 
 #include "collett.h"
 
-#include <QDir>
-#include <QFont>
-#include <QJsonObject>
-#include <QString>
+#include <QComboBox>
+#include <QVariant>
+#include <QWheelEvent>
+#include <QWidget>
 
 namespace Collett {
 
-class JsonUtils
+class MComboBox : public QComboBox
 {
-public:
-    static QString getJsonString(const QJsonObject &object, const QLatin1String &key, QString def);
-    static JsonUtilsError readJson(const QString &filePath, QJsonObject &fileData, bool required);
-    static JsonUtilsError writeJson(const QString &filePath, const QJsonObject &fileData, bool compact);
-};
+    Q_OBJECT
 
-class FontUtils
-{
 public:
-    static QString describeFont(const QFont &font);
+    explicit MComboBox(QWidget *parent = nullptr, int maxItems = 15);
+    ~MComboBox();
+
+    // Setters
+    void setCurrentData(const QVariant &data, const QVariant &fallback);
+
+protected:
+    // Events
+    void wheelEvent(QWheelEvent *event) override;
 };
 } // namespace Collett

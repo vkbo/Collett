@@ -26,6 +26,7 @@ function(collett_add_test subdir name)
     target_link_libraries(${name} PRIVATE CollettCore Qt::Test)
     target_compile_definitions(${name} PRIVATE
         TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/_data"
+        ASSETS_DIR="${CMAKE_SOURCE_DIR}/assets"
     )
     add_test(NAME ${name} COMMAND ${name})
     set_tests_properties(${name} PROPERTIES
@@ -34,11 +35,17 @@ function(collett_add_test subdir name)
 endfunction()
 
 collett_add_test(core tst_counting)
+collett_add_test(dialogs tst_fontdialog)
 collett_add_test(editor tst_highlighter)
 collett_add_test(editor tst_textcheck)
 collett_add_test(editor tst_texteditor)
+collett_add_test(layouts tst_scrollableform)
 collett_add_test(project tst_document)
 collett_add_test(project tst_projectdata)
 collett_add_test(project tst_projectmodel)
 collett_add_test(spellcheck tst_spellcheck)
 collett_add_test(static tst_settings)
+collett_add_test(static tst_theme)
+collett_add_test(widgets tst_mcombobox)
+collett_add_test(widgets tst_mpagedsidebar)
+collett_add_test(widgets tst_mswitch)

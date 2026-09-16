@@ -26,12 +26,23 @@
 #include "icons.h"
 
 #include <QColor>
+#include <QDir>
 #include <QList>
 #include <QSize>
 #include <QString>
 
 namespace Collett {
 
+struct ThemeEntry
+{
+    QString key;
+    QString name;
+    bool dark = false;
+    QString path;
+};
+
+class MIconButton;
+class MPushButton;
 class Theme : public QObject
 {
     Q_OBJECT
@@ -47,7 +58,15 @@ public:
     bool isDark() const { return m_isDark; };
     QColor getColor(ThemeColor color) const { return m_colors.at(color); };
     QColor getSyntaxColor(SyntaxColor color) const { return m_syntaxColors.at(color); };
+    QColor accentColor() const { return m_accentColor; };
+    QColor helpTextColor() const { return m_helpTextColor; };
     Icons *icons() const { return m_icons; };
+    QString currentTheme() const { return m_currentTheme; };
+    QList<ThemeEntry> themes() const { return m_themes; };
+    QList<ThemeEntry> lightThemes() const;
+    QList<ThemeEntry> darkThemes() const;
+    bool hasTheme(const QString &key) const;
+    bool isDesktopDarkMode() const;
 
     qreal fontPointSizeF() const { return m_fontPointSizeF; };
     int fontPixelSize() const { return m_fontPixelSize; };
@@ -58,7 +77,11 @@ public:
     QSize toolButtonSize() const { return m_toolButtonSize; };
 
     // Methods
-    bool loadTheme(QString theme);
+    void scanThemes(const QDir &dir);
+    bool loadTheme();
+    bool loadTheme(const QString &key);
+    MPushButton *getStandardButton(StandardButton button, QWidget *parent) const;
+    MIconButton *getIconButton(ToolButton button, QWidget *parent) const;
 
 signals:
     void themeChanged();
@@ -77,6 +100,10 @@ private:
         QColor::fromString("orange"), // SyntaxColor::SyntaxErrorLine
     };
 
+    // Themes
+    QList<ThemeEntry> m_themes;
+    QString m_currentTheme;
+
     // Meta
     QString m_name = "";
     QString m_author = "";
@@ -85,6 +112,8 @@ private:
 
     // Colors
     bool m_isDark = false;
+    QColor m_accentColor = QColor::fromString("purple");
+    QColor m_helpTextColor = QColor::fromString("grey");
     QList<QColor> m_colors = {
         QColor::fromString("black"),  // ThemeColor::RootColor
         QColor::fromString("yellow"), // ThemeColor::Folder Color
@@ -126,5 +155,8 @@ private:
     QSize m_toolButtonSize = {32, 32};
 
     friend class Icons;
+
+private slots:
+    void onColorSchemeChanged();
 };
 } // namespace Collett

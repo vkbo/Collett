@@ -48,8 +48,13 @@ private:
     QAction *actCloseProject;
     QAction *actExit;
 
+    // Tools Menu
+    QMenu *mnuTools;
+    QAction *actPreferences;
+
     // Builders
     void buildProjectMenu(GuiProjectView *view);
+    void buildToolsMenu();
 
     friend class GuiMain;
 };

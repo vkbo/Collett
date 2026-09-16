@@ -85,6 +85,8 @@ list(APPEND SRC_FILES
     src/core/storage.cpp
     src/core/tools.cpp
     src/dialogs/edititem.cpp
+    src/dialogs/fontdialog.cpp
+    src/dialogs/preferences.cpp
     src/editor/editortoolbar.cpp
     src/editor/editorview.cpp
     src/editor/highlighter.cpp
@@ -97,6 +99,7 @@ list(APPEND SRC_FILES
     src/gui/projecttoolbar.cpp
     src/gui/projectview.cpp
     src/gui/workpanel.cpp
+    src/layouts/scrollableform.cpp
     src/project/document.cpp
     src/project/node.cpp
     src/project/project.cpp
@@ -110,6 +113,11 @@ list(APPEND SRC_FILES
     src/static/data.cpp
     src/static/settings.cpp
     src/static/theme.cpp
+    src/widgets/mcombobox.cpp
+    src/widgets/miconbutton.cpp
+    src/widgets/mpagedsidebar.cpp
+    src/widgets/mpushbutton.cpp
+    src/widgets/mswitch.cpp
     src/widgets/mtoolbutton.cpp
     src/widgets/mtreeview.cpp
     src/constants.cpp
@@ -163,6 +171,7 @@ target_include_directories(CollettCore PUBLIC
     src/dialogs
     src/editor
     src/gui
+    src/layouts
     src/project
     src/spellcheck
     src/static

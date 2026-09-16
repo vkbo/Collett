@@ -1,9 +1,9 @@
 /*
-** Collett - Core Tools
-** ====================
+** Collett - Modified QPushButton Class
+** ====================================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,25 +22,33 @@
 #pragma once
 
 #include "collett.h"
+#include "theme.h"
 
-#include <QDir>
-#include <QFont>
-#include <QJsonObject>
+#include <QPushButton>
 #include <QString>
+#include <QWidget>
 
 namespace Collett {
 
-class JsonUtils
+class MPushButton : public QPushButton
 {
-public:
-    static QString getJsonString(const QJsonObject &object, const QLatin1String &key, QString def);
-    static JsonUtilsError readJson(const QString &filePath, QJsonObject &fileData, bool required);
-    static JsonUtilsError writeJson(const QString &filePath, const QJsonObject &fileData, bool compact);
-};
+    Q_OBJECT
 
-class FontUtils
-{
 public:
-    static QString describeFont(const QFont &font);
+    explicit MPushButton(const QString &text, QWidget *parent = nullptr);
+    ~MPushButton();
+
+    // Methods
+    void setThemeIcon(const QString &name, ThemeColor color);
+
+public slots:
+    void refreshTheme();
+
+private:
+    Theme *m_theme;
+
+    // Theme Icon
+    QString m_iconName;
+    ThemeColor m_iconColor = ThemeColor::DefaultColor;
 };
 } // namespace Collett
