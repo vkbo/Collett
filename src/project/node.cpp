@@ -467,8 +467,8 @@ void Node::updateValues()
  * @brief Recompute the totals from the node's own counts and its children.
  *
  * The totals are what the tree shows, so a folder or a chapter shows the sum
- * of everything under it, as in novelWriter. The change is propagated to the
- * parent by default, so the totals stay correct all the way up to the root.
+ * of everything under it. The change is propagated to the parent by default,
+ * so the totals stay correct all the way up to the root.
  *
  * @param propagate Also update the ancestors.
  */

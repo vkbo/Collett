@@ -1,9 +1,9 @@
 /*
-** Collett - GUI Work Panel Class
-** ==============================
+** Collett - GUI App ToolBar
+** =========================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -19,11 +19,12 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "apptoolbar.h"
 #include "collett.h"
-#include "workpanel.h"
-#include "editorview.h"
+#include "mtoolbutton.h"
 
-#include <QHBoxLayout>
+#include <QAction>
+#include <QToolBar>
 #include <QWidget>
 
 namespace Collett {
@@ -31,23 +32,19 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent)
+GuiAppToolBar::GuiAppToolBar(QWidget *parent) : QToolBar(parent)
 {
+    actSettings = new QAction(tr("Settings"), this);
 
-    // Components
-    editorView = new GuiEditorView(this);
-
-    // Assemble
-    QHBoxLayout *outerBox = new QHBoxLayout();
-    outerBox->addWidget(editorView, 1);
-    outerBox->setContentsMargins(0, 0, 0, 0);
-
-    this->setLayout(outerBox);
+    MToolButton *btnSettings = new MToolButton(this);
+    btnSettings->setDefaultAction(actSettings);
+    btnSettings->setThemeIcon("settings", ThemeColor::ToolColor);
+    this->addWidget(btnSettings);
 }
 
-GuiWorkPanel::~GuiWorkPanel()
+GuiAppToolBar::~GuiAppToolBar()
 {
-    qDebug() << "Destructor: GuiWorkPanel";
+    qDebug() << "Destructor: GuiAppToolBar";
 }
 
 } // namespace Collett

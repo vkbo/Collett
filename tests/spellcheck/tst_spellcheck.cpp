@@ -188,7 +188,7 @@ void TestSpellCheck::userDictionaryWords()
     QCOMPARE(dict.count(), 0);
 }
 
-/**! @brief Stem entries accept any longer form, as requested in novelWriter #1685.
+/**! @brief Stem entries accept any longer form.
  */
 void TestSpellCheck::userDictionaryStems()
 {

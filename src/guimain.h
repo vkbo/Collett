@@ -24,15 +24,14 @@
 #include "collett.h"
 #include "counting.h"
 #include "data.h"
+#include "mainmenu.h"
 #include "projectpanel.h"
-#include "projecttoolbar.h"
 #include "settings.h"
 #include "theme.h"
 #include "workpanel.h"
 
 #include <QMainWindow>
 #include <QSplitter>
-#include <QToolBar>
 
 namespace Collett {
 
@@ -51,11 +50,9 @@ public:
     bool closeMain();
 
     // Components
+    GuiMainMenu *mainMenu;
     GuiProjectPanel *projectPanel;
     GuiWorkPanel *workPanel;
-
-    // ToolBars
-    GuiProjectToolBar *projectToolBar;
 
 private:
     // Singletons

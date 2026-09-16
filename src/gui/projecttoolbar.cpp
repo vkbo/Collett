@@ -20,7 +20,7 @@
 */
 
 #include "constants.h"
-#include "guimain.h"
+#include "mtoolbutton.h"
 #include "projecttoolbar.h"
 #include "theme.h"
 
@@ -33,33 +33,15 @@
 
 namespace Collett {
 
-GuiProjectToolBar::GuiProjectToolBar(GuiMain *parent) : QToolBar(parent)
+// Constructor/Destructor
+// ======================
+
+GuiProjectToolBar::GuiProjectToolBar(QWidget *parent) : QToolBar(parent)
 {
-
     m_theme = Theme::instance();
-    QSize size = m_theme->toolButtonIconSize();
-
-    this->setIconSize(size);
-
-    // Project Button
-    btnProject = new QToolButton(this);
-    mnuProject = new QMenu(btnProject);
-
-    actOpenProject = mnuProject->addAction(tr("Create or Open Project"));
-    actSaveProject = mnuProject->addAction(tr("Save Project"));
-    actCloseProject = mnuProject->addAction(tr("Close Project"));
-
-    mnuProject->addSeparator();
-    mnuProject->addAction(parent->projectPanel->projectView->actEditItem);
-    mnuProject->addAction(parent->projectPanel->projectView->actDeleteItem);
-
-    btnProject->setIcon(m_theme->icons()->getIcon("menu_project", ThemeColor::Blue, size));
-    btnProject->setMenu(mnuProject);
-    btnProject->setPopupMode(QToolButton::InstantPopup);
-    this->addWidget(btnProject);
 
     // Create Button
-    btnCreate = new QToolButton(this);
+    btnCreate = new MToolButton(this);
     mnuCreate = new QMenu(btnCreate);
     this->addFileEntry(ItemLevel::SceneLevel);
     this->addFileEntry(ItemLevel::ChapterLevel);
@@ -69,7 +51,8 @@ GuiProjectToolBar::GuiProjectToolBar(GuiMain *parent) : QToolBar(parent)
 
     QAction *actCreateFolder = mnuCreate->addAction(tr("Folder"));
     actCreateFolder->setIcon(m_theme->icons()->getProjectIcon(
-        ItemType::FolderType, ItemClass::NovelClass, ItemLevel::PageLevel, m_theme->baseIconSize()));
+        ItemType::FolderType, ItemClass::NovelClass, ItemLevel::PageLevel, m_theme->baseIconSize()
+    ));
     connect(actCreateFolder, &QAction::triggered, this, &GuiProjectToolBar::createFolderRequested);
 
     mnuCreateRoot = mnuCreate->addMenu(tr("Root Folder"));
@@ -83,7 +66,7 @@ GuiProjectToolBar::GuiProjectToolBar(GuiMain *parent) : QToolBar(parent)
     mnuCreateRoot->addSeparator();
     this->addRootEntry(ItemClass::ArchiveClass);
 
-    btnCreate->setIcon(m_theme->icons()->getIcon("add", ThemeColor::Green, size));
+    btnCreate->setThemeIcon("add", ThemeColor::AddColor);
     btnCreate->setMenu(mnuCreate);
     btnCreate->setPopupMode(QToolButton::InstantPopup);
     this->addWidget(btnCreate);
@@ -101,7 +84,8 @@ void GuiProjectToolBar::addFileEntry(ItemLevel itemLevel)
 {
     QAction *action = mnuCreate->addAction(itemLevelNames(itemLevel));
     action->setIcon(m_theme->icons()->getProjectIcon(
-        ItemType::FileType, ItemClass::NovelClass, itemLevel, m_theme->baseIconSize()));
+        ItemType::FileType, ItemClass::NovelClass, itemLevel, m_theme->baseIconSize()
+    ));
     connect(action, &QAction::triggered, this, [=]() { emit createFileRequested(itemLevel); });
 }
 
@@ -109,7 +93,8 @@ void GuiProjectToolBar::addRootEntry(ItemClass itemClass)
 {
     QAction *action = mnuCreateRoot->addAction(itemClassNames(itemClass));
     action->setIcon(m_theme->icons()->getProjectIcon(
-        ItemType::RootType, itemClass, ItemLevel::PageLevel, m_theme->baseIconSize()));
+        ItemType::RootType, itemClass, ItemLevel::PageLevel, m_theme->baseIconSize()
+    ));
     connect(action, &QAction::triggered, this, [=]() { emit createRootRequested(itemClass); });
 }
 

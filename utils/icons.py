@@ -80,6 +80,7 @@ ICONS = {
     "bookmarks": "bookmark",
     "checked": "circle-check-big",
     "noncheckable": "circle",
+    "settings": "settings",
     "unchecked": "circle-x",
 }
 

@@ -21,7 +21,9 @@
 
 #pragma once
 
+#include "apptoolbar.h"
 #include "collett.h"
+#include "projecttoolbar.h"
 #include "projectview.h"
 
 #include <QTreeView>
@@ -42,22 +44,8 @@ public:
     void openProjectTasks();
     void closeProjectTasks();
 
+    GuiProjectToolBar *projectToolBar = nullptr;
     GuiProjectView *projectView = nullptr;
-
-public slots:
-    void createFile(const ItemLevel itemLevel)
-    {
-        if (projectView) projectView->createFile(itemLevel);
-    };
-
-    void createFolder()
-    {
-        if (projectView) projectView->createFolder();
-    };
-
-    void createRoot(const ItemClass itemClass)
-    {
-        if (projectView) projectView->createRoot(itemClass);
-    };
+    GuiAppToolBar *appToolBar = nullptr;
 };
 } // namespace Collett

@@ -48,6 +48,7 @@ public:
 
     // Methods
     bool loadIcons(QString icons);
+    void clearCache() { m_icons.clear(); };
 
 private:
     Theme *m_theme;

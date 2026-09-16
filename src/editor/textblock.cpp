@@ -29,9 +29,9 @@ using namespace Qt::Literals::StringLiterals;
 
 namespace Collett {
 
-// Same word split rule as novelWriter: a run of characters between word
-// boundaries that are not whitespace or one of the separators that should
-// split words, like hyphens and dashes.
+// A word is a run of characters between word boundaries that are not
+// whitespace or one of the separators that should split words, like hyphens
+// and dashes.
 static const QRegularExpression RX_WORDS(uR"(\b[^\s\-\+\/–—\[\]:]+\b)"_s, QRegularExpression::UseUnicodePropertiesOption);
 static const QRegularExpression RX_MULTI_SPACE(u" {2,}"_s);
 static const QRegularExpression RX_TRAIL_SPACE(u"[ \\t]+$"_s);
@@ -98,9 +98,9 @@ void TextBlockData::clear()
 
 /**! @brief Spell check a piece of text and return the misspelled words.
  *
- * Numbers and all upper case words are skipped, as novelWriter does. The
- * modifier letter apostrophe is checked as a plain apostrophe. A null spell
- * checker flags nothing.
+ * Numbers and all upper case words are skipped. The modifier letter
+ * apostrophe is checked as a plain apostrophe. A null spell checker flags
+ * nothing.
  */
 TextCheckList spellCheckText(const QString &text, SpellChecker *spell)
 {

@@ -55,10 +55,13 @@ public:
     int baseButtonHeight() const { return m_baseButtonHeight; };
     QSize baseIconSize() const { return m_baseIconSize; };
     QSize buttonIconSize() const { return m_buttonIconSize; };
-    QSize toolButtonIconSize() const { return m_toolButtonIconSize; };
+    QSize toolButtonSize() const { return m_toolButtonSize; };
 
     // Methods
     bool loadTheme(QString theme);
+
+signals:
+    void themeChanged();
 
 private:
     static Theme *staticInstance;
@@ -99,6 +102,18 @@ private:
         QColor::fromString("aqua"),   // ThemeColor::Aqua
         QColor::fromString("blue"),   // ThemeColor::Blue
         QColor::fromString("purple"), // ThemeColor::Purple
+        QColor::fromString("black"),  // ThemeColor::ToolColor
+        QColor::fromString("green"),  // ThemeColor::AcceptColor
+        QColor::fromString("red"),    // ThemeColor::RejectColor
+        QColor::fromString("blue"),   // ThemeColor::ActionColor
+        QColor::fromString("orange"), // ThemeColor::OptionColor
+        QColor::fromString("green"),  // ThemeColor::ApplyColor
+        QColor::fromString("yellow"), // ThemeColor::CreateColor
+        QColor::fromString("grey"),   // ThemeColor::DestroyColor
+        QColor::fromString("green"),  // ThemeColor::ResetColor
+        QColor::fromString("green"),  // ThemeColor::AddColor
+        QColor::fromString("green"),  // ThemeColor::ChangeColor
+        QColor::fromString("red"),    // ThemeColor::RemoveColor
     };
 
     // Size Info
@@ -108,7 +123,7 @@ private:
     int m_baseButtonHeight = 16;
     QSize m_baseIconSize = {16, 16};
     QSize m_buttonIconSize = {14, 14};
-    QSize m_toolButtonIconSize = {20, 20};
+    QSize m_toolButtonSize = {32, 32};
 
     friend class Icons;
 };

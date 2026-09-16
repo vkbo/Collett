@@ -23,9 +23,9 @@
 
 #include "collett.h"
 #include "texteditor.h"
-#include "theme.h"
 
 #include <QAction>
+#include <QString>
 #include <QTextCharFormat>
 #include <QToolBar>
 #include <QWidget>
@@ -45,7 +45,6 @@ private slots:
     void updateAlignButtons();
 
 private:
-    Theme *m_theme;
     GuiTextEditor *m_editor;
 
     QAction *actBold;
@@ -60,5 +59,8 @@ private:
     QAction *actAlignJustify;
     QAction *actIndent;
     QAction *actOutdent;
+
+    // Helpers
+    void addToolButton(QAction *action, const QString &icon, ThemeColor color);
 };
 } // namespace Collett

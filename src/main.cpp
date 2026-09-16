@@ -29,7 +29,6 @@
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QDateTime>
-#include <QFile>
 #include <QFileInfo>
 
 // ANSI colours for the log output
@@ -139,12 +138,6 @@ int main(int argc, char *argv[])
     mainGUI.show();
     if (parser.isSet(openPath)) {
         mainGUI.openProject(parser.value(openPath));
-    }
-
-    // Styles
-    QFile styles(":/styles/styles.qss");
-    if (styles.open(QFile::ReadOnly)) {
-        app.setStyleSheet(QLatin1String(styles.readAll()));
     }
 
     return app.exec();

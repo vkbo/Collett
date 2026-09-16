@@ -69,9 +69,8 @@ using CountBlockList = QList<CountBlock>;
  *
  * Counts are made from a list of block snapshots, taken from a document on
  * the GUI thread with snapshot(). The counters themselves only work on the
- * snapshot, so they are safe to run on a worker thread. The rules for what
- * makes a word follow novelWriter: words are separated by whitespace, and by
- * en and em dashes, but not by hyphens.
+ * snapshot, so they are safe to run on a worker thread. Words are separated
+ * by whitespace, and by en and em dashes, but not by hyphens.
  */
 class TextCounter
 {

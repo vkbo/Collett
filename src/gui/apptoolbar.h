@@ -1,9 +1,9 @@
 /*
-** Collett - GUI Work Panel Class
-** ==============================
+** Collett - GUI App ToolBar
+** =========================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -19,35 +19,28 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "collett.h"
-#include "workpanel.h"
-#include "editorview.h"
+#pragma once
 
-#include <QHBoxLayout>
+#include "collett.h"
+
+#include <QAction>
+#include <QToolBar>
 #include <QWidget>
 
 namespace Collett {
 
-// Constructor/Destructor
-// ======================
-
-GuiWorkPanel::GuiWorkPanel(QWidget *parent) : QWidget(parent)
+class GuiMain;
+class GuiAppToolBar : public QToolBar
 {
+    Q_OBJECT
 
-    // Components
-    editorView = new GuiEditorView(this);
+public:
+    explicit GuiAppToolBar(QWidget *parent = nullptr);
+    ~GuiAppToolBar();
 
-    // Assemble
-    QHBoxLayout *outerBox = new QHBoxLayout();
-    outerBox->addWidget(editorView, 1);
-    outerBox->setContentsMargins(0, 0, 0, 0);
+private:
+    QAction *actSettings;
 
-    this->setLayout(outerBox);
-}
-
-GuiWorkPanel::~GuiWorkPanel()
-{
-    qDebug() << "Destructor: GuiWorkPanel";
-}
-
+    friend class GuiMain;
+};
 } // namespace Collett
