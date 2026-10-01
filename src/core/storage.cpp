@@ -114,7 +114,7 @@ bool Storage::writeDocument(const QString &handle, const QJsonObject &fileData)
 {
     if (m_isValid) {
         QString file = handle + ".json";
-        return this->writeJson(m_contentDir.filePath(file), fileData);
+        return this->writeJson(m_contentDir.filePath(file), fileData, 2);
     }
     return false;
 }
@@ -164,9 +164,9 @@ bool Storage::readJson(const QString &filePath, QJsonObject &fileData, bool requ
     }
 }
 
-bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData)
+bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData, int nmax)
 {
-    switch (JsonUtils::writeJson(filePath, fileData, m_compactJson)) {
+    switch (JsonUtils::writeJson(filePath, fileData, m_compactJson, nmax)) {
     case JsonUtilsError::FileError:
         m_lastError = tr("Could not open file: %1").arg(filePath);
         return false;

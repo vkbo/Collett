@@ -23,6 +23,7 @@
 
 #include "collett.h"
 
+#include <QByteArray>
 #include <QDir>
 #include <QFont>
 #include <QJsonObject>
@@ -35,7 +36,8 @@ class JsonUtils
 public:
     static QString getJsonString(const QJsonObject &object, const QLatin1String &key, QString def);
     static JsonUtilsError readJson(const QString &filePath, QJsonObject &fileData, bool required);
-    static JsonUtilsError writeJson(const QString &filePath, const QJsonObject &fileData, bool compact);
+    static JsonUtilsError writeJson(const QString &filePath, const QJsonObject &fileData, bool compact, int nmax = 0);
+    static QByteArray jsonEncode(const QJsonObject &data, int nmax = 0);
 };
 
 class FontUtils
