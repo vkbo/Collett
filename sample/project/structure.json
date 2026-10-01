@@ -1,5 +1,5 @@
 {
-  "c:format": "CollettProjectStructure",
+  "c:format": "CollettProjectStructure:1.0",
   "x:items": [
     {
       "m:class": "Novel",

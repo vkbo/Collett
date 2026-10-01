@@ -73,14 +73,14 @@ void TestTools::jsonEncodeLimited()
         QJsonObject{{"u:txt", "t|C"}},
     };
     const QJsonObject data = {
-        {"c:format", "CollettDocument"},
+        {"c:format", "CollettDocument:1.0"},
         {"c:meta", QJsonObject{{"m:created", "2026"}}},
         {"x:content", content},
     };
     QCOMPARE(
         JsonUtils::jsonEncode(data, 2),
         "{\n"
-        "  \"c:format\": \"CollettDocument\",\n"
+        "  \"c:format\": \"CollettDocument:1.0\",\n"
         "  \"c:meta\": {\n"
         "    \"m:created\": \"2026\"\n"
         "  },\n"
@@ -93,7 +93,7 @@ void TestTools::jsonEncodeLimited()
     QCOMPARE(
         JsonUtils::jsonEncode(data, 1),
         "{\n"
-        "  \"c:format\": \"CollettDocument\",\n"
+        "  \"c:format\": \"CollettDocument:1.0\",\n"
         "  \"c:meta\": {\"m:created\": \"2026\"},\n"
         "  \"x:content\": [{\"u:fmt\": \"p:al\", \"x:txt\": [\"t|A \", \"t:b|B\"]}, {\"u:txt\": \"t|C\"}]\n"
         "}\n"

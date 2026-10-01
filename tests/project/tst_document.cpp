@@ -74,7 +74,7 @@ void TestDocument::packSimpleFormatting()
     QJsonObject data;
     doc.pack(data);
 
-    QCOMPARE(data.value("c:format").toString(), QStringLiteral("CollettDocument"));
+    QCOMPARE(data.value("c:format").toString(), QStringLiteral("CollettDocument:1.0"));
 
     QJsonArray content = data.value("x:content").toArray();
     QCOMPARE(content.size(), 1);
@@ -218,7 +218,7 @@ void TestDocument::refreshTextFormat()
     paragraph["u:fmt"] = "p";
     paragraph["x:txt"] = QJsonArray({"t|Plain ", "t:b|bold"});
     QJsonObject data;
-    data["c:format"] = "CollettDocument";
+    data["c:format"] = "CollettDocument:1.0";
     data["x:content"] = QJsonArray({header, paragraph});
 
     Document doc;

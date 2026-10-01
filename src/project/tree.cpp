@@ -48,7 +48,7 @@ Tree::~Tree()
 
 void Tree::pack(QJsonObject &data)
 {
-    data["c:format"_L1] = "CollettProjectStructure";
+    data["c:format"_L1] = "CollettProjectStructure:1.0";
     if (m_model) m_model->pack(data);
 }
 

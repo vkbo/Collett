@@ -1,5 +1,5 @@
 {
-  "c:format": "CollettDocument",
+  "c:format": "CollettDocument:1.0",
   "c:meta": {
     "m:created": "2026-07-23T03:38:44",
     "m:updated": "2026-10-01T23:05:35"
