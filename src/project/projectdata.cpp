@@ -68,7 +68,7 @@ void ProjectData::pack(QJsonObject &data)
     jSettings["u:spellLanguage"_L1] = m_spellLanguage.isEmpty() ? QJsonValue() : QJsonValue(m_spellLanguage);
 
     // Root Object
-    data["c:format"_L1] = "CollettProjectData";
+    data["c:format"_L1] = "CollettProjectData:1.0";
     data["c:meta"_L1] = jMeta;
     data["c:project"_L1] = jProject;
     data["c:settings"_L1] = jSettings;

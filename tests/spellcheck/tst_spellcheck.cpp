@@ -242,7 +242,7 @@ void TestSpellCheck::userDictionaryStorage()
 
     QJsonObject data;
     QVERIFY(store.readDictionary(data));
-    QCOMPARE(data.value("c:format").toString(), QStringLiteral("CollettUserDictionary"));
+    QCOMPARE(data.value("c:format").toString(), QStringLiteral("CollettUserDictionary:1.0"));
     QCOMPARE(data.value("c:words").toArray(), QJsonArray({"Frodo*", "Gandalf"}));
 
     UserDictionary loaded(&store);

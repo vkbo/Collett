@@ -97,7 +97,12 @@ JsonUtilsError JsonUtils::readJson(const QString &filePath, QJsonObject &fileDat
     return JsonUtilsError::NoError;
 }
 
-JsonUtilsError JsonUtils::writeJson(const QString &filePath, const QJsonObject &fileData, bool compact)
+/**! @brief Write a JSON object to file.
+ *
+ * Unless compact is set, the output is indented by jsonEncode up to level
+ * nmax.
+ */
+JsonUtilsError JsonUtils::writeJson(const QString &filePath, const QJsonObject &fileData, bool compact, int nmax)
 {
 
     QFile file(filePath);
@@ -105,10 +110,75 @@ JsonUtilsError JsonUtils::writeJson(const QString &filePath, const QJsonObject &
         qWarning() << "Could not open file:" << filePath;
         return JsonUtilsError::FileError;
     }
-    file.write(QJsonDocument(fileData).toJson(compact ? QJsonDocument::Compact : QJsonDocument::Indented));
+    file.write(compact ? QJsonDocument(fileData).toJson(QJsonDocument::Compact) : jsonEncode(fileData, nmax));
     file.close();
     qDebug() << "Wrote:" << filePath;
     return JsonUtilsError::NoError;
+}
+
+/**! @brief Encode a JSON object with two-space indentation up to level nmax.
+ *
+ * Containers deeper than nmax are written on a single line. If nmax is 0 or
+ * less, all levels are indented. The compact output from Qt is re-formatted,
+ * so escaping and key order are the same as for QJsonDocument.
+ */
+QByteArray JsonUtils::jsonEncode(const QJsonObject &data, int nmax)
+{
+    const QByteArray json = QJsonDocument(data).toJson(QJsonDocument::Compact);
+
+    QByteArray out;
+    out.reserve(json.size() + json.size() / 4);
+
+    int n = 0;
+    bool inString = false;
+    bool escaped = false;
+    auto expand = [nmax](int level) { return nmax <= 0 || level <= nmax; };
+    auto newline = [&out, &n]() { out.append('\n').append(2 * n, ' '); };
+
+    for (qsizetype i = 0; i < json.size(); ++i) {
+        const char c = json.at(i);
+        if (inString) {
+            out.append(c);
+            if (escaped) escaped = false;
+            else if (c == '\\') escaped = true;
+            else if (c == '"') inString = false;
+            continue;
+        }
+        switch (c) {
+        case '"':
+            inString = true;
+            out.append(c);
+            break;
+        case '{':
+        case '[':
+            out.append(c);
+            if (i + 1 < json.size() && (json.at(i + 1) == '}' || json.at(i + 1) == ']')) {
+                out.append(json.at(++i));
+            } else if (expand(++n)) {
+                newline();
+            }
+            break;
+        case '}':
+        case ']':
+            if (expand(n--)) newline();
+            out.append(c);
+            break;
+        case ',':
+            out.append(',');
+            if (expand(n)) newline();
+            else out.append(' ');
+            break;
+        case ':':
+            out.append(": ");
+            break;
+        default:
+            out.append(c);
+            break;
+        }
+    }
+    out.append('\n');
+
+    return out;
 }
 
 } // namespace Collett

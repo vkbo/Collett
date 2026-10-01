@@ -172,7 +172,7 @@ void Document::pack(QJsonObject &data)
     jMeta["m:created"_L1] = m_createdTime;
     jMeta["m:updated"_L1] = m_updatedTime;
 
-    data["c:format"_L1] = "CollettDocument";
+    data["c:format"_L1] = "CollettDocument:1.0";
     data["c:meta"_L1] = jMeta;
     data["x:content"_L1] = jDoc;
 }

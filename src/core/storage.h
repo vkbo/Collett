@@ -58,7 +58,7 @@ public:
 
 private:
     bool readJson(const QString &filePath, QJsonObject &fileData, bool required);
-    bool writeJson(const QString &filePath, const QJsonObject &fileData);
+    bool writeJson(const QString &filePath, const QJsonObject &fileData, int nmax = 0);
     void writeCollett();
 
     QDir m_rootPath;

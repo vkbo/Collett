@@ -1,9 +1,8 @@
 {
-    "c:format": "CollettDocument",
-    "c:meta": {
-        "m:created": "2026-09-16T00:02:16",
-        "m:updated": "2026-09-16T00:02:17"
-    },
-    "x:content": [
-    ]
+  "c:format": "CollettDocument:1.0",
+  "c:meta": {
+    "m:created": "2026-09-16T00:02:16",
+    "m:updated": "2026-09-16T00:02:17"
+  },
+  "x:content": []
 }

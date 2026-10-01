@@ -1,15 +1,15 @@
 {
-    "c:format": "CollettProjectData",
-    "c:meta": {
-        "m:created": "2025-02-23T21:39:28",
-        "m:updated": "2026-09-16T21:11:49",
-        "m:version": "0.0.1-alpha1"
-    },
-    "c:project": {
-        "u:name": "Sample Project"
-    },
-    "c:settings": {
-        "m:lastEdited": "f087f56665c9f",
-        "u:spellLanguage": null
-    }
+  "c:format": "CollettProjectData:1.0",
+  "c:meta": {
+    "m:created": "2025-02-23T21:39:28",
+    "m:updated": "2026-10-01T23:41:37",
+    "m:version": "0.0.1-alpha1"
+  },
+  "c:project": {
+    "u:name": "Sample Project"
+  },
+  "c:settings": {
+    "m:lastEdited": "d7f89e189dd24",
+    "u:spellLanguage": null
+  }
 }

@@ -137,7 +137,7 @@ bool UserDictionary::save() const
         return false;
     }
     QJsonObject data;
-    data["c:format"_L1] = "CollettUserDictionary";
+    data["c:format"_L1] = "CollettUserDictionary:1.0";
     data["c:words"_L1] = QJsonArray::fromStringList(this->entries());
     if (!m_store->writeDictionary(data)) {
         qWarning() << "Failed to save user dictionary";
