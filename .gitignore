@@ -1,6 +1,6 @@
 # Build
 build/
-build_cov/
+build_*/
 _temp/
 
 # IDE

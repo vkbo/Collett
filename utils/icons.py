@@ -169,7 +169,7 @@ def main() -> None:
     workDir.mkdir(parents=True, exist_ok=True)
 
     outDir = ROOT_DIR / "assets" / "icons"
-    outDir.mkdir(exist_ok=True)
+    outDir.mkdir(parents=True, exist_ok=True)
     processLucide(workDir, outDir)
 
     print("Done")

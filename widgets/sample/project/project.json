@@ -2,14 +2,14 @@
   "c:format": "CollettProjectData:1.0",
   "c:meta": {
     "m:created": "2025-02-23T21:39:28",
-    "m:updated": "2026-10-01T23:41:37",
+    "m:updated": "2026-10-02T22:08:43",
     "m:version": "0.0.1-alpha1"
   },
   "c:project": {
     "u:name": "Sample Project"
   },
   "c:settings": {
-    "m:lastEdited": "d7f89e189dd24",
+    "m:lastEdited": "76f002950cef6",
     "u:spellLanguage": null
   }
 }

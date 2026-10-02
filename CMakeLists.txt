@@ -2,7 +2,7 @@
 # ==========================
 #
 # This file is a part of Collett
-# Copyright (C) 2025 Veronica Berglyd Olsen
+# Copyright (C) 2026 Veronica Berglyd Olsen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.21)
 
 # Version
 file(READ "src/collett.h" COLLET_H)
@@ -31,12 +31,6 @@ message(STATUS "Collett Release: ${Collett_RELEASE}")
 
 project(Collett LANGUAGES CXX VERSION ${Collett_VERSION})
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -47,159 +41,23 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 # Qt6 Library
 # ===========
 
-# Note: Qt6 include folder must be available. The following assumes lib/qt6 is
-# either a local copy or a symlink to it.
-# set(CMAKE_PREFIX_PATH "lib/qt6/6.5.0/gcc_64/lib/cmake/")
+find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
+message(STATUS "Found Qt6 Version: ${Qt6_VERSION}")
 
-set(QT_DEFAULT_MAJOR_VERSION 6)
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Svg LinguistTools Test)
-if(Qt6Core_FOUND)
-    message(STATUS "Found Qt6Core Version: ${Qt6Core_VERSION}")
-endif()
-if(Qt6Widgets_FOUND)
-    message(STATUS "Found Qt6Widgets Version: ${Qt6Widgets_VERSION}")
-endif()
-
-# Nuspell Library
-# ===============
-
-# Spell checking engine. Reads the same .aff/.dic dictionaries as Hunspell.
-find_package(Nuspell REQUIRED)
-message(STATUS "Found Nuspell Version: ${Nuspell_VERSION}")
-
-# i18n
-# ====
-
-qt_standard_project_setup(
-    I18N_SOURCE_LANGUAGE en_GB
-    I18N_TRANSLATED_LANGUAGES en_US nb_NO
-)
-
-# Sources
-# =======
-
-# Source Files
-list(APPEND SRC_FILES
-    src/core/counting.cpp
-    src/core/icons.cpp
-    src/core/storage.cpp
-    src/core/tools.cpp
-    src/dialogs/edititem.cpp
-    src/dialogs/fontdialog.cpp
-    src/dialogs/preferences.cpp
-    src/editor/editortoolbar.cpp
-    src/editor/editorview.cpp
-    src/editor/highlighter.cpp
-    src/editor/runnables.cpp
-    src/editor/texteditor.cpp
-    src/editor/textblock.cpp
-    src/gui/apptoolbar.cpp
-    src/gui/mainmenu.cpp
-    src/gui/projectpanel.cpp
-    src/gui/projecttoolbar.cpp
-    src/gui/projectview.cpp
-    src/gui/workpanel.cpp
-    src/layouts/scrollableform.cpp
-    src/project/document.cpp
-    src/project/node.cpp
-    src/project/project.cpp
-    src/project/projectdata.cpp
-    src/project/projectmodel.cpp
-    src/project/tree.cpp
-    src/spellcheck/nuspellengine.cpp
-    src/spellcheck/spellchecker.cpp
-    src/spellcheck/spellengine.cpp
-    src/spellcheck/userdictionary.cpp
-    src/static/data.cpp
-    src/static/settings.cpp
-    src/static/theme.cpp
-    src/widgets/mcombobox.cpp
-    src/widgets/miconbutton.cpp
-    src/widgets/mpagedsidebar.cpp
-    src/widgets/mpushbutton.cpp
-    src/widgets/mswitch.cpp
-    src/widgets/mtoolbutton.cpp
-    src/widgets/mtreeview.cpp
-    src/constants.cpp
-    src/guimain.cpp
-)
-
-# Coverage
-# ========
-option(COLLETT_COVERAGE "Instrument the core library for gcov coverage" OFF)
-if(COLLETT_COVERAGE)
-    message(STATUS "Coverage instrumentation: ON")
-    add_compile_options(--coverage -O0 -g)
-    add_link_options(--coverage)
-
-    # A "coverage" target that runs the tests and renders a report. Requires
-    # gcovr (pip install gcovr); the target is only defined when it is found.
-    find_program(GCOVR_EXECUTABLE gcovr)
-    if(GCOVR_EXECUTABLE)
-        add_custom_target(coverage
-            COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-            COMMAND ${CMAKE_COMMAND} -E make_directory
-                ${CMAKE_BINARY_DIR}/coverage
-            COMMAND ${GCOVR_EXECUTABLE}
-                --root ${CMAKE_SOURCE_DIR}
-                --filter ${CMAKE_SOURCE_DIR}/src/
-                --exclude ".*autogen.*"
-                --gcov-ignore-parse-errors
-                --txt ${CMAKE_BINARY_DIR}/coverage/coverage.txt
-                --markdown-heading-level 4
-                --markdown ${CMAKE_BINARY_DIR}/coverage/coverage.md
-                --html-details ${CMAKE_BINARY_DIR}/coverage/index.html
-                --cobertura-pretty --cobertura ${CMAKE_BINARY_DIR}/coverage/coverage.xml
-                --lcov ${CMAKE_BINARY_DIR}/coverage/lcov.info
-                ${CMAKE_BINARY_DIR}
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMENT "Running tests and generating coverage report"
-            USES_TERMINAL
-        )
-    else()
-        message(STATUS "gcovr not found; 'coverage' target unavailable")
-    endif()
-endif()
+qt_standard_project_setup(REQUIRES 6.8)
 
 # Targets
 # =======
 
-# Core library
-# ------------
-qt_add_library(CollettCore STATIC ${SRC_FILES})
-target_include_directories(CollettCore PUBLIC
-    src
-    src/core
-    src/dialogs
-    src/editor
-    src/gui
-    src/layouts
-    src/project
-    src/spellcheck
-    src/static
-    src/widgets
-)
-target_link_libraries(CollettCore PUBLIC Qt::Widgets Qt::Svg PRIVATE Nuspell::nuspell)
-target_compile_definitions(CollettCore PUBLIC "$<$<CONFIG:Debug>:DEBUG>")
-
-# Executable
-# ----------
 qt_add_executable(Collett src/main.cpp)
-target_link_libraries(Collett PRIVATE CollettCore)
-qt_add_translations(Collett TS_FILE_DIR i18n)
-add_custom_target(assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+target_include_directories(Collett PRIVATE src)
+target_link_libraries(Collett PRIVATE Qt::Gui Qt::Qml Qt::Quick Qt::QuickControls2)
+target_compile_definitions(Collett PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
+
+qt_add_qml_module(Collett
+    URI Collett
+    QML_FILES
+        qml/Main.qml
 )
-add_dependencies(Collett assets)
 
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")
-
-# Tests
-# =====
-
-option(COLLETT_BUILD_TESTS "Build the Collett unit tests" ON)
-if(COLLETT_BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif()

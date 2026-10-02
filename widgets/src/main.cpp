@@ -3,7 +3,7 @@
 ** =======================
 **
 ** This file is a part of Collett
-** Copyright (C) 2026 Veronica Berglyd Olsen
+** Copyright (C) 2025 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -23,13 +23,14 @@
 #include <iostream>
 
 #include "collett.h"
+#include "guimain.h"
+#include "settings.h"
 
+#include <QApplication>
+#include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QFileInfo>
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QQuickStyle>
 
 // ANSI colours for the log output
 namespace {
@@ -44,7 +45,7 @@ constexpr int LOG_LINE_WIDTH = 4;
 } // namespace
 
 /**!
- * @brief Log message handler.
+ * @brief Log message handler&
  *
  * Custom message handler that prints a timestamp, and if DEBUG is enabled the
  * source file name and line number aligned on the colon, followed by the log
@@ -116,28 +117,34 @@ int main(int argc, char *argv[])
 {
 
     qInstallMessageHandler(collettLogHandler);
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName("Collett");
     QCoreApplication::setOrganizationDomain("saga-soft.io");
     QCoreApplication::setApplicationName("Collett");
     QCoreApplication::setApplicationVersion(COL_VERSION_STR);
 
-    // The Basic style is the least opinionated base for a custom design
-    QQuickStyle::setStyle("Basic");
+    // The settings need the application names above, and the font must be
+    // set before any widget measures itself
+    QApplication::setFont(Collett::Settings::instance()->guiFont());
 
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();
+
+    QCommandLineOption openPath(
+        QStringList() << "o" << "open",
+        QCoreApplication::translate("main", "Open the <path> project on launch."),
+        QCoreApplication::translate("main", "path")
+    );
+    parser.addOption(openPath);
     parser.process(app);
 
-    QQmlApplicationEngine engine;
-    QObject::connect(
-        &engine, &QQmlApplicationEngine::objectCreationFailed,
-        &app, []() { QCoreApplication::exit(1); },
-        Qt::QueuedConnection
-    );
-    engine.loadFromModule("Collett", "Main");
+    Collett::GuiMain mainGUI;
+    mainGUI.show();
+    if (parser.isSet(openPath)) {
+        mainGUI.openProject(parser.value(openPath));
+    }
 
     return app.exec();
 }

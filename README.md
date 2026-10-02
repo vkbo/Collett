@@ -11,6 +11,9 @@ tracking notes and meta data.
 
 Note: This is an experimental repo for the time being. It is not a usable application yet.
 
+The user interface is being rebuilt with Qt Quick (QML). The previous Qt Widgets implementation is kept in the
+`widgets` folder as reference code only. It is not built, and parts of it are moved into `src` as they are needed.
+
 ## Building
 
 ### Dependencies
@@ -18,13 +21,8 @@ Note: This is an experimental repo for the time being. It is not a usable applic
 On Debian or Ubuntu:
 
 ```bash
-sudo apt install cmake \
-    qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools \
-    libnuspell-dev
+sudo apt install cmake qt6-base-dev qt6-declarative-dev qt6-declarative-dev-tools
 ```
-
-Spell checking needs at least one Hunspell-compatible dictionary, for instance `hunspell-en-gb` or `hunspell-nb`.
-Coverage reports need `gcovr`, which can be installed with `pip install gcovr`.
 
 Formatting checks need `clang-format`, which can be installed with:
 
@@ -43,32 +41,8 @@ cmake --build build
 Use `-DCMAKE_BUILD_TYPE=Debug` for a debug build. Add `-j` to the build command to compile in parallel, for instance
 `cmake --build build -j 8`.
 
-### Tests
-
-The tests are built by default as part of the normal build. Run them with:
-
-```bash
-cd build && ctest --output-on-failure
-```
-
-A single test executable can also be run directly, for instance `./build/tests/tst_spellcheck`.
-Pass `-DCOLLETT_BUILD_TESTS=OFF` to CMake to skip building the tests.
-
 ### Formatting
 
 Source files are formatted according to the `.clang-format` file in the repository root. Requires `clang-format` to
 be installed. Run `./format.sh` to format all source files in place before making a pull request, or `./format.sh
 --check` to only check for violations without changing anything, as done in CI.
-
-### Coverage
-
-The coverage build instruments the core library and adds a `coverage` target that runs the tests and writes a report
-to `build_cov/coverage/index.html`:
-
-```bash
-cmake -S . -B build_cov -DCMAKE_BUILD_TYPE=Debug -DCOLLETT_COVERAGE=ON
-cmake --build build_cov --target coverage
-```
-
-CI runs the same coverage build on every push and pull request. The report is written to the job's summary page, and
-on pull requests it is also posted as an updating comment on the PR.
