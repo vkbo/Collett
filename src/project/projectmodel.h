@@ -29,6 +29,7 @@
 #include <QHash>
 #include <QList>
 #include <QModelIndex>
+#include <QString>
 #include <QVariant>
 #include <QtQml/qqmlregistration.h>
 
@@ -50,7 +51,7 @@ public:
     enum Roles
     {
         HandleRole = Qt::UserRole + 1,
-        NameRole,
+        TitleRole,
         LevelRole,
         WordsRole,
         ExpandedRole,
@@ -70,6 +71,11 @@ public:
     // Methods
     void setGroup(Group *group);
     Q_INVOKABLE void toggleExpanded(int row);
+    Q_INVOKABLE int rowOf(const QString &handle) const;
+    Q_INVOKABLE void setTitle(int row, const QString &title);
+
+signals:
+    void structureChanged();
 
 private:
     Group *m_group = nullptr;

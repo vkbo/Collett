@@ -32,6 +32,7 @@ QtObject {
     readonly property color partitionColor: dark ? "#99cc99" : "#718c00"
     readonly property color chapterColor: dark ? "#f2777a" : "#f02829"
     readonly property color sceneColor: dark ? "#6699cc" : "#4271ae"
+    readonly property color pageColor: dark ? "#949494" : "#6c6c6c"
 
     function levelColor(level: int): color {
         switch (level) {
@@ -39,8 +40,24 @@ QtObject {
             return partitionColor;
         case Collett.ChapterLevel:
             return chapterColor;
+        case Collett.PageLevel:
+            return pageColor;
         default:
             return sceneColor;
+        }
+    }
+
+    // The name of a level, shown in place of an empty title
+    function levelName(level: int): string {
+        switch (level) {
+        case Collett.PartitionLevel:
+            return qsTr("Partition");
+        case Collett.ChapterLevel:
+            return qsTr("Chapter");
+        case Collett.PageLevel:
+            return qsTr("Page");
+        default:
+            return qsTr("Scene");
         }
     }
 }

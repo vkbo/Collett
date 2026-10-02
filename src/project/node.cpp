@@ -33,7 +33,7 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Node::Node(const QString &handle, const QString &name, ItemLevel level) : m_handle(handle), m_name(name), m_level(level) {}
+Node::Node(const QString &handle, const QString &title, ItemLevel level) : m_handle(handle), m_title(title), m_level(level) {}
 
 Node::~Node() {}
 
@@ -43,7 +43,8 @@ Node::~Node() {}
 /**! @brief Write the node to a JSON object.
  *
  * Only partitions and chapters can be folded, so only they store whether
- * they are expanded.
+ * they are expanded. An empty title is stored as an empty string. The title
+ * is kept as typed while it is edited, and tidied up here.
  */
 void Node::pack(QJsonObject &data, int order) const
 {
@@ -52,10 +53,10 @@ void Node::pack(QJsonObject &data, int order) const
     data["m:order"_L1] = order;
     data["m:characters"_L1] = m_counts.characters;
     data["m:words"_L1] = m_counts.words;
-    if (m_level != ItemLevel::SceneLevel) {
+    if (isFoldable()) {
         data["m:expanded"_L1] = m_expanded;
     }
-    data["u:name"_L1] = m_name;
+    data["u:title"_L1] = m_title.simplified();
 }
 
 /**! @brief Create a node from a JSON object.
@@ -77,16 +78,13 @@ Node *Node::unpack(const QJsonObject &data)
         return nullptr;
     }
 
-    QString name = JsonUtils::getJsonString(data, "u:name"_L1, "").simplified();
-    if (name.isEmpty()) {
-        name = tr("Unnamed");
-    }
+    QString title = JsonUtils::getJsonString(data, "u:title"_L1, "").simplified();
 
     TextCounts counts;
     counts.words = qMax(data["m:words"_L1].toInt(), 0);
     counts.characters = qMax(data["m:characters"_L1].toInt(), 0);
 
-    Node *node = new Node(handle, name, level);
+    Node *node = new Node(handle, title, level);
     node->setCounts(counts);
     node->setExpanded(data["m:expanded"_L1].toBool(true));
     return node;
@@ -109,6 +107,10 @@ bool Node::levelFromString(const QString &value, ItemLevel &itemLevel)
         itemLevel = ItemLevel::SceneLevel;
         return true;
     }
+    if (value == "Page") {
+        itemLevel = ItemLevel::PageLevel;
+        return true;
+    }
     return false;
 }
 
@@ -118,6 +120,7 @@ QString Node::levelToString(ItemLevel itemLevel)
     case ItemLevel::PartitionLevel: return "Partition"_L1;
     case ItemLevel::ChapterLevel: return "Chapter"_L1;
     case ItemLevel::SceneLevel: return "Scene"_L1;
+    case ItemLevel::PageLevel: return "Page"_L1;
     }
     return "Scene"_L1;
 }

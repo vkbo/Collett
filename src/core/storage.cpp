@@ -176,11 +176,18 @@ bool Storage::writeJson(const QString &filePath, const QJsonObject &fileData, in
     }
 }
 
+/**! @brief Write the project marker file, unless it is already up to date.
+ */
 void Storage::writeCollett()
 {
+    const QByteArray content = "Collett " + QByteArray(COL_VERSION_STR);
     QFile file(m_rootPath.filePath("CollettProject.collett"));
+    if (file.open(QIODevice::ReadOnly) && file.readAll() == content) {
+        return;
+    }
+    file.close();
     if (file.open(QIODevice::WriteOnly)) {
-        file.write("Collett " + QByteArray(COL_VERSION_STR));
+        file.write(content);
     }
     file.close();
 }

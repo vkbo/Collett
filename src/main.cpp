@@ -135,21 +135,23 @@ int main(int argc, char *argv[])
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addPositionalArgument(
-        "project",
-        QCoreApplication::translate("main", "The project file to open. Defaults to the sample project."),
-        "[project]"
+    QCommandLineOption openPath(
+        QStringList() << "o" << "open",
+        QCoreApplication::translate("main", "Open the <path> project on launch."),
+        QCoreApplication::translate("main", "path")
     );
+    parser.addOption(openPath);
     parser.process(app);
 
-    const QStringList args = parser.positionalArguments();
-    const QString projectPath = args.isEmpty() ? QString(COLLETT_SAMPLE_PROJECT) : args.first();
-
-    // The project must outlive the engine, as the editor shows its documents
+    // The project must outlive the engine, as the editor shows its documents.
+    // Without a path, the application starts with no project open.
     Collett::Project project;
-    if (!project.openProject(projectPath)) {
-        qCritical() << "Could not open project:" << projectPath << project.lastError();
-        return 1;
+    if (parser.isSet(openPath)) {
+        const QString projectPath = parser.value(openPath);
+        if (!project.openProject(projectPath)) {
+            qCritical() << "Could not open project:" << projectPath << project.lastError();
+            return 1;
+        }
     }
 
     int result = 0;
@@ -165,7 +167,9 @@ int main(int argc, char *argv[])
         result = app.exec();
     }
 
-    project.saveProject();
+    if (project.isValid()) {
+        project.saveProject();
+    }
     Collett::Settings::destroy();
     return result;
 }

@@ -2,6 +2,7 @@
 build/
 build_*/
 _temp/
+sample_fs/
 
 # IDE
 .vscode/

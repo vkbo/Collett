@@ -45,6 +45,10 @@ public:
     // Getters
     ProjectModel *model() { return m_model; };
     Node *node(const QString &handle) { return m_nodes.value(handle, nullptr); };
+    bool isModified() const { return m_modified; };
+
+    // Setters
+    void setModified(bool state) { m_modified = state; };
 
     // Methods
     void pack(QJsonObject &data);
@@ -57,6 +61,9 @@ public:
     static bool isHandle(const QString &value);
 
 private:
+    // A new tree has not been saved yet, so it starts out modified
+    bool m_modified = true;
+
     ProjectModel *m_model;
     QList<Group *> m_groups;
     QHash<QString, Node *> m_nodes;

@@ -104,31 +104,60 @@ bool Project::saveProject()
         return false;
     }
 
-    QJsonObject jData, jTree;
-
-    m_data->pack(jData);
-    if (!m_store->writeProject(jData)) {
-        m_lastError = m_store->lastError();
-        return false;
+    // Only the parts that have changed since they were read or last saved
+    // are written
+    if (m_data->isModified()) {
+        QJsonObject jData;
+        m_data->pack(jData);
+        if (!m_store->writeProject(jData)) {
+            m_lastError = m_store->lastError();
+            return false;
+        }
+        m_data->setModified(false);
     }
 
-    m_tree->pack(jTree);
-    if (!m_store->writeStructure(jTree)) {
-        m_lastError = m_store->lastError();
-        return false;
+    if (m_tree->isModified()) {
+        QJsonObject jTree;
+        m_tree->pack(jTree);
+        if (!m_store->writeStructure(jTree)) {
+            m_lastError = m_store->lastError();
+            return false;
+        }
+        m_tree->setModified(false);
     }
 
-    this->saveOpenDocuments();
-
-    return true;
+    return this->saveOpenDocuments();
 }
 
+/**! @brief Save the project to a new location.
+ *
+ * Everything is marked as modified first, so it is all written to the new
+ * location, not just what has changed.
+ */
 bool Project::saveProjectAs(const QString &path)
 {
     if (m_store) delete m_store;
     m_store = new Storage(path, false, this);
     m_isValid = true;
+    if (m_data) m_data->setModified(true);
+    if (m_tree) m_tree->setModified(true);
+    for (Document *doc : std::as_const(m_documents)) {
+        doc->setModified(true);
+    }
     return this->saveProject();
+}
+
+// Property Setters
+// ================
+
+/**! @brief Record the document last edited, so it is reopened on launch.
+ *
+ * The editor calls this when a scene gets focus. The project is not
+ * notified of the change, as the value is only read when it is opened.
+ */
+void Project::setLastEditedHandle(const QString &handle)
+{
+    if (m_data) m_data->setLastEditedHandle(handle);
 }
 
 // Document Methods
@@ -137,8 +166,8 @@ bool Project::saveProjectAs(const QString &path)
 /**!
  * @brief Open a document by its handle, loading or creating it as needed.
  *
- * The previously open document, if any, is saved before the new one is
- * loaded. Documents are cached for the lifetime of the project so that
+ * Several documents are open at the same time when the editor shows a stack
+ * of scenes. Documents are cached for the lifetime of the project so that
  * switching back to a previously opened document does not require a
  * round-trip to disk.
  *
@@ -150,14 +179,6 @@ Document *Project::openDocument(const QString &handle)
     if (!m_store) {
         return nullptr;
     }
-
-    if (handle == m_currentDocHandle && m_documents.contains(handle)) {
-        return m_documents.value(handle);
-    }
-
-    this->saveDocument(m_currentDocHandle);
-    m_currentDocHandle = handle;
-    if (m_data) m_data->setLastEditedHandle(handle);
 
     if (m_documents.contains(handle)) {
         return m_documents.value(handle);
@@ -200,15 +221,20 @@ bool Project::saveDocument(const QString &handle)
 }
 
 /**!
- * @brief Save all currently open (cached) documents to storage.
+ * @brief Save the open (cached) documents that have changed to storage.
  *
- * @return bool True if all documents were saved successfully.
+ * A document is modified when its text has changed since it was read or
+ * last saved, so unchanged documents are not written.
+ *
+ * @return bool True if all changed documents were saved successfully.
  */
 bool Project::saveOpenDocuments()
 {
     bool result = true;
-    for (const QString &handle : m_documents.keys()) {
-        result &= this->saveDocument(handle);
+    for (auto it = m_documents.cbegin(); it != m_documents.cend(); ++it) {
+        if (it.value()->isModified()) {
+            result &= this->saveDocument(it.key());
+        }
     }
     return result;
 }
@@ -216,9 +242,14 @@ bool Project::saveOpenDocuments()
 // Private Slots
 // =============
 
+/**! @brief Save the project structure and the open documents.
+ *
+ * The structure holds the document titles, so it is saved along with the
+ * documents.
+ */
 void Project::onAutoSave()
 {
-    this->saveDocument(m_currentDocHandle);
+    this->saveProject();
 }
 
 } // namespace Collett

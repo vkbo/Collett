@@ -93,6 +93,27 @@ void ProjectData::unpack(const QJsonObject &data)
     // Spell Check Settings
     // A null or missing value means the global setting applies
     this->setSpellLanguage(jSettings.value("u:spellLanguage"_L1).toString());
+
+    // What was read matches what is on disk
+    m_modified = false;
+}
+
+// Setters
+// =======
+
+void ProjectData::setLastEditedHandle(const QString &handle)
+{
+    if (handle == m_lastEditedHandle) return;
+    m_lastEditedHandle = handle;
+    m_modified = true;
+}
+
+void ProjectData::setSpellLanguage(const QString &language)
+{
+    const QString trimmed = language.trimmed();
+    if (trimmed == m_spellLanguage) return;
+    m_spellLanguage = trimmed;
+    m_modified = true;
 }
 
 } // namespace Collett

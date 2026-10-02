@@ -32,7 +32,7 @@ Item {
 
     required property int index
     required property string handle
-    required property string name
+    required property string title
     required property int level
     required property int words
     required property bool expanded
@@ -94,9 +94,9 @@ Item {
 
                 Label {
                     Layout.fillWidth: true
-                    text: root.name
+                    text: root.title || Theme.levelName(root.level)
                     elide: Text.ElideRight
-                    font.weight: root.level === Collett.SceneLevel ? Font.Normal : Font.DemiBold
+                    font.weight: root.level === Collett.PartitionLevel || root.level === Collett.ChapterLevel ? Font.DemiBold : Font.Normal
                 }
                 Label {
                     Layout.fillWidth: true

@@ -32,13 +32,18 @@ ApplicationWindow {
 
     required property Project project
 
-    // The handle of the document shown in the editor
-    property string openHandle: project.lastEditedHandle
+    // The document with the cursor
+    property string focusHandle: ""
 
     width: 1400
     height: 900
     visible: true
     title: project.name ? project.name + " – Collett" : "Collett"
+
+    // The view needs a layout pass before it can scroll to a document
+    Component.onCompleted: {
+        if (project.lastEditedHandle) Qt.callLater(editorView.showScene, project.lastEditedHandle);
+    }
 
     Binding {
         target: Theme
@@ -70,65 +75,119 @@ ApplicationWindow {
                     id: projectCard
 
                     width: projectList.width
-                    selected: projectCard.handle === window.openHandle
-                    onOpenRequested: handle => window.openHandle = handle
+                    selected: projectCard.handle === window.focusHandle
+                    onOpenRequested: handle => editorView.showScene(handle)
                     onFoldRequested: index => window.project.model.toggleExpanded(index)
                 }
             }
         }
 
-        // Editor: the stacked scene documents
+        // Editor: every document of the group, stacked in reading order.
+        // Editors are only created near the visible part of the view.
         Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
             color: window.palette.base
 
-            Flickable {
+            ListView {
                 id: editorView
 
                 readonly property real margin: 48
                 readonly property real maxTextWidth: 720
+                readonly property real textWidth: Math.min(width - 2 * margin, maxTextWidth)
+
+                // How far the view is scrolled, from 0 at the top to 1 at
+                // the bottom. The content height is an estimate, as only the
+                // editors near the view exist.
+                readonly property real scrollRange: Math.max(contentHeight - height, 1)
+                readonly property real scrollFraction: Math.min(Math.max((contentY - originY) / scrollRange, 0), 1)
+
+                function scrollToFraction(fraction: real) {
+                    contentY = originY + fraction * scrollRange;
+                }
 
                 anchors.fill: parent
                 clip: true
-                contentWidth: width
-                contentHeight: textEdit.height + 2 * margin
-                flickableDirection: Flickable.VerticalFlick
+                model: window.project.model
+                cacheBuffer: 2 * height
                 boundsBehavior: Flickable.StopAtBounds
-                ScrollBar.vertical: ScrollBar {}
 
-                // Scroll just enough to show a rectangle in text coordinates
-                function ensureVisible(rect) {
-                    const top = textEdit.y + rect.y;
-                    const bottom = top + rect.height;
-                    if (top < contentY) {
-                        contentY = top;
+                // The current item marks the focused document, so the view
+                // must not scroll to it on its own, or change it on key
+                // presses the text does not use
+                highlightFollowsCurrentItem: false
+                keyNavigationEnabled: false
+
+                header: Item {
+                    height: editorView.margin
+                }
+                footer: Item {
+                    height: editorView.margin
+                }
+
+                // Scroll just enough to show a rectangle in content coordinates
+                function ensureVisible(rect: rect) {
+                    const bottom = rect.y + rect.height;
+                    if (rect.y < contentY) {
+                        contentY = rect.y;
                     } else if (bottom > contentY + height) {
                         contentY = bottom - height;
                     }
                 }
 
-                TextEdit {
-                    id: textEdit
-
-                    x: Math.max((editorView.width - width) / 2, 0)
-                    y: editorView.margin
-                    width: Math.min(editorView.width - 2 * editorView.margin, editorView.maxTextWidth)
-                    focus: true
-                    wrapMode: TextEdit.Wrap
-                    selectByMouse: true
-                    persistentSelection: true
-                    color: window.palette.text
-                    selectionColor: window.palette.highlight
-                    selectedTextColor: window.palette.highlightedText
-
-                    onCursorRectangleChanged: editorView.ensureVisible(cursorRectangle)
+                // Scroll a document to the top of the view and put the cursor
+                // at its start
+                function showScene(handle: string) {
+                    const row = window.project.model.rowOf(handle);
+                    if (row < 0) return;
+                    positionViewAtIndex(row, ListView.Beginning);
+                    const scene = itemAtIndex(row) as SceneEditor;
+                    if (!scene) return;
+                    contentY = Math.max(originY, scene.y + scene.textTop - margin);
+                    returnToBounds();
+                    scene.enterStart();
                 }
 
-                DocumentBinder {
-                    target: textEdit
+                delegate: SceneEditor {
+                    id: sceneEditor
+
+                    width: editorView.width
+                    textWidth: editorView.textWidth
                     project: window.project
-                    handle: window.openHandle
+                    view: editorView
+
+                    onSceneFocused: handle => {
+                        window.focusHandle = handle;
+                        window.project.setLastEditedHandle(handle);
+                    }
+                    onCursorMoved: rect => editorView.ensureVisible(sceneEditor.mapToItem(editorView.contentItem, rect))
+                }
+            }
+
+            // A scroll bar with a fixed handle size. One attached to the view
+            // would resize its handle as the estimated content height
+            // changes. It follows the view, unless it is being dragged, and
+            // then the view follows it.
+            ScrollBar {
+                id: editorScroll
+
+                readonly property real travel: 1 - size
+
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                orientation: Qt.Vertical
+                size: 0.1
+                active: hovered || pressed || editorView.moving
+
+                onPositionChanged: {
+                    if (pressed) editorView.scrollToFraction(position / travel);
+                }
+
+                Binding on position {
+                    when: !editorScroll.pressed
+                    value: editorView.scrollFraction * editorScroll.travel
+                    restoreMode: Binding.RestoreNone
                 }
             }
         }

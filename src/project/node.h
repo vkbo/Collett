@@ -24,7 +24,6 @@
 #include "collett.h"
 #include "counting.h"
 
-#include <QCoreApplication>
 #include <QJsonObject>
 #include <QString>
 
@@ -34,14 +33,13 @@ namespace Collett {
  *
  * The documents of a group form a flat list in reading order. The structure
  * comes from the level of each document, so a chapter covers the scenes that
- * follow it, up to the next chapter or partition.
+ * follow it, up to the next chapter or partition. The title is stored here,
+ * not in the document, and may be empty.
  */
 class Node
 {
-    Q_DECLARE_TR_FUNCTIONS(Node)
-
 public:
-    Node(const QString &handle, const QString &name, ItemLevel level);
+    Node(const QString &handle, const QString &title, ItemLevel level);
     ~Node();
 
     // Methods
@@ -50,13 +48,14 @@ public:
 
     // Getters
     QString handle() const { return m_handle; };
-    QString name() const { return m_name; };
+    QString title() const { return m_title; };
     ItemLevel itemLevel() const { return m_level; };
     TextCounts counts() const { return m_counts; };
     bool isExpanded() const { return m_expanded; };
+    bool isFoldable() const { return m_level == ItemLevel::PartitionLevel || m_level == ItemLevel::ChapterLevel; };
 
     // Setters
-    void setName(const QString &name) { m_name = name.simplified(); };
+    void setTitle(const QString &title) { m_title = title; };
     void setCounts(const TextCounts &counts) { m_counts = counts; };
     void setExpanded(bool state) { m_expanded = state; };
 
@@ -66,7 +65,7 @@ public:
 
 private:
     QString m_handle;
-    QString m_name;
+    QString m_title;
     ItemLevel m_level;
     TextCounts m_counts;
     bool m_expanded = true;

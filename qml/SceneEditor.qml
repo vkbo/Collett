@@ -1,0 +1,295 @@
+/*
+** Collett - Scene Editor
+** ======================
+**
+** This file is a part of Collett
+** Copyright (C) 2026 Veronica Berglyd Olsen
+**
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+** General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import QtQuick
+
+import Collett
+
+// One document in the editor stack, with its title above the text. The title
+// is part of the project structure, not of the text. The arrow keys move the
+// cursor between the title, the text and the neighbouring documents, so the
+// stack reads as one text. The view gives focus to the root of its current
+// item, so the root is a focus scope that passes it on to the text. The view
+// also sets the x position of its items, so the item spans the view and
+// centres the text.
+FocusScope {
+    id: root
+
+    required property string handle
+    required property int index
+    required property int level
+    required property string title
+
+    property Project project
+    property ListView view
+    property real textWidth: width
+
+    readonly property real textTop: divider.height
+    readonly property bool titleShown: title !== "" || titleInput.activeFocus
+    readonly property bool bodyShown: textEdit.length > 0 || textEdit.activeFocus
+    readonly property real textX: Math.max((width - textWidth) / 2, 0)
+
+    signal sceneFocused(string handle)
+    signal cursorMoved(rect rect)
+
+    implicitHeight: bodyBox.y + bodyBox.height
+
+    // The view keeps its current item alive when it is scrolled out of view,
+    // so the focused document keeps its cursor and selection
+    onActiveFocusChanged: {
+        if (!activeFocus) return;
+        if (view) view.currentIndex = index;
+        sceneFocused(handle);
+    }
+
+    // Entry Points
+    // Used by the neighbouring documents and the main window to move the
+    // cursor into this document.
+
+    function enterAt(position: int) {
+        textEdit.cursorPosition = position;
+        textEdit.forceActiveFocus();
+    }
+
+    function enterTitleAt(position: int) {
+        titleInput.cursorPosition = position;
+        titleInput.forceActiveFocus();
+    }
+
+    function enterTextFromAbove(x: real) {
+        const first = textEdit.positionToRectangle(0);
+        enterAt(textEdit.positionAt(x, first.y + first.height / 2));
+    }
+
+    // Entering from above goes to the title, even when it is empty, so a
+    // title can be added
+    function enterFromAbove(x: real) {
+        enterTitleAt(titleInput.positionAt(x, 0));
+    }
+
+    function enterFromBelow(x: real) {
+        const last = textEdit.positionToRectangle(textEdit.length);
+        enterAt(textEdit.positionAt(x, last.y + last.height / 2));
+    }
+
+    // Where the cursor goes when the document is opened from the project
+    // view: the start of the text, or the end of the title if there is no
+    // text but there is a title
+    function enterStart() {
+        if (textEdit.length === 0 && title !== "") {
+            enterTitleAt(titleInput.length);
+        } else {
+            enterAt(0);
+        }
+    }
+
+    function enterAtEnd() {
+        enterAt(textEdit.length);
+    }
+
+    // The neighbouring document's editor. Editors are only created near the
+    // visible part of the view, so the view is moved to create it if needed.
+    function neighbour(offset: int): SceneEditor {
+        const target = index + offset;
+        if (!view || target < 0 || target >= view.count) return null;
+        if (!view.itemAtIndex(target)) view.positionViewAtIndex(target, ListView.Contain);
+        return view.itemAtIndex(target) as SceneEditor;
+    }
+
+    // The height of an empty paragraph in the document: one line at the
+    // document's line spacing, plus the paragraph margins, which add up to
+    // one font size
+    FontMetrics {
+        id: textMetrics
+
+        font: binder.textFont
+    }
+
+    // The space above the document. Partitions and chapters get the space of
+    // four empty paragraphs, and other documents the space of one.
+    Item {
+        id: divider
+
+        readonly property real paragraph: textMetrics.height * 1.15 + binder.textFont.pointSize
+        readonly property bool major: root.level === Collett.PartitionLevel || root.level === Collett.ChapterLevel
+
+        x: root.textX
+        width: root.textWidth
+        height: root.index === 0 ? 0 : (major ? 4 : 1) * paragraph
+    }
+
+    // The title collapses when it is empty, unless the cursor is in it. It is
+    // never hidden, as a hidden item cannot take focus.
+    Item {
+        id: titleBox
+
+        x: root.textX
+        y: divider.height
+        width: root.textWidth
+        height: root.titleShown ? titleInput.implicitHeight + 12 : 0
+        clip: true
+
+        TextInput {
+            id: titleInput
+
+            width: parent.width
+            text: root.title
+            wrapMode: TextInput.Wrap
+            selectByMouse: true
+            color: root.palette.text
+            selectionColor: root.palette.highlight
+            selectedTextColor: root.palette.highlightedText
+            font.family: binder.textFont.family
+            font.pointSize: binder.textFont.pointSize * (root.level === Collett.PartitionLevel ? 2.0 : root.level === Collett.ChapterLevel ? 1.7 : 1.4)
+            font.bold: true
+
+            readonly property bool plainMove: selectionStart === selectionEnd
+
+            onTextEdited: root.project.model.setTitle(root.index, text)
+            onCursorRectangleChanged: {
+                if (activeFocus) root.cursorMoved(mapToItem(root, cursorRectangle));
+            }
+
+            Text {
+                text: qsTr("%1 title").arg(Theme.levelName(root.level))
+                font: titleInput.font
+                color: titleInput.color
+                opacity: 0.4
+                visible: titleInput.text === ""
+            }
+
+            Keys.onUpPressed: event => {
+                const target = root.neighbour(-1);
+                if (target && event.modifiers === Qt.NoModifier) {
+                    target.enterFromBelow(cursorRectangle.x);
+                } else {
+                    event.accepted = false;
+                }
+            }
+            Keys.onDownPressed: event => {
+                if (event.modifiers === Qt.NoModifier) {
+                    root.enterTextFromAbove(cursorRectangle.x);
+                } else {
+                    event.accepted = false;
+                }
+            }
+            Keys.onLeftPressed: event => {
+                const target = root.neighbour(-1);
+                if (target && cursorPosition === 0 && plainMove && event.modifiers === Qt.NoModifier) {
+                    target.enterAtEnd();
+                } else {
+                    event.accepted = false;
+                }
+            }
+            Keys.onRightPressed: event => {
+                if (cursorPosition === length && plainMove && event.modifiers === Qt.NoModifier) {
+                    root.enterAt(0);
+                } else {
+                    event.accepted = false;
+                }
+            }
+            Keys.onReturnPressed: root.enterAt(0)
+            Keys.onEnterPressed: root.enterAt(0)
+        }
+    }
+
+    // The text collapses when it is empty, unless the cursor is in it, the
+    // same way as the title
+    Item {
+        id: bodyBox
+
+        x: root.textX
+        y: titleBox.y + titleBox.height
+        width: root.textWidth
+        height: root.bodyShown ? textEdit.height : 0
+        clip: true
+
+        TextEdit {
+            id: textEdit
+
+            width: parent.width
+            focus: true
+            wrapMode: TextEdit.Wrap
+            selectByMouse: true
+            persistentSelection: true
+            color: root.palette.text
+            selectionColor: root.palette.highlight
+            selectedTextColor: root.palette.highlightedText
+
+            readonly property bool plainMove: selectionStart === selectionEnd
+
+            onCursorRectangleChanged: {
+                if (activeFocus) root.cursorMoved(mapToItem(root, cursorRectangle));
+            }
+
+            // Each handler starts out accepted, so a key that stays within the
+            // document must be passed back to the TextEdit
+            Keys.onUpPressed: event => {
+                const onFirstLine = cursorRectangle.y <= positionToRectangle(0).y + 1;
+                if (onFirstLine && plainMove && event.modifiers === Qt.NoModifier) {
+                    root.enterTitleAt(titleInput.positionAt(cursorRectangle.x, 0));
+                } else {
+                    event.accepted = false;
+                }
+            }
+            Keys.onDownPressed: event => {
+                const target = root.neighbour(1);
+                const onLastLine = cursorRectangle.y >= positionToRectangle(length).y - 1;
+                if (target && onLastLine && plainMove && event.modifiers === Qt.NoModifier) {
+                    target.enterFromAbove(cursorRectangle.x);
+                } else {
+                    event.accepted = false;
+                }
+            }
+            Keys.onLeftPressed: event => {
+                if (cursorPosition === 0 && plainMove && event.modifiers === Qt.NoModifier) {
+                    root.enterTitleAt(titleInput.length);
+                } else {
+                    event.accepted = false;
+                }
+            }
+            Keys.onRightPressed: event => {
+                const target = root.neighbour(1);
+                if (target && cursorPosition === length && plainMove && event.modifiers === Qt.NoModifier) {
+                    target.enterTitleAt(0);
+                } else {
+                    event.accepted = false;
+                }
+            }
+
+            Text {
+                text: qsTr("Body text")
+                font: binder.textFont
+                color: textEdit.color
+                opacity: 0.4
+                visible: textEdit.length === 0
+            }
+        }
+    }
+
+    DocumentBinder {
+        id: binder
+
+        target: textEdit
+        project: root.project
+        handle: root.handle
+    }
+}

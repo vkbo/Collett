@@ -58,10 +58,7 @@ target_include_directories(Collett PRIVATE
     src/static
 )
 target_link_libraries(Collett PRIVATE Qt::Gui Qt::Qml Qt::Quick Qt::QuickControls2)
-target_compile_definitions(Collett PRIVATE
-    "$<$<CONFIG:Debug>:DEBUG>"
-    COLLETT_SAMPLE_PROJECT="${CMAKE_SOURCE_DIR}/sample/CollettProject.collett"
-)
+target_compile_definitions(Collett PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 
 set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
@@ -96,6 +93,7 @@ qt_add_qml_module(Collett
     QML_FILES
         qml/Main.qml
         qml/ProjectCard.qml
+        qml/SceneEditor.qml
         qml/Theme.qml
     RESOURCES
         assets/icons/lucide/chevron-right.svg

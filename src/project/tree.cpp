@@ -40,6 +40,7 @@ namespace Collett {
 Tree::Tree(QObject *parent) : QObject(parent)
 {
     m_model = new ProjectModel(this);
+    connect(m_model, &ProjectModel::structureChanged, this, [this]() { m_modified = true; });
     ensureNovelGroup();
 }
 
@@ -96,6 +97,8 @@ void Tree::unpack(const QJsonObject &data)
         m_groups.append(group);
     }
 
+    // What was read matches what is on disk, unless a group had to be added
+    m_modified = false;
     ensureNovelGroup();
 }
 
@@ -171,6 +174,7 @@ void Tree::ensureNovelGroup()
     if (!novel) {
         novel = new Group(tr("Novel"), ItemClass::NovelClass);
         m_groups.prepend(novel);
+        m_modified = true;
     }
     m_model->setGroup(novel);
 }

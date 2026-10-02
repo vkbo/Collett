@@ -20,6 +20,7 @@
 */
 
 #include "documentbinder.h"
+#include "settings.h"
 
 #include <QAbstractTextDocumentLayout>
 #include <QQuickTextDocument>
@@ -33,6 +34,16 @@ namespace Collett {
 DocumentBinder::DocumentBinder(QObject *parent) : QObject(parent) {}
 
 DocumentBinder::~DocumentBinder() {}
+
+// Getters
+// =======
+
+/**! @brief The font of the document text, for text shown alongside it.
+ */
+QFont DocumentBinder::textFont() const
+{
+    return Settings::instance()->textFont();
+}
 
 // Setters
 // =======

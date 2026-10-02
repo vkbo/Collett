@@ -70,6 +70,9 @@ public:
     ProjectModel *model() const { return m_tree ? m_tree->model() : nullptr; };
     QString lastEditedHandle() const { return m_data ? m_data->lastEditedHandle() : QString(); };
 
+    // Property Setters
+    Q_INVOKABLE void setLastEditedHandle(const QString &handle);
+
     // Error Handling
     bool hasError() const { return !m_lastError.isEmpty(); };
     QString lastError() const { return m_lastError; };
@@ -87,7 +90,6 @@ private:
 
     // Document Cache
     QHash<QString, Document *> m_documents;
-    QString m_currentDocHandle;
     QTimer *m_autoSaveTimer = nullptr;
 
 private slots:

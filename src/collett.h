@@ -52,10 +52,13 @@ Q_ENUM_NS(ItemClass)
 
 enum ItemLevel
 {
-    // The int order is the structure order, from the top
+    // The int order is the structure order, from the top. A page, like a
+    // title page, is not part of the structure, and sorts below a scene so
+    // it folds with the partition or chapter it is under.
     PartitionLevel = 0,
     ChapterLevel = 1,
     SceneLevel = 2,
+    PageLevel = 3,
 };
 Q_ENUM_NS(ItemLevel)
 

@@ -60,7 +60,7 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
-    case NameRole: return node->name();
+    case TitleRole: return node->title();
     case HandleRole: return node->handle();
     case LevelRole: return int(node->itemLevel());
     case WordsRole: return node->counts().words;
@@ -75,7 +75,7 @@ QHash<int, QByteArray> ProjectModel::roleNames() const
 {
     return {
         {HandleRole, "handle"},
-        {NameRole, "name"},
+        {TitleRole, "title"},
         {LevelRole, "level"},
         {WordsRole, "words"},
         {ExpandedRole, "expanded"},
@@ -115,11 +115,41 @@ void ProjectModel::toggleExpanded(int row)
     updateStructure();
 
     emit dataChanged(index(row), index(row), {ExpandedRole});
+    emit structureChanged();
     for (int i = 0; i < m_hidden.size(); ++i) {
         if (m_hidden.at(i) != oldHidden.value(i)) {
             emit dataChanged(index(i), index(i), {HiddenRole});
         }
     }
+}
+
+/**! @brief Set the title of a document.
+ *
+ * The title is part of the project structure, so it is saved with the
+ * project, not with the document.
+ */
+void ProjectModel::setTitle(int row, const QString &title)
+{
+    Node *node = m_group ? m_group->item(row) : nullptr;
+    if (!node || node->title() == title) {
+        return;
+    }
+    node->setTitle(title);
+    emit dataChanged(index(row), index(row), {Qt::DisplayRole, TitleRole});
+    emit structureChanged();
+}
+
+/**! @brief The row of a document, or -1 if it is not in the group.
+ */
+int ProjectModel::rowOf(const QString &handle) const
+{
+    if (m_group) {
+        const QList<Node *> &items = m_group->items();
+        for (qsizetype i = 0; i < items.size(); ++i) {
+            if (items.at(i)->handle() == handle) return int(i);
+        }
+    }
+    return -1;
 }
 
 // Private Methods
@@ -159,11 +189,12 @@ void ProjectModel::updateStructure()
             chapterFolded = !node->isExpanded();
             break;
         case ItemLevel::SceneLevel:
+        case ItemLevel::PageLevel:
             m_hidden.append(partitionFolded || chapterFolded);
             break;
         }
         const Node *next = (i + 1 < items.size()) ? items.at(i + 1) : nullptr;
-        m_foldable.append(level != ItemLevel::SceneLevel && next && next->itemLevel() > level);
+        m_foldable.append(node->isFoldable() && next && next->itemLevel() > level);
     }
 }
 

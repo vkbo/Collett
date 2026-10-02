@@ -25,6 +25,7 @@
 #include "document.h"
 #include "project.h"
 
+#include <QFont>
 #include <QObject>
 #include <QPointer>
 #include <QQuickItem>
@@ -41,6 +42,7 @@ class DocumentBinder : public QObject
     Q_PROPERTY(QQuickItem *target READ target WRITE setTarget NOTIFY targetChanged)
     Q_PROPERTY(Collett::Project *project READ project WRITE setProject NOTIFY projectChanged)
     Q_PROPERTY(QString handle READ handle WRITE setHandle NOTIFY handleChanged)
+    Q_PROPERTY(QFont textFont READ textFont CONSTANT)
 
 public:
     explicit DocumentBinder(QObject *parent = nullptr);
@@ -50,6 +52,7 @@ public:
     QQuickItem *target() const { return m_target; };
     Project *project() const { return m_project; };
     QString handle() const { return m_handle; };
+    QFont textFont() const;
 
     // Setters
     void setTarget(QQuickItem *target);
