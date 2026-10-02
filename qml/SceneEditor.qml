@@ -41,6 +41,7 @@ FocusScope {
     required property int number
     required property bool hardBreak
     required property bool numbered
+    required property int chapterNumber
 
     property Project project
     property ListView view
@@ -182,7 +183,7 @@ FocusScope {
     }
 
     // The space above the document. Partitions and chapters get the space of
-    // four empty paragraphs, and other documents the space of one. A scene
+    // three empty paragraphs, and other documents the space of one. A scene
     // with a hard break before it gets a centred "* * *" with an empty
     // paragraph above and below it.
     Item {
@@ -194,7 +195,7 @@ FocusScope {
 
         x: root.textX
         width: root.textWidth
-        height: root.index === 0 ? 0 : (major ? 4 : showBreak ? 3 : 1) * paragraph
+        height: root.index === 0 ? 0 : (major ? 3 : showBreak ? 3 : 1) * paragraph
 
         Text {
             anchors.centerIn: parent
@@ -205,9 +206,32 @@ FocusScope {
         }
     }
 
-    // The marker in the margin, showing the type and number of the document.
-    // It lines up with the title, or with the first line of the text when
-    // the title is hidden. Clicking it opens a menu to change the type.
+    // The type of the document, above the title. Clicking it opens a menu
+    // to change the type.
+    Text {
+        id: typeLabel
+
+        x: root.textX
+        y: divider.height
+        text: Theme.levelName(root.level)
+        font.family: binder.textFont.family
+        font.pointSize: binder.textFont.pointSize
+        font.bold: true
+        color: Theme.levelColor(root.level)
+
+        HoverHandler {
+            cursorShape: Qt.PointingHandCursor
+        }
+        TapHandler {
+            onTapped: typeMenu.popup(typeLabel, 0, typeLabel.height)
+        }
+    }
+
+    // The number of the document in the margin. Chapters show their number,
+    // and scenes the number of their chapter and their own, like "3.2".
+    // Partitions, pages and unnumbered chapters have none. It lines up with
+    // the title, or with the first line of the text when the title is
+    // hidden.
     Text {
         id: marker
 
@@ -215,26 +239,17 @@ FocusScope {
         y: root.titleShown ? titleBox.y : bodyBox.y + (textMetrics.height * 1.15 - height) / 2
         text: {
             switch (root.level) {
-            case Collett.PartitionLevel:
-                return qsTr("Part");
             case Collett.ChapterLevel:
-                return root.numbered ? qsTr("Ch %1").arg(root.number) : qsTr("Ch");
+                return root.numbered ? root.number.toString() : "";
             case Collett.SceneLevel:
-                return qsTr("Sc %1").arg(root.number);
+                return root.chapterNumber > 0 ? root.chapterNumber + "." + root.number : root.number.toString();
             default:
-                return qsTr("Page");
+                return "";
             }
         }
         font: titleInput.font
         color: Theme.levelColor(root.level)
         horizontalAlignment: Text.AlignRight
-
-        HoverHandler {
-            cursorShape: Qt.PointingHandCursor
-        }
-        TapHandler {
-            onTapped: typeMenu.popup(marker, 0, marker.height)
-        }
     }
 
     Menu {
@@ -287,7 +302,7 @@ FocusScope {
         id: titleBox
 
         x: root.textX
-        y: divider.height
+        y: typeLabel.y + typeLabel.height + 4
         width: root.textWidth
         height: root.titleShown ? titleInput.implicitHeight + 12 : 0
         clip: true

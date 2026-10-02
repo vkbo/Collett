@@ -70,6 +70,7 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     case NumberRole: return m_numbers.value(index.row(), 0);
     case HardBreakRole: return node->hasHardBreak();
     case NumberedRole: return node->isNumbered();
+    case ChapterNumberRole: return m_chapterNumbers.value(index.row(), 0);
     }
     return QVariant();
 }
@@ -87,6 +88,7 @@ QHash<int, QByteArray> ProjectModel::roleNames() const
         {NumberRole, "number"},
         {HardBreakRole, "hardBreak"},
         {NumberedRole, "numbered"},
+        {ChapterNumberRole, "chapterNumber"},
     };
 }
 
@@ -249,13 +251,15 @@ int ProjectModel::rowOf(const QString &handle) const
  * partition or chapter can be folded if the next document is below it.
  * Chapters are numbered through the whole group, except those set to be
  * unnumbered, and scenes from 1 in each chapter or partition. Partitions
- * and pages are not numbered.
+ * and pages are not numbered. Each document also gets the number of the
+ * chapter it is in, which is 0 outside a chapter or in an unnumbered one.
  */
 void ProjectModel::updateStructure()
 {
     m_hidden.clear();
     m_foldable.clear();
     m_numbers.clear();
+    m_chapterNumbers.clear();
     if (!m_group) {
         return;
     }
@@ -264,11 +268,13 @@ void ProjectModel::updateStructure()
     m_hidden.reserve(items.size());
     m_foldable.reserve(items.size());
     m_numbers.reserve(items.size());
+    m_chapterNumbers.reserve(items.size());
 
     bool partitionFolded = false;
     bool chapterFolded = false;
     int chapterCount = 0;
     int sceneCount = 0;
+    int chapterNumber = 0;
     for (qsizetype i = 0; i < items.size(); ++i) {
         const Node *node = items.at(i);
         const ItemLevel level = node->itemLevel();
@@ -279,12 +285,14 @@ void ProjectModel::updateStructure()
             partitionFolded = !node->isExpanded();
             chapterFolded = false;
             sceneCount = 0;
+            chapterNumber = 0;
             break;
         case ItemLevel::ChapterLevel:
             m_hidden.append(partitionFolded);
             m_numbers.append(node->isNumbered() ? ++chapterCount : 0);
             chapterFolded = !node->isExpanded();
             sceneCount = 0;
+            chapterNumber = m_numbers.last();
             break;
         case ItemLevel::SceneLevel:
             m_hidden.append(partitionFolded || chapterFolded);
@@ -295,6 +303,7 @@ void ProjectModel::updateStructure()
             m_numbers.append(0);
             break;
         }
+        m_chapterNumbers.append(chapterNumber);
         const Node *next = (i + 1 < items.size()) ? items.at(i + 1) : nullptr;
         m_foldable.append(node->isFoldable() && next && next->itemLevel() > level);
     }
@@ -309,7 +318,7 @@ void ProjectModel::refreshStructure()
 {
     updateStructure();
     if (m_group && m_group->count() > 0) {
-        emit dataChanged(index(0), index(int(m_group->count()) - 1), {FoldableRole, HiddenRole, NumberRole});
+        emit dataChanged(index(0), index(int(m_group->count()) - 1), {FoldableRole, HiddenRole, NumberRole, ChapterNumberRole});
     }
     emit structureChanged();
 }

@@ -60,6 +60,7 @@ public:
         NumberRole,
         HardBreakRole,
         NumberedRole,
+        ChapterNumberRole,
     };
     Q_ENUM(Roles)
 
@@ -90,6 +91,7 @@ private:
     QList<bool> m_hidden;
     QList<bool> m_foldable;
     QList<int> m_numbers;
+    QList<int> m_chapterNumbers;
 
     void updateStructure();
     void refreshStructure();
