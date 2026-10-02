@@ -43,7 +43,8 @@ Node::~Node() {}
 /**! @brief Write the node to a JSON object.
  *
  * Only partitions and chapters can be folded, so only they store whether
- * they are expanded. An empty title is stored as an empty string. The title
+ * they are expanded, only a scene with a hard break before it stores the
+ * break, and only a chapter without a number stores that it is unnumbered. An empty title is stored as an empty string. The title
  * is kept as typed while it is edited, and tidied up here.
  */
 void Node::pack(QJsonObject &data, int order) const
@@ -55,6 +56,12 @@ void Node::pack(QJsonObject &data, int order) const
     data["m:words"_L1] = m_counts.words;
     if (isFoldable()) {
         data["m:expanded"_L1] = m_expanded;
+    }
+    if (hasHardBreak()) {
+        data["m:break"_L1] = true;
+    }
+    if (!isNumbered()) {
+        data["m:numbered"_L1] = false;
     }
     data["u:title"_L1] = m_title.simplified();
 }
@@ -87,6 +94,8 @@ Node *Node::unpack(const QJsonObject &data)
     Node *node = new Node(handle, title, level);
     node->setCounts(counts);
     node->setExpanded(data["m:expanded"_L1].toBool(true));
+    node->setHardBreak(data["m:break"_L1].toBool(false));
+    node->setNumbered(data["m:numbered"_L1].toBool(true));
     return node;
 }
 

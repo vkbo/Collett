@@ -44,6 +44,7 @@ public:
     bool writeStructure(const QJsonObject &fileData);
     bool readDocument(const QString &handle, QJsonObject &fileData);
     bool writeDocument(const QString &handle, const QJsonObject &fileData);
+    bool deleteDocument(const QString &handle);
     bool readDictionary(QJsonObject &fileData);
     bool writeDictionary(const QJsonObject &fileData);
 

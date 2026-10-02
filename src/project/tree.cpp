@@ -124,6 +124,18 @@ QString Tree::newHandle() const
     return handle;
 }
 
+/**! @brief Create a document node with a new handle, and register it.
+ *
+ * The node is not added to a group. The caller adds it through the model,
+ * which owns the order of the documents.
+ */
+Node *Tree::createNode(ItemLevel level)
+{
+    Node *node = new Node(newHandle(), QString(), level);
+    m_nodes.insert(node->handle(), node);
+    return node;
+}
+
 // Static Methods
 // ==============
 

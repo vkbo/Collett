@@ -56,6 +56,8 @@ public:
 
     // Data Methods
     QString newHandle() const;
+    Node *createNode(ItemLevel level);
+    void forgetNode(const QString &handle) { m_nodes.remove(handle); };
 
     // Static Methods
     static bool isHandle(const QString &value);

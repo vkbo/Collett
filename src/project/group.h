@@ -59,6 +59,8 @@ public:
 
     // Edit
     void appendItem(Node *node) { m_items.append(node); };
+    void insertItem(qsizetype pos, Node *node) { m_items.insert(qBound(0, pos, m_items.size()), node); };
+    Node *takeItem(qsizetype pos) { return (pos >= 0 && pos < m_items.size()) ? m_items.takeAt(pos) : nullptr; };
 
     // Static Methods
     static bool classFromString(const QString &value, ItemClass &itemClass);

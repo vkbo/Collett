@@ -53,11 +53,16 @@ public:
     TextCounts counts() const { return m_counts; };
     bool isExpanded() const { return m_expanded; };
     bool isFoldable() const { return m_level == ItemLevel::PartitionLevel || m_level == ItemLevel::ChapterLevel; };
+    bool hasHardBreak() const { return m_hardBreak && m_level == ItemLevel::SceneLevel; };
+    bool isNumbered() const { return m_numbered || m_level != ItemLevel::ChapterLevel; };
 
     // Setters
     void setTitle(const QString &title) { m_title = title; };
+    void setLevel(ItemLevel level) { m_level = level; };
     void setCounts(const TextCounts &counts) { m_counts = counts; };
     void setExpanded(bool state) { m_expanded = state; };
+    void setHardBreak(bool state) { m_hardBreak = state; };
+    void setNumbered(bool state) { m_numbered = state; };
 
     // Static Methods
     static bool levelFromString(const QString &value, ItemLevel &itemLevel);
@@ -69,5 +74,7 @@ private:
     ItemLevel m_level;
     TextCounts m_counts;
     bool m_expanded = true;
+    bool m_hardBreak = false;
+    bool m_numbered = true;
 };
 } // namespace Collett

@@ -57,6 +57,9 @@ public:
         ExpandedRole,
         FoldableRole,
         HiddenRole,
+        NumberRole,
+        HardBreakRole,
+        NumberedRole,
     };
     Q_ENUM(Roles)
 
@@ -73,6 +76,11 @@ public:
     Q_INVOKABLE void toggleExpanded(int row);
     Q_INVOKABLE int rowOf(const QString &handle) const;
     Q_INVOKABLE void setTitle(int row, const QString &title);
+    Q_INVOKABLE void setLevel(int row, int level);
+    Q_INVOKABLE void setHardBreak(int row, bool state);
+    Q_INVOKABLE void setNumbered(int row, bool state);
+    void insertNode(int row, Node *node);
+    Node *takeNode(int row);
 
 signals:
     void structureChanged();
@@ -81,7 +89,9 @@ private:
     Group *m_group = nullptr;
     QList<bool> m_hidden;
     QList<bool> m_foldable;
+    QList<int> m_numbers;
 
     void updateStructure();
+    void refreshStructure();
 };
 } // namespace Collett

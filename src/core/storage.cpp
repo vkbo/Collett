@@ -119,6 +119,24 @@ bool Storage::writeDocument(const QString &handle, const QJsonObject &fileData)
     return false;
 }
 
+/**! @brief Delete the file of a document, if there is one.
+ *
+ * @return bool True if there is no file for the document afterwards.
+ */
+bool Storage::deleteDocument(const QString &handle)
+{
+    if (!m_isValid) {
+        return false;
+    }
+    QFile file(m_contentDir.filePath(handle + ".json"));
+    if (file.exists() && !file.remove()) {
+        m_lastError = tr("Could not delete file: %1").arg(file.fileName());
+        return false;
+    }
+    qDebug() << "Deleted:" << file.fileName();
+    return true;
+}
+
 bool Storage::readDictionary(QJsonObject &fileData)
 {
     if (m_isValid) {

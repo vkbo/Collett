@@ -20,6 +20,7 @@
 */
 
 import QtQuick
+import QtQuick.Controls
 
 import Collett
 
@@ -37,10 +38,17 @@ FocusScope {
     required property int index
     required property int level
     required property string title
+    required property int number
+    required property bool hardBreak
+    required property bool numbered
 
     property Project project
     property ListView view
     property real textWidth: width
+
+    // How many times Enter has been pressed in a row to make this document,
+    // or 0 if it was not just made that way
+    property int breakStep: 0
 
     readonly property real textTop: divider.height
     readonly property bool titleShown: title !== "" || titleInput.activeFocus
@@ -49,13 +57,19 @@ FocusScope {
 
     signal sceneFocused(string handle)
     signal cursorMoved(rect rect)
+    signal splitRequested(int position)
+    signal breakUpgraded
+    signal breakEnded
 
     implicitHeight: bodyBox.y + bodyBox.height
 
     // The view keeps its current item alive when it is scrolled out of view,
     // so the focused document keeps its cursor and selection
     onActiveFocusChanged: {
-        if (!activeFocus) return;
+        if (!activeFocus) {
+            if (breakStep > 0) breakEnded();
+            return;
+        }
         if (view) view.currentIndex = index;
         sceneFocused(handle);
     }
@@ -101,6 +115,50 @@ FocusScope {
         }
     }
 
+    // Merge this document into the previous one, and put the cursor where
+    // the merged text starts. An empty first document has nothing to merge
+    // into, so it is removed instead, and the cursor moves to the next one.
+    function mergeUp(): bool {
+        const previous = neighbour(-1);
+        if (previous) {
+            previous.enterAtEnd();
+            const position = project.mergeDocument(handle);
+            if (position >= 0) previous.enterAt(position);
+            return true;
+        }
+        const next = neighbour(1);
+        if (next && titleInput.text === "" && textEdit.length === 0) {
+            next.enterStart();
+            project.deleteDocument(handle);
+            return true;
+        }
+        return false;
+    }
+
+    // Backspace at the start of the title merges the document into the
+    // previous one, but only once the title is empty, so a title is never
+    // lost in a merge
+    function titleBackspace(event: KeyEvent) {
+        if (event.key !== Qt.Key_Backspace || event.modifiers !== Qt.NoModifier) return;
+        if (titleInput.cursorPosition !== 0 || titleInput.selectionStart !== titleInput.selectionEnd) return;
+        if (titleInput.text === "") event.accepted = mergeUp();
+    }
+
+    // Backspace at the start of the text moves the cursor to the end of the
+    // title if there is one, and otherwise merges the document into the
+    // previous one. A run of Backspace presses from the text therefore clears
+    // the title, and then merges.
+    function textBackspace(event: KeyEvent) {
+        if (event.key !== Qt.Key_Backspace || event.modifiers !== Qt.NoModifier) return;
+        if (textEdit.cursorPosition !== 0 || textEdit.selectionStart !== textEdit.selectionEnd) return;
+        if (titleInput.text !== "") {
+            enterTitleAt(titleInput.length);
+            event.accepted = true;
+        } else {
+            event.accepted = mergeUp();
+        }
+    }
+
     function enterAtEnd() {
         enterAt(textEdit.length);
     }
@@ -124,16 +182,103 @@ FocusScope {
     }
 
     // The space above the document. Partitions and chapters get the space of
-    // four empty paragraphs, and other documents the space of one.
+    // four empty paragraphs, and other documents the space of one. A scene
+    // with a hard break before it gets a centred "* * *" with an empty
+    // paragraph above and below it.
     Item {
         id: divider
 
         readonly property real paragraph: textMetrics.height * 1.15 + binder.textFont.pointSize
         readonly property bool major: root.level === Collett.PartitionLevel || root.level === Collett.ChapterLevel
+        readonly property bool showBreak: root.index > 0 && root.hardBreak
 
         x: root.textX
         width: root.textWidth
-        height: root.index === 0 ? 0 : (major ? 4 : 1) * paragraph
+        height: root.index === 0 ? 0 : (major ? 4 : showBreak ? 3 : 1) * paragraph
+
+        Text {
+            anchors.centerIn: parent
+            text: "* * *"
+            font: binder.textFont
+            color: root.palette.text
+            visible: divider.showBreak
+        }
+    }
+
+    // The marker in the margin, showing the type and number of the document.
+    // It lines up with the title, or with the first line of the text when
+    // the title is hidden. Clicking it opens a menu to change the type.
+    Text {
+        id: marker
+
+        x: root.textX - width - 16
+        y: root.titleShown ? titleBox.y : bodyBox.y + (textMetrics.height * 1.15 - height) / 2
+        text: {
+            switch (root.level) {
+            case Collett.PartitionLevel:
+                return qsTr("Part");
+            case Collett.ChapterLevel:
+                return root.numbered ? qsTr("Ch %1").arg(root.number) : qsTr("Ch");
+            case Collett.SceneLevel:
+                return qsTr("Sc %1").arg(root.number);
+            default:
+                return qsTr("Page");
+            }
+        }
+        font: titleInput.font
+        color: Theme.levelColor(root.level)
+        horizontalAlignment: Text.AlignRight
+
+        HoverHandler {
+            cursorShape: Qt.PointingHandCursor
+        }
+        TapHandler {
+            onTapped: typeMenu.popup(marker, 0, marker.height)
+        }
+    }
+
+    Menu {
+        id: typeMenu
+
+        MenuItem {
+            text: qsTr("Partition")
+            checkable: true
+            checked: root.level === Collett.PartitionLevel
+            onTriggered: root.project.model.setLevel(root.index, Collett.PartitionLevel)
+        }
+        MenuItem {
+            text: qsTr("Chapter")
+            checkable: true
+            checked: root.level === Collett.ChapterLevel
+            onTriggered: root.project.model.setLevel(root.index, Collett.ChapterLevel)
+        }
+        MenuItem {
+            text: qsTr("Scene")
+            checkable: true
+            checked: root.level === Collett.SceneLevel
+            onTriggered: root.project.model.setLevel(root.index, Collett.SceneLevel)
+        }
+        MenuItem {
+            text: qsTr("Page")
+            checkable: true
+            checked: root.level === Collett.PageLevel
+            onTriggered: root.project.model.setLevel(root.index, Collett.PageLevel)
+        }
+        MenuSeparator {}
+        MenuItem {
+            text: qsTr("Numbered")
+            checkable: true
+            checked: root.numbered
+            enabled: root.level === Collett.ChapterLevel
+            onTriggered: root.project.model.setNumbered(root.index, !root.numbered)
+        }
+        MenuItem {
+            text: qsTr("Hard break")
+            checkable: true
+            checked: root.hardBreak
+            enabled: root.level === Collett.SceneLevel
+            onTriggered: root.project.model.setHardBreak(root.index, !root.hardBreak)
+        }
     }
 
     // The title collapses when it is empty, unless the cursor is in it. It is
@@ -206,6 +351,7 @@ FocusScope {
                     event.accepted = false;
                 }
             }
+            Keys.onPressed: event => root.titleBackspace(event)
             Keys.onReturnPressed: root.enterAt(0)
             Keys.onEnterPressed: root.enterAt(0)
         }
@@ -239,6 +385,46 @@ FocusScope {
             onCursorRectangleChanged: {
                 if (activeFocus) root.cursorMoved(mapToItem(root, cursorRectangle));
             }
+
+            // Typing or moving the cursor ends a run of Enter presses
+            onCursorPositionChanged: {
+                if (root.breakStep > 0) root.breakEnded();
+            }
+            onTextChanged: {
+                if (root.breakStep > 0) root.breakEnded();
+            }
+
+            // The length and cursor position before the last Enter that was
+            // passed on to the text, to recognise a second Enter in a row
+            property int enterLength: -1
+            property int enterPosition: -1
+
+            // Pressing Enter twice in a row splits the text at the cursor into
+            // a new scene. The second Enter is recognised by the text having
+            // grown by just the one paragraph break, with the cursor right
+            // after it. Pressing Enter again right away, at the start of the
+            // new scene, adds a hard break before it, and once more makes it
+            // a chapter.
+            function handleEnter(event: KeyEvent) {
+                const secondEnter = length === enterLength + 1 && cursorPosition === enterPosition + 1;
+                enterLength = -1;
+                enterPosition = -1;
+                if (event.modifiers !== Qt.NoModifier || !plainMove) {
+                    event.accepted = false;
+                } else if (root.breakStep > 0 && cursorPosition === 0) {
+                    root.breakUpgraded();
+                } else if (secondEnter) {
+                    root.splitRequested(cursorPosition);
+                } else {
+                    enterLength = length;
+                    enterPosition = cursorPosition;
+                    event.accepted = false;
+                }
+            }
+
+            Keys.onPressed: event => root.textBackspace(event)
+            Keys.onReturnPressed: event => handleEnter(event)
+            Keys.onEnterPressed: event => handleEnter(event)
 
             // Each handler starts out accepted, so a key that stays within the
             // document must be passed back to the TextEdit

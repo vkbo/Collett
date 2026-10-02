@@ -25,6 +25,10 @@
 
 #include <QDateTime>
 #include <QJsonObject>
+#include <QTextBlock>
+#include <QTextBlockFormat>
+#include <QTextCursor>
+#include <QTextDocumentFragment>
 
 namespace Collett {
 
@@ -192,6 +196,169 @@ Document *Project::openDocument(const QString &handle)
     m_documents.insert(handle, doc);
 
     return doc;
+}
+
+/**!
+ * @brief Split a document into a new scene where Enter was pressed twice.
+ *
+ * The position is the start of the paragraph the first Enter made, and the
+ * split undoes that Enter. If the paragraph is empty, it is removed along
+ * with the paragraph break before it, and the text after it is moved. If it
+ * has text, only the paragraph break before it is removed, and it is moved
+ * along with the text after it. An empty paragraph left at the end of the
+ * document, as when Enter was pressed at the start of a paragraph, is also
+ * removed. The text is moved with its formatting into a new scene document
+ * inserted after this one. Undoing the move in only one of the documents
+ * would leave the text in both or neither, so the undo history of both
+ * documents is cleared.
+ *
+ * @param handle    The handle of the document to split.
+ * @param position  The start of the paragraph made by the first Enter.
+ * @return QString  The handle of the new document, or an empty string if
+ *                  the document could not be split there.
+ */
+QString Project::splitDocument(const QString &handle, int position)
+{
+    Document *doc = m_documents.value(handle, nullptr);
+    ProjectModel *projectModel = this->model();
+    const int row = projectModel ? projectModel->rowOf(handle) : -1;
+    if (!doc || row < 0) {
+        return QString();
+    }
+
+    const QTextBlock block = doc->findBlock(position);
+    if (!block.isValid() || block.position() != position || !block.previous().isValid()) {
+        return QString();
+    }
+
+    // Copy the text to move. The block format of the first paragraph is kept
+    // separately, as inserting a fragment into an empty document does not
+    // carry it over.
+    QTextDocumentFragment moved;
+    QTextBlockFormat firstFormat;
+    const QTextBlock first = block.length() == 1 ? block.next() : block;
+    if (first.isValid()) {
+        QTextCursor selection(doc);
+        selection.setPosition(first.position());
+        selection.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        moved = selection.selection();
+        firstFormat = first.blockFormat();
+    }
+
+    // Remove the paragraph break before the paragraph, and everything after
+    QTextCursor cut(doc);
+    cut.setPosition(block.position() - 1);
+    cut.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    cut.removeSelectedText();
+
+    // Remove an empty paragraph left at the end
+    const QTextBlock last = doc->lastBlock();
+    if (last.length() == 1 && last.previous().isValid()) {
+        cut.setPosition(last.position() - 1);
+        cut.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cut.removeSelectedText();
+    }
+
+    Node *node = m_tree->createNode(ItemLevel::SceneLevel);
+    Document *newDoc = new Document(node->handle(), this);
+    if (!moved.isEmpty()) {
+        QTextCursor insert(newDoc);
+        insert.insertFragment(moved);
+        insert.movePosition(QTextCursor::Start);
+        insert.setBlockFormat(firstFormat);
+    }
+
+    for (Document *changed : {doc, newDoc}) {
+        changed->setUndoRedoEnabled(false);
+        changed->setUndoRedoEnabled(true);
+        changed->setModified(true);
+    }
+
+    m_documents.insert(node->handle(), newDoc);
+    projectModel->insertNode(row + 1, node);
+    return node->handle();
+}
+
+/**!
+ * @brief Delete a document from the project, along with its file.
+ *
+ * The last document in the group cannot be deleted. The document object is
+ * deleted on the next pass of the event loop, as the editor showing it is
+ * only destroyed then.
+ *
+ * @param handle The handle of the document to delete.
+ * @return bool  True if the document was deleted.
+ */
+bool Project::deleteDocument(const QString &handle)
+{
+    ProjectModel *projectModel = this->model();
+    const int row = projectModel ? projectModel->rowOf(handle) : -1;
+    if (row < 0 || projectModel->rowCount() <= 1) {
+        return false;
+    }
+
+    delete projectModel->takeNode(row);
+    m_tree->forgetNode(handle);
+    if (Document *doc = m_documents.take(handle)) {
+        doc->deleteLater();
+    }
+    if (m_store) {
+        m_store->deleteDocument(handle);
+    }
+    return true;
+}
+
+/**!
+ * @brief Merge a document into the document before it.
+ *
+ * The text is added after the text of the previous document as new
+ * paragraphs, with its formatting, and the document is deleted. The previous
+ * document keeps its title, type and other settings. As with a split, the
+ * undo history of the previous document is cleared.
+ *
+ * @param handle The handle of the document to merge.
+ * @return int   The position in the previous document where the merged
+ *               text starts, or -1 if the document could not be merged.
+ */
+int Project::mergeDocument(const QString &handle)
+{
+    ProjectModel *projectModel = this->model();
+    const int row = projectModel ? projectModel->rowOf(handle) : -1;
+    if (row <= 0) {
+        return -1;
+    }
+
+    const QString intoHandle = projectModel->data(projectModel->index(row - 1), ProjectModel::HandleRole).toString();
+    Document *into = this->openDocument(intoHandle);
+    Document *from = this->openDocument(handle);
+    if (!into || !from) {
+        return -1;
+    }
+
+    QTextCursor cursor(into);
+    cursor.movePosition(QTextCursor::End);
+    int position = cursor.position();
+    if (!from->isEmpty()) {
+        QTextCursor all(from);
+        all.select(QTextCursor::Document);
+        const QTextDocumentFragment moved = all.selection();
+        const QTextBlockFormat firstFormat = from->firstBlock().blockFormat();
+
+        if (!into->isEmpty()) {
+            cursor.insertBlock();
+            position = cursor.position();
+        }
+        cursor.insertFragment(moved);
+        cursor.setPosition(position);
+        cursor.setBlockFormat(firstFormat);
+
+        into->setUndoRedoEnabled(false);
+        into->setUndoRedoEnabled(true);
+        into->setModified(true);
+    }
+
+    this->deleteDocument(handle);
+    return position;
 }
 
 /**!

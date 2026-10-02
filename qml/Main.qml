@@ -35,6 +35,11 @@ ApplicationWindow {
     // The document with the cursor
     property string focusHandle: ""
 
+    // The document just made by pressing Enter in an empty paragraph, and
+    // how many times Enter has been pressed in a row since
+    property string breakHandle: ""
+    property int breakStep: 0
+
     width: 1400
     height: 900
     visible: true
@@ -43,6 +48,40 @@ ApplicationWindow {
     // The view needs a layout pass before it can scroll to a document
     Component.onCompleted: {
         if (project.lastEditedHandle) Qt.callLater(editorView.showScene, project.lastEditedHandle);
+    }
+
+    // Split a document into a new scene where Enter was pressed twice, and
+    // put the cursor at its start. The view must lay itself out first, or it
+    // still has the editor that was at the new row before the insert.
+    function splitDocument(handle: string, position: int) {
+        const newHandle = project.splitDocument(handle, position);
+        if (!newHandle) return;
+        Qt.callLater(() => {
+            const row = project.model.rowOf(newHandle);
+            editorView.forceLayout();
+            if (!editorView.itemAtIndex(row)) editorView.positionViewAtIndex(row, ListView.Contain);
+            const scene = editorView.itemAtIndex(row) as SceneEditor;
+            if (!scene) return;
+            scene.enterAt(0);
+            breakHandle = newHandle;
+            breakStep = 1;
+        });
+    }
+
+    // Each further Enter upgrades the new document: first a hard break
+    // before it, then a chapter, which ends the run
+    function upgradeBreak() {
+        const row = project.model.rowOf(breakHandle);
+        if (row < 0) {
+            breakHandle = "";
+        } else if (breakStep === 1) {
+            project.model.setHardBreak(row, true);
+            breakStep = 2;
+        } else {
+            project.model.setHardBreak(row, false);
+            project.model.setLevel(row, Collett.ChapterLevel);
+            breakHandle = "";
+        }
     }
 
     Binding {
@@ -92,9 +131,12 @@ ApplicationWindow {
             ListView {
                 id: editorView
 
+                // The side margin leaves room for the document markers to the
+                // left of the text
                 readonly property real margin: 48
+                readonly property real sideMargin: 140
                 readonly property real maxTextWidth: 720
-                readonly property real textWidth: Math.min(width - 2 * margin, maxTextWidth)
+                readonly property real textWidth: Math.min(width - 2 * sideMargin, maxTextWidth)
 
                 // How far the view is scrolled, from 0 at the top to 1 at
                 // the bottom. The content height is an estimate, as only the
@@ -155,6 +197,11 @@ ApplicationWindow {
                     textWidth: editorView.textWidth
                     project: window.project
                     view: editorView
+                    breakStep: sceneEditor.handle === window.breakHandle ? window.breakStep : 0
+
+                    onSplitRequested: position => window.splitDocument(sceneEditor.handle, position)
+                    onBreakUpgraded: window.upgradeBreak()
+                    onBreakEnded: window.breakHandle = ""
 
                     onSceneFocused: handle => {
                         window.focusHandle = handle;

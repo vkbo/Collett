@@ -56,6 +56,9 @@ public:
 
     // Document Methods
     Document *openDocument(const QString &handle);
+    Q_INVOKABLE QString splitDocument(const QString &handle, int position);
+    Q_INVOKABLE bool deleteDocument(const QString &handle);
+    Q_INVOKABLE int mergeDocument(const QString &handle);
     bool saveDocument(const QString &handle);
     bool saveOpenDocuments();
 
