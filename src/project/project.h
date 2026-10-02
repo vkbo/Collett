@@ -29,13 +29,21 @@
 
 #include <QHash>
 #include <QJsonObject>
+#include <QString>
 #include <QTimer>
+#include <QtQml/qqmlregistration.h>
 
 namespace Collett {
 
 class Project : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_UNCREATABLE("The project is created on launch")
+
+    Q_PROPERTY(QString name READ name NOTIFY projectChanged)
+    Q_PROPERTY(Collett::ProjectModel *model READ model NOTIFY projectChanged)
+    Q_PROPERTY(QString lastEditedHandle READ lastEditedHandle NOTIFY projectChanged)
 
 public:
     explicit Project();
@@ -57,9 +65,17 @@ public:
     ProjectData *data() { return m_data; };
     Tree *tree() { return m_tree; };
 
+    // Property Getters
+    QString name() const { return m_data ? m_data->name() : QString(); };
+    ProjectModel *model() const { return m_tree ? m_tree->model() : nullptr; };
+    QString lastEditedHandle() const { return m_data ? m_data->lastEditedHandle() : QString(); };
+
     // Error Handling
     bool hasError() const { return !m_lastError.isEmpty(); };
     QString lastError() const { return m_lastError; };
+
+signals:
+    void projectChanged();
 
 private:
     bool m_isValid = false;

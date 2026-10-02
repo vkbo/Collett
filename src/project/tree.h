@@ -22,12 +22,14 @@
 #pragma once
 
 #include "collett.h"
+#include "group.h"
 #include "node.h"
 #include "projectmodel.h"
 
 #include <QHash>
 #include <QJsonObject>
-#include <QPointer>
+#include <QList>
+#include <QObject>
 #include <QString>
 
 namespace Collett {
@@ -42,15 +44,13 @@ public:
 
     // Getters
     ProjectModel *model() { return m_model; };
-    Node *node(const QString &handle) { return m_nodes.value(handle).data(); };
+    Node *node(const QString &handle) { return m_nodes.value(handle, nullptr); };
 
     // Methods
     void pack(QJsonObject &data);
     void unpack(const QJsonObject &data);
 
     // Data Methods
-    void addNode(Node *node);
-    void removeNode(const QString &handle);
     QString newHandle() const;
 
     // Static Methods
@@ -58,6 +58,10 @@ public:
 
 private:
     ProjectModel *m_model;
-    QHash<QString, QPointer<Node>> m_nodes;
+    QList<Group *> m_groups;
+    QHash<QString, Node *> m_nodes;
+
+    void clear();
+    void ensureNovelGroup();
 };
 } // namespace Collett

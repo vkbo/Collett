@@ -21,7 +21,7 @@ The user interface is being rebuilt with Qt Quick (QML). The previous Qt Widgets
 On Debian or Ubuntu:
 
 ```bash
-sudo apt install cmake qt6-base-dev qt6-declarative-dev qt6-declarative-dev-tools
+sudo apt install cmake qt6-base-dev qt6-declarative-dev qt6-declarative-dev-tools qt6-svg-dev
 ```
 
 Formatting checks need `clang-format`, which can be installed with:

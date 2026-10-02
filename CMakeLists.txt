@@ -50,14 +50,55 @@ qt_standard_project_setup(REQUIRES 6.8)
 # =======
 
 qt_add_executable(Collett src/main.cpp)
-target_include_directories(Collett PRIVATE src)
+target_include_directories(Collett PRIVATE
+    src
+    src/core
+    src/editor
+    src/project
+    src/static
+)
 target_link_libraries(Collett PRIVATE Qt::Gui Qt::Qml Qt::Quick Qt::QuickControls2)
-target_compile_definitions(Collett PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
+target_compile_definitions(Collett PRIVATE
+    "$<$<CONFIG:Debug>:DEBUG>"
+    COLLETT_SAMPLE_PROJECT="${CMAKE_SOURCE_DIR}/sample/CollettProject.collett"
+)
+
+set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 qt_add_qml_module(Collett
     URI Collett
+    SOURCES
+        src/collett.h
+        src/core/counting.cpp
+        src/core/counting.h
+        src/core/storage.cpp
+        src/core/storage.h
+        src/core/tools.cpp
+        src/core/tools.h
+        src/editor/documentbinder.cpp
+        src/editor/documentbinder.h
+        src/project/document.cpp
+        src/project/document.h
+        src/project/group.cpp
+        src/project/group.h
+        src/project/node.cpp
+        src/project/node.h
+        src/project/project.cpp
+        src/project/project.h
+        src/project/projectdata.cpp
+        src/project/projectdata.h
+        src/project/projectmodel.cpp
+        src/project/projectmodel.h
+        src/project/tree.cpp
+        src/project/tree.h
+        src/static/settings.cpp
+        src/static/settings.h
     QML_FILES
         qml/Main.qml
+        qml/ProjectCard.qml
+        qml/Theme.qml
+    RESOURCES
+        assets/icons/lucide/chevron-right.svg
 )
 
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")

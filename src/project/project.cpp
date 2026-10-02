@@ -64,6 +64,7 @@ bool Project::openProject(const QString &path)
         m_isValid = true;
         m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
         m_autoSaveTimer->start();
+        emit projectChanged();
         return this->saveProject();
     }
 
@@ -84,6 +85,7 @@ bool Project::openProject(const QString &path)
     m_isValid = true;
     m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
     m_autoSaveTimer->start();
+    emit projectChanged();
 
     return true;
 }

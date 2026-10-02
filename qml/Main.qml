@@ -19,17 +19,32 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import Collett
+
 ApplicationWindow {
     id: window
+
+    required property Project project
+
+    // The handle of the document shown in the editor
+    property string openHandle: project.lastEditedHandle
 
     width: 1400
     height: 900
     visible: true
-    title: "Collett"
+    title: project.name ? project.name + " – Collett" : "Collett"
+
+    Binding {
+        target: Theme
+        property: "dark"
+        value: window.palette.window.hslLightness < 0.5
+    }
 
     RowLayout {
         anchors.fill: parent
@@ -39,12 +54,26 @@ ApplicationWindow {
         Rectangle {
             Layout.fillHeight: true
             Layout.preferredWidth: 280
-            color: window.palette.alternateBase
+            color: window.palette.window
 
-            Label {
-                anchors.centerIn: parent
-                text: "Project"
-                opacity: 0.5
+            ListView {
+                id: projectList
+
+                anchors.fill: parent
+                anchors.margins: 8
+                clip: true
+                model: window.project.model
+                boundsBehavior: Flickable.StopAtBounds
+                ScrollBar.vertical: ScrollBar {}
+
+                delegate: ProjectCard {
+                    id: projectCard
+
+                    width: projectList.width
+                    selected: projectCard.handle === window.openHandle
+                    onOpenRequested: handle => window.openHandle = handle
+                    onFoldRequested: index => window.project.model.toggleExpanded(index)
+                }
             }
         }
 
@@ -54,23 +83,53 @@ ApplicationWindow {
             Layout.fillWidth: true
             color: window.palette.base
 
-            Label {
-                anchors.centerIn: parent
-                text: "Editor"
-                opacity: 0.5
-            }
-        }
+            Flickable {
+                id: editorView
 
-        // Info column: meta data that follows the text as it scrolls
-        Rectangle {
-            Layout.fillHeight: true
-            Layout.preferredWidth: 280
-            color: window.palette.alternateBase
+                readonly property real margin: 48
+                readonly property real maxTextWidth: 720
 
-            Label {
-                anchors.centerIn: parent
-                text: "Info"
-                opacity: 0.5
+                anchors.fill: parent
+                clip: true
+                contentWidth: width
+                contentHeight: textEdit.height + 2 * margin
+                flickableDirection: Flickable.VerticalFlick
+                boundsBehavior: Flickable.StopAtBounds
+                ScrollBar.vertical: ScrollBar {}
+
+                // Scroll just enough to show a rectangle in text coordinates
+                function ensureVisible(rect) {
+                    const top = textEdit.y + rect.y;
+                    const bottom = top + rect.height;
+                    if (top < contentY) {
+                        contentY = top;
+                    } else if (bottom > contentY + height) {
+                        contentY = bottom - height;
+                    }
+                }
+
+                TextEdit {
+                    id: textEdit
+
+                    x: Math.max((editorView.width - width) / 2, 0)
+                    y: editorView.margin
+                    width: Math.min(editorView.width - 2 * editorView.margin, editorView.maxTextWidth)
+                    focus: true
+                    wrapMode: TextEdit.Wrap
+                    selectByMouse: true
+                    persistentSelection: true
+                    color: window.palette.text
+                    selectionColor: window.palette.highlight
+                    selectedTextColor: window.palette.highlightedText
+
+                    onCursorRectangleChanged: editorView.ensureVisible(cursorRectangle)
+                }
+
+                DocumentBinder {
+                    target: textEdit
+                    project: window.project
+                    handle: window.openHandle
+                }
             }
         }
     }

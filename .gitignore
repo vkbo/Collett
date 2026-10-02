@@ -5,6 +5,7 @@ _temp/
 
 # IDE
 .vscode/
+.qmlls.ini
 .pytest_cache/
 
 # No AI files

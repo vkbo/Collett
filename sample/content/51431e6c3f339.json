@@ -1,0 +1,14 @@
+{
+  "c:format": "CollettDocument:1.0",
+  "c:meta": {
+    "m:created": "2026-10-02T12:00:00",
+    "m:updated": "2026-10-02T12:00:00"
+  },
+  "x:content": [
+    {"u:fmt": "h3:al", "u:txt": "t|8. Termination"},
+    {"u:fmt": "p:al", "u:txt": "t|You may not propagate or modify a covered work except as expressly provided under this License. Any attempt otherwise to propagate or modify it is void, and will automatically terminate your rights under this License (including any patent licenses granted under the third paragraph of section 11)."},
+    {"u:fmt": "p:al", "u:txt": "t|However, if you cease all violation of this License, then your license from a particular copyright holder is reinstated (a) provisionally, unless and until the copyright holder explicitly and finally terminates your license, and (b) permanently, if the copyright holder fails to notify you of the violation by some reasonable means prior to 60 days after the cessation."},
+    {"u:fmt": "p:al", "u:txt": "t|Moreover, your license from a particular copyright holder is reinstated permanently if the copyright holder notifies you of the violation by some reasonable means, this is the first time you have received notice of violation of this License (for any work) from that copyright holder, and you cure the violation prior to 30 days after your receipt of the notice."},
+    {"u:fmt": "p:al", "u:txt": "t|Termination of your rights under this section does not terminate the licenses of parties who have received copies or rights from you under this License. If your rights have been terminated and not permanently reinstated, you do not qualify to receive new licenses for the same material under section 10."}
+  ]
+}

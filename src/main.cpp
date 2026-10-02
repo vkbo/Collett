@@ -23,6 +23,8 @@
 #include <iostream>
 
 #include "collett.h"
+#include "project.h"
+#include "settings.h"
 
 #include <QCommandLineParser>
 #include <QDateTime>
@@ -30,6 +32,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
+#include <QQuickWindow>
 
 // ANSI colours for the log output
 namespace {
@@ -126,18 +129,43 @@ int main(int argc, char *argv[])
     // The Basic style is the least opinionated base for a custom design
     QQuickStyle::setStyle("Basic");
 
+    // Native text rendering matches the font hinting of the rest of the desktop
+    QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
+
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();
+    parser.addPositionalArgument(
+        "project",
+        QCoreApplication::translate("main", "The project file to open. Defaults to the sample project."),
+        "[project]"
+    );
     parser.process(app);
 
-    QQmlApplicationEngine engine;
-    QObject::connect(
-        &engine, &QQmlApplicationEngine::objectCreationFailed,
-        &app, []() { QCoreApplication::exit(1); },
-        Qt::QueuedConnection
-    );
-    engine.loadFromModule("Collett", "Main");
+    const QStringList args = parser.positionalArguments();
+    const QString projectPath = args.isEmpty() ? QString(COLLETT_SAMPLE_PROJECT) : args.first();
 
-    return app.exec();
+    // The project must outlive the engine, as the editor shows its documents
+    Collett::Project project;
+    if (!project.openProject(projectPath)) {
+        qCritical() << "Could not open project:" << projectPath << project.lastError();
+        return 1;
+    }
+
+    int result = 0;
+    {
+        QQmlApplicationEngine engine;
+        engine.setInitialProperties({{"project", QVariant::fromValue(&project)}});
+        QObject::connect(
+            &engine, &QQmlApplicationEngine::objectCreationFailed,
+            &app, []() { QCoreApplication::exit(1); },
+            Qt::QueuedConnection
+        );
+        engine.loadFromModule("Collett", "Main");
+        result = app.exec();
+    }
+
+    project.saveProject();
+    Collett::Settings::destroy();
+    return result;
 }

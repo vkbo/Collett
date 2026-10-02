@@ -22,9 +22,13 @@
 #include "tree.h"
 #include "projectmodel.h"
 
+#include <QJsonArray>
 #include <QJsonObject>
+#include <QPair>
 #include <QRandomGenerator>
 #include <QString>
+
+#include <algorithm>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -36,11 +40,14 @@ namespace Collett {
 Tree::Tree(QObject *parent) : QObject(parent)
 {
     m_model = new ProjectModel(this);
+    ensureNovelGroup();
 }
 
 Tree::~Tree()
 {
     qDebug() << "Destructor: Tree";
+    m_model->setGroup(nullptr);
+    qDeleteAll(m_groups);
 }
 
 // Public Methods
@@ -48,40 +55,52 @@ Tree::~Tree()
 
 void Tree::pack(QJsonObject &data)
 {
+    QJsonArray groups;
+    for (qsizetype i = 0; i < m_groups.size(); ++i) {
+        QJsonObject group;
+        m_groups.at(i)->pack(group, i);
+        groups.append(group);
+    }
+
     data["c:format"_L1] = "CollettProjectStructure:1.0";
-    if (m_model) m_model->pack(data);
+    data["x:groups"_L1] = groups;
 }
 
+/**! @brief Read the project structure from a JSON object.
+ *
+ * Groups and their documents are sorted by their order values. Documents
+ * are registered by handle so they can be looked up directly.
+ */
 void Tree::unpack(const QJsonObject &data)
 {
-    if (m_model) {
-        qDebug() << "Unpacking project tree";
-        m_model->unpack(data);
+    qDebug() << "Unpacking project tree";
+    this->clear();
+
+    QList<QPair<int, Group *>> ordered;
+    const QJsonArray groups = data["x:groups"_L1].toArray();
+    for (qsizetype i = 0; i < groups.size(); ++i) {
+        Group *group = Group::unpack(groups.at(i).toObject());
+        if (!group) continue;
+        ordered.append({groups.at(i)["m:order"_L1].toInt(int(i)), group});
     }
+    std::stable_sort(ordered.begin(), ordered.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
+
+    for (const auto &entry : ordered) {
+        Group *group = entry.second;
+        for (Node *node : group->items()) {
+            if (m_nodes.contains(node->handle())) {
+                qWarning() << "Duplicate project item handle" << node->handle();
+            }
+            m_nodes.insert(node->handle(), node);
+        }
+        m_groups.append(group);
+    }
+
+    ensureNovelGroup();
 }
 
 // Data Methods
 // ============
-
-/**!
- * @brief Add a node to the nodes map.
- *
- * @param node The node to be added to the map.
- */
-void Tree::addNode(Node *node)
-{
-    if (node) m_nodes.insert(node->handle(), node);
-}
-
-/**!
- * @brief Remove a node from the nodes map.
- *
- * @param handle The handle of the node to remove.
- */
-void Tree::removeNode(const QString &handle)
-{
-    if (m_nodes.contains(handle)) m_nodes.remove(handle);
-}
 
 /**!
  * @brief Generate a new unique node handle.
@@ -122,6 +141,38 @@ bool Tree::isHandle(const QString &value)
         }
     }
     return true;
+}
+
+// Private Methods
+// ===============
+
+void Tree::clear()
+{
+    m_model->setGroup(nullptr);
+    m_nodes.clear();
+    qDeleteAll(m_groups);
+    m_groups.clear();
+}
+
+/**! @brief Make sure there is a novel group, and show it in the model.
+ *
+ * Until there is a way to switch between groups, the model shows the first
+ * novel group.
+ */
+void Tree::ensureNovelGroup()
+{
+    Group *novel = nullptr;
+    for (Group *group : std::as_const(m_groups)) {
+        if (group->itemClass() == ItemClass::NovelClass) {
+            novel = group;
+            break;
+        }
+    }
+    if (!novel) {
+        novel = new Group(tr("Novel"), ItemClass::NovelClass);
+        m_groups.prepend(novel);
+    }
+    m_model->setGroup(novel);
 }
 
 } // namespace Collett
