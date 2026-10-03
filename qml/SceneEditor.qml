@@ -54,6 +54,11 @@ FocusScope {
     readonly property bool bodyShown: textEdit.length > 0 || textEdit.activeFocus
     readonly property real textX: Math.max((width - textWidth) / 2, 0)
 
+    // The formatting of the text, for the tool bar, which is only used while
+    // the cursor is in the text
+    readonly property DocumentBinder textBinder: binder
+    readonly property bool textActive: textEdit.activeFocus
+
     signal sceneFocused(string handle)
     signal cursorMoved(rect rect)
     signal splitRequested(int position)

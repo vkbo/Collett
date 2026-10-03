@@ -157,6 +157,7 @@ qt_add_qml_module(CollettCore
         src/static/settings.cpp
         src/static/settings.h
     QML_FILES
+        qml/EditorToolBar.qml
         qml/FontPage.qml
         qml/Main.qml
         qml/NewProject.qml

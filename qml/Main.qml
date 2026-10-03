@@ -364,6 +364,20 @@ ApplicationWindow {
             SplitView.minimumWidth: 300
             color: window.palette.base
 
+            EditorToolBar {
+                id: editorToolBar
+
+                objectName: "editorToolBar"
+
+                readonly property SceneEditor scene: editorView.currentItem as SceneEditor
+
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                binder: scene?.textBinder ?? null
+                active: scene?.textActive ?? false
+            }
+
             ListView {
                 id: editorView
 
@@ -388,10 +402,13 @@ ApplicationWindow {
                     contentY = originY + fraction * scrollRange;
                 }
 
-                anchors.fill: parent
+                anchors.top: editorToolBar.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
                 clip: true
                 model: window.project.model
-                cacheBuffer: 2 * height
+                cacheBuffer: Math.max(2 * height, 0)
                 boundsBehavior: Flickable.StopAtBounds
 
                 // The current item marks the focused document, so the view
@@ -459,7 +476,7 @@ ApplicationWindow {
 
                 readonly property real travel: 1 - size
 
-                anchors.top: parent.top
+                anchors.top: editorView.top
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 orientation: Qt.Vertical

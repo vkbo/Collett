@@ -32,6 +32,8 @@
 #include <QPointer>
 #include <QQuickItem>
 #include <QString>
+#include <QTextCharFormat>
+#include <QTextCursor>
 #include <QVariantMap>
 #include <QtQml/qqmlregistration.h>
 
@@ -48,6 +50,13 @@ class DocumentBinder : public QObject
     Q_PROPERTY(QFont textFont READ textFont NOTIFY textFontChanged)
     Q_PROPERTY(QFont headingFont READ headingFont NOTIFY textFontChanged)
     Q_PROPERTY(QColor spellErrorColor READ spellErrorColor WRITE setSpellErrorColor NOTIFY spellErrorColorChanged)
+    Q_PROPERTY(bool bold READ bold WRITE setBold NOTIFY formatChanged)
+    Q_PROPERTY(bool italic READ italic WRITE setItalic NOTIFY formatChanged)
+    Q_PROPERTY(bool underline READ underline WRITE setUnderline NOTIFY formatChanged)
+    Q_PROPERTY(bool strikeOut READ strikeOut WRITE setStrikeOut NOTIFY formatChanged)
+    Q_PROPERTY(bool superscript READ superscript WRITE setSuperscript NOTIFY formatChanged)
+    Q_PROPERTY(bool subscript READ subscript WRITE setSubscript NOTIFY formatChanged)
+    Q_PROPERTY(int alignment READ alignment WRITE setAlignment NOTIFY formatChanged)
 
 public:
     explicit DocumentBinder(QObject *parent = nullptr);
@@ -60,12 +69,30 @@ public:
     QFont textFont() const;
     QFont headingFont() const;
     QColor spellErrorColor() const { return m_spellErrorColor; };
+    bool bold() const { return m_format.fontWeight() >= QFont::Bold; };
+    bool italic() const { return m_format.fontItalic(); };
+    bool underline() const { return m_format.fontUnderline(); };
+    bool strikeOut() const { return m_format.fontStrikeOut(); };
+    bool superscript() const { return m_format.verticalAlignment() == QTextCharFormat::AlignSuperScript; };
+    bool subscript() const { return m_format.verticalAlignment() == QTextCharFormat::AlignSubScript; };
+    int alignment() const { return m_alignment; };
 
     // Setters
     void setTarget(QQuickItem *target);
     void setProject(Project *project);
     void setHandle(const QString &handle);
     void setSpellErrorColor(const QColor &color);
+    void setBold(bool bold);
+    void setItalic(bool italic);
+    void setUnderline(bool underline);
+    void setStrikeOut(bool strikeOut);
+    void setSuperscript(bool superscript);
+    void setSubscript(bool subscript);
+    void setAlignment(int alignment);
+
+    // Formatting
+    Q_INVOKABLE void indent();
+    Q_INVOKABLE void outdent();
 
     // Spell Checking
     Q_INVOKABLE QVariantMap misspelledWordAt(int position) const;
@@ -78,6 +105,7 @@ signals:
     void handleChanged();
     void spellErrorColorChanged();
     void textFontChanged();
+    void formatChanged();
 
 private:
     QPointer<QQuickItem> m_target;
@@ -88,8 +116,23 @@ private:
     QTextDocument *m_placeholder = nullptr;
     QColor m_spellErrorColor = Qt::red;
 
+    // The format at the cursor, and a format waiting for text to be typed
+    // at a cursor that is not on a word
+    QTextCharFormat m_format;
+    int m_alignment = Qt::AlignLeft;
+    QTextCharFormat m_pending;
+    int m_pendingPosition = -1;
+    bool m_applying = false;
+
     void openDocument();
     void bindDocument(Document *document);
     void releaseDocument(Document *document);
+    QTextCursor targetCursor() const;
+    void mergeFormat(const QTextCharFormat &format);
+    void changeIndent(int step);
+
+private slots:
+    void updateFormat();
+    void applyPending(int position, int removed, int added);
 };
 } // namespace Collett

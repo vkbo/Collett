@@ -66,7 +66,13 @@ QFont DocumentBinder::headingFont() const
 void DocumentBinder::setTarget(QQuickItem *target)
 {
     if (m_target == target) return;
+    if (m_target) m_target->disconnect(this);
     m_target = target;
+    if (m_target) {
+        connect(m_target, SIGNAL(cursorPositionChanged()), this, SLOT(updateFormat()));
+        connect(m_target, SIGNAL(selectionStartChanged()), this, SLOT(updateFormat()));
+        connect(m_target, SIGNAL(selectionEndChanged()), this, SLOT(updateFormat()));
+    }
     emit targetChanged();
     openDocument();
 }
@@ -102,6 +108,81 @@ void DocumentBinder::setSpellErrorColor(const QColor &color)
     m_spellErrorColor = color;
     m_highlighter->setErrorColor(color);
     emit spellErrorColorChanged();
+}
+
+/**! @brief Make the selection or the word at the cursor bold, or not.
+ */
+void DocumentBinder::setBold(bool bold)
+{
+    QTextCharFormat format;
+    format.setFontWeight(bold ? QFont::Bold : QFont::Normal);
+    mergeFormat(format);
+}
+
+void DocumentBinder::setItalic(bool italic)
+{
+    QTextCharFormat format;
+    format.setFontItalic(italic);
+    mergeFormat(format);
+}
+
+void DocumentBinder::setUnderline(bool underline)
+{
+    QTextCharFormat format;
+    format.setFontUnderline(underline);
+    mergeFormat(format);
+}
+
+void DocumentBinder::setStrikeOut(bool strikeOut)
+{
+    QTextCharFormat format;
+    format.setFontStrikeOut(strikeOut);
+    mergeFormat(format);
+}
+
+void DocumentBinder::setSuperscript(bool superscript)
+{
+    QTextCharFormat format;
+    format.setVerticalAlignment(superscript ? QTextCharFormat::AlignSuperScript : QTextCharFormat::AlignNormal);
+    mergeFormat(format);
+}
+
+void DocumentBinder::setSubscript(bool subscript)
+{
+    QTextCharFormat format;
+    format.setVerticalAlignment(subscript ? QTextCharFormat::AlignSubScript : QTextCharFormat::AlignNormal);
+    mergeFormat(format);
+}
+
+/**! @brief Set the alignment of the paragraphs in the selection, or of the
+ * paragraph at the cursor.
+ */
+void DocumentBinder::setAlignment(int alignment)
+{
+    QTextCursor cursor = targetCursor();
+    if (cursor.isNull()) return;
+
+    QTextBlockFormat format;
+    format.setAlignment(Qt::Alignment(alignment));
+    cursor.mergeBlockFormat(format);
+    updateFormat();
+}
+
+// Formatting
+// ==========
+
+/**! @brief Increase the block indent of the paragraphs in the selection.
+ */
+void DocumentBinder::indent()
+{
+    changeIndent(1);
+}
+
+/**! @brief Decrease the block indent of the paragraphs in the selection.
+ */
+void DocumentBinder::outdent()
+{
+    changeIndent(-1);
 }
 
 // Spell Checking
@@ -196,6 +277,7 @@ void DocumentBinder::bindDocument(Document *document)
 
     if (m_document) {
         m_document->disconnect(m_target);
+        m_document->disconnect(this);
         m_document->documentLayout()->disconnect(m_target);
     }
 
@@ -220,6 +302,10 @@ void DocumentBinder::bindDocument(Document *document)
     connect(m_document->documentLayout(), SIGNAL(updateBlock(QTextBlock)), m_target, SLOT(invalidateBlock(QTextBlock)));
     connect(m_document, SIGNAL(undoAvailable(bool)), m_target, SIGNAL(canUndoChanged()));
     connect(m_document, SIGNAL(redoAvailable(bool)), m_target, SIGNAL(canRedoChanged()));
+
+    connect(m_document, &QTextDocument::contentsChange, this, &DocumentBinder::applyPending);
+    m_pendingPosition = -1;
+    updateFormat();
 }
 
 /**! @brief Swap the target over to an empty document when the shown
@@ -233,9 +319,11 @@ void DocumentBinder::releaseDocument(Document *document)
     if (!m_document || document != m_document) return;
 
     m_document->disconnect(m_target);
+    m_document->disconnect(this);
     m_document->documentLayout()->disconnect(m_target);
     m_highlighter->setDocument(nullptr);
     m_document = nullptr;
+    m_pendingPosition = -1;
 
     if (!m_placeholder) m_placeholder = new QTextDocument(this);
     if (m_target) {
@@ -243,6 +331,130 @@ void DocumentBinder::releaseDocument(Document *document)
             textDocument->setTextDocument(m_placeholder);
         }
     }
+}
+
+/**! @brief A cursor in the document with the target's cursor and selection.
+ *
+ * The cursor is null if no document is shown.
+ */
+QTextCursor DocumentBinder::targetCursor() const
+{
+    if (!m_target || !m_document) return QTextCursor();
+
+    const int last = m_document->characterCount() - 1;
+    const int position = qBound(0, m_target->property("cursorPosition").toInt(), last);
+    const int start = qBound(0, m_target->property("selectionStart").toInt(), last);
+    const int end = qBound(0, m_target->property("selectionEnd").toInt(), last);
+
+    QTextCursor cursor(m_document);
+    if (start != end) {
+        cursor.setPosition(position == start ? end : start);
+        cursor.setPosition(position, QTextCursor::KeepAnchor);
+    } else {
+        cursor.setPosition(position);
+    }
+    return cursor;
+}
+
+/**! @brief Merge a character format into the selection, or into the word at
+ * the cursor.
+ *
+ * When the cursor is not on a word, the format is held back and applied to
+ * the text typed next at the cursor.
+ */
+void DocumentBinder::mergeFormat(const QTextCharFormat &format)
+{
+    QTextCursor cursor = targetCursor();
+    if (cursor.isNull()) return;
+
+    if (!cursor.hasSelection()) cursor.select(QTextCursor::WordUnderCursor);
+    if (cursor.hasSelection()) {
+        cursor.mergeCharFormat(format);
+        m_pending = QTextCharFormat();
+        m_pendingPosition = -1;
+    } else {
+        m_pending.merge(format);
+        m_pendingPosition = cursor.position();
+    }
+    updateFormat();
+}
+
+/**! @brief Change the block indent of the paragraphs in the selection.
+ *
+ * The document format supports a block indent from 0 to 9.
+ */
+void DocumentBinder::changeIndent(int step)
+{
+    QTextCursor cursor = targetCursor();
+    if (cursor.isNull()) return;
+
+    QTextBlock block = m_document->findBlock(cursor.selectionStart());
+    const QTextBlock last = m_document->findBlock(cursor.selectionEnd());
+    cursor.beginEditBlock();
+    while (block.isValid()) {
+        QTextCursor edit(block);
+        QTextBlockFormat format = block.blockFormat();
+        format.setIndent(qBound(0, format.indent() + step, 9));
+        edit.setBlockFormat(format);
+        if (block == last) break;
+        block = block.next();
+    }
+    cursor.endEditBlock();
+}
+
+/**! @brief Update the format reported for the target's cursor.
+ *
+ * A held back format is dropped when the cursor moves away from it.
+ */
+void DocumentBinder::updateFormat()
+{
+    if (m_applying) return;
+
+    const QTextCursor cursor = targetCursor();
+    QTextCharFormat format;
+    int alignment = Qt::AlignLeft;
+    if (!cursor.isNull()) {
+        format = cursor.charFormat();
+        alignment = int(cursor.blockFormat().alignment() & Qt::AlignHorizontal_Mask);
+        if (alignment == Qt::AlignCenter) alignment = Qt::AlignHCenter;
+    }
+    if (m_pendingPosition >= 0 && (cursor.isNull() || cursor.hasSelection() || cursor.position() != m_pendingPosition)) {
+        m_pending = QTextCharFormat();
+        m_pendingPosition = -1;
+    }
+    format.merge(m_pending);
+
+    if (format == m_format && alignment == m_alignment) return;
+    m_format = format;
+    m_alignment = alignment;
+    emit formatChanged();
+}
+
+/**! @brief Apply a held back format to text typed at its position.
+ *
+ * The document may report a change to a larger range than the typed text,
+ * so the typed text is taken to start at the held back position, with the
+ * length the change grew by. The format is joined to the typing in the undo
+ * history.
+ */
+void DocumentBinder::applyPending(int position, int removed, int added)
+{
+    if (m_applying || m_pendingPosition < 0) return;
+    const int typed = added - removed;
+    if (typed <= 0 || m_pendingPosition < position || m_pendingPosition > position + removed) return;
+
+    m_applying = true;
+    QTextCursor cursor(m_document);
+    cursor.setPosition(m_pendingPosition);
+    cursor.setPosition(m_pendingPosition + typed, QTextCursor::KeepAnchor);
+    cursor.joinPreviousEditBlock();
+    cursor.mergeCharFormat(m_pending);
+    cursor.endEditBlock();
+    m_applying = false;
+
+    m_pending = QTextCharFormat();
+    m_pendingPosition = -1;
+    updateFormat();
 }
 
 } // namespace Collett
