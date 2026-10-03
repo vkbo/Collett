@@ -1,0 +1,11 @@
+{
+  "c:format": "CollettDocument:1.0",
+  "c:meta": {
+    "m:created": "2026-10-03T20:17:12",
+    "m:updated": "2026-10-03T20:17:43"
+  },
+  "x:content": [
+    {"u:fmt": "p:ac", "u:txt": "t|\"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...\""},
+    {"u:fmt": "p:ac", "u:txt": "t|\"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...\""}
+  ]
+}

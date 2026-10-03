@@ -2,7 +2,7 @@
 build/
 build_*/
 _temp/
-sample*/
+sample_*/
 
 # IDE
 .vscode/

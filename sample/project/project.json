@@ -1,0 +1,15 @@
+{
+  "c:format": "CollettProjectData:1.0",
+  "c:meta": {
+    "m:created": "2026-10-03T20:16:43",
+    "m:updated": "2026-10-03T20:18:13",
+    "m:version": "0.0.1-alpha1"
+  },
+  "c:project": {
+    "u:name": "sample"
+  },
+  "c:settings": {
+    "m:lastEdited": "1c2847605dac2",
+    "u:spellLanguage": null
+  }
+}

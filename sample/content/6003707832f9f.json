@@ -1,0 +1,10 @@
+{
+  "c:format": "CollettDocument:1.0",
+  "c:meta": {
+    "m:created": "2026-10-03T20:16:43",
+    "m:updated": "2026-10-03T20:17:13"
+  },
+  "x:content": [
+    {"u:fmt": "h1:ac", "u:txt": "t|Sample Project"}
+  ]
+}
