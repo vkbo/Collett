@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Collett - Gutenberg Sample Project
 ==================================
@@ -10,7 +9,7 @@ chapter becomes a chapter document with the heading as its title and no
 text, and the text of each becomes a single scene with no title.
 
 Usage:
-    utils/gutenberg.py <book.html> <output folder>
+    ./pkgutils.py sample <book.html> <output folder>
 
 This file is a part of Collett
 Copyright (C) 2026 Veronica Berglyd Olsen
@@ -27,7 +26,9 @@ General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
-"""
+"""  # noqa
+
+from __future__ import annotations
 
 import json
 import random
@@ -40,7 +41,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 INLINE = {"i": "i", "em": "i", "b": "b", "strong": "b"}
-WORD_SEPARATORS = re.compile(r"[\s–—]+")
+WORD_SEPARATORS = re.compile(r"[\s\u2013\u2014]+")
 
 
 class BookParser(HTMLParser):
@@ -64,6 +65,7 @@ class BookParser(HTMLParser):
         self._done = False
 
     def handle_starttag(self, tag, attrs):
+        """Start a paragraph or heading, or an inline format."""
         if self._done:
             return
         cls = dict(attrs).get("class", "") or ""
@@ -80,6 +82,7 @@ class BookParser(HTMLParser):
             }.get(cls, "p:al")
 
     def handle_endtag(self, tag):
+        """Finish a paragraph or heading, and file it by what it is."""
         if self._done:
             return
         if tag in INLINE and self._inline:
@@ -105,6 +108,7 @@ class BookParser(HTMLParser):
                 self._chapter[1].append((self._fmt, self._clean(self._frags)))
 
     def handle_data(self, data):
+        """Collect text, and stop at the end of the book."""
         if "*** END OF THE PROJECT GUTENBERG" in data:
             self._done = True
             self._chapter = None
@@ -135,10 +139,12 @@ class BookParser(HTMLParser):
 
 
 def handle():
+    """Generate a random document handle."""
     return format(random.getrandbits(52), "013x")
 
 
 def counts(blocks):
+    """Count the words and characters of a list of blocks."""
     words = 0
     chars = 0
     for _, frags in blocks:
@@ -149,6 +155,7 @@ def counts(blocks):
 
 
 def write_document(path, blocks, stamp):
+    """Write a list of blocks as a document file."""
     content = []
     for fmt, frags in blocks:
         texts = [f"t{':' + ':'.join(flags) if flags else ''}|{text}" for flags, text in frags]
@@ -166,6 +173,7 @@ def write_document(path, blocks, stamp):
 
 
 def main(source, target):
+    """Build the sample project in the target folder."""
     parser = BookParser()
     parser.feed(Path(source).read_text(encoding="utf-8"))
     if not parser.chapters:
@@ -229,9 +237,3 @@ def main(source, target):
 
     total = sum(i["m:words"] for i in items)
     print(f"Wrote {len(items)} documents, {len(parser.chapters)} chapters, {total} words, to {target}")
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        sys.exit(__doc__.split("This file")[0].strip())
-    main(sys.argv[1], sys.argv[2])

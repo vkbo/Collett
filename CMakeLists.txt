@@ -68,6 +68,8 @@ qt_add_qml_module(Collett
         src/collett.h
         src/core/counting.cpp
         src/core/counting.h
+        src/core/icons.cpp
+        src/core/icons.h
         src/core/storage.cpp
         src/core/storage.h
         src/core/tools.cpp
@@ -97,7 +99,7 @@ qt_add_qml_module(Collett
         qml/SceneEditor.qml
         qml/Theme.qml
     RESOURCES
-        assets/icons/lucide/chevron-right.svg
+        assets/icons/lucide.icons
 )
 
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")

@@ -18,8 +18,16 @@ GEMINI.md
 .codex/
 .gemini/
 
+# Python
+__pycache__
+*.pyc
+.venv/
+.ruff_cache/
+.pytest_cache/
+
 # Other
 .config
+.env
 
 # Sandbox placeholders
 .bash_profile

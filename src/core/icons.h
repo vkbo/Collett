@@ -21,49 +21,43 @@
 
 #pragma once
 
-#include "collett.h"
-#include "settings.h"
-
 #include <QByteArray>
-#include <QIcon>
-#include <QMap>
+#include <QHash>
+#include <QImage>
+#include <QQuickImageProvider>
 #include <QSize>
 #include <QString>
 
 namespace Collett {
 
-class Theme;
-class Icons : public QObject
+/**! @brief Provides the icons of an icon theme file to QML.
+ *
+ * Icons are loaded as "image://icons/<key>". They are drawn in black, and
+ * are meant to be coloured by the item showing them, like the icon colour
+ * of a control.
+ */
+class Icons : public QQuickImageProvider
 {
-    Q_OBJECT
-
 public:
-    explicit Icons(Theme *parent);
-    ~Icons();
+    explicit Icons(const QString &theme);
+
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
 
     // Getters
-    QIcon getIcon(QString name, ThemeColor color, QSize size);
-    QIcon getIcon(QString name, ThemeColor color) { return getIcon(name, color, QSize(24, 24)); };
-    QIcon getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel, QSize size);
-
-    // Methods
-    bool loadIcons(QString icons);
-    void clearCache() { m_icons.clear(); };
+    QString name() const { return m_name; };
+    QString author() const { return m_author; };
+    QString license() const { return m_license; };
 
 private:
-    Theme *m_theme;
-    Settings *m_settings;
-
     // Meta
-    QString m_name = "";
-    QString m_author = "";
-    QString m_license = "";
+    QString m_name;
+    QString m_author;
+    QString m_license;
 
     // Storage
-    QMap<QString, QByteArray> m_svg;
-    QMap<QString, QIcon> m_icons;
+    QHash<QString, QByteArray> m_svg;
 
-    // Functions
-    QIcon generateIcon(QString name, ThemeColor color, QSize size);
+    bool loadIcons(const QString &theme);
 };
+
 } // namespace Collett

@@ -134,7 +134,7 @@ Item {
 
             ToolButton {
                 visible: root.foldable
-                icon.source: "../assets/icons/lucide/chevron-right.svg"
+                icon.source: "image://icons/arrow_right"
                 icon.color: root.palette.windowText
                 icon.width: 16
                 icon.height: 16

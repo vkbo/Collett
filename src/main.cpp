@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include "collett.h"
+#include "icons.h"
 #include "project.h"
 #include "settings.h"
 
@@ -157,6 +158,7 @@ int main(int argc, char *argv[])
     int result = 0;
     {
         QQmlApplicationEngine engine;
+        engine.addImageProvider("icons", new Collett::Icons("lucide"));
         engine.setInitialProperties({{"project", QVariant::fromValue(&project)}});
         QObject::connect(
             &engine, &QQmlApplicationEngine::objectCreationFailed,
