@@ -22,38 +22,90 @@
 #pragma once
 
 #include "collett.h"
+#include "counting.h"
 
-#include <QJsonObject>
+#include <QJsonArray>
+#include <QList>
 #include <QObject>
+#include <QString>
+#include <QTextBlock>
+#include <QTextBlockFormat>
+#include <QTextCharFormat>
 #include <QTextDocument>
 
 namespace Collett {
 
+/**! @brief The text of all the documents of a group, in reading order.
+ *
+ * Each document starts with a title block, which holds the title text and,
+ * as block properties, the document's handle, level and break settings. The
+ * blocks after it, up to the next title, are its text. The document is the
+ * source of the group's structure, so every change to it, including those
+ * to the structure, can be undone.
+ */
 class Document : public QTextDocument
 {
     Q_OBJECT
 
 public:
+    // The block properties of a title block
+    enum Property
+    {
+        HandleProperty = QTextFormat::UserProperty + 1,
+        LevelProperty,
+        HardBreakProperty,
+        NumberedProperty,
+    };
+
+    // The values of a document held by its title block
+    struct Item
+    {
+        QString handle;
+        QString title;
+        ItemLevel level = ItemLevel::SceneLevel;
+        bool hardBreak = false;
+        bool numbered = true;
+    };
+
     explicit Document(QObject *parent = nullptr);
-    explicit Document(const QString &handle, QObject *parent = nullptr);
     ~Document();
 
-    // Methods
-    void pack(QJsonObject &data);
-    void unpack(const QJsonObject &data);
+    // Load and Save
+    void appendItem(const Item &item, const QJsonArray &content);
+    QJsonArray packContent(const QString &handle) const;
+
+    // Structure
+    QList<Item> items() const;
+    QTextBlock titleBlock(const QString &handle) const;
+    QString handleAt(int position) const;
+    int itemEnd(const QString &handle) const;
+    QString itemText(const QString &handle) const;
+    CountBlockList snapshotItem(const QString &handle) const;
+
+    // Edits
+    int insertItem(int position, const Item &item);
+    bool removeItem(const QString &handle);
+    int mergeItem(const QString &handle);
+    bool setItemTitle(const QString &handle, const QString &title);
+    bool setItemValues(const Item &item);
+    bool moveItems(int row, int count, int before);
+    bool normalize(const QString &newHandle);
     void setHeadingLevel(int first, int last, int level);
 
-    // Getters
-    QString handle() const { return m_handle; };
-    QString createdTime() const { return m_createdTime; };
-    QString updatedTime() const { return m_updatedTime; };
+    // Static Methods
+    static bool isTitle(const QTextBlock &block);
+    static Item itemOf(const QTextBlock &block);
+    static QTextBlockFormat titleBlockFormat(const Item &item);
+    static QTextCharFormat titleCharFormat(ItemLevel level);
+    static qreal dividerHeight(ItemLevel level, bool hardBreak);
+    static qreal labelHeight();
 
 public slots:
     void refreshTextFormat();
 
 private:
-    QString m_handle = "";
-    QString m_createdTime = "";
-    QString m_updatedTime = "";
+    void appendContent(QTextCursor &cursor, const QJsonArray &content) const;
+    QJsonArray packBlocks(QTextBlock block) const;
+    void setTitleFormat(QTextCursor &cursor, const Item &item) const;
 };
 } // namespace Collett

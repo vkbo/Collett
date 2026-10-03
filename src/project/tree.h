@@ -58,7 +58,7 @@ public:
 
     // Data Methods
     QString newHandle() const;
-    Node *createNode(ItemLevel level);
+    Node *createNode(const QString &handle, ItemLevel level);
     bool addNode(Group *group, Node *node);
     void forgetNode(const QString &handle) { m_nodes.remove(handle); };
 

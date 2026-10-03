@@ -49,6 +49,8 @@ public:
     // Getters
     QString handle() const { return m_handle; };
     QString title() const { return m_title; };
+    QString createdTime() const { return m_createdTime; };
+    QString updatedTime() const { return m_updatedTime; };
     ItemLevel itemLevel() const { return m_level; };
     TextCounts counts() const { return m_counts; };
     bool isExpanded() const { return m_expanded; };
@@ -58,6 +60,8 @@ public:
 
     // Setters
     void setTitle(const QString &title) { m_title = title; };
+    void setCreatedTime(const QString &time) { m_createdTime = time; };
+    void setUpdatedTime(const QString &time) { m_updatedTime = time; };
     void setLevel(ItemLevel level) { m_level = level; };
     void setCounts(const TextCounts &counts) { m_counts = counts; };
     void setExpanded(bool state) { m_expanded = state; };
@@ -71,6 +75,8 @@ public:
 private:
     QString m_handle;
     QString m_title;
+    QString m_createdTime;
+    QString m_updatedTime;
     ItemLevel m_level;
     TextCounts m_counts;
     bool m_expanded = true;

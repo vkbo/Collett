@@ -159,11 +159,11 @@ qt_add_qml_module(CollettCore
     QML_FILES
         qml/EditorToolBar.qml
         qml/FontPage.qml
+        qml/GroupEditor.qml
         qml/Main.qml
         qml/NewProject.qml
         qml/PreferencesDialog.qml
         qml/ProjectItem.qml
-        qml/SceneEditor.qml
         qml/SettingsGroup.qml
         qml/SettingsLinkRow.qml
         qml/SettingsRow.qml

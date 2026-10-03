@@ -36,7 +36,7 @@ ApplicationWindow {
     required property Project project
 
     // The document with the cursor
-    property string focusHandle: ""
+    readonly property string focusHandle: editor.binder.currentHandle
 
     width: Settings.mainWindowSize.width
     height: Settings.mainWindowSize.height
@@ -157,31 +157,12 @@ ApplicationWindow {
         onAccepted: window.openProject(selectedFile.toString())
     }
 
-    // Deleting a document removes its file, so it is confirmed first. If the
-    // cursor was in it, it moves to the end of the document before.
+    // Deleting a document is confirmed first. If the cursor was in it, it
+    // moves to the end of the document before.
     function confirmDelete(handle: string, name: string) {
         deleteDialog.handle = handle;
         deleteDialog.name = name;
         deleteDialog.open();
-    }
-
-    function deleteDocument(handle: string) {
-        const row = project.model.rowOf(handle);
-        const hadCursor = handle === focusHandle;
-        if (row < 0 || !project.deleteDocument(handle)) return;
-        if (!hadCursor) return;
-        Qt.callLater(() => {
-            const target = Math.max(row - 1, 0);
-            editorView.forceLayout();
-            if (!editorView.itemAtIndex(target)) editorView.positionViewAtIndex(target, ListView.Contain);
-            const scene = editorView.itemAtIndex(target) as SceneEditor;
-            if (!scene) return;
-            if (row > 0) {
-                scene.enterAtEnd();
-            } else {
-                scene.enterStart();
-            }
-        });
     }
 
     Dialog {
@@ -200,12 +181,12 @@ ApplicationWindow {
         // The dialog gives the focus back to where it was when it closes, so
         // the document is deleted after that, and the cursor can move on
         onClosed: {
-            if (result === Dialog.Accepted) window.deleteDocument(handle);
+            if (result === Dialog.Accepted) editor.binder.deleteItem(handle);
         }
 
         Label {
             width: parent.width
-            text: qsTr("Delete \"%1\" and its text? This cannot be undone.").arg(deleteDialog.name)
+            text: qsTr("Delete \"%1\" and its text?").arg(deleteDialog.name)
             wrapMode: Text.Wrap
         }
     }
@@ -242,8 +223,8 @@ ApplicationWindow {
     }
 
     function showPending() {
-        if (!pendingScene || editorView.height <= 0) return;
-        editorView.showScene(pendingScene);
+        if (!pendingScene || editor.height <= 0) return;
+        editor.showItem(pendingScene);
         pendingScene = "";
     }
 
@@ -284,41 +265,6 @@ ApplicationWindow {
         project: window.project
         visible: !window.project.isValid
         onOpenRequested: openDialog.open()
-    }
-
-    // The document made by the last split, while the cursor stays in it
-    property string splitHandle: ""
-
-    // Split a document and put the cursor in the new title. The view must
-    // lay itself out first, or it still has the old editor at the new row.
-    function splitDocument(handle: string, position: int) {
-        const newHandle = project.splitDocument(handle, position);
-        if (!newHandle) return;
-        Qt.callLater(() => {
-            const newRow = project.model.rowOf(newHandle);
-            editorView.forceLayout();
-            if (!editorView.itemAtIndex(newRow)) editorView.positionViewAtIndex(newRow, ListView.Contain);
-            const scene = editorView.itemAtIndex(newRow) as SceneEditor;
-            if (scene) scene.enterTitleAt(0);
-            splitHandle = newHandle;
-        });
-    }
-
-    // Cycle a newly split document from scene, to scene with a hard break,
-    // to chapter, and back to scene
-    function upgradeDocument(handle: string) {
-        if (handle !== splitHandle) return;
-        const row = project.model.rowOf(handle);
-        const scene = editorView.itemAtIndex(row) as SceneEditor;
-        if (!scene) return;
-        if (scene.level === Collett.ChapterLevel) {
-            project.model.setLevel(row, Collett.SceneLevel);
-        } else if (scene.hardBreak) {
-            project.model.setHardBreak(row, false);
-            project.model.setLevel(row, Collett.ChapterLevel);
-        } else {
-            project.model.setHardBreak(row, true);
-        }
     }
 
     PreferencesDialog {
@@ -441,7 +387,7 @@ ApplicationWindow {
                     dragged: projectList.dragRow === index
                     dropGap: projectList.dropRow === index ? projectList.dropGap : 0
                     deletable: projectList.count > 1
-                    onOpenRequested: handle => editorView.showScene(handle)
+                    onOpenRequested: handle => editor.showItem(handle)
                     onDeleteRequested: (handle, name) => window.confirmDelete(handle, name)
                     onFoldRequested: index => window.project.model.toggleExpanded(index)
                     onDragStarted: projectList.startDrag(projectItem)
@@ -551,8 +497,7 @@ ApplicationWindow {
             }
         }
 
-        // Editor: every document of the group, stacked in reading order.
-        // Editors are only created near the visible part of the view.
+        // Editor: every document of the group, as one text
         Rectangle {
             SplitView.fillWidth: true
             SplitView.minimumWidth: 300
@@ -563,129 +508,40 @@ ApplicationWindow {
 
                 objectName: "editorToolBar"
 
-                readonly property SceneEditor scene: editorView.currentItem as SceneEditor
-
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                binder: scene?.textBinder ?? null
-                active: scene?.textActive ?? false
+                binder: editor.binder
+                active: editor.textActive && !editor.binder.inTitle
             }
 
-            ListView {
-                id: editorView
+            GroupEditor {
+                id: editor
 
-                objectName: "editorView"
+                objectName: "editor"
 
-                onHeightChanged: window.showPending()
-
-                // The side margin leaves room for the document markers to the
-                // left of the text
-                readonly property real margin: 48
+                // The side margin leaves room for the document numbers to
+                // the left of the text
                 readonly property real sideMargin: 140
                 readonly property real maxTextWidth: 720
-                readonly property real textWidth: Math.min(width - 2 * sideMargin, maxTextWidth)
-
-                // How far the view is scrolled, from 0 at the top to 1 at
-                // the bottom. The content height is an estimate, as only the
-                // editors near the view exist.
-                readonly property real scrollRange: Math.max(contentHeight - height, 1)
-                readonly property real scrollFraction: Math.min(Math.max((contentY - originY) / scrollRange, 0), 1)
-
-                function scrollToFraction(fraction: real) {
-                    contentY = originY + fraction * scrollRange;
-                }
 
                 anchors.top: editorToolBar.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                clip: true
-                model: window.project.model
-                cacheBuffer: Math.max(2 * height, 0)
-                boundsBehavior: Flickable.StopAtBounds
-
-                // The current item marks the focused document, so the view
-                // must not scroll to it on its own, or change it on key
-                // presses the text does not use
-                highlightFollowsCurrentItem: false
-                keyNavigationEnabled: false
-
-                header: Item {
-                    height: editorView.margin
-                }
-                footer: Item {
-                    height: editorView.margin
-                }
-
-                // Scroll just enough to show a rectangle in content coordinates
-                function ensureVisible(rect: rect) {
-                    const bottom = rect.y + rect.height;
-                    if (rect.y < contentY) {
-                        contentY = rect.y;
-                    } else if (bottom > contentY + height) {
-                        contentY = bottom - height;
-                    }
-                }
-
-                // Scroll a document to the top of the view and put the cursor
-                // at its start
-                function showScene(handle: string) {
-                    const row = window.project.model.rowOf(handle);
-                    if (row < 0) return;
-                    positionViewAtIndex(row, ListView.Beginning);
-                    const scene = itemAtIndex(row) as SceneEditor;
-                    if (!scene) return;
-                    contentY = Math.max(originY, scene.y + scene.textTop - margin);
-                    returnToBounds();
-                    scene.enterStart();
-                }
-
-                delegate: SceneEditor {
-                    id: sceneEditor
-
-                    width: editorView.width
-                    textWidth: editorView.textWidth
-                    project: window.project
-                    view: editorView
-
-                    onSplitRequested: position => window.splitDocument(sceneEditor.handle, position)
-                    onUpgradeRequested: window.upgradeDocument(sceneEditor.handle)
-                    onDeleteRequested: (handle, name) => window.confirmDelete(handle, name)
-
-                    onSceneFocused: handle => {
-                        if (handle !== window.splitHandle) window.splitHandle = "";
-                        window.focusHandle = handle;
-                        window.project.setLastEditedHandle(handle);
-                    }
-                    onCursorMoved: rect => editorView.ensureVisible(sceneEditor.mapToItem(editorView.contentItem, rect))
-                }
+                textWidth: Math.min(width - 2 * sideMargin, maxTextWidth)
+                project: window.project
+                focus: true
+                onHeightChanged: window.showPending()
+                onDeleteRequested: (handle, name) => window.confirmDelete(handle, name)
             }
 
-            // A scroll bar with a fixed handle size. One attached to the view
-            // would resize its handle as the estimated content height
-            // changes. It follows the view, unless it is being dragged, and
-            // then the view follows it.
-            ScrollBar {
-                id: editorScroll
+            // The document with the cursor is opened first the next time
+            Connections {
+                target: editor.binder
 
-                readonly property real travel: 1 - size
-
-                anchors.top: editorView.top
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                orientation: Qt.Vertical
-                size: 0.1
-                active: hovered || pressed || editorView.moving
-
-                onPositionChanged: {
-                    if (pressed) editorView.scrollToFraction(position / travel);
-                }
-
-                Binding on position {
-                    when: !editorScroll.pressed
-                    value: editorView.scrollFraction * editorScroll.travel
-                    restoreMode: Binding.RestoreNone
+                function onCursorItemChanged() {
+                    if (editor.binder.currentHandle) window.project.setLastEditedHandle(editor.binder.currentHandle);
                 }
             }
         }

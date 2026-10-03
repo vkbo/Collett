@@ -30,6 +30,7 @@
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QPointer>
 #include <QTextBlock>
 #include <QTextBlockFormat>
 #include <QTextCursor>
@@ -91,6 +92,10 @@ bool Project::openProject(const QString &path)
     if (m_store->isNewProject()) {
         // Brand new project, nothing to read yet. Write out the initial
         // project files so they exist on disk right away.
+        for (Group *group : m_tree->groups()) {
+            this->loadGroup(group);
+        }
+        m_tree->model()->setDocument(this->editorDocument());
         m_isValid = true;
         m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
         m_autoSaveTimer->start();
@@ -119,6 +124,7 @@ bool Project::openProject(const QString &path)
         }
     }
     m_tree->showNovelGroup();
+    m_tree->model()->setDocument(this->editorDocument());
 
     m_isValid = true;
     m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
@@ -201,23 +207,18 @@ QString Project::createProject(const QString &location, const QString &name)
     }
     m_data->setName(title);
 
-    // The title page, in the same format as the group files
-    Node *node = m_tree->createNode(ItemLevel::PageLevel);
-    Document *doc = new Document(node->handle(), this);
+    // The title page, in the same format as the content files. The model
+    // picks it up from the document.
+    Document::Item page;
+    page.handle = m_tree->newHandle();
+    page.level = ItemLevel::PageLevel;
     QJsonObject heading;
     heading["u:fmt"_L1] = "h1:ac";
     heading["u:txt"_L1] = "t|" + title;
-    QJsonObject data;
-    data["m:created"_L1] = QDateTime::currentDateTime().toString(Qt::ISODate);
-    data["x:content"_L1] = QJsonArray({heading});
-    doc->unpack(data);
+    Document *doc = this->editorDocument();
+    doc->appendItem(page, QJsonArray({heading}));
     doc->setModified(true);
-
-    m_documents.insert(node->handle(), doc);
-    trackDocument(doc);
-    queueCount(node->handle());
-    this->model()->insertNode(0, node);
-    m_data->setLastEditedHandle(node->handle());
+    m_data->setLastEditedHandle(page.handle);
 
     this->saveProject();
     emit projectChanged();
@@ -299,6 +300,7 @@ bool Project::saveProjectAs(const QString &path)
             group->setModified(true);
         }
     }
+    m_savedContent.clear();
     return this->saveProject();
 }
 
@@ -318,184 +320,73 @@ void Project::setLastEditedHandle(const QString &handle)
 // Document Methods
 // ================
 
-/**!
- * @brief Get a document by its handle, creating it if needed.
- *
- * The documents of a group are read along with the group, so a document is
- * only created here for a node that has no text yet.
- *
- * @param handle     The handle of the document to open.
- * @return Document* The document, or nullptr if the project has no storage.
+/**! @brief The text document of a group.
  */
-Document *Project::openDocument(const QString &handle)
+Document *Project::document(Group *group) const
 {
-    if (!m_store) {
-        return nullptr;
-    }
+    return m_documents.value(group, nullptr);
+}
 
-    if (m_documents.contains(handle)) {
-        return m_documents.value(handle);
-    }
-
-    Document *doc = new Document(handle, this);
-    m_documents.insert(handle, doc);
-    trackDocument(doc);
-    queueCount(handle);
-
-    return doc;
+/**! @brief The text document of the group shown in the editor.
+ */
+Document *Project::editorDocument() const
+{
+    ProjectModel *projectModel = this->model();
+    return projectModel ? this->document(projectModel->group()) : nullptr;
 }
 
 /**!
- * @brief Move the text after a cursor position into a new scene.
+ * @brief Start a new scene at a position in the editor's text.
  *
- * Empty paragraphs left at the split are dropped. The undo history of both
- * documents is cleared, as undoing in only one would lose or duplicate text.
+ * The text after the position goes to the new scene. The split is one edit,
+ * so it can be undone.
  *
- * @param handle    The handle of the document to split.
- * @param position  The cursor position to split at.
+ * @param position  The position in the text to split at.
  * @return QString  The handle of the new document, or an empty string.
  */
-QString Project::splitDocument(const QString &handle, int position)
+QString Project::splitDocument(int position)
 {
-    Document *doc = m_documents.value(handle, nullptr);
-    ProjectModel *projectModel = this->model();
-    const int row = projectModel ? projectModel->rowOf(handle) : -1;
-    if (!doc || row < 0 || position < 0 || position >= doc->characterCount()) {
+    Document *doc = this->editorDocument();
+    if (!doc || !m_tree) {
         return QString();
     }
-
-    QTextCursor split(doc);
-    split.setPosition(position);
-    split.insertBlock();
-    const QTextBlock block = split.block();
-
-    // Copy the text to move. The block format of the first paragraph is kept
-    // separately, as inserting a fragment into an empty document does not
-    // carry it over.
-    QTextDocumentFragment moved;
-    QTextBlockFormat firstFormat;
-    const QTextBlock first = block.length() == 1 ? block.next() : block;
-    if (first.isValid()) {
-        QTextCursor selection(doc);
-        selection.setPosition(first.position());
-        selection.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        moved = selection.selection();
-        firstFormat = first.blockFormat();
+    Document::Item item;
+    item.handle = m_tree->newHandle();
+    if (doc->insertItem(position, item) < 0) {
+        return QString();
     }
-
-    // Remove the paragraph break before the paragraph, and everything after
-    QTextCursor cut(doc);
-    cut.setPosition(block.position() - 1);
-    cut.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    cut.removeSelectedText();
-
-    // Remove an empty paragraph left at the end
-    const QTextBlock last = doc->lastBlock();
-    if (last.length() == 1 && last.previous().isValid()) {
-        cut.setPosition(last.position() - 1);
-        cut.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        cut.removeSelectedText();
-    }
-
-    Node *node = m_tree->createNode(ItemLevel::SceneLevel);
-    Document *newDoc = new Document(node->handle(), this);
-    if (!moved.isEmpty()) {
-        QTextCursor insert(newDoc);
-        insert.insertFragment(moved);
-        insert.movePosition(QTextCursor::Start);
-        insert.setBlockFormat(firstFormat);
-    }
-
-    for (Document *changed : {doc, newDoc}) {
-        changed->setUndoRedoEnabled(false);
-        changed->setUndoRedoEnabled(true);
-        changed->setModified(true);
-    }
-
-    m_documents.insert(node->handle(), newDoc);
-    trackDocument(newDoc);
-    queueCount(node->handle());
-    projectModel->insertNode(row + 1, node);
-    return node->handle();
+    return item.handle;
 }
 
 /**!
- * @brief Delete a document from the project.
+ * @brief Delete a document from the project, with its text.
  *
- * The last document in the group cannot be deleted. Editors showing the
- * document are told before it is deleted, so they can let go of it.
+ * The last document in the group cannot be deleted. The deletion is an edit
+ * of the text, so it can be undone.
  *
  * @param handle The handle of the document to delete.
  * @return bool  True if the document was deleted.
  */
 bool Project::deleteDocument(const QString &handle)
 {
-    ProjectModel *projectModel = this->model();
-    const int row = projectModel ? projectModel->rowOf(handle) : -1;
-    if (row < 0 || projectModel->rowCount() <= 1) {
-        return false;
-    }
-
-    delete projectModel->takeNode(row);
-    m_tree->forgetNode(handle);
-    if (Document *doc = m_documents.take(handle)) {
-        emit documentDeleting(doc);
-        doc->deleteLater();
-    }
-    return true;
+    Document *doc = this->editorDocument();
+    return doc && doc->removeItem(handle);
 }
 
 /**!
  * @brief Merge a document into the document before it.
  *
- * The text is added after the text of the previous document as new
- * paragraphs, with its formatting, and the document is deleted. The previous
- * document keeps its title, type and other settings. As with a split, the
- * undo history of the previous document is cleared.
+ * The title is removed, so the text follows the text of the previous
+ * document, which keeps its title, type and other settings.
  *
  * @param handle The handle of the document to merge.
- * @return int   The position in the previous document where the merged
- *               text starts, or -1 if the document could not be merged.
+ * @return int   The position where the merged text starts, or -1 if the
+ *               document could not be merged.
  */
 int Project::mergeDocument(const QString &handle)
 {
-    ProjectModel *projectModel = this->model();
-    const int row = projectModel ? projectModel->rowOf(handle) : -1;
-    if (row <= 0) {
-        return -1;
-    }
-
-    const QString intoHandle = projectModel->data(projectModel->index(row - 1), ProjectModel::HandleRole).toString();
-    Document *into = this->openDocument(intoHandle);
-    Document *from = this->openDocument(handle);
-    if (!into || !from) {
-        return -1;
-    }
-
-    QTextCursor cursor(into);
-    cursor.movePosition(QTextCursor::End);
-    int position = cursor.position();
-    if (!from->isEmpty()) {
-        QTextCursor all(from);
-        all.select(QTextCursor::Document);
-        const QTextDocumentFragment moved = all.selection();
-        const QTextBlockFormat firstFormat = from->firstBlock().blockFormat();
-
-        if (!into->isEmpty()) {
-            cursor.insertBlock();
-            position = cursor.position();
-        }
-        cursor.insertFragment(moved);
-        cursor.setPosition(position);
-        cursor.setBlockFormat(firstFormat);
-
-        into->setUndoRedoEnabled(false);
-        into->setUndoRedoEnabled(true);
-        into->setModified(true);
-    }
-
-    this->deleteDocument(handle);
-    return position;
+    Document *doc = this->editorDocument();
+    return doc ? doc->mergeItem(handle) : -1;
 }
 
 // Private Slots
@@ -522,9 +413,11 @@ void Project::countDocuments()
         m_countQueue.clear();
         return;
     }
+    const Document *doc = this->editorDocument();
     for (const QString &handle : std::as_const(m_countQueue)) {
-        if (const Document *doc = m_documents.value(handle, nullptr)) {
-            projectModel->setCounts(projectModel->rowOf(handle), TextCounter::standardCount(TextCounter::snapshot(doc)));
+        const int row = projectModel->rowOf(handle);
+        if (doc && row >= 0) {
+            projectModel->setCounts(row, TextCounter::standardCount(doc->snapshotItem(handle)));
         }
     }
     m_countQueue.clear();
@@ -534,60 +427,75 @@ void Project::countDocuments()
 // ===============
 
 /**! @brief Read the documents of a group, with their text, from the
- * group's content file.
+ * group's content file, into the group's text document.
  *
  * Entries that are not valid nodes are skipped, as are those with a handle
  * that is already in use. Returns false if the file could not be read.
  */
 bool Project::loadGroup(Group *group)
 {
+    const qint64 start = QDateTime::currentMSecsSinceEpoch();
     QJsonObject jGroup;
     if (!m_store->readContent(group->contentName(), jGroup)) {
         return false;
     }
     group->setCreatedTime(JsonUtils::unpackCreated(jGroup, group->createdTime()));
 
+    Document *doc = new Document(this);
     for (const QJsonValue &value : jGroup["x:items"_L1].toArray()) {
-        const QJsonObject item = value.toObject();
-        Node *node = Node::unpack(item);
+        const QJsonObject jItem = value.toObject();
+        Node *node = Node::unpack(jItem);
         if (!node) continue;
         if (!m_tree->addNode(group, node)) {
             delete node;
             continue;
         }
-        Document *doc = new Document(node->handle(), this);
-        doc->unpack(item);
-        m_documents.insert(node->handle(), doc);
-        trackDocument(doc);
+        Document::Item item;
+        item.handle = node->handle();
+        item.title = node->title();
+        item.level = node->itemLevel();
+        item.hardBreak = node->hasHardBreak();
+        item.numbered = node->isNumbered();
+        const QJsonArray content = jItem["x:content"_L1].toArray();
+        doc->appendItem(item, content);
+        m_savedContent.insert(item.handle, content);
     }
+    doc->setModified(false);
+    m_documents.insert(group, doc);
+    trackDocument(group, doc);
     group->setModified(false);
+
+    qDebug() << "Group loaded in" << QDateTime::currentMSecsSinceEpoch() - start << "ms";
     return true;
 }
 
 /**! @brief Write a group's documents, with their text, to the group's
  * content file.
  *
- * The file is only written if the group or the text of one of its
- * documents has changed since it was read or last saved.
+ * The file is only written if the group or its text has changed since it
+ * was read or last saved. A document's updated time is moved when its text
+ * differs from what was last read or saved.
  */
 bool Project::saveGroup(Group *group)
 {
-    bool modified = group->isModified();
-    for (const Node *node : group->items()) {
-        const Document *doc = m_documents.value(node->handle(), nullptr);
-        modified |= doc && doc->isModified();
-    }
-    if (!modified) {
+    Document *doc = this->document(group);
+    if (!group->isModified() && !(doc && doc->isModified())) {
         return true;
     }
 
+    const QString now = QDateTime::currentDateTime().toString(Qt::ISODate);
+    QHash<QString, QJsonArray> saved;
     QJsonArray items;
-    for (const Node *node : group->items()) {
+    for (Node *node : group->items()) {
+        const QJsonArray content = doc ? doc->packContent(node->handle()) : QJsonArray();
+        auto it = m_savedContent.constFind(node->handle());
+        if (it == m_savedContent.constEnd() || it.value() != content) {
+            node->setUpdatedTime(now);
+            saved.insert(node->handle(), content);
+        }
         QJsonObject item;
         node->pack(item);
-        if (Document *doc = this->openDocument(node->handle())) {
-            doc->pack(item);
-        }
+        item["x:content"_L1] = content;
         items.append(item);
     }
 
@@ -600,12 +508,10 @@ bool Project::saveGroup(Group *group)
         return false;
     }
 
-    // What is on disk now matches the documents, so further saves keep
-    // their updated timestamps until they are edited again
+    // What is on disk now matches the documents
     group->setModified(false);
-    for (const Node *node : group->items()) {
-        m_documents.value(node->handle())->setModified(false);
-    }
+    if (doc) doc->setModified(false);
+    m_savedContent.insert(saved);
     return true;
 }
 
@@ -635,6 +541,8 @@ void Project::releaseProject()
         doc->deleteLater();
     }
     m_documents.clear();
+    m_savedContent.clear();
+    if (m_tree) m_tree->model()->setDocument(nullptr);
 
     Storage *store = std::exchange(m_store, nullptr);
     ProjectData *data = std::exchange(m_data, nullptr);
@@ -649,12 +557,58 @@ void Project::releaseProject()
     if (store) store->deleteLater();
 }
 
-/**! @brief Recount a document whenever its text changes.
+/**! @brief Follow the changes to a group's text document.
+ *
+ * The documents touched by a change are recounted, and the model of the
+ * group follows the structure of the text.
  */
-void Project::trackDocument(Document *doc)
+void Project::trackDocument(Group *group, Document *doc)
 {
-    const QString handle = doc->handle();
-    connect(doc, &QTextDocument::contentsChanged, this, [this, handle]() { queueCount(handle); });
+    connect(doc, &QTextDocument::contentsChange, this, [this, doc](int position, int removed, int added) {
+        Q_UNUSED(removed);
+        const QString handle = doc->handleAt(position);
+        if (!handle.isEmpty()) queueCount(handle);
+        for (QTextBlock block = doc->findBlock(position).next(); block.isValid() && block.position() <= position + added; block = block.next()) {
+            if (Document::isTitle(block)) queueCount(Document::itemOf(block).handle);
+        }
+    });
+    connect(doc, &QTextDocument::contentsChanged, this, [this, group]() { syncGroup(group); });
+}
+
+/**! @brief Make the model follow the structure of a group's text, if the
+ * group is shown.
+ *
+ * The text is then fixed up, if the edit left it with text before the first
+ * title or with a repeated title. That is done after the edit is finished,
+ * and added to the same undo step.
+ */
+void Project::syncGroup(Group *group)
+{
+    ProjectModel *projectModel = this->model();
+    Document *doc = this->document(group);
+    if (!projectModel || !doc || projectModel->group() != group) {
+        return;
+    }
+
+    projectModel->sync(
+        doc->items(),
+        [this](const Document::Item &item) {
+            queueCount(item.handle);
+            return m_tree->createNode(item.handle, item.level);
+        },
+        [this](Node *node) {
+            m_tree->forgetNode(node->handle());
+            delete node;
+        }
+    );
+
+    if (m_normalizing) return;
+    m_normalizing = true;
+    auto normalize = [this, doc = QPointer<Document>(doc)]() {
+        m_normalizing = false;
+        if (doc && m_tree) doc->normalize(m_tree->newHandle());
+    };
+    QMetaObject::invokeMethod(this, normalize, Qt::QueuedConnection);
 }
 
 /**! @brief Queue a document for counting. The timer is not restarted, so

@@ -23,14 +23,18 @@
 
 #include "collett.h"
 #include "document.h"
+#include "documentbinder.h"
 #include "icons.h"
 #include "project.h"
 #include "projectmodel.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QTemporaryDir>
+#include <QTextBlock>
 #include <QTextCursor>
 #include <QtQml/QQmlExtensionPlugin>
 #include <QtTest>
@@ -74,23 +78,21 @@ public:
     }
 
     /**! @brief Add a document at the end, with one paragraph per line of
-     * text. Returns its handle.
+     * text, or no text. Returns its handle.
      */
     QString addDocument(ItemLevel level, const QString &title, const QString &text)
     {
-        const QString last = handle(rows() - 1);
-        Document *doc = project.openDocument(last);
-        const QString added = project.splitDocument(last, doc->characterCount() - 1);
-        const int row = rows() - 1;
-        model()->setLevel(row, int(level));
-        model()->setTitle(row, title);
-        QTextCursor cursor(project.openDocument(added));
-        const QStringList lines = text.split('\n');
-        for (qsizetype i = 0; i < lines.size(); ++i) {
-            if (i > 0) cursor.insertBlock();
-            cursor.insertText(lines.at(i));
+        Document::Item item;
+        item.handle = project.tree()->newHandle();
+        item.title = title;
+        item.level = level;
+        QJsonArray content;
+        if (!text.isEmpty()) {
+            for (const QString &line : text.split('\n'))
+                content.append(QJsonObject({{"u:fmt", "p"}, {"u:txt", "t|" + line}}));
         }
-        return added;
+        doc()->appendItem(item, content);
+        return item.handle;
     }
 
     /**! @brief Load the main window and wait for it to be shown.
@@ -114,11 +116,12 @@ public:
     QQmlApplicationEngine *engine() const { return m_engine; }
 
     // Model
+    Document *doc() const { return project.editorDocument(); }
     ProjectModel *model() const { return project.model(); }
     int rows() const { return model()->rowCount(); }
     QVariant value(int row, int role) const { return model()->data(model()->index(row), role); }
     QString handle(int row) const { return value(row, ProjectModel::HandleRole).toString(); }
-    QString text(int row) { return project.openDocument(handle(row))->toPlainText(); }
+    QString text(int row) const { return doc()->itemText(handle(row)); }
 
     /**! @brief The handles in row order.
      */
@@ -146,8 +149,47 @@ public:
         QMetaObject::invokeMethod(view, "itemAtIndex", Q_RETURN_ARG(QQuickItem *, found), Q_ARG(int, row));
         return found;
     }
-    QQuickItem *scene(int row) const { return itemAt("editorView", row); }
     QQuickItem *listItem(int row) const { return itemAt("projectList", row); }
+
+    // Editor
+    QQuickItem *textEdit() const { return item("textEdit"); }
+    DocumentBinder *binder() const { return item("editor")->property("binder").value<DocumentBinder *>(); }
+
+    /**! @brief The position in the editor's text of a position in the text
+     * of a document.
+     */
+    int textPosition(int row, int position) const { return binder()->itemPosition(handle(row)) + position; }
+
+    /**! @brief The window position of a position in the text of a document.
+     */
+    QPoint pointInText(int row, int position) const
+    {
+        QMetaObject::invokeMethod(item("editor"), "showPosition", Q_ARG(int, textPosition(row, position)));
+        QRectF rect;
+        QMetaObject::invokeMethod(textEdit(), "positionToRectangle", Q_RETURN_ARG(QRectF, rect), Q_ARG(int, textPosition(row, position)));
+        return textEdit()->mapToScene(rect.center()).toPoint();
+    }
+
+    /**! @brief The type label above the title of a document, scrolled into
+     * view, once it is in place. The labels are made by a repeater, so they
+     * are found in the item tree, not the object tree.
+     */
+    QQuickItem *typeLabel(int row) const
+    {
+        QMetaObject::invokeMethod(item("editor"), "showPosition", Q_ARG(int, doc()->titleBlock(handle(row)).position()));
+        QList<QQuickItem *> items = {window->contentItem()};
+        while (!items.isEmpty()) {
+            QQuickItem *at = items.takeFirst();
+            if (at->objectName() == "typeLabel" && at->parentItem()->property("handle").toString() == handle(row)) {
+                // The labels follow the layout once the editor has its size
+                QQuickItem *decoration = at->parentItem();
+                QTest::qWaitFor([this, decoration, row]() { return decoration->property("titleRect").toRectF() == binder()->titleRect(handle(row)); });
+                return at;
+            }
+            items.append(at->childItems());
+        }
+        return nullptr;
+    }
 
     /**! @brief The centre of an item, or a point a fraction down it, in
      * window coordinates.
@@ -158,31 +200,31 @@ public:
     }
 
     // Focus
-    /**! @brief The handle of the document with the cursor.
+    /**! @brief The handle of the document with the cursor, while the editor
+     * has the focus.
      */
     QString focusHandle() const
     {
-        for (QQuickItem *at = window->activeFocusItem(); at; at = at->parentItem()) {
-            const QVariant value = at->property("handle");
-            if (value.isValid() && at->property("textWidth").isValid()) return value.toString();
-        }
-        return QString();
+        return window->activeFocusItem() == textEdit() ? binder()->currentHandle() : QString();
     }
 
     /**! @brief Where the cursor is in its document: "title" or "text".
      */
     QString focusPart() const
     {
-        const QQuickItem *focused = window->activeFocusItem();
-        if (!focused) return QString();
-        return focused->objectName() == "titleInput" ? "title" : focused->objectName() == "textEdit" ? "text"
-                                                                                                     : QString();
+        if (window->activeFocusItem() != textEdit()) return QString();
+        return binder()->inTitle() ? "title" : "text";
     }
 
+    /**! @brief The cursor position in the title or the text of its document.
+     */
     int focusCursor() const
     {
-        const QQuickItem *focused = window->activeFocusItem();
-        return focused ? focused->property("cursorPosition").toInt() : -1;
+        if (window->activeFocusItem() != textEdit()) return -1;
+        const int position = textEdit()->property("cursorPosition").toInt();
+        const QTextBlock block = doc()->findBlock(position);
+        if (Document::isTitle(block)) return position - block.position();
+        return position - binder()->itemPosition(binder()->currentHandle());
     }
 
     /**! @brief Type text, one key at a time.
@@ -197,7 +239,16 @@ public:
      */
     void enterText(int row, int position) const
     {
-        QMetaObject::invokeMethod(scene(row), "enterAt", Q_ARG(int, position));
+        binder()->enterText(handle(row), position);
+        textEdit()->forceActiveFocus();
+    }
+
+    /**! @brief Put the cursor at the start of the title of a document.
+     */
+    void enterTitle(int row) const
+    {
+        binder()->enterTitle(handle(row));
+        textEdit()->forceActiveFocus();
     }
 
 private:

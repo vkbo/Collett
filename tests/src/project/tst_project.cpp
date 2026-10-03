@@ -45,6 +45,7 @@ private slots:
     void saveChangedOnly();
     void groupContentNames();
     void duplicateHandles();
+    void updatedTime();
 
 private:
     QJsonObject readJson(const QString &path) const;
@@ -72,16 +73,18 @@ void TestProject::writeJson(const QString &path, const QJsonObject &data) const
     file.write(QJsonDocument(data).toJson());
 }
 
-/**! @brief Add a scene at the end of the project. Returns its handle.
+/**! @brief Add a scene at the end of the project, by splitting the text
+ * at its end. Returns its handle.
  */
 QString TestProject::addScene(Project &project, const QString &title, const QString &text) const
 {
-    ProjectModel *model = project.model();
-    const QString last = model->data(model->index(model->rowCount() - 1), ProjectModel::HandleRole).toString();
-    Document *doc = project.openDocument(last);
-    const QString added = project.splitDocument(last, doc->characterCount() - 1);
-    model->setTitle(model->rowOf(added), title);
-    QTextCursor(project.openDocument(added)).insertText(text);
+    Document *doc = project.editorDocument();
+    const QString added = project.splitDocument(doc->characterCount() - 1);
+    project.model()->setTitle(project.model()->rowOf(added), title);
+    QTextCursor cursor(doc);
+    cursor.setPosition(doc->itemEnd(added));
+    cursor.insertBlock(QTextBlockFormat(), QTextCharFormat());
+    cursor.insertText(text);
     return added;
 }
 
@@ -169,13 +172,12 @@ void TestProject::reopen()
     for (int i = 0; i < 3; ++i)
         QCOMPARE(model->data(model->index(i), ProjectModel::HandleRole).toString(), handles.at(i));
     QCOMPARE(model->data(model->index(2), ProjectModel::TitleRole).toString(), QStringLiteral("Two"));
-    QCOMPARE(project.openDocument(handles.at(1))->toPlainText(), QStringLiteral("First scene."));
-    QCOMPARE(project.openDocument(handles.at(2))->toPlainText(), QStringLiteral("Second scene."));
+    QCOMPARE(project.editorDocument()->itemText(handles.at(1)), QStringLiteral("First scene."));
+    QCOMPARE(project.editorDocument()->itemText(handles.at(2)), QStringLiteral("Second scene."));
 
     QVERIFY(!project.tree()->isModified());
     QVERIFY(!project.tree()->groups().at(0)->isModified());
-    for (const QString &handle : std::as_const(handles))
-        QVERIFY(!project.openDocument(handle)->isModified());
+    QVERIFY(!project.editorDocument()->isModified());
 
     // Writing everything again keeps the created times
     QVERIFY(project.saveProjectAs(dir.filePath("Novel/CollettProject.collett")));
@@ -200,7 +202,9 @@ void TestProject::saveChangedOnly()
     QVERIFY(!QFile::exists(file));
 
     // An edit to the text
-    QTextCursor(project.openDocument(scene)).insertText("More ");
+    QTextCursor cursor(project.editorDocument());
+    cursor.setPosition(project.editorDocument()->titleBlock(scene).next().position());
+    cursor.insertText("More ");
     QVERIFY(project.saveProject());
     QVERIFY(QFile::exists(file));
 
@@ -267,6 +271,62 @@ void TestProject::duplicateHandles()
     QCOMPARE(project.openProjectAt(dir.filePath("Novel/CollettProject.collett")), QString());
     QCOMPARE(project.model()->rowCount(), 1);
     QCOMPARE(project.model()->data(project.model()->index(0), ProjectModel::TitleRole).toString(), QString());
+}
+
+/**! @brief A document's updated time only moves when its text differs from
+ * what was last read or saved. An edit that is undone again, or a new title,
+ * moves nothing.
+ */
+void TestProject::updatedTime()
+{
+    QTemporaryDir dir;
+    {
+        Project project;
+        QCOMPARE(project.createProject(dir.path(), "Novel"), QString());
+        addScene(project, "One", "First.");
+        addScene(project, "Two", "Second.");
+        QVERIFY(project.closeProject());
+    }
+
+    // Give the documents an old updated time
+    const QString old = QStringLiteral("2020-01-01T00:00:00");
+    const QString file = dir.filePath("Novel/content/document1.json");
+    QJsonObject data = readJson(file);
+    QJsonArray items = data.value("x:items").toArray();
+    for (qsizetype i = 0; i < items.size(); ++i) {
+        QJsonObject item = items.at(i).toObject();
+        item["m:updated"] = old;
+        items[i] = item;
+    }
+    data["x:items"] = items;
+    writeJson(file, data);
+    auto updated = [this, &file](int row) {
+        return readJson(file).value("x:items").toArray().at(row).toObject().value("m:updated").toString();
+    };
+
+    Project project;
+    QCOMPARE(project.openProjectAt(dir.filePath("Novel/CollettProject.collett")), QString());
+    Document *doc = project.editorDocument();
+    const QString one = project.model()->data(project.model()->index(1), ProjectModel::HandleRole).toString();
+
+    // An edit undone again, and a new title, which is not a change of the
+    // text, but makes the file be written
+    QTextCursor cursor(doc);
+    cursor.setPosition(doc->titleBlock(one).next().position());
+    cursor.insertText("x");
+    doc->undo();
+    QVERIFY(!doc->isModified());
+    project.model()->setTitle(2, "New");
+    QVERIFY(project.saveProject());
+    QCOMPARE(readJson(file).value("x:items").toArray().at(2).toObject().value("u:title").toString(), QStringLiteral("New"));
+    QCOMPARE(updated(1), old);
+    QCOMPARE(updated(2), old);
+
+    // An edit kept
+    cursor.insertText("y");
+    QVERIFY(project.saveProject());
+    QVERIFY(updated(1) != old);
+    QCOMPARE(updated(2), old);
 }
 
 QTEST_MAIN(TestProject)

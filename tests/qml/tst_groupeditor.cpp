@@ -1,5 +1,5 @@
 /*
-** Collett - Scene Editor Tests
+** Collett - Group Editor Tests
 ** ============================
 **
 ** This file is a part of Collett
@@ -27,7 +27,7 @@
 
 using namespace Collett;
 
-class TestSceneEditor : public QObject
+class TestGroupEditor : public QObject
 {
     Q_OBJECT
 
@@ -49,35 +49,43 @@ private slots:
     void deleteFromTypeMenu();
     void emptyTextCursor();
     void goalColumn();
+    void undoSplit();
+    void undoDelete();
+    void selectAcross();
+    void typeTitle();
+    void deleteAtEnd();
+    void lineBreakInTitle();
+    void firstTitleRemoved();
 
 private:
     QmlFixture *f = nullptr;
 
-    QPoint pointInText(int row, int position) const;
     qreal indentAt(int row, int position) const;
+    void setText(int row, const QString &text) const;
     QQuickItem *menuItem(QObject *menu, const QString &text) const;
 };
 
-/**! @brief The window position of a character in the text of a document.
+/**! @brief The first-line indent of the paragraph at a position in the
+ * text of a document.
  */
-QPoint TestSceneEditor::pointInText(int row, int position) const
+qreal TestGroupEditor::indentAt(int row, int position) const
 {
-    QQuickItem *text = f->scene(row)->findChild<QQuickItem *>("textEdit");
-    QRectF rect;
-    QMetaObject::invokeMethod(text, "positionToRectangle", Q_RETURN_ARG(QRectF, rect), Q_ARG(int, position));
-    return text->mapToScene(rect.center()).toPoint();
+    return f->doc()->findBlock(f->textPosition(row, position)).blockFormat().textIndent();
 }
 
-/**! @brief The first-line indent of the paragraph at a position.
+/**! @brief Replace the text of a document.
  */
-qreal TestSceneEditor::indentAt(int row, int position) const
+void TestGroupEditor::setText(int row, const QString &text) const
 {
-    return f->project.openDocument(f->handle(row))->findBlock(position).blockFormat().textIndent();
+    QTextCursor cursor(f->doc());
+    cursor.setPosition(f->textPosition(row, 0));
+    cursor.setPosition(f->doc()->itemEnd(f->handle(row)), QTextCursor::KeepAnchor);
+    cursor.insertText(text);
 }
 
 /**! @brief The item of a menu with a given text.
  */
-QQuickItem *TestSceneEditor::menuItem(QObject *menu, const QString &text) const
+QQuickItem *TestGroupEditor::menuItem(QObject *menu, const QString &text) const
 {
     const int count = menu->property("count").toInt();
     for (int i = 0; i < count; ++i) {
@@ -88,7 +96,7 @@ QQuickItem *TestSceneEditor::menuItem(QObject *menu, const QString &text) const
     return nullptr;
 }
 
-void TestSceneEditor::initTestCase()
+void TestGroupEditor::initTestCase()
 {
     initQmlTests();
 }
@@ -96,7 +104,7 @@ void TestSceneEditor::initTestCase()
 /**! @brief Every test starts from the same project: a title page, then
  * chapter 1 with one scene, and chapter 2 with two scenes.
  */
-void TestSceneEditor::init()
+void TestGroupEditor::init()
 {
     Settings::instance()->setTextAutoIndent(false);
     Settings::instance()->setShowMultiSpaces(false);
@@ -110,7 +118,7 @@ void TestSceneEditor::init()
     QVERIFY(f->load());
 }
 
-void TestSceneEditor::cleanup()
+void TestGroupEditor::cleanup()
 {
     delete f;
     f = nullptr;
@@ -119,7 +127,7 @@ void TestSceneEditor::cleanup()
 /**! @brief Ctrl+Enter moves the text after the cursor into a new scene, and
  * puts the cursor in its title.
  */
-void TestSceneEditor::splitAtCursor()
+void TestGroupEditor::splitAtCursor()
 {
     f->enterText(2, 6);
     QTRY_COMPARE(f->focusHandle(), f->handle(2));
@@ -136,7 +144,7 @@ void TestSceneEditor::splitAtCursor()
 /**! @brief Ctrl+Enter in the title of a new document cycles its type, and
  * Enter moves on to its text.
  */
-void TestSceneEditor::splitCyclesType()
+void TestGroupEditor::splitCyclesType()
 {
     f->enterText(2, 6);
     QTest::keyClick(f->window, Qt::Key_Return, Qt::ControlModifier);
@@ -162,7 +170,7 @@ void TestSceneEditor::splitCyclesType()
 /**! @brief Backspace at the start of an untitled document merges it into
  * the one before, with the cursor where the merged text starts.
  */
-void TestSceneEditor::backspaceMerges()
+void TestGroupEditor::backspaceMerges()
 {
     const QString scene = f->handle(2);
     const QString next = f->handle(5);
@@ -182,7 +190,7 @@ void TestSceneEditor::backspaceMerges()
 /**! @brief An empty document made by Ctrl+Enter at the end of the text is
  * removed again with Backspace.
  */
-void TestSceneEditor::backspaceRemovesEmpty()
+void TestGroupEditor::backspaceRemovesEmpty()
 {
     const int end = f->text(5).length();
     f->enterText(5, end);
@@ -201,7 +209,7 @@ void TestSceneEditor::backspaceRemovesEmpty()
 /**! @brief Down on the last line goes to the title of the next document,
  * and Up from a title goes back to the text above.
  */
-void TestSceneEditor::arrowsCrossDocuments()
+void TestGroupEditor::arrowsCrossDocuments()
 {
     f->enterText(2, f->text(2).length());
     QTRY_COMPARE(f->focusHandle(), f->handle(2));
@@ -223,7 +231,7 @@ void TestSceneEditor::arrowsCrossDocuments()
 
 /**! @brief Typing updates the word count of the document shortly after.
  */
-void TestSceneEditor::liveWordCount()
+void TestGroupEditor::liveWordCount()
 {
     QTRY_COMPARE(f->value(5, ProjectModel::WordsRole).toInt(), 3);
     f->enterText(5, f->text(5).length());
@@ -237,26 +245,24 @@ void TestSceneEditor::liveWordCount()
 /**! @brief A right click on a misspelled word offers suggestions, which
  * replace the word, and adding the word to the dictionary.
  */
-void TestSceneEditor::spellingMenu()
+void TestGroupEditor::spellingMenu()
 {
     SpellChecker *spell = f->project.spellChecker();
     spell->setDictionaryPaths({QStringLiteral(TEST_DATA_DIR)});
     spell->setLanguage("xx_TEST");
     QVERIFY(spell->isLoaded());
 
-    QTextCursor cursor(f->project.openDocument(f->handle(5)));
-    cursor.select(QTextCursor::Document);
-    cursor.insertText("hello wrld");
-    QObject *menu = f->scene(5)->findChild<QObject *>("spellMenu");
+    setText(5, "hello wrld");
+    QObject *menu = f->window->findChild<QObject *>("spellMenu");
     QVERIFY(menu);
 
     // A correct word has no menu
-    QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, pointInText(5, 2));
+    QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, f->pointInText(5, 2));
     QTest::qWait(50);
     QVERIFY(!menu->property("opened").toBool());
 
     // Choosing a suggestion replaces the word
-    QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, pointInText(5, 8));
+    QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, f->pointInText(5, 8));
     QTRY_VERIFY(menu->property("opened").toBool());
     QQuickItem *suggestion = menuItem(menu, "world");
     QVERIFY(suggestion);
@@ -265,10 +271,9 @@ void TestSceneEditor::spellingMenu()
     QTRY_VERIFY(!menu->property("visible").toBool());
 
     // Adding a word to the dictionary accepts it from then on
-    cursor.select(QTextCursor::Document);
-    cursor.insertText("hello Gollum");
+    setText(5, "hello Gollum");
     QVERIFY(!spell->checkWord("Gollum"));
-    QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, pointInText(5, 8));
+    QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, f->pointInText(5, 8));
     QTRY_VERIFY(menu->property("opened").toBool());
     QQuickItem *add = menuItem(menu, "Add to Dictionary");
     QVERIFY(add);
@@ -280,7 +285,7 @@ void TestSceneEditor::spellingMenu()
 /**! @brief Tab at the start of a paragraph adds a first-line indent, and
  * Backspace there removes it. Elsewhere, and in headings, Tab is a tab.
  */
-void TestSceneEditor::tabIndent()
+void TestGroupEditor::tabIndent()
 {
     const qreal width = Settings::instance()->textFormat().tabWidth;
     f->enterText(2, 12);
@@ -307,10 +312,10 @@ void TestSceneEditor::tabIndent()
 /**! @brief With automatic indent on, Enter indents the new paragraph after
  * a text paragraph, but not after a heading or a centred paragraph.
  */
-void TestSceneEditor::autoIndent()
+void TestGroupEditor::autoIndent()
 {
     const qreal width = Settings::instance()->textFormat().tabWidth;
-    QObject *binder = f->scene(2)->property("textBinder").value<QObject *>();
+    QObject *binder = f->binder();
     QVERIFY(binder);
 
     // Off: the new paragraph copies the current one
@@ -353,10 +358,10 @@ void TestSceneEditor::autoIndent()
  * leaves, and stays so when the cursor comes back. Runs of spaces are
  * underlined straight away.
  */
-void TestSceneEditor::multiSpaces()
+void TestGroupEditor::multiSpaces()
 {
     Settings::instance()->setShowMultiSpaces(true);
-    QTextBlock block = f->project.openDocument(f->handle(4))->firstBlock();
+    QTextBlock block = f->doc()->findBlock(f->textPosition(4, 0));
     auto underlined = [&block]() {
         QList<int> starts;
         for (const QTextLayout::FormatRange &range : block.layout()->formats()) {
@@ -391,14 +396,14 @@ void TestSceneEditor::multiSpaces()
 /**! @brief A misspelled word is not underlined while it is being typed,
  * only once the cursor moves on. Moving back into it keeps the underline.
  */
-void TestSceneEditor::typingWord()
+void TestGroupEditor::typingWord()
 {
     SpellChecker *spell = f->project.spellChecker();
     spell->setDictionaryPaths({QStringLiteral(TEST_DATA_DIR)});
     spell->setLanguage("xx_TEST");
     QVERIFY(spell->isLoaded());
 
-    QTextBlock block = f->project.openDocument(f->handle(4))->firstBlock();
+    QTextBlock block = f->doc()->findBlock(f->textPosition(4, 0));
     auto marked = [&block]() {
         QStringList words;
         for (const QTextLayout::FormatRange &range : block.layout()->formats()) {
@@ -433,11 +438,11 @@ void TestSceneEditor::typingWord()
 
 /**! @brief The type menu deletes the document after asking.
  */
-void TestSceneEditor::deleteFromTypeMenu()
+void TestGroupEditor::deleteFromTypeMenu()
 {
     const QString scene = f->handle(4);
-    QQuickItem *label = f->scene(4)->findChild<QQuickItem *>("typeLabel");
-    QObject *menu = f->scene(4)->findChild<QObject *>("typeMenu");
+    QQuickItem *label = f->typeLabel(4);
+    QObject *menu = f->window->findChild<QObject *>("typeMenu");
     QVERIFY(label && menu);
     QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(label));
     QTRY_VERIFY(menu->property("opened").toBool());
@@ -453,38 +458,39 @@ void TestSceneEditor::deleteFromTypeMenu()
     QCOMPARE(f->model()->rowOf(scene), -1);
 }
 
-/**! @brief After a split at the end of the text, the cursor in the new
- * document's empty title and text is not cut off by the boxes around them.
+/**! @brief After a split at the end of the text, the new document has an
+ * empty title and no text. Enter in the title starts its text. The cursor
+ * shows in both.
  */
-void TestSceneEditor::emptyTextCursor()
+void TestGroupEditor::emptyTextCursor()
 {
     f->enterText(4, 8);
     QTRY_COMPARE(f->focusCursor(), 8);
     QTest::keyClick(f->window, Qt::Key_Return, Qt::ControlModifier);
     QTRY_COMPARE(f->rows(), 7);
     QTRY_COMPARE(f->focusPart(), QStringLiteral("title"));
+    QCOMPARE(f->text(5), QString());
 
-    // The box clipping the title and text reaches past the cursor at the
-    // start of the line, so it is not lost to rounding when scaled
-    auto clearOfClip = [](QQuickItem *item) {
-        const QRectF cursor = item->mapRectToItem(item->parentItem(), item->property("cursorRectangle").toRectF());
-        return cursor.height() > 0 && cursor.left() >= 2 && cursor.bottom() <= item->parentItem()->height();
+    auto cursorShown = [this]() {
+        QQuickItem *text = f->textEdit();
+        const QRectF cursor = text->property("cursorRectangle").toRectF();
+        return text->property("cursorVisible").toBool() && cursor.height() > 0 && cursor.left() >= 0;
     };
-    QVERIFY(clearOfClip(f->window->activeFocusItem()));
+    QVERIFY(cursorShown());
 
     QTest::keyClick(f->window, Qt::Key_Return);
     QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
-    QQuickItem *text = f->window->activeFocusItem();
+    QCOMPARE(f->focusHandle(), f->handle(5));
     QCOMPARE(f->text(5), QString());
-    QVERIFY(text->property("cursorVisible").toBool());
-    QVERIFY(clearOfClip(text));
+    QCOMPARE(f->doc()->titleBlock(f->handle(5)).next().length(), 1);
+    QVERIFY(cursorShown());
 }
 
 /**! @brief Moving down keeps the cursor at the same horizontal position,
  * through short lines, titles, empty text and other documents. Moving the
  * cursor sideways starts a new position.
  */
-void TestSceneEditor::goalColumn()
+void TestGroupEditor::goalColumn()
 {
     auto cursorX = [this]() {
         QQuickItem *item = f->window->activeFocusItem();
@@ -494,16 +500,16 @@ void TestSceneEditor::goalColumn()
     QTRY_COMPARE(f->focusCursor(), 20);
     const qreal start = cursorX();
 
-    // Through the chapter title and its empty text, the short scene, and
-    // the empty title of the last scene
-    for (int i = 0; i < 6; ++i)
+    // Through the chapter title, the empty title and short text of the next
+    // scene, and the empty title of the last scene
+    for (int i = 0; i < 5; ++i)
         QTest::keyClick(f->window, Qt::Key_Down);
     QTRY_COMPARE(f->focusHandle(), f->handle(5));
     QCOMPARE(f->focusPart(), QStringLiteral("text"));
     QVERIFY(qAbs(cursorX() - start) < 12);
 
     // And back up again
-    for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < 5; ++i)
         QTest::keyClick(f->window, Qt::Key_Up);
     QTRY_COMPARE(f->focusHandle(), f->handle(2));
     QCOMPARE(f->focusCursor(), 20);
@@ -519,5 +525,161 @@ void TestSceneEditor::goalColumn()
     QCOMPARE(f->focusCursor(), 0);
 }
 
-QTEST_MAIN(TestSceneEditor)
-#include "tst_sceneeditor.moc"
+/**! @brief A split is one step in the undo history of the text.
+ */
+void TestGroupEditor::undoSplit()
+{
+    const QStringList order = f->order();
+    f->enterText(2, 6);
+    QTRY_COMPARE(f->focusCursor(), 6);
+    QTest::keyClick(f->window, Qt::Key_Return, Qt::ControlModifier);
+    QTRY_COMPARE(f->rows(), 7);
+
+    QTest::keyClick(f->window, Qt::Key_Z, Qt::ControlModifier);
+    QTRY_COMPARE(f->rows(), 6);
+    QCOMPARE(f->order(), order);
+    QCOMPARE(f->text(2), QStringLiteral("Alpha beta.\nGamma delta."));
+
+    QTest::keyClick(f->window, Qt::Key_Z, Qt::ControlModifier | Qt::ShiftModifier);
+    QTRY_COMPARE(f->rows(), 7);
+    QCOMPARE(f->text(3), QStringLiteral("beta.\nGamma delta."));
+}
+
+/**! @brief A deleted document comes back with undo, with its handle, text
+ * and type.
+ */
+void TestGroupEditor::undoDelete()
+{
+    const QStringList order = f->order();
+    f->enterText(5, 0);
+    QTRY_COMPARE(f->focusHandle(), f->handle(5));
+    QVERIFY(f->binder()->deleteItem(f->handle(3)));
+    QTRY_COMPARE(f->rows(), 5);
+    QCOMPARE(f->model()->rowOf(order.at(3)), -1);
+
+    QTest::keyClick(f->window, Qt::Key_Z, Qt::ControlModifier);
+    QTRY_COMPARE(f->rows(), 6);
+    QCOMPARE(f->order(), order);
+    QCOMPARE(f->value(3, ProjectModel::TitleRole).toString(), QStringLiteral("Two"));
+    QCOMPARE(f->value(3, ProjectModel::LevelRole).toInt(), int(ItemLevel::ChapterLevel));
+    QCOMPARE(f->text(4), QStringLiteral("Epsilon."));
+}
+
+/**! @brief A selection can span documents. Deleting it removes the
+ * documents whose titles were in it, and the text left joins the first
+ * document.
+ */
+void TestGroupEditor::selectAcross()
+{
+    const QStringList order = f->order();
+    f->enterText(2, 6);
+    QTRY_COMPARE(f->focusCursor(), 6);
+    QTextCursor cursor(f->doc());
+    const int start = f->textPosition(2, 6);
+    const int end = f->textPosition(4, 4);
+    f->textEdit()->setProperty("cursorPosition", start);
+    QMetaObject::invokeMethod(f->textEdit(), "moveCursorSelection", Q_ARG(int, end));
+    QTRY_COMPARE(f->textEdit()->property("selectedText").toString().length(), end - start);
+
+    QTest::keyClick(f->window, Qt::Key_Delete);
+    QTRY_COMPARE(f->rows(), 4);
+    QCOMPARE(f->text(2), QStringLiteral("Alpha lon."));
+    QCOMPARE(f->handle(2), order.at(2));
+    QCOMPARE(f->handle(3), order.at(5));
+
+    QTest::keyClick(f->window, Qt::Key_Z, Qt::ControlModifier);
+    QTRY_COMPARE(f->rows(), 6);
+    QCOMPARE(f->order(), order);
+}
+
+/**! @brief The title is typed in the text, and the project follows. Enter
+ * moves on to the text, and a title takes no line breaks or tabs.
+ */
+void TestGroupEditor::typeTitle()
+{
+    f->enterTitle(2);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("title"));
+    f->type("Intro");
+    QTRY_COMPARE(f->value(2, ProjectModel::TitleRole).toString(), QStringLiteral("Intro"));
+    QCOMPARE(f->listItem(2)->property("name").toString(), QStringLiteral("1.1 Intro"));
+
+    QTest::keyClick(f->window, Qt::Key_Return, Qt::ShiftModifier);
+    QTest::keyClick(f->window, Qt::Key_Tab);
+    QTest::qWait(20);
+    QCOMPARE(f->value(2, ProjectModel::TitleRole).toString(), QStringLiteral("Intro"));
+    QCOMPARE(f->rows(), 6);
+
+    QTest::keyClick(f->window, Qt::Key_Return);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
+    QCOMPARE(f->focusCursor(), 0);
+    QCOMPARE(f->text(2), QStringLiteral("Alpha beta.\nGamma delta."));
+
+    // Backspace at the start of a titled document only goes to the title
+    QTest::keyClick(f->window, Qt::Key_Backspace);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("title"));
+    QCOMPARE(f->focusCursor(), 5);
+    QCOMPARE(f->rows(), 6);
+}
+
+/**! @brief Delete at the end of a text merges the next document if its title
+ * is empty, and does nothing if it has a title.
+ */
+void TestGroupEditor::deleteAtEnd()
+{
+    f->enterText(2, f->text(2).length());
+    QTRY_COMPARE(f->focusHandle(), f->handle(2));
+    QTest::keyClick(f->window, Qt::Key_Delete);
+    QTest::qWait(20);
+    QCOMPARE(f->rows(), 6);
+    QCOMPARE(f->value(3, ProjectModel::TitleRole).toString(), QStringLiteral("Two"));
+
+    const QString merged = f->handle(5);
+    f->enterText(4, f->text(4).length());
+    QTRY_COMPARE(f->focusHandle(), f->handle(4));
+    QTest::keyClick(f->window, Qt::Key_Delete);
+    QTRY_COMPARE(f->rows(), 5);
+    QCOMPARE(f->model()->rowOf(merged), -1);
+    QCOMPARE(f->text(4), QStringLiteral("Epsilon.\nZeta eta theta."));
+    QCOMPARE(f->focusCursor(), 8);
+}
+
+/**! @brief A line break pasted into a title moves the text after it to the
+ * text of the document, in the same undo step.
+ */
+void TestGroupEditor::lineBreakInTitle()
+{
+    QTextCursor cursor(f->doc());
+    cursor.setPosition(f->doc()->titleBlock(f->handle(3)).position() + 3);
+    cursor.insertText(" A\nB");
+    QTRY_COMPARE(f->text(3), QStringLiteral("B"));
+    QCOMPARE(f->value(3, ProjectModel::TitleRole).toString(), QStringLiteral("Two A"));
+    QCOMPARE(f->rows(), 6);
+
+    f->doc()->undo();
+    QTRY_COMPARE(f->value(3, ProjectModel::TitleRole).toString(), QStringLiteral("Two"));
+    QCOMPARE(f->text(3), QString());
+}
+
+/**! @brief Deleting from the start of the text into a document leaves the
+ * rest of it with a new, empty title, in the same undo step.
+ */
+void TestGroupEditor::firstTitleRemoved()
+{
+    const QStringList order = f->order();
+    QTextCursor cursor(f->doc());
+    cursor.setPosition(f->textPosition(2, 6));
+    cursor.setPosition(0, QTextCursor::KeepAnchor);
+    cursor.removeSelectedText();
+    QTRY_COMPARE(f->rows(), 4);
+    QVERIFY(!order.contains(f->handle(0)));
+    QCOMPARE(f->value(0, ProjectModel::TitleRole).toString(), QString());
+    QCOMPARE(f->text(0), QStringLiteral("beta.\nGamma delta."));
+    QCOMPARE(f->handle(1), order.at(3));
+
+    f->doc()->undo();
+    QTRY_COMPARE(f->rows(), 6);
+    QCOMPARE(f->order(), order);
+}
+
+QTEST_MAIN(TestGroupEditor)
+#include "tst_groupeditor.moc"

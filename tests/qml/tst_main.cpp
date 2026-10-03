@@ -54,6 +54,7 @@ private slots:
     void interfaceFont();
     void windowSize();
     void deleteFromSideBar();
+    void showingIsNotEditing();
 
 private:
     QmlFixture *f = nullptr;
@@ -165,9 +166,9 @@ void TestMain::themeButton()
     QCOMPARE(settings->themeMode(), Settings::AutoTheme);
 
     // The editor and side panel backgrounds, and the text of a scene
-    QQuickItem *editor = f->item("editorView")->parentItem();
+    QQuickItem *editor = f->item("editor")->parentItem();
     QQuickItem *panel = f->item("projectList")->parentItem();
-    QQuickItem *text = f->scene(2)->findChild<QQuickItem *>("textEdit");
+    QQuickItem *text = f->textEdit();
     QQuickWindow *dialog = f->window->findChild<QQuickWindow *>("preferencesDialog");
     QVERIFY(editor && panel && text && dialog);
     auto lightness = [](QObject *object, const char *name) { return object->property(name).value<QColor>().lightness(); };
@@ -229,7 +230,7 @@ void TestMain::itemOpensDocument()
 }
 
 /**! @brief Dropping an item on the lower half of another puts it after that
- * one.
+ * one, and undo moves it back.
  */
 void TestMain::dragScene()
 {
@@ -237,8 +238,15 @@ void TestMain::dragScene()
     QStringList expected = f->order();
     expected.move(4, 5);
 
+    const QStringList before = f->order();
     drag(4, 5, 0.75);
     QTRY_COMPARE(f->order(), expected);
+
+    // The move is an edit of the text, so it can be undone there
+    f->enterText(2, 0);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
+    QTest::keyClick(f->window, Qt::Key_Z, Qt::ControlModifier);
+    QTRY_COMPARE(f->order(), before);
 }
 
 /**! @brief A folded chapter is dragged together with its scenes, and stays
@@ -318,13 +326,13 @@ void TestMain::saveCloseOpen()
     const QString file = f->project.store()->projectPath() + "/CollettProject.collett";
     const QString scene = f->handle(2);
 
-    QMetaObject::invokeMethod(f->scene(2), "enterAt", Q_ARG(int, 0));
+    f->enterText(2, 0);
     QTRY_COMPARE(f->focusHandle(), scene);
     f->type("New ");
-    QTRY_VERIFY(f->project.openDocument(scene)->isModified());
+    QTRY_VERIFY(f->doc()->isModified());
 
     QTest::keyClick(f->window, Qt::Key_S, Qt::ControlModifier | Qt::ShiftModifier);
-    QTRY_VERIFY(!f->project.openDocument(scene)->isModified());
+    QTRY_VERIFY(!f->doc()->isModified());
 
     QTest::keyClick(f->window, Qt::Key_W, Qt::ControlModifier | Qt::ShiftModifier);
     QTRY_VERIFY(!f->project.isValid());
@@ -416,8 +424,9 @@ void TestMain::windowSize()
 }
 
 /**! @brief The sidebar menu deletes a document after asking, and the
- * cursor moves from it to the end of the document before. Saying no keeps
- * it, and the last document cannot be deleted.
+ * cursor moves from it to the end of the document before, which is the end
+ * of a chapter title here. Saying no keeps it, and the last document cannot
+ * be deleted.
  */
 void TestMain::deleteFromSideBar()
 {
@@ -431,7 +440,7 @@ void TestMain::deleteFromSideBar()
             handles.append(item.toObject().value("m:handle").toString());
         return handles;
     };
-    QMetaObject::invokeMethod(f->scene(4), "enterAt", Q_ARG(int, 0));
+    f->enterText(4, 0);
     QTRY_COMPARE(f->focusHandle(), scene);
     f->project.saveProject();
     QVERIFY(savedHandles().contains(scene));
@@ -467,7 +476,8 @@ void TestMain::deleteFromSideBar()
     f->project.saveProject();
     QCOMPARE(savedHandles(), f->order());
     QTRY_COMPARE(f->focusHandle(), f->handle(3));
-    QCOMPARE(f->focusPart(), QStringLiteral("text"));
+    QCOMPARE(f->focusPart(), QStringLiteral("title"));
+    QCOMPARE(f->focusCursor(), 3);
 
     // Not the last one
     while (f->rows() > 1)
@@ -475,6 +485,34 @@ void TestMain::deleteFromSideBar()
     item = openMenu(0);
     QVERIFY(item && item->isVisible());
     QVERIFY(!item->isEnabled());
+}
+
+/**! @brief Showing a saved project again, and moving the cursor through it,
+ * changes nothing that needs saving. The counts read with the project are
+ * counted again, and match.
+ */
+void TestMain::showingIsNotEditing()
+{
+    build();
+    QTRY_COMPARE(f->value(2, ProjectModel::WordsRole).toInt(), 2);
+    const QString path = f->project.store()->projectPath() + "/CollettProject.collett";
+    QVERIFY(f->project.closeProject());
+    QCOMPARE(f->project.openProjectAt(path), QString());
+    QTRY_COMPARE(f->focusHandle(), f->project.lastEditedHandle());
+    const QString file = f->project.store()->projectPath() + "/content/document1.json";
+    QVERIFY(QFile::remove(file));
+
+    f->enterText(2, 3);
+    QTest::keyClick(f->window, Qt::Key_Down);
+    QTest::keyClick(f->window, Qt::Key_Down);
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(f->listItem(4)));
+    QTRY_COMPARE(f->focusHandle(), f->handle(4));
+    QTest::qWait(600);
+
+    QVERIFY(!f->doc()->isModified());
+    QVERIFY(!f->model()->group()->isModified());
+    QVERIFY(f->project.saveProject());
+    QVERIFY(!QFile::exists(file));
 }
 
 QTEST_MAIN(TestMain)

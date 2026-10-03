@@ -22,6 +22,7 @@
 #pragma once
 
 #include "collett.h"
+#include "document.h"
 #include "group.h"
 
 #include <QAbstractListModel>
@@ -29,9 +30,12 @@
 #include <QHash>
 #include <QList>
 #include <QModelIndex>
+#include <QPointer>
 #include <QString>
 #include <QVariant>
 #include <QtQml/qqmlregistration.h>
+
+#include <functional>
 
 namespace Collett {
 
@@ -40,6 +44,10 @@ namespace Collett {
  * The documents are listed in reading order. Folding a partition or chapter
  * does not remove rows, it marks the rows it covers as hidden, so the view
  * can animate them in and out.
+ *
+ * When the group's text document is set, it holds the structure: changes to
+ * the titles, levels, breaks and order are made to the document, which can
+ * undo them, and the model follows the document through sync().
  */
 class ProjectModel : public QAbstractListModel
 {
@@ -75,6 +83,8 @@ public:
     // Methods
     Group *group() const { return m_group; };
     void setGroup(Group *group);
+    void setDocument(Document *document) { m_document = document; };
+    void sync(const QList<Document::Item> &items, const std::function<Node *(const Document::Item &)> &create, const std::function<void(Node *)> &dispose);
     Q_INVOKABLE void toggleExpanded(int row);
     Q_INVOKABLE int rowOf(const QString &handle) const;
     Q_INVOKABLE void setTitle(int row, const QString &title);
@@ -92,6 +102,7 @@ signals:
 
 private:
     Group *m_group = nullptr;
+    QPointer<Document> m_document;
     QList<bool> m_hidden;
     QList<bool> m_foldable;
     QList<int> m_numbers;
@@ -99,5 +110,6 @@ private:
 
     void updateStructure();
     void refreshStructure();
+    Document::Item itemOf(const Node *node) const;
 };
 } // namespace Collett

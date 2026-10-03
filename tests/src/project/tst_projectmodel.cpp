@@ -44,6 +44,7 @@ private slots:
     void moveBlockUnfolds();
     void setCounts();
     void insertAndTake();
+    void sync();
 
 private:
     Group *m_group = nullptr;
@@ -280,6 +281,57 @@ void TestProjectModel::insertAndTake()
     delete node;
 
     QCOMPARE(m_model->takeNode(9), nullptr);
+}
+
+/**! @brief The model follows a list of documents: rows that are gone are
+ * removed, rows move into the new order, new rows are made, and each row
+ * takes its values. The views are told with the matching signals.
+ */
+void TestProjectModel::sync()
+{
+    build("CSSC");
+    QStringList created;
+    QStringList disposed;
+    auto create = [&created](const Document::Item &item) {
+        created.append(item.handle);
+        return new Node(item.handle, QString(), item.level);
+    };
+    auto dispose = [&disposed](Node *node) {
+        disposed.append(node->handle());
+        delete node;
+    };
+    auto item = [](const QString &handle, ItemLevel level, const QString &title = QString()) {
+        Document::Item item;
+        item.handle = handle;
+        item.title = title.isEmpty() ? handle : title;
+        item.level = level;
+        return item;
+    };
+
+    QSignalSpy removed(m_model, &ProjectModel::rowsRemoved);
+    QSignalSpy moved(m_model, &ProjectModel::rowsMoved);
+    QSignalSpy inserted(m_model, &ProjectModel::rowsInserted);
+    QSignalSpy structure(m_model, &ProjectModel::structureChanged);
+
+    // Nothing changes
+    m_model->sync({item("C0", ChapterLevel), item("S1", SceneLevel), item("S2", SceneLevel), item("C3", ChapterLevel)}, create, dispose);
+    QCOMPARE(structure.count(), 0);
+
+    // S1 goes, S2 moves last, N is new, and C3 becomes a scene with a title
+    Document::Item scene = item("C3", SceneLevel, "Renamed");
+    scene.hardBreak = true;
+    m_model->sync({item("C0", ChapterLevel), item("N", SceneLevel), scene, item("S2", SceneLevel)}, create, dispose);
+    QCOMPARE(order(), QStringLiteral("C0 N C3 S2"));
+    QCOMPARE(disposed, QStringList({"S1"}));
+    QCOMPARE(created, QStringList({"N"}));
+    QCOMPARE(removed.count(), 1);
+    QCOMPARE(inserted.count(), 1);
+    QCOMPARE(moved.count(), 1);
+    QVERIFY(structure.count() > 0);
+    QCOMPARE(value(2, ProjectModel::TitleRole).toString(), QStringLiteral("Renamed"));
+    QCOMPARE(value(2, ProjectModel::LevelRole).toInt(), int(SceneLevel));
+    QVERIFY(value(2, ProjectModel::HardBreakRole).toBool());
+    QCOMPARE(value(3, ProjectModel::NumberRole).toInt(), 3);
 }
 
 QTEST_GUILESS_MAIN(TestProjectModel)

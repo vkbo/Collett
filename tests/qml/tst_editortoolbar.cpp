@@ -57,14 +57,14 @@ private:
  */
 QTextCharFormat TestEditorToolBar::formatAt(int row, int position)
 {
-    QTextCursor cursor(f->project.openDocument(f->handle(row)));
-    cursor.setPosition(position + 1);
+    QTextCursor cursor(f->doc());
+    cursor.setPosition(f->textPosition(row, position) + 1);
     return cursor.charFormat();
 }
 
 QTextBlockFormat TestEditorToolBar::blockAt(int row, int position)
 {
-    return f->project.openDocument(f->handle(row))->findBlock(position).blockFormat();
+    return f->doc()->findBlock(f->textPosition(row, position)).blockFormat();
 }
 
 void TestEditorToolBar::initTestCase()
@@ -250,8 +250,7 @@ void TestEditorToolBar::enterAfterHeading()
     const Settings::TextFormat format = Settings::instance()->textFormat();
     f->enterText(2, 3);
     QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
-    QQuickItem *binderOwner = f->scene(2);
-    QObject *binder = binderOwner->property("textBinder").value<QObject *>();
+    QObject *binder = f->binder();
     QVERIFY(binder);
     binder->setProperty("headingLevel", 1);
     QTRY_COMPARE(blockAt(2, 0).headingLevel(), 1);
@@ -284,7 +283,7 @@ void TestEditorToolBar::onlyInText()
     f->enterText(2, 2);
     QTRY_VERIFY(button("boldButton")->isEnabled());
 
-    QMetaObject::invokeMethod(f->scene(2), "enterTitleAt", Q_ARG(int, 0));
+    f->enterTitle(2);
     QTRY_COMPARE(f->focusPart(), QStringLiteral("title"));
     QTRY_VERIFY(!button("boldButton")->isEnabled());
     QTest::keyClick(f->window, Qt::Key_B, Qt::ControlModifier);

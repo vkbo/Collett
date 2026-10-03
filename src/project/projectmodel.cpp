@@ -133,14 +133,15 @@ void ProjectModel::toggleExpanded(int row)
 }
 
 /**! @brief Set the title of a document.
- *
- * The title is part of the project structure, so it is saved with the
- * project, not with the document.
  */
 void ProjectModel::setTitle(int row, const QString &title)
 {
     Node *node = m_group ? m_group->item(row) : nullptr;
     if (!node || node->title() == title) {
+        return;
+    }
+    if (m_document) {
+        m_document->setItemTitle(node->handle(), title);
         return;
     }
     node->setTitle(title);
@@ -159,6 +160,12 @@ void ProjectModel::setLevel(int row, int level)
     if (!node || level < ItemLevel::PartitionLevel || level > ItemLevel::PageLevel || node->itemLevel() == level) {
         return;
     }
+    if (m_document) {
+        Document::Item item = itemOf(node);
+        item.level = ItemLevel(level);
+        m_document->setItemValues(item);
+        return;
+    }
     node->setLevel(ItemLevel(level));
     node->setExpanded(true);
     emit dataChanged(index(row), index(row), {LevelRole, ExpandedRole, HardBreakRole, NumberedRole});
@@ -171,6 +178,12 @@ void ProjectModel::setHardBreak(int row, bool state)
 {
     Node *node = m_group ? m_group->item(row) : nullptr;
     if (!node || node->itemLevel() != ItemLevel::SceneLevel || node->hasHardBreak() == state) {
+        return;
+    }
+    if (m_document) {
+        Document::Item item = itemOf(node);
+        item.hardBreak = state;
+        m_document->setItemValues(item);
         return;
     }
     node->setHardBreak(state);
@@ -189,12 +202,22 @@ void ProjectModel::setNumbered(int row, bool state)
     if (!node || node->itemLevel() != ItemLevel::ChapterLevel || node->isNumbered() == state) {
         return;
     }
+    if (m_document) {
+        Document::Item item = itemOf(node);
+        item.numbered = state;
+        m_document->setItemValues(item);
+        return;
+    }
     node->setNumbered(state);
     emit dataChanged(index(row), index(row), {NumberedRole});
     refreshStructure();
 }
 
 /**! @brief Set the text counts of a document.
+ *
+ * Only the words and characters are saved, so a change to the other counts
+ * alone, like the paragraphs after the counts are read from a file, is not a
+ * change to the structure.
  */
 void ProjectModel::setCounts(int row, const TextCounts &counts)
 {
@@ -202,7 +225,11 @@ void ProjectModel::setCounts(int row, const TextCounts &counts)
     if (!node || node->counts() == counts) {
         return;
     }
+    const TextCounts old = node->counts();
     node->setCounts(counts);
+    if (old.words == counts.words && old.characters == counts.characters) {
+        return;
+    }
     emit dataChanged(index(row), index(row), {WordsRole});
     emit structureChanged();
 }
@@ -239,17 +266,22 @@ bool ProjectModel::moveBlock(int row, int count, int before)
         if (!m_hidden.value(i)) shown.insert(m_group->item(i));
     }
 
-    beginMoveRows(QModelIndex(), row, row + count - 1, QModelIndex(), before);
-    const int target = before > row ? before - count : before;
-    QList<Node *> moved;
-    for (int i = 0; i < count; ++i) {
-        moved.append(m_group->takeItem(row));
+    if (m_document) {
+        // The model follows the document as it changes
+        m_document->moveItems(row, count, before);
+    } else {
+        beginMoveRows(QModelIndex(), row, row + count - 1, QModelIndex(), before);
+        const int target = before > row ? before - count : before;
+        QList<Node *> moved;
+        for (int i = 0; i < count; ++i) {
+            moved.append(m_group->takeItem(row));
+        }
+        for (int i = 0; i < count; ++i) {
+            m_group->insertItem(target + i, moved.at(i));
+        }
+        updateStructure();
+        endMoveRows();
     }
-    for (int i = 0; i < count; ++i) {
-        m_group->insertItem(target + i, moved.at(i));
-    }
-    updateStructure();
-    endMoveRows();
 
     for (int r = 0; r < total; ++r) {
         if (!shown.contains(m_group->item(r))) continue;
@@ -297,6 +329,92 @@ Node *ProjectModel::takeNode(int row)
     endRemoveRows();
     refreshStructure();
     return node;
+}
+
+/**! @brief Make the rows match the documents of the text document.
+ *
+ * Rows of documents that are gone are removed and handed to dispose, rows
+ * are moved into the new order, and rows for new documents are made with
+ * create. Each row then takes the title, level and break settings of its
+ * document.
+ */
+void ProjectModel::sync(const QList<Document::Item> &items, const std::function<Node *(const Document::Item &)> &create, const std::function<void(Node *)> &dispose)
+{
+    if (!m_group) {
+        return;
+    }
+
+    QSet<QString> wanted;
+    for (const Document::Item &item : items) {
+        wanted.insert(item.handle);
+    }
+    bool changed = false;
+    for (int row = int(m_group->count()) - 1; row >= 0; --row) {
+        if (wanted.contains(m_group->item(row)->handle())) continue;
+        beginRemoveRows(QModelIndex(), row, row);
+        Node *node = m_group->takeItem(row);
+        updateStructure();
+        endRemoveRows();
+        dispose(node);
+        changed = true;
+    }
+
+    for (int row = 0; row < items.size(); ++row) {
+        const Document::Item &item = items.at(row);
+        if (row >= m_group->count() || m_group->item(row)->handle() != item.handle) {
+            int from = -1;
+            for (int i = row + 1; i < m_group->count(); ++i) {
+                if (m_group->item(i)->handle() == item.handle) {
+                    from = i;
+                    break;
+                }
+            }
+            if (from >= 0) {
+                beginMoveRows(QModelIndex(), from, from, QModelIndex(), row);
+                m_group->insertItem(row, m_group->takeItem(from));
+                updateStructure();
+                endMoveRows();
+            } else {
+                beginInsertRows(QModelIndex(), row, row);
+                m_group->insertItem(row, create(item));
+                updateStructure();
+                endInsertRows();
+            }
+            changed = true;
+        }
+
+        Node *node = m_group->item(row);
+        QList<int> roles;
+        if (node->title() != item.title) {
+            node->setTitle(item.title);
+            roles << Qt::DisplayRole << TitleRole;
+        }
+        if (node->itemLevel() != item.level) {
+            node->setLevel(item.level);
+            node->setExpanded(true);
+            roles << LevelRole << ExpandedRole;
+        }
+        if (node->hasHardBreak() != (item.hardBreak && item.level == ItemLevel::SceneLevel)) {
+            node->setHardBreak(item.hardBreak);
+            roles << HardBreakRole;
+        } else {
+            node->setHardBreak(item.hardBreak);
+        }
+        if (node->isNumbered() != (item.numbered || item.level != ItemLevel::ChapterLevel)) {
+            node->setNumbered(item.numbered);
+            roles << NumberedRole;
+        } else {
+            node->setNumbered(item.numbered);
+        }
+        if (!roles.isEmpty()) {
+            emit dataChanged(index(row), index(row), roles);
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        refreshStructure();
+    }
 }
 
 /**! @brief The row of a document, or -1 if it is not in the group.
@@ -393,6 +511,19 @@ void ProjectModel::refreshStructure()
         emit dataChanged(index(0), index(int(m_group->count()) - 1), {ExpandedRole, FoldableRole, HiddenRole, NumberRole, ChapterNumberRole});
     }
     emit structureChanged();
+}
+
+/**! @brief The values of a node, as the document holds them.
+ */
+Document::Item ProjectModel::itemOf(const Node *node) const
+{
+    Document::Item item;
+    item.handle = node->handle();
+    item.title = node->title();
+    item.level = node->itemLevel();
+    item.hardBreak = node->hasHardBreak();
+    item.numbered = node->isNumbered();
+    return item;
 }
 
 } // namespace Collett

@@ -23,6 +23,7 @@
 #include "tools.h"
 #include "tree.h"
 
+#include <QDateTime>
 #include <QJsonObject>
 #include <QString>
 
@@ -33,7 +34,11 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Node::Node(const QString &handle, const QString &title, ItemLevel level) : m_handle(handle), m_title(title), m_level(level) {}
+Node::Node(const QString &handle, const QString &title, ItemLevel level) : m_handle(handle), m_title(title), m_level(level)
+{
+    m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
+    m_updatedTime = m_createdTime;
+}
 
 Node::~Node() {}
 
@@ -53,6 +58,8 @@ void Node::pack(QJsonObject &data) const
 {
     data["m:handle"_L1] = m_handle;
     data["m:level"_L1] = levelToString(m_level);
+    data["m:created"_L1] = m_createdTime;
+    data["m:updated"_L1] = m_updatedTime;
     data["m:characters"_L1] = m_counts.characters;
     data["m:words"_L1] = m_counts.words;
     if (isFoldable()) {
@@ -93,6 +100,8 @@ Node *Node::unpack(const QJsonObject &data)
     counts.characters = qMax(data["m:characters"_L1].toInt(), 0);
 
     Node *node = new Node(handle, title, level);
+    node->setCreatedTime(JsonUtils::getJsonString(data, "m:created"_L1, "Unknown"));
+    node->setUpdatedTime(JsonUtils::getJsonString(data, "m:updated"_L1, ""));
     node->setCounts(counts);
     node->setExpanded(data["m:expanded"_L1].toBool(true));
     node->setHardBreak(data["m:break"_L1].toBool(false));

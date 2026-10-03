@@ -163,14 +163,14 @@ QString Tree::newHandle() const
     return handle;
 }
 
-/**! @brief Create a document node with a new handle, and register it.
+/**! @brief Create a document node for a handle, and register it.
  *
- * The node is not added to a group. The caller adds it through the model,
- * which owns the order of the documents.
+ * The node is not added to a group. The model adds it when it follows the
+ * group's text document, which holds the order of the documents.
  */
-Node *Tree::createNode(ItemLevel level)
+Node *Tree::createNode(const QString &handle, ItemLevel level)
 {
-    Node *node = new Node(newHandle(), QString(), level);
+    Node *node = new Node(handle, QString(), level);
     m_nodes.insert(node->handle(), node);
     return node;
 }

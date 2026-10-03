@@ -29,6 +29,7 @@
 #include "tree.h"
 
 #include <QHash>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QSet>
 #include <QString>
@@ -61,8 +62,9 @@ public:
     bool saveProjectAs(const QString &path);
 
     // Document Methods
-    Document *openDocument(const QString &handle);
-    Q_INVOKABLE QString splitDocument(const QString &handle, int position);
+    Document *document(Group *group) const;
+    Document *editorDocument() const;
+    Q_INVOKABLE QString splitDocument(int position);
     Q_INVOKABLE bool deleteDocument(const QString &handle);
     Q_INVOKABLE int mergeDocument(const QString &handle);
 
@@ -98,8 +100,11 @@ private:
     Tree *m_tree = nullptr;
     SpellChecker *m_spell = nullptr;
 
-    // Document Cache
-    QHash<QString, Document *> m_documents;
+    // The text of each group, and the text of each document as it was last
+    // read or saved
+    QHash<Group *, Document *> m_documents;
+    QHash<QString, QJsonArray> m_savedContent;
+    bool m_normalizing = false;
     QTimer *m_autoSaveTimer = nullptr;
 
     // Word Counts
@@ -110,7 +115,8 @@ private:
     bool saveGroup(Group *group);
     void setupSpelling();
     void releaseProject();
-    void trackDocument(Document *doc);
+    void trackDocument(Group *group, Document *doc);
+    void syncGroup(Group *group);
     void queueCount(const QString &handle);
 
 private slots:
