@@ -34,9 +34,15 @@ Item {
 
     property Project project
 
+    signal openRequested
+
     // A file URL as a local path, for showing in the location field
     function localPath(url: url): string {
         return decodeURIComponent(url.toString().replace(/^file:\/\//, ""));
+    }
+
+    function focusName() {
+        name.forceActiveFocus();
     }
 
     function create() {
@@ -105,12 +111,24 @@ Item {
             visible: text !== ""
         }
 
-        Button {
-            Layout.alignment: Qt.AlignRight
-            objectName: "createButton"
-            text: qsTr("Create Project")
-            enabled: name.text.trim() !== "" && location.text.trim() !== ""
-            onClicked: root.create()
+        RowLayout {
+            Layout.fillWidth: true
+
+            Button {
+                objectName: "openButton"
+                text: qsTr("Open Project…")
+                flat: true
+                onClicked: root.openRequested()
+            }
+            Item {
+                Layout.fillWidth: true
+            }
+            Button {
+                objectName: "createButton"
+                text: qsTr("Create Project")
+                enabled: name.text.trim() !== "" && location.text.trim() !== ""
+                onClicked: root.create()
+            }
         }
     }
 

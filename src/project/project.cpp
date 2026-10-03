@@ -26,6 +26,7 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QTextBlock>
@@ -33,6 +34,8 @@
 #include <QTextCursor>
 #include <QTextDocumentFragment>
 #include <QUrl>
+
+#include <utility>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -116,6 +119,29 @@ bool Project::openProject(const QString &path)
     emit projectChanged();
 
     return true;
+}
+
+/**! @brief Open an existing project from QML, closing the open one first.
+ *
+ * The location is the project file, as a path or a file URL. Returns an
+ * error message, or an empty string if the project was opened.
+ */
+QString Project::openProjectAt(const QString &location)
+{
+    const QUrl url(location);
+    const QFileInfo info(url.isLocalFile() ? url.toLocalFile() : location);
+    if (!info.isFile()) {
+        return tr("There is no project file at this location.");
+    }
+    if (!this->closeProject()) {
+        return tr("The open project could not be saved: %1").arg(m_lastError);
+    }
+    if (!this->openProject(info.absoluteFilePath())) {
+        const QString error = m_lastError.isEmpty() ? tr("Could not open the project.") : m_lastError;
+        this->releaseProject();
+        return error;
+    }
+    return QString();
 }
 
 /**!
@@ -230,6 +256,20 @@ bool Project::saveProject()
     }
 
     return this->saveOpenDocuments();
+}
+
+/**! @brief Save and close the project.
+ *
+ * Nothing is closed if the project could not be saved. Returns true if no
+ * project is open afterwards.
+ */
+bool Project::closeProject()
+{
+    if (m_isValid && !this->saveProject()) {
+        return false;
+    }
+    this->releaseProject();
+    return true;
 }
 
 /**! @brief Save the project to a new location.
@@ -542,6 +582,37 @@ void Project::setupSpelling()
 {
     m_spell->setStorage(m_store);
     m_spell->setLanguage(m_data->hasSpellLanguage() ? m_data->spellLanguage() : Settings::instance()->spellLanguage());
+}
+
+/**! @brief Let go of the project and everything loaded from it.
+ *
+ * Open documents are announced before they are deleted, so editors can let
+ * go of them. The model goes away before it is deleted, so views can clear
+ * themselves.
+ */
+void Project::releaseProject()
+{
+    m_autoSaveTimer->stop();
+    m_countTimer->stop();
+    m_countQueue.clear();
+
+    for (Document *doc : std::as_const(m_documents)) {
+        emit documentDeleting(doc);
+        doc->deleteLater();
+    }
+    m_documents.clear();
+
+    Storage *store = std::exchange(m_store, nullptr);
+    ProjectData *data = std::exchange(m_data, nullptr);
+    Tree *tree = std::exchange(m_tree, nullptr);
+    const bool wasValid = std::exchange(m_isValid, false);
+    m_lastError.clear();
+    m_spell->setStorage(nullptr);
+    if (wasValid) emit projectChanged();
+
+    if (tree) tree->deleteLater();
+    if (data) data->deleteLater();
+    if (store) store->deleteLater();
 }
 
 /**! @brief Recount a document whenever its text changes.

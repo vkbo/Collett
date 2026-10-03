@@ -44,6 +44,8 @@ private slots:
     void dragFoldedChapter();
     void dragBelowLast();
     void newProject();
+    void saveCloseOpen();
+    void openErrors();
 
 private:
     QmlFixture *f = nullptr;
@@ -295,6 +297,53 @@ void TestMain::newProject()
     QCOMPARE(f->text(0), QStringLiteral("My Novel"));
     QVERIFY(QFileInfo::exists(location.filePath("My Novel/CollettProject.collett")));
     QTRY_COMPARE(f->focusHandle(), f->handle(0));
+}
+
+/**! @brief The menu saves and closes the project, which shows the new
+ * project form, and an existing project opens again with its text.
+ */
+void TestMain::saveCloseOpen()
+{
+    build();
+    const QString file = f->project.store()->projectPath() + "/CollettProject.collett";
+    const QString scene = f->handle(2);
+
+    QMetaObject::invokeMethod(f->scene(2), "enterAt", Q_ARG(int, 0));
+    QTRY_COMPARE(f->focusHandle(), scene);
+    f->type("New ");
+    QTRY_VERIFY(f->project.openDocument(scene)->isModified());
+
+    QTest::keyClick(f->window, Qt::Key_S, Qt::ControlModifier | Qt::ShiftModifier);
+    QTRY_VERIFY(!f->project.openDocument(scene)->isModified());
+
+    QTest::keyClick(f->window, Qt::Key_W, Qt::ControlModifier | Qt::ShiftModifier);
+    QTRY_VERIFY(!f->project.isValid());
+    QCOMPARE(f->project.model(), nullptr);
+    QTRY_VERIFY(f->item("nameField")->hasActiveFocus());
+    QVERIFY(!f->item("saveProjectItem")->isEnabled());
+    QVERIFY(!f->item("closeProjectItem")->isEnabled());
+
+    QCOMPARE(f->project.openProjectAt(QUrl::fromLocalFile(file).toString()), QString());
+    QVERIFY(f->project.isValid());
+    QCOMPARE(f->rows(), 6);
+    QCOMPARE(f->text(2), QStringLiteral("New Alpha beta."));
+    QTRY_VERIFY(!f->item("nameField")->isVisible());
+    QTRY_COMPARE(f->focusHandle(), scene);
+}
+
+/**! @brief Opening a missing project shows an error, and leaves the open
+ * project as it was.
+ */
+void TestMain::openErrors()
+{
+    build();
+    QObject *dialog = f->window->findChild<QObject *>("errorDialog");
+    QVERIFY(dialog);
+
+    QMetaObject::invokeMethod(f->window, "openProject", Q_ARG(QString, "/nowhere/CollettProject.collett"));
+    QTRY_VERIFY(dialog->property("opened").toBool());
+    QVERIFY(f->project.isValid());
+    QCOMPARE(f->rows(), 6);
 }
 
 QTEST_MAIN(TestMain)

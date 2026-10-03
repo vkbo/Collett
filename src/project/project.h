@@ -54,8 +54,10 @@ public:
 
     // Methods
     bool openProject(const QString &path);
+    Q_INVOKABLE QString openProjectAt(const QString &location);
     Q_INVOKABLE QString createProject(const QString &location, const QString &name);
-    bool saveProject();
+    Q_INVOKABLE bool saveProject();
+    Q_INVOKABLE bool closeProject();
     bool saveProjectAs(const QString &path);
 
     // Document Methods
@@ -83,7 +85,7 @@ public:
 
     // Error Handling
     bool hasError() const { return !m_lastError.isEmpty(); };
-    QString lastError() const { return m_lastError; };
+    Q_INVOKABLE QString lastError() const { return m_lastError; };
 
 signals:
     void projectChanged();
@@ -107,6 +109,7 @@ private:
     QTimer *m_countTimer = nullptr;
 
     void setupSpelling();
+    void releaseProject();
     void trackDocument(Document *doc);
     void queueCount(const QString &handle);
 

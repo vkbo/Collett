@@ -21,9 +21,11 @@
 
 pragma ComponentBehavior: Bound
 
+import QtCore
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
+import QtQuick.Dialogs
 import QtQuick.Layouts
 
 import Collett
@@ -53,6 +55,127 @@ ApplicationWindow {
     palette.highlightedText: Material.foreground
     palette.placeholderText: Material.hintTextColor
 
+    menuBar: MenuBar {
+        objectName: "menuBar"
+
+        Menu {
+            title: qsTr("&Project")
+
+            MenuItem {
+                objectName: "newProjectItem"
+                action: Action {
+                    text: qsTr("&New Project")
+                    shortcut: "Ctrl+Shift+N"
+                    onTriggered: window.newProject()
+                }
+            }
+            MenuItem {
+                objectName: "openProjectItem"
+                action: Action {
+                    text: qsTr("&Open Project…")
+                    shortcut: "Ctrl+Shift+O"
+                    onTriggered: openDialog.open()
+                }
+            }
+            MenuItem {
+                objectName: "saveProjectItem"
+                action: Action {
+                    text: qsTr("&Save Project")
+                    shortcut: "Ctrl+Shift+S"
+                    enabled: window.project.isValid
+                    onTriggered: window.saveProject()
+                }
+            }
+            MenuItem {
+                objectName: "closeProjectItem"
+                action: Action {
+                    text: qsTr("&Close Project")
+                    shortcut: "Ctrl+Shift+W"
+                    enabled: window.project.isValid
+                    onTriggered: window.closeProject()
+                }
+            }
+            MenuSeparator {}
+            MenuItem {
+                action: Action {
+                    text: qsTr("E&xit")
+                    shortcut: StandardKey.Quit
+                    onTriggered: Qt.quit()
+                }
+            }
+        }
+
+        Menu {
+            title: qsTr("&Tools")
+
+            MenuItem {
+                action: Action {
+                    text: qsTr("&Preferences")
+                    shortcut: "Ctrl+,"
+                    onTriggered: preferences.openDialog()
+                }
+            }
+        }
+    }
+
+    // Project Actions
+    // Errors are shown in a message box, and leave the project as it was.
+
+    function showError(message: string) {
+        errorDialog.text = message;
+        errorDialog.open();
+    }
+
+    function saveProject() {
+        if (!project.saveProject()) showError(qsTr("The project could not be saved: %1").arg(project.lastError()));
+    }
+
+    function closeProject(): bool {
+        if (project.closeProject()) return true;
+        showError(qsTr("The project could not be saved, so it was not closed: %1").arg(project.lastError()));
+        return false;
+    }
+
+    // The form for a new project shows when no project is open
+    function newProject() {
+        closeProject();
+    }
+
+    function openProject(location: string) {
+        const error = project.openProjectAt(location);
+        if (error) showError(error);
+    }
+
+    FileDialog {
+        id: openDialog
+
+        title: qsTr("Open Project")
+        nameFilters: [qsTr("Collett projects (*.collett)")]
+        currentFolder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        onAccepted: window.openProject(selectedFile.toString())
+    }
+
+    Dialog {
+        id: errorDialog
+
+        property alias text: errorText.text
+
+        objectName: "errorDialog"
+
+        anchors.centerIn: parent
+        width: Math.min(window.width - 64, 480)
+        modal: true
+        title: qsTr("Collett")
+        standardButtons: Dialog.Ok
+
+        Label {
+            id: errorText
+
+            width: parent.width
+            wrapMode: Text.Wrap
+        }
+    }
+
     // The document to show once the editor has a size. The split view sizes
     // the editor after the window is loaded, and an editor without a size
     // cannot scroll to a document.
@@ -73,20 +196,29 @@ ApplicationWindow {
         if (project.lastEditedHandle) showWhenReady(project.lastEditedHandle);
     }
 
-    // A newly created project opens at its title page
+    // An opened project shows the document last edited, and a new project
+    // its title page. When the project is closed, the cursor goes to the
+    // new project form, so it is not left in the editor for the next one.
     Connections {
         target: window.project
 
         function onProjectChanged() {
-            if (window.project.lastEditedHandle) window.showWhenReady(window.project.lastEditedHandle);
+            if (!window.project.isValid) {
+                newProjectForm.focusName();
+            } else if (window.project.lastEditedHandle) {
+                window.showWhenReady(window.project.lastEditedHandle);
+            }
         }
     }
 
     // Without a project, the window shows the form for creating one
     NewProject {
+        id: newProjectForm
+
         anchors.fill: parent
         project: window.project
         visible: !window.project.isValid
+        onOpenRequested: openDialog.open()
     }
 
     // The document made by the last split, while the cursor stays in it
@@ -126,11 +258,6 @@ ApplicationWindow {
 
     PreferencesDialog {
         id: preferences
-    }
-
-    Shortcut {
-        sequences: ["Ctrl+,"]
-        onActivated: preferences.openDialog()
     }
 
     Binding {
