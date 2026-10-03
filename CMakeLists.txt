@@ -116,6 +116,8 @@ qt_add_qml_module(CollettCore
         src/collett.h
         src/core/counting.cpp
         src/core/counting.h
+        src/core/fonts.cpp
+        src/core/fonts.h
         src/core/icons.cpp
         src/core/icons.h
         src/core/labels.cpp
@@ -155,12 +157,14 @@ qt_add_qml_module(CollettCore
         src/static/settings.cpp
         src/static/settings.h
     QML_FILES
+        qml/FontPage.qml
         qml/Main.qml
         qml/NewProject.qml
         qml/PreferencesDialog.qml
         qml/ProjectCard.qml
         qml/SceneEditor.qml
         qml/SettingsGroup.qml
+        qml/SettingsLinkRow.qml
         qml/SettingsRow.qml
         qml/SettingsSection.qml
         qml/Theme.qml

@@ -22,7 +22,6 @@
 #include "collett.h"
 #include "settings.h"
 #include "spellchecker.h"
-#include "tools.h"
 
 #include <QFont>
 #include <QDir>
@@ -37,7 +36,6 @@ using namespace Qt::Literals::StringLiterals;
 
 #define CNF_GUI_LANGUAGE "Main/guiLanguage"_L1
 #define CNF_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
-#define CNF_NATIVE_FONT_DIALOG "Main/nativeFontDialog"_L1
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
 #define CNF_TEXT_FONT "TextFormat/textFont"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
@@ -105,7 +103,6 @@ Settings::Settings(QObject *parent) : QObject(parent)
 
     m_guiLanguage = settings.value(CNF_GUI_LANGUAGE, QLocale::system().name()).toString();
     m_prefsWindowSize = settings.value(CNF_PREFS_WINDOW_SIZE, QSize(900, 700)).toSize();
-    m_nativeFontDialog = settings.value(CNF_NATIVE_FONT_DIALOG, true).toBool();
 
     // Editor Settings
     // ---------------
@@ -145,7 +142,6 @@ void Settings::flushSettings()
 
     settings.setValue(CNF_GUI_LANGUAGE, m_guiLanguage);
     settings.setValue(CNF_PREFS_WINDOW_SIZE, m_prefsWindowSize);
-    settings.setValue(CNF_NATIVE_FONT_DIALOG, m_nativeFontDialog);
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
 
     settings.setValue(CNF_TEXT_FONT, m_textFont.toString());
@@ -192,13 +188,6 @@ QVariantList Settings::spellLanguages() const
     return languages;
 }
 
-/**! @brief A short description of a font, like "12 pt Noto Serif".
- */
-QString Settings::fontDescription(const QFont &font)
-{
-    return FontUtils::describeFont(font);
-}
-
 // Setters
 // =======
 
@@ -221,13 +210,6 @@ void Settings::setEditorAutoSave(const int interval)
     if (qMax(interval, 5) == m_editorAutoSave) return;
     m_editorAutoSave = qMax(interval, 5);
     emit editorAutoSaveChanged();
-}
-
-void Settings::setNativeFontDialog(const bool state)
-{
-    if (state == m_nativeFontDialog) return;
-    m_nativeFontDialog = state;
-    emit nativeFontDialogChanged();
 }
 
 void Settings::setSpellLanguage(const QString &language)

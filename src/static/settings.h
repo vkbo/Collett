@@ -51,7 +51,6 @@ class Settings : public QObject
     Q_PROPERTY(int editorAutoSave READ editorAutoSave WRITE setEditorAutoSave NOTIFY editorAutoSaveChanged)
     Q_PROPERTY(QFont textFont READ textFont WRITE setTextFont NOTIFY textFormatChanged)
     Q_PROPERTY(qreal textTabWidth READ textTabWidth WRITE setTextTabWidth NOTIFY textFormatChanged)
-    Q_PROPERTY(bool nativeFontDialog READ nativeFontDialog WRITE setNativeFontDialog NOTIFY nativeFontDialogChanged)
     Q_PROPERTY(QString spellLanguage READ spellLanguage WRITE setSpellLanguage NOTIFY spellLanguageChanged)
 
 public:
@@ -84,7 +83,6 @@ public:
     Q_INVOKABLE void flushSettings();
     Q_INVOKABLE QVariantList guiLanguages() const;
     Q_INVOKABLE QVariantList spellLanguages() const;
-    Q_INVOKABLE static QString fontDescription(const QFont &font);
 
     // Setters
     void setGuiLanguage(const QString &language);
@@ -92,7 +90,6 @@ public:
     void setEditorAutoSave(const int interval);
     void setTextFont(const QFont &font);
     void setTextTabWidth(const qreal width);
-    void setNativeFontDialog(const bool state);
     void setSpellLanguage(const QString &language);
 
     // Getters
@@ -102,7 +99,6 @@ public:
     QFont textFont() const { return m_textFont; };
     qreal textTabWidth() const { return m_textTabWidth; };
     TextFormat textFormat() const { return m_textFormat; };
-    bool nativeFontDialog() const { return m_nativeFontDialog; };
     QString spellLanguage() const { return m_spellLanguage; };
 
 signals:
@@ -110,7 +106,6 @@ signals:
     void prefsWindowSizeChanged();
     void editorAutoSaveChanged();
     void textFormatChanged();
-    void nativeFontDialogChanged();
     void spellLanguageChanged();
 
 private:
@@ -123,7 +118,6 @@ private:
     // GUI
     QString m_guiLanguage;
     QSize m_prefsWindowSize;
-    bool m_nativeFontDialog;
 
     // Editor
     int m_editorAutoSave;

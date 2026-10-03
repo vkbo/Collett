@@ -23,7 +23,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Dialogs
 import QtQuick.Layouts
 
 import Collett
@@ -54,7 +53,6 @@ Window {
         guiLanguage.model = Settings.guiLanguages();
         guiLanguage.currentIndex = guiLanguage.indexOfValue(Settings.guiLanguage);
         textFont = Settings.textFont;
-        nativeFontDialog.checked = Settings.nativeFontDialog;
         autoSave.value = Settings.editorAutoSave;
         tabWidth.value = Math.round(Settings.textTabWidth);
         spellLanguage.model = Settings.spellLanguages();
@@ -62,6 +60,7 @@ Window {
 
         width = Settings.prefsWindowSize.width;
         height = Settings.prefsWindowSize.height;
+        stack.popToIndex(0, StackView.Immediate);
         flow.contentY = 0;
         currentIndex = 0;
         show();
@@ -74,7 +73,6 @@ Window {
     function save() {
         if (guiLanguage.currentIndex >= 0) Settings.guiLanguage = guiLanguage.currentValue;
         Settings.textFont = textFont;
-        Settings.nativeFontDialog = nativeFontDialog.checked;
         Settings.editorAutoSave = autoSave.value;
         Settings.textTabWidth = tabWidth.value;
         if (spellLanguage.currentIndex >= 0) Settings.spellLanguage = spellLanguage.currentValue;
@@ -84,6 +82,7 @@ Window {
     /**! Scroll a section to the top of the page.
      */
     function showSection(index: int) {
+        if (stack.depth > 1) stack.popToIndex(0);
         currentIndex = index;
         scrollAnimation.to = Math.min(sections[index].y, flow.contentHeight - flow.height);
         scrollAnimation.restart();
@@ -109,7 +108,7 @@ Window {
 
     Shortcut {
         sequences: [StandardKey.Cancel]
-        onActivated: root.close()
+        onActivated: stack.depth > 1 ? stack.pop() : root.close()
     }
 
     Page {
@@ -202,187 +201,177 @@ Window {
                 }
             }
 
-            Flickable {
-                id: flow
+            // Pages for single settings are pushed on top of the settings
+            StackView {
+                id: stack
 
-                objectName: "preferencesFlow"
+                objectName: "preferencesStack"
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                clip: true
-                contentWidth: width
-                contentHeight: sectionColumn.height
-                boundsBehavior: Flickable.StopAtBounds
-                onContentYChanged: root.updateCurrent()
+                initialItem: flow
 
-                ScrollBar.vertical: ScrollBar {}
+                Flickable {
+                    id: flow
 
-                NumberAnimation {
-                    id: scrollAnimation
+                    objectName: "preferencesFlow"
 
-                    target: flow
-                    property: "contentY"
-                    duration: 250
-                    easing.type: Easing.OutCubic
-                }
+                    clip: true
+                    contentWidth: width
+                    contentHeight: sectionColumn.height
+                    boundsBehavior: Flickable.StopAtBounds
+                    onContentYChanged: root.updateCurrent()
 
-                Column {
-                    id: sectionColumn
+                    ScrollBar.vertical: ScrollBar {}
 
-                    width: flow.width - 16
+                    NumberAnimation {
+                        id: scrollAnimation
 
-                    SettingsSection {
-                        id: generalSection
-
-                        title: qsTr("General")
-
-                        SettingsGroup {
-                            title: qsTr("Language")
-
-                            SettingsRow {
-                                title: qsTr("Interface language")
-                                help: qsTr("The language of menus, labels and messages. Requires a restart.")
-
-                                ComboBox {
-                                    id: guiLanguage
-
-                                    objectName: "guiLanguage"
-
-                                    implicitWidth: 220
-                                    textRole: "text"
-                                    valueRole: "value"
-                                    Accessible.name: qsTr("Interface language")
-                                }
-                            }
-                        }
+                        target: flow
+                        property: "contentY"
+                        duration: 250
+                        easing.type: Easing.OutCubic
                     }
 
-                    SettingsSection {
-                        id: appearanceSection
+                    Column {
+                        id: sectionColumn
 
-                        title: qsTr("Appearance")
+                        width: flow.width - 16
 
-                        SettingsGroup {
-                            title: qsTr("Fonts")
+                        SettingsSection {
+                            id: generalSection
 
-                            SettingsRow {
-                                title: qsTr("Text font")
-                                help: qsTr("The font used for document text in the editor.")
+                            title: qsTr("General")
 
-                                TextField {
-                                    objectName: "textFont"
+                            SettingsGroup {
+                                title: qsTr("Language")
 
-                                    implicitWidth: 220
-                                    readOnly: true
-                                    text: Settings.fontDescription(root.textFont)
-                                    Accessible.name: qsTr("Text font")
-                                }
-                                Button {
-                                    icon.source: "image://icons/font"
-                                    icon.color: palette.buttonText
-                                    Accessible.name: qsTr("Select Font")
-                                    onClicked: fontDialog.open()
-                                }
-                            }
-                            SettingsRow {
-                                title: qsTr("Use the system's font selection dialog")
-                                help: qsTr("Turn off to use the Qt font dialog, which may have more options.")
+                                SettingsRow {
+                                    title: qsTr("Interface language")
+                                    help: qsTr("The language of menus, labels and messages. Requires a restart.")
 
-                                Switch {
-                                    id: nativeFontDialog
+                                    ComboBox {
+                                        id: guiLanguage
 
-                                    Accessible.name: qsTr("Use the system's font selection dialog")
-                                }
-                            }
-                        }
-                    }
+                                        objectName: "guiLanguage"
 
-                    SettingsSection {
-                        id: editingSection
-
-                        title: qsTr("Editing")
-
-                        SettingsGroup {
-                            title: qsTr("Saving")
-
-                            SettingsRow {
-                                title: qsTr("Auto-save interval")
-                                help: qsTr("How often, in seconds, changed documents are saved.")
-
-                                SpinBox {
-                                    id: autoSave
-
-                                    objectName: "autoSave"
-
-                                    from: 5
-                                    to: 600
-                                    editable: true
-                                    Accessible.name: qsTr("Auto-save interval")
+                                        implicitWidth: 220
+                                        textRole: "text"
+                                        valueRole: "value"
+                                        Accessible.name: qsTr("Interface language")
+                                    }
                                 }
                             }
                         }
 
-                        SettingsGroup {
-                            title: qsTr("Text")
+                        SettingsSection {
+                            id: appearanceSection
 
-                            SettingsRow {
-                                title: qsTr("First line indent")
-                                help: qsTr("The width of the indent at the start of indented paragraphs.")
+                            title: qsTr("Appearance")
 
-                                SpinBox {
-                                    id: tabWidth
+                            SettingsGroup {
+                                title: qsTr("Fonts")
 
-                                    from: 0
-                                    to: 200
-                                    editable: true
-                                    Accessible.name: qsTr("First line indent")
+                                SettingsLinkRow {
+                                    objectName: "textFontRow"
+
+                                    title: qsTr("Text font")
+                                    help: qsTr("The font used for document text in the editor.")
+                                    value: Fonts.describe(root.textFont)
+                                    onClicked: stack.push(fontPage)
                                 }
                             }
                         }
-                    }
 
-                    SettingsSection {
-                        id: spellingSection
+                        SettingsSection {
+                            id: editingSection
 
-                        title: qsTr("Spell Checking")
+                            title: qsTr("Editing")
 
-                        SettingsGroup {
-                            title: qsTr("Language")
+                            SettingsGroup {
+                                title: qsTr("Saving")
 
-                            SettingsRow {
-                                title: qsTr("Spell checking language")
-                                help: qsTr("The dictionary used for spell checking, unless a project has its own.")
+                                SettingsRow {
+                                    title: qsTr("Auto-save interval")
+                                    help: qsTr("How often, in seconds, changed documents are saved.")
 
-                                ComboBox {
-                                    id: spellLanguage
+                                    SpinBox {
+                                        id: autoSave
 
-                                    objectName: "spellLanguage"
+                                        objectName: "autoSave"
 
-                                    implicitWidth: 220
-                                    textRole: "text"
-                                    valueRole: "value"
-                                    Accessible.name: qsTr("Spell checking language")
+                                        from: 5
+                                        to: 600
+                                        editable: true
+                                        Accessible.name: qsTr("Auto-save interval")
+                                    }
+                                }
+                            }
+
+                            SettingsGroup {
+                                title: qsTr("Text")
+
+                                SettingsRow {
+                                    title: qsTr("First line indent")
+                                    help: qsTr("The width of the indent at the start of indented paragraphs.")
+
+                                    SpinBox {
+                                        id: tabWidth
+
+                                        from: 0
+                                        to: 200
+                                        editable: true
+                                        Accessible.name: qsTr("First line indent")
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    // Room for the last section to scroll to the top
-                    Item {
-                        width: 1
-                        height: Math.max(0, flow.height - spellingSection.height)
+                        SettingsSection {
+                            id: spellingSection
+
+                            title: qsTr("Spell Checking")
+
+                            SettingsGroup {
+                                title: qsTr("Language")
+
+                                SettingsRow {
+                                    title: qsTr("Spell checking language")
+                                    help: qsTr("The dictionary used for spell checking, unless a project has its own.")
+
+                                    ComboBox {
+                                        id: spellLanguage
+
+                                        objectName: "spellLanguage"
+
+                                        implicitWidth: 220
+                                        textRole: "text"
+                                        valueRole: "value"
+                                        Accessible.name: qsTr("Spell checking language")
+                                    }
+                                }
+                            }
+                        }
+
+                        // Room for the last section to scroll to the top
+                        Item {
+                            width: 1
+                            height: Math.max(0, flow.height - spellingSection.height)
+                        }
                     }
                 }
             }
         }
     }
 
-    FontDialog {
-        id: fontDialog
+    Component {
+        id: fontPage
 
-        title: qsTr("Select Font")
-        currentFont: root.textFont
-        options: nativeFontDialog.checked ? 0 : FontDialog.DontUseNativeDialog
-        onAccepted: root.textFont = selectedFont
+        FontPage {
+            title: qsTr("Text font")
+            initialFont: root.textFont
+            onChosen: selected => root.textFont = selected
+            onBack: stack.pop()
+        }
     }
 }
