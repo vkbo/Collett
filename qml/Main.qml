@@ -53,9 +53,24 @@ ApplicationWindow {
     palette.highlightedText: Material.foreground
     palette.placeholderText: Material.hintTextColor
 
-    // The view needs a layout pass before it can scroll to a document
+    // The document to show once the editor has a size. The split view sizes
+    // the editor after the window is loaded, and an editor without a size
+    // cannot scroll to a document.
+    property string pendingScene: ""
+
+    function showWhenReady(handle: string) {
+        pendingScene = handle;
+        Qt.callLater(showPending);
+    }
+
+    function showPending() {
+        if (!pendingScene || editorView.height <= 0) return;
+        editorView.showScene(pendingScene);
+        pendingScene = "";
+    }
+
     Component.onCompleted: {
-        if (project.lastEditedHandle) Qt.callLater(editorView.showScene, project.lastEditedHandle);
+        if (project.lastEditedHandle) showWhenReady(project.lastEditedHandle);
     }
 
     // A newly created project opens at its title page
@@ -63,7 +78,7 @@ ApplicationWindow {
         target: window.project
 
         function onProjectChanged() {
-            if (window.project.lastEditedHandle) Qt.callLater(editorView.showScene, window.project.lastEditedHandle);
+            if (window.project.lastEditedHandle) window.showWhenReady(window.project.lastEditedHandle);
         }
     }
 
@@ -140,6 +155,8 @@ ApplicationWindow {
         // Manuscript list: partitions, chapters and scenes in reading order
         Rectangle {
             id: sideBar
+
+            objectName: "sideBar"
 
             SplitView.preferredWidth: Settings.sideBarWidth
             SplitView.minimumWidth: 180
@@ -351,6 +368,8 @@ ApplicationWindow {
                 id: editorView
 
                 objectName: "editorView"
+
+                onHeightChanged: window.showPending()
 
                 // The side margin leaves room for the document markers to the
                 // left of the text

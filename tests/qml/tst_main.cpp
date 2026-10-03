@@ -38,6 +38,7 @@ private slots:
     void styleFromConfig();
     void levelColours();
     void themeButton();
+    void resizeSideBar();
     void itemOpensDocument();
     void dragScene();
     void dragFoldedChapter();
@@ -60,6 +61,7 @@ void TestMain::initTestCase()
 void TestMain::init()
 {
     Settings::instance()->setThemeMode(Settings::AutoTheme);
+    Settings::instance()->setSideBarWidth(280);
     f = new QmlFixture();
 }
 
@@ -178,6 +180,29 @@ void TestMain::themeButton()
     QTRY_COMPARE(settings->themeMode(), Settings::AutoTheme);
     QTRY_VERIFY(!theme->property("dark").toBool());
     QTRY_VERIFY(lightness(editor, "color") > 128);
+}
+
+/**! @brief Dragging the handle of the split view resizes the side column,
+ * and the width is kept in the settings.
+ */
+void TestMain::resizeSideBar()
+{
+    build();
+    QQuickItem *sideBar = f->item("sideBar");
+    QVERIFY(sideBar);
+    const qreal before = sideBar->width();
+
+    const int y = qRound(sideBar->height() / 2);
+    const QPoint start(qRound(before) + 2, y);
+    QTest::mousePress(f->window, Qt::LeftButton, Qt::NoModifier, start);
+    for (int i = 1; i <= 10; ++i) {
+        QTest::mouseMove(f->window, start + QPoint(8 * i, 0));
+        QTest::qWait(16);
+    }
+    QTest::mouseRelease(f->window, Qt::LeftButton, Qt::NoModifier, start + QPoint(80, 0));
+
+    QTRY_VERIFY(qAbs(sideBar->width() - (before + 80)) <= 2);
+    QTRY_COMPARE(Settings::instance()->sideBarWidth(), qRound(sideBar->width()));
 }
 
 /**! @brief Clicking an item puts the cursor in its document.
