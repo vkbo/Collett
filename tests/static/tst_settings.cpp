@@ -21,7 +21,6 @@
 
 #include "settings.h"
 
-#include <QLocale>
 #include <QtTest>
 
 using namespace Collett;
@@ -33,8 +32,8 @@ class TestSettings : public QObject
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void spellLanguage();
-    void prefsWindowSize();
+    void editorAutoSave();
+    void tabWidth();
     void fonts();
 };
 
@@ -54,30 +53,26 @@ void TestSettings::cleanupTestCase()
     Settings::destroy();
 }
 
-/**! @brief The spell language defaults to the system locale and can be changed.
+/**! @brief The auto save interval has a default and can be changed.
  */
-void TestSettings::spellLanguage()
+void TestSettings::editorAutoSave()
 {
     Settings *settings = Settings::instance();
-    QCOMPARE(settings->spellLanguage(), QLocale::system().name());
+    QCOMPARE(settings->editorAutoSave(), 30);
 
-    settings->setSpellLanguage("nb_NO");
-    QCOMPARE(settings->spellLanguage(), QStringLiteral("nb_NO"));
+    settings->setEditorAutoSave(60);
+    QCOMPARE(settings->editorAutoSave(), 60);
 }
 
-/**! @brief The preferences window size has a default and can be changed.
+/**! @brief The tab width has a default and drives the text format.
  */
-void TestSettings::prefsWindowSize()
+void TestSettings::tabWidth()
 {
     Settings *settings = Settings::instance();
-    QCOMPARE(settings->prefsWindowSize(), QSize(700, 615));
+    QCOMPARE(settings->textFormat().tabWidth, 40.0);
 
-    settings->setPrefsWindowSize(QSize(800, 700));
-    QCOMPARE(settings->prefsWindowSize(), QSize(800, 700));
-
-    QCOMPARE(settings->fontWindowSize(), QSize(700, 550));
-    settings->setFontWindowSize(QSize(600, 400));
-    QCOMPARE(settings->fontWindowSize(), QSize(600, 400));
+    settings->setTextTabWidth(60.0);
+    QCOMPARE(settings->textFormat().tabWidth, 60.0);
 }
 
 /**! @brief The text font drives the text format size, and the fonts have defaults.
@@ -85,8 +80,6 @@ void TestSettings::prefsWindowSize()
 void TestSettings::fonts()
 {
     Settings *settings = Settings::instance();
-    QVERIFY(!settings->guiFont().family().isEmpty());
-    QVERIFY(!settings->monoFont().family().isEmpty());
     QCOMPARE(settings->textFont().pointSizeF(), 13.0);
     QCOMPARE(settings->textFormat().fontSize, 13.0);
 

@@ -34,6 +34,10 @@
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
 #include <QQuickWindow>
+#include <QtQml/QQmlExtensionPlugin>
+
+// The QML module is linked statically
+Q_IMPORT_QML_PLUGIN(CollettPlugin)
 
 // ANSI colours for the log output
 namespace {

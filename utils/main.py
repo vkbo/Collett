@@ -22,12 +22,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 from __future__ import annotations
 
 import argparse
-import shutil
 
+import utils.build
 import utils.gutenberg
 import utils.icons
 
-from utils.common import ROOT_DIR, extractVersion, isStableVersion, log
+from utils.common import extractVersion, isStableVersion
 
 
 def printVersion(args: argparse.Namespace) -> None:
@@ -43,30 +43,6 @@ def printChannel(args: argparse.Namespace) -> None:
 def buildSample(args: argparse.Namespace) -> None:
     """Build a sample project from a Project Gutenberg HTML file."""
     utils.gutenberg.main(args.source, args.target)
-
-
-def cleanBuildDirs(args: argparse.Namespace) -> None:
-    """Recursively delete the build folders."""
-    log("")
-    log("[b]Cleaning up build environment ...[e]")
-    log("")
-
-    folders = [
-        ROOT_DIR / "build",
-        ROOT_DIR / "dist",
-    ]
-
-    for folder in folders:
-        if folder.is_dir():
-            try:
-                shutil.rmtree(folder)
-                log(f"[cg]Deleted:[e] {folder}")
-            except OSError:
-                log(f"[cr]Failed:[e]  {folder}")
-        else:
-            log(f"[cy]Missing:[e] {folder}")
-
-    log("")
 
 
 def main() -> None:
@@ -85,6 +61,27 @@ def main() -> None:
     cmdChannel = parsers.add_parser("channel", help="Print 'stable' or 'pre' depending on the release channel.")
     cmdChannel.set_defaults(func=printChannel)
 
+    # Build and Test
+    # ==============
+
+    # Build
+    cmdBuild = parsers.add_parser("build", help="Configure and build the app.")
+    cmdBuild.add_argument(
+        "options",
+        nargs="*",
+        choices=utils.build.BUILD_OPTIONS,
+        help=(
+            "Any of: clean (delete the build folder first), debug or release (the build type, "
+            "which is otherwise kept, or Debug for a new build), tests (also build the tests)."
+        ),
+    )
+    cmdBuild.set_defaults(func=utils.build.build)
+
+    # Test
+    cmdTest = parsers.add_parser("test", help="Run the unit tests.")
+    cmdTest.add_argument("--build", action="store_true", help="Build the app and tests before running the tests.")
+    cmdTest.set_defaults(func=utils.build.test)
+
     # Additional Builds
     # =================
 
@@ -98,10 +95,6 @@ def main() -> None:
     cmdBuildSample.add_argument("source", help="Path to the HTML file.")
     cmdBuildSample.add_argument("target", help="Path to the project folder to create.")
     cmdBuildSample.set_defaults(func=buildSample)
-
-    # Build Clean
-    cmdBuildClean = parsers.add_parser("build-clean", help="Recursively delete all build folders.")
-    cmdBuildClean.set_defaults(func=cleanBuildDirs)
 
     args = parser.parse_args()
     if hasattr(args, "func"):

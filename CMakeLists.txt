@@ -41,7 +41,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 # Qt6 Library
 # ===========
 
-find_package(Qt6 6.9 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
+find_package(Qt6 6.9 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Test)
 message(STATUS "Found Qt6 Version: ${Qt6_VERSION}")
 
 qt_standard_project_setup(REQUIRES 6.8)
@@ -49,21 +49,24 @@ qt_standard_project_setup(REQUIRES 6.8)
 # Targets
 # =======
 
-qt_add_executable(Collett src/main.cpp)
-target_include_directories(Collett PRIVATE
+# Core library: the C++ code and QML files, as the backing target of the QML
+# module, so the tests can link it without the application's main function
+qt_add_library(CollettCore STATIC)
+target_include_directories(CollettCore PUBLIC
     src
     src/core
     src/editor
     src/project
     src/static
 )
-target_link_libraries(Collett PRIVATE Qt::Gui Qt::Qml Qt::Quick Qt::QuickControls2)
-target_compile_definitions(Collett PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
+target_link_libraries(CollettCore PUBLIC Qt::Gui Qt::Qml Qt::Quick Qt::QuickControls2)
+target_compile_definitions(CollettCore PUBLIC "$<$<CONFIG:Debug>:DEBUG>")
 
 set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
-qt_add_qml_module(Collett
+qt_add_qml_module(CollettCore
     URI Collett
+    OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Collett
     SOURCES
         src/collett.h
         src/core/counting.cpp
@@ -102,4 +105,16 @@ qt_add_qml_module(Collett
         assets/icons/lucide.icons
 )
 
+# Executable
+qt_add_executable(Collett src/main.cpp)
+target_link_libraries(Collett PRIVATE CollettCore CollettCoreplugin)
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")
+
+# Tests
+# =====
+
+option(COLLETT_BUILD_TESTS "Build the Collett unit tests" ON)
+if(COLLETT_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()

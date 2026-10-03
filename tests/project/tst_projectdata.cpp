@@ -35,6 +35,7 @@ private slots:
     void spellLanguageDefault();
     void spellLanguagePack();
     void spellLanguageUnpack();
+    void modifiedTracking();
 };
 
 /**! @brief A new project has no spell language override.
@@ -94,6 +95,37 @@ void TestProjectData::spellLanguageUnpack()
     data.setSpellLanguage("en_US");
     data.unpack(QJsonObject());
     QVERIFY(!data.hasSpellLanguage());
+}
+
+/**! @brief New data is modified, loaded data is not, and only actual
+ * changes mark it as modified again.
+ */
+void TestProjectData::modifiedTracking()
+{
+    ProjectData data;
+    QVERIFY(data.isModified());
+
+    QJsonObject project, settings;
+    project["u:name"] = "Novel";
+    settings["m:lastEdited"] = "0123456789abc";
+    QJsonObject json;
+    json["c:project"] = project;
+    json["c:settings"] = settings;
+    data.unpack(json);
+    QVERIFY(!data.isModified());
+
+    // Setting the same values is not a change
+    data.setName("Novel");
+    data.setLastEditedHandle("0123456789abc");
+    data.setSpellLanguage("");
+    QVERIFY(!data.isModified());
+
+    data.setLastEditedHandle("fedcba9876543");
+    QVERIFY(data.isModified());
+
+    data.setModified(false);
+    data.setName("Another Novel");
+    QVERIFY(data.isModified());
 }
 
 QTEST_MAIN(TestProjectData)
