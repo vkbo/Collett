@@ -72,7 +72,8 @@ def main() -> None:
         choices=utils.build.BUILD_OPTIONS,
         help=(
             "Any of: clean (delete the build folder first), debug or release (the build type, "
-            "which is otherwise kept, or Debug for a new build), tests (also build the tests)."
+            "which is otherwise kept, or Debug for a new build), tests (also build the tests), "
+            "coverage (instrument for coverage, with tests)."
         ),
     )
     cmdBuild.set_defaults(func=utils.build.build)

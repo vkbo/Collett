@@ -6,7 +6,7 @@ name = "collett-utils"
 authors = [{ name = "Veronica Berglyd Olsen", email = "code@vkbo.net" }]
 version = "0.0.0"
 requires-python = ">=3.13"
-dependencies = ["pyright", "ruff"]
+dependencies = ["gcovr", "pyright", "ruff"]
 
 [tool.ruff]
 line-length = 120

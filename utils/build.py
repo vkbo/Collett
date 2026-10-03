@@ -30,7 +30,7 @@ import sys
 from utils.common import ROOT_DIR, log, readEnvFile
 
 BUILD_DIR = ROOT_DIR / "build"
-BUILD_OPTIONS = ["debug", "release", "tests", "clean"]
+BUILD_OPTIONS = ["debug", "release", "tests", "coverage", "clean"]
 
 
 def _run(cmd: list[str]) -> None:
@@ -59,7 +59,8 @@ def buildCollett(options: list[str]) -> None:
     The options are words from BUILD_OPTIONS. "clean" deletes the build
     folder first. "debug" or "release" sets the build type, which otherwise
     stays as it is, or is Debug for a new build folder. "tests" builds the
-    unit tests, which are otherwise left out. The Qt kit is taken from the
+    unit tests, which are otherwise left out. "coverage" instruments the code
+    for coverage, and also builds the tests. The Qt kit is taken from the
     toolchain file set in QT_TOOLCHAIN_FILE in the environment or the .env
     file. Without it, CMake finds Qt itself.
     """
@@ -82,7 +83,9 @@ def buildCollett(options: list[str]) -> None:
         cmd.append("-DCMAKE_BUILD_TYPE=Release")
     elif "debug" in options or _cacheValue("CMAKE_BUILD_TYPE") is None:
         cmd.append("-DCMAKE_BUILD_TYPE=Debug")
-    cmd.append(f"-DCOLLETT_BUILD_TESTS={'ON' if 'tests' in options else 'OFF'}")
+    coverage = "coverage" in options
+    cmd.append(f"-DCOLLETT_BUILD_TESTS={'ON' if coverage or 'tests' in options else 'OFF'}")
+    cmd.append(f"-DCOLLETT_COVERAGE={'ON' if coverage else 'OFF'}")
     if toolchain := os.environ.get("QT_TOOLCHAIN_FILE") or readEnvFile().get("QT_TOOLCHAIN_FILE"):
         cmd.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchain}")
     _run(cmd)
@@ -98,9 +101,14 @@ def build(args: argparse.Namespace) -> None:
 
 
 def test(args: argparse.Namespace) -> None:
-    """Run the unit tests, building them first if asked to."""
+    """Run the unit tests, building them first if asked to.
+
+    A build with coverage runs the tests through the coverage target, which
+    also writes the coverage report.
+    """
+    coverage = _cacheValue("COLLETT_COVERAGE") == "ON"
     if args.build:
-        buildCollett(["tests"])
+        buildCollett(["coverage"] if coverage else ["tests"])
 
     log("")
     log("[b]Test Collett[e]")
@@ -111,6 +119,21 @@ def test(args: argparse.Namespace) -> None:
         log("[cr]Error:[e] The tests are not built. Run 'build tests' first, or add '--build'.")
         sys.exit(1)
 
-    _run(["ctest", "--test-dir", str(BUILD_DIR), "--output-on-failure"])
+    if coverage:
+        _run(["cmake", "--build", str(BUILD_DIR), "--target", "coverage"])
+        log(f"[b]Coverage:[e] {BUILD_DIR / 'coverage' / 'index.html'}")
+        log(f"[b]Total:[e] {_coverageTotal()}")
+    else:
+        _run(["ctest", "--test-dir", str(BUILD_DIR), "--output-on-failure"])
     log("[cg]Tests Done[e]")
     log("")
+
+
+def _coverageTotal() -> str:
+    """Return the total line coverage from the text report."""
+    report = BUILD_DIR / "coverage" / "coverage.txt"
+    if report.is_file():
+        for line in report.read_text(encoding="utf-8").splitlines():
+            if line.startswith("TOTAL"):
+                return line.split()[-1]
+    return "Unknown"

@@ -46,6 +46,43 @@ message(STATUS "Found Qt6 Version: ${Qt6_VERSION}")
 
 qt_standard_project_setup(REQUIRES 6.8)
 
+# Coverage
+# ========
+
+option(COLLETT_COVERAGE "Instrument the code for gcov coverage" OFF)
+if(COLLETT_COVERAGE)
+    message(STATUS "Coverage instrumentation: ON")
+    add_compile_options(--coverage -O0 -g)
+    add_link_options(--coverage)
+
+    # A "coverage" target that runs the tests and renders a report of the C++
+    # code in src. Requires gcovr, and is only defined when it is found.
+    find_program(GCOVR_EXECUTABLE gcovr)
+    if(GCOVR_EXECUTABLE)
+        add_custom_target(coverage
+            COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/coverage
+            COMMAND ${GCOVR_EXECUTABLE}
+                --root ${CMAKE_SOURCE_DIR}
+                --filter ${CMAKE_SOURCE_DIR}/src/
+                --exclude ".*autogen.*"
+                --gcov-ignore-parse-errors
+                --txt ${CMAKE_BINARY_DIR}/coverage/coverage.txt
+                --markdown-heading-level 4
+                --markdown ${CMAKE_BINARY_DIR}/coverage/coverage.md
+                --html-details ${CMAKE_BINARY_DIR}/coverage/index.html
+                --cobertura-pretty --cobertura ${CMAKE_BINARY_DIR}/coverage/coverage.xml
+                --lcov ${CMAKE_BINARY_DIR}/coverage/lcov.info
+                ${CMAKE_BINARY_DIR}
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMENT "Running tests and generating coverage report"
+            USES_TERMINAL
+        )
+    else()
+        message(STATUS "gcovr not found; 'coverage' target unavailable")
+    endif()
+endif()
+
 # Targets
 # =======
 
