@@ -65,10 +65,7 @@ Document::Document(const QString &handle, QObject *parent) : Document(parent)
     m_handle = handle;
 }
 
-Document::~Document()
-{
-    qDebug() << "Destructor: Document";
-}
+Document::~Document() {}
 
 // Public Methods
 // ==============
