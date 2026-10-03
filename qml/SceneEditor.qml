@@ -302,6 +302,8 @@ FocusScope {
         TextInput {
             id: titleInput
 
+            objectName: "titleInput"
+
             width: parent.width
             text: root.title
             wrapMode: TextInput.Wrap
@@ -386,6 +388,8 @@ FocusScope {
 
         TextEdit {
             id: textEdit
+
+            objectName: "textEdit"
 
             width: parent.width
             focus: true

@@ -116,6 +116,8 @@ ApplicationWindow {
             ListView {
                 id: projectList
 
+                objectName: "projectList"
+
                 // Dragging a card: the rows that move, the row they will be
                 // put before, and the height of the gap that opens there
                 property int dragRow: -1
@@ -143,13 +145,14 @@ ApplicationWindow {
                 }
 
                 // The drop goes before the card under the pointer if it is in
-                // the upper half of it, or else after it and any rows it hides
+                // the upper half of it, or else after it and any rows it
+                // hides. Away from the cards, it goes first or last.
                 function updateDrop() {
                     const y = pointerY + contentY;
                     const row = indexAt(width / 2, y);
                     let target = -1;
                     if (row < 0) {
-                        target = pointerY < height / 2 ? 0 : count;
+                        target = y < originY ? 0 : count;
                     } else if (row < dragRow || row >= dragRow + dragCount) {
                         const card = itemAtIndex(row) as ProjectCard;
                         const middle = (dropRow === row ? dropGap : 0) + card.cardHeight / 2;
@@ -256,6 +259,8 @@ ApplicationWindow {
 
             ListView {
                 id: editorView
+
+                objectName: "editorView"
 
                 // The side margin leaves room for the document markers to the
                 // left of the text

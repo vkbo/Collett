@@ -19,20 +19,26 @@
 
 # Register a Qt Test executable and its CTest entry. Tests run headless via the
 # "offscreen" QPA platform so no display server is required. The tests folder
-# mirrors the src folder, so the first argument is the src subfolder of the
-# code under test. Folders that do not mirror src are prefixed with "_".
+# mirrors the repository root, so the first argument is the folder of the code
+# under test, like src/core or qml. Folders that do not mirror the root are
+# prefixed with "_". Tests of the QML also link the QML module's plugin.
 function(collett_add_test subdir name)
     qt_add_executable(${name} ${subdir}/${name}.cpp)
     target_link_libraries(${name} PRIVATE CollettCore Qt::Test)
+    if(subdir STREQUAL "qml")
+        target_link_libraries(${name} PRIVATE CollettCoreplugin)
+    endif()
     add_test(NAME ${name} COMMAND ${name})
     set_tests_properties(${name} PROPERTIES
         ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
     )
 endfunction()
 
-collett_add_test(core tst_counting)
-collett_add_test(core tst_tools)
-collett_add_test(project tst_document)
-collett_add_test(project tst_projectdata)
-collett_add_test(project tst_projectmodel)
-collett_add_test(static tst_settings)
+collett_add_test(src/core tst_counting)
+collett_add_test(src/core tst_tools)
+collett_add_test(src/project tst_document)
+collett_add_test(src/project tst_projectdata)
+collett_add_test(src/project tst_projectmodel)
+collett_add_test(src/static tst_settings)
+collett_add_test(qml tst_main)
+collett_add_test(qml tst_sceneeditor)

@@ -60,6 +60,8 @@ Item {
         TextField {
             id: name
 
+            objectName: "nameField"
+
             Layout.fillWidth: true
             placeholderText: qsTr("The title of the novel")
             focus: true
@@ -74,6 +76,8 @@ Item {
 
             TextField {
                 id: location
+
+                objectName: "locationField"
 
                 Layout.fillWidth: true
                 text: root.localPath(StandardPaths.writableLocation(StandardPaths.DocumentsLocation))
@@ -103,6 +107,7 @@ Item {
 
         Button {
             Layout.alignment: Qt.AlignRight
+            objectName: "createButton"
             text: qsTr("Create Project")
             enabled: name.text.trim() !== "" && location.text.trim() !== ""
             onClicked: root.create()

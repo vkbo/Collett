@@ -1,0 +1,204 @@
+/*
+** Collett - Main Window Tests
+** ===========================
+**
+** This file is a part of Collett
+** Copyright (C) 2026 Veronica Berglyd Olsen
+**
+** This program is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+** General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#include "qmlfixture.h"
+
+#include <QtTest>
+
+using namespace Collett;
+
+class TestMain : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void init();
+    void cleanup();
+    void cardOpensDocument();
+    void dragScene();
+    void dragFoldedChapter();
+    void dragBelowLast();
+    void newProject();
+
+private:
+    QmlFixture *f = nullptr;
+
+    void build();
+    void drag(int from, int onto, qreal fraction);
+    QPoint cardPoint(int row, qreal fraction) const;
+};
+
+void TestMain::initTestCase()
+{
+    initQmlTests();
+}
+
+void TestMain::init()
+{
+    f = new QmlFixture();
+}
+
+void TestMain::cleanup()
+{
+    delete f;
+    f = nullptr;
+}
+
+/**! @brief A title page, then chapter 1 with one scene, and chapter 2 with
+ * two scenes.
+ */
+void TestMain::build()
+{
+    QVERIFY(f->create());
+    f->addDocument(ItemLevel::ChapterLevel, "One", "");
+    f->addDocument(ItemLevel::SceneLevel, "", "Alpha beta.");
+    f->addDocument(ItemLevel::ChapterLevel, "Two", "");
+    f->addDocument(ItemLevel::SceneLevel, "", "Gamma.");
+    f->addDocument(ItemLevel::SceneLevel, "", "Delta.");
+    QVERIFY(f->load());
+}
+
+/**! @brief A point a fraction down the visible card of a row, below any
+ * drop gap that is open above it.
+ */
+QPoint TestMain::cardPoint(int row, qreal fraction) const
+{
+    QQuickItem *card = f->card(row);
+    const qreal y = card->property("dropGap").toReal() + card->property("cardHeight").toReal() * fraction;
+    return card->mapToScene(QPointF(card->width() / 2, y)).toPoint();
+}
+
+/**! @brief Drag a card with the mouse onto a point a fraction down another
+ * card, in small steps, like a real drag. The cards move aside while
+ * dragging, so the target point is taken again on every step, and the last
+ * steps wait on it for the cards to settle. Each step also waits for a frame,
+ * as the move delay of QTest only sets the event time.
+ */
+void TestMain::drag(int from, int onto, qreal fraction)
+{
+    const QPoint start = cardPoint(from, 0.5);
+    QTest::mousePress(f->window, Qt::LeftButton, Qt::NoModifier, start);
+    const int steps = 20;
+    QPoint at = start;
+    for (int i = 1; i <= steps + 10; ++i) {
+        const QPoint end = cardPoint(onto, fraction);
+        at = start + (end - start) * qMin(i, steps) / steps;
+        QTest::mouseMove(f->window, at);
+        QTest::qWait(16);
+    }
+    QTest::mouseRelease(f->window, Qt::LeftButton, Qt::NoModifier, at);
+}
+
+/**! @brief Clicking a card puts the cursor in its document.
+ */
+void TestMain::cardOpensDocument()
+{
+    build();
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(f->card(4)));
+    QTRY_COMPARE(f->focusHandle(), f->handle(4));
+    QCOMPARE(f->focusPart(), QStringLiteral("text"));
+    QCOMPARE(f->window->property("focusHandle").toString(), f->handle(4));
+}
+
+/**! @brief Dropping a card on the lower half of another puts it after that
+ * one.
+ */
+void TestMain::dragScene()
+{
+    build();
+    QStringList expected = f->order();
+    expected.move(4, 5);
+
+    drag(4, 5, 0.75);
+    QTRY_COMPARE(f->order(), expected);
+}
+
+/**! @brief A folded chapter is dragged together with its scenes, and stays
+ * folded.
+ */
+void TestMain::dragFoldedChapter()
+{
+    build();
+    const QStringList before = f->order();
+    f->model()->toggleExpanded(3);
+    QTRY_COMPARE(f->card(4)->height(), 0.0);
+
+    drag(3, 1, 0.25);
+    const QStringList expected = {before[0], before[3], before[4], before[5], before[1], before[2]};
+    QTRY_COMPARE(f->order(), expected);
+    QCOMPARE(f->value(1, ProjectModel::ExpandedRole).toBool(), false);
+}
+
+/**! @brief Dropping a card in the empty space below the last card puts it
+ * last.
+ */
+void TestMain::dragBelowLast()
+{
+    build();
+    QStringList expected = f->order();
+    expected.move(2, 5);
+
+    const QPoint start = cardPoint(2, 0.5);
+    QTest::mousePress(f->window, Qt::LeftButton, Qt::NoModifier, start);
+    QPoint at = start;
+    for (int i = 1; i <= 30; ++i) {
+        const QPoint end = cardPoint(5, 1.0) + QPoint(0, 60);
+        at = start + (end - start) * qMin(i, 20) / 20;
+        QTest::mouseMove(f->window, at);
+        QTest::qWait(16);
+    }
+    QTest::mouseRelease(f->window, Qt::LeftButton, Qt::NoModifier, at);
+    QTRY_COMPARE(f->order(), expected);
+}
+
+/**! @brief Without a project, the window shows the new project form, and
+ * the project it creates opens at its title page.
+ */
+void TestMain::newProject()
+{
+    QTemporaryDir location;
+    QVERIFY(location.isValid());
+    QVERIFY(f->load());
+    QVERIFY(!f->project.isValid());
+
+    QQuickItem *name = f->item("nameField");
+    QQuickItem *folder = f->item("locationField");
+    QQuickItem *create = f->item("createButton");
+    QVERIFY(name && folder && create);
+    QTRY_VERIFY(name->isVisible());
+    QVERIFY(!create->isEnabled());
+
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(name));
+    f->type("My Novel");
+    folder->setProperty("text", location.path());
+    QTRY_VERIFY(create->isEnabled());
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(create));
+
+    QTRY_VERIFY(f->project.isValid());
+    QCOMPARE(f->rows(), 1);
+    QCOMPARE(f->text(0), QStringLiteral("My Novel"));
+    QVERIFY(QFileInfo::exists(location.filePath("My Novel/CollettProject.collett")));
+    QTRY_COMPARE(f->focusHandle(), f->handle(0));
+}
+
+QTEST_MAIN(TestMain)
+#include "tst_main.moc"
