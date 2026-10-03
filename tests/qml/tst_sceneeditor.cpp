@@ -47,6 +47,7 @@ private slots:
     void multiSpaces();
     void typingWord();
     void deleteFromTypeMenu();
+    void emptyTextCursor();
 
 private:
     QmlFixture *f = nullptr;
@@ -449,6 +450,33 @@ void TestSceneEditor::deleteFromTypeMenu()
     QMetaObject::invokeMethod(dialog, "accept");
     QTRY_COMPARE(f->rows(), 5);
     QCOMPARE(f->model()->rowOf(scene), -1);
+}
+
+/**! @brief After a split at the end of the text, the cursor in the new
+ * document's empty title and text is not cut off by the boxes around them.
+ */
+void TestSceneEditor::emptyTextCursor()
+{
+    f->enterText(4, 8);
+    QTRY_COMPARE(f->focusCursor(), 8);
+    QTest::keyClick(f->window, Qt::Key_Return, Qt::ControlModifier);
+    QTRY_COMPARE(f->rows(), 7);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("title"));
+
+    // The box clipping the title and text reaches past the cursor at the
+    // start of the line, so it is not lost to rounding when scaled
+    auto clearOfClip = [](QQuickItem *item) {
+        const QRectF cursor = item->mapRectToItem(item->parentItem(), item->property("cursorRectangle").toRectF());
+        return cursor.height() > 0 && cursor.left() >= 2 && cursor.bottom() <= item->parentItem()->height();
+    };
+    QVERIFY(clearOfClip(f->window->activeFocusItem()));
+
+    QTest::keyClick(f->window, Qt::Key_Return);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
+    QQuickItem *text = f->window->activeFocusItem();
+    QCOMPARE(f->text(5), QString());
+    QVERIFY(text->property("cursorVisible").toBool());
+    QVERIFY(clearOfClip(text));
 }
 
 QTEST_MAIN(TestSceneEditor)

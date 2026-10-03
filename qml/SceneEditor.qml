@@ -54,6 +54,11 @@ FocusScope {
     readonly property bool bodyShown: textEdit.length > 0 || textEdit.activeFocus
     readonly property real textX: Math.max((width - textWidth) / 2, 0)
 
+    // The title and text boxes clip their content so they can collapse, and
+    // reach a little past the text on both sides, so a cursor at the start
+    // or end of a line is not clipped away
+    readonly property real clipMargin: 4
+
     // The formatting of the text, for the tool bar, which is only used while
     // the cursor is in the text
     readonly property DocumentBinder textBinder: binder
@@ -304,9 +309,9 @@ FocusScope {
     Item {
         id: titleBox
 
-        x: root.textX
+        x: root.textX - root.clipMargin
         y: typeLabel.y + typeLabel.height + 4
-        width: root.textWidth
+        width: root.textWidth + 2 * root.clipMargin
         height: root.titleShown ? titleInput.implicitHeight + 12 : 0
         clip: true
 
@@ -315,7 +320,8 @@ FocusScope {
 
             objectName: "titleInput"
 
-            width: parent.width
+            x: root.clipMargin
+            width: root.textWidth
             text: root.title
             wrapMode: TextInput.Wrap
             selectByMouse: true
@@ -389,9 +395,9 @@ FocusScope {
     Item {
         id: bodyBox
 
-        x: root.textX
+        x: root.textX - root.clipMargin
         y: titleBox.y + titleBox.height
-        width: root.textWidth
+        width: root.textWidth + 2 * root.clipMargin
         height: root.bodyShown ? textEdit.height : 0
         clip: true
 
@@ -400,8 +406,12 @@ FocusScope {
 
             objectName: "textEdit"
 
-            width: parent.width
+            x: root.clipMargin
+            width: root.textWidth
             focus: true
+            // An empty document is laid out with the font of the TextEdit, so
+            // it must match the text font, or the cursor is cut off
+            font: binder.textFont
             wrapMode: TextEdit.Wrap
             selectByMouse: true
             persistentSelection: true
