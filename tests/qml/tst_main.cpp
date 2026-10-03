@@ -38,7 +38,7 @@ private slots:
     void styleFromConfig();
     void levelColours();
     void themeButton();
-    void cardOpensDocument();
+    void itemOpensDocument();
     void dragScene();
     void dragFoldedChapter();
     void dragBelowLast();
@@ -49,7 +49,7 @@ private:
 
     void build();
     void drag(int from, int onto, qreal fraction);
-    QPoint cardPoint(int row, qreal fraction) const;
+    QPoint itemPoint(int row, qreal fraction) const;
 };
 
 void TestMain::initTestCase()
@@ -83,30 +83,30 @@ void TestMain::build()
     QVERIFY(f->load());
 }
 
-/**! @brief A point a fraction down the visible card of a row, below any
+/**! @brief A point a fraction down the visible item of a row, below any
  * drop gap that is open above it.
  */
-QPoint TestMain::cardPoint(int row, qreal fraction) const
+QPoint TestMain::itemPoint(int row, qreal fraction) const
 {
-    QQuickItem *card = f->card(row);
-    const qreal y = card->property("dropGap").toReal() + card->property("cardHeight").toReal() * fraction;
-    return card->mapToScene(QPointF(card->width() / 2, y)).toPoint();
+    QQuickItem *item = f->listItem(row);
+    const qreal y = item->property("dropGap").toReal() + item->property("itemHeight").toReal() * fraction;
+    return item->mapToScene(QPointF(item->width() / 2, y)).toPoint();
 }
 
-/**! @brief Drag a card with the mouse onto a point a fraction down another
- * card, in small steps, like a real drag. The cards move aside while
+/**! @brief Drag an item with the mouse onto a point a fraction down another
+ * item, in small steps, like a real drag. The items move aside while
  * dragging, so the target point is taken again on every step, and the last
- * steps wait on it for the cards to settle. Each step also waits for a frame,
+ * steps wait on it for the items to settle. Each step also waits for a frame,
  * as the move delay of QTest only sets the event time.
  */
 void TestMain::drag(int from, int onto, qreal fraction)
 {
-    const QPoint start = cardPoint(from, 0.5);
+    const QPoint start = itemPoint(from, 0.5);
     QTest::mousePress(f->window, Qt::LeftButton, Qt::NoModifier, start);
     const int steps = 20;
     QPoint at = start;
     for (int i = 1; i <= steps + 10; ++i) {
-        const QPoint end = cardPoint(onto, fraction);
+        const QPoint end = itemPoint(onto, fraction);
         at = start + (end - start) * qMin(i, steps) / steps;
         QTest::mouseMove(f->window, at);
         QTest::qWait(16);
@@ -180,18 +180,18 @@ void TestMain::themeButton()
     QTRY_VERIFY(lightness(editor, "color") > 128);
 }
 
-/**! @brief Clicking a card puts the cursor in its document.
+/**! @brief Clicking an item puts the cursor in its document.
  */
-void TestMain::cardOpensDocument()
+void TestMain::itemOpensDocument()
 {
     build();
-    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(f->card(4)));
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(f->listItem(4)));
     QTRY_COMPARE(f->focusHandle(), f->handle(4));
     QCOMPARE(f->focusPart(), QStringLiteral("text"));
     QCOMPARE(f->window->property("focusHandle").toString(), f->handle(4));
 }
 
-/**! @brief Dropping a card on the lower half of another puts it after that
+/**! @brief Dropping an item on the lower half of another puts it after that
  * one.
  */
 void TestMain::dragScene()
@@ -212,7 +212,7 @@ void TestMain::dragFoldedChapter()
     build();
     const QStringList before = f->order();
     f->model()->toggleExpanded(3);
-    QTRY_COMPARE(f->card(4)->height(), 0.0);
+    QTRY_COMPARE(f->listItem(4)->height(), 0.0);
 
     drag(3, 1, 0.25);
     const QStringList expected = {before[0], before[3], before[4], before[5], before[1], before[2]};
@@ -220,7 +220,7 @@ void TestMain::dragFoldedChapter()
     QCOMPARE(f->value(1, ProjectModel::ExpandedRole).toBool(), false);
 }
 
-/**! @brief Dropping a card in the empty space below the last card puts it
+/**! @brief Dropping an item in the empty space below the last item puts it
  * last.
  */
 void TestMain::dragBelowLast()
@@ -229,11 +229,11 @@ void TestMain::dragBelowLast()
     QStringList expected = f->order();
     expected.move(2, 5);
 
-    const QPoint start = cardPoint(2, 0.5);
+    const QPoint start = itemPoint(2, 0.5);
     QTest::mousePress(f->window, Qt::LeftButton, Qt::NoModifier, start);
     QPoint at = start;
     for (int i = 1; i <= 30; ++i) {
-        const QPoint end = cardPoint(5, 1.0) + QPoint(0, 60);
+        const QPoint end = itemPoint(5, 1.0) + QPoint(0, 60);
         at = start + (end - start) * qMin(i, 20) / 20;
         QTest::mouseMove(f->window, at);
         QTest::qWait(16);

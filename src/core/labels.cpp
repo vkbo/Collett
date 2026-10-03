@@ -104,6 +104,24 @@ QString Labels::statName(Stat stat)
     return QString();
 }
 
+/**! @brief The number of a document, or an empty string if it has none.
+ *
+ * Numbered chapters show their number, and scenes the number of their
+ * chapter and their own, like "3.2". Partitions, pages and unnumbered
+ * chapters have none.
+ */
+QString Labels::levelNumber(int level, bool numbered, int number, int chapterNumber)
+{
+    switch (level) {
+    case ItemLevel::ChapterLevel:
+        return numbered ? QString::number(number) : QString();
+    case ItemLevel::SceneLevel:
+        return chapterNumber > 0 ? u"%1.%2"_s.arg(chapterNumber).arg(number) : QString::number(number);
+    default:
+        return QString();
+    }
+}
+
 /**! @brief A word count, like "1,234 words", in the plural form of the
  * language.
  */

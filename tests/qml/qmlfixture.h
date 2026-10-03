@@ -147,7 +147,7 @@ public:
         return found;
     }
     QQuickItem *scene(int row) const { return itemAt("editorView", row); }
-    QQuickItem *card(int row) const { return itemAt("projectList", row); }
+    QQuickItem *listItem(int row) const { return itemAt("projectList", row); }
 
     /**! @brief The centre of an item, or a point a fraction down it, in
      * window coordinates.

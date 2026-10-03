@@ -58,7 +58,6 @@ Window {
     palette.windowText: Material.foreground
     palette.base: Material.background
     palette.text: Material.foreground
-    palette.button: Material.buttonColor
     palette.buttonText: Material.foreground
     palette.highlight: Material.textSelectionColor
     palette.highlightedText: Material.foreground

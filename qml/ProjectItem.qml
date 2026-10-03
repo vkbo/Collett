@@ -1,5 +1,5 @@
 /*
-** Collett - Project Card
+** Collett - Project Item
 ** ======================
 **
 ** This file is a part of Collett
@@ -21,12 +21,13 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.impl
 import QtQuick.Layouts
 
 import Collett
 
-// A document in the project list. Cards hidden by a folded partition or
-// chapter collapse to zero height, so the cards below slide up. A card being
+// A document in the project list. Items hidden by a folded partition or
+// chapter collapse to zero height, so the items below slide up. An item being
 // dragged also collapses, but stays visible so it keeps the pointer grab.
 Item {
     id: root
@@ -36,6 +37,9 @@ Item {
     required property string title
     required property int level
     required property int words
+    required property int number
+    required property bool numbered
+    required property int chapterNumber
     required property bool expanded
     required property bool foldable
     required property bool hidden
@@ -51,10 +55,10 @@ Item {
     signal dragFinished()
 
     readonly property color levelColor: Theme.levelColor(level)
-    readonly property real gap: 6
-    readonly property real cardHeight: card.height
+    readonly property real gap: 2
+    readonly property real itemHeight: entry.height
 
-    implicitHeight: hidden || dragged ? 0 : dropGap + card.height + gap
+    implicitHeight: hidden || dragged ? 0 : dropGap + entry.height + gap
     opacity: hidden || dragged ? 0 : 1
     visible: implicitHeight > 0 || dragged
     clip: true
@@ -78,20 +82,19 @@ Item {
         }
     }
 
-    Rectangle {
-        id: card
+    // A standard list row: the level icon, the title with the word count
+    // below, and the fold button at the end
+    ItemDelegate {
+        id: entry
 
         y: root.dropGap
         width: root.width
-        height: content.implicitHeight + 16
-        radius: 6
-        color: Qt.rgba(root.levelColor.r, root.levelColor.g, root.levelColor.b, root.selected ? 0.28 : 0.12)
-        border.width: root.selected ? 2 : 1
-        border.color: root.levelColor
-
-        TapHandler {
-            onTapped: root.openRequested(root.handle)
-        }
+        leftPadding: 12
+        rightPadding: 4
+        topPadding: 6
+        bottomPadding: 6
+        highlighted: root.selected
+        onClicked: root.openRequested(root.handle)
 
         DragHandler {
             target: null
@@ -103,23 +106,28 @@ Item {
             }
         }
 
-        RowLayout {
-            id: content
+        contentItem: RowLayout {
+            spacing: 12
 
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.leftMargin: 10
-            anchors.rightMargin: 4
-            spacing: 4
+            IconImage {
+                Layout.preferredWidth: 20
+                Layout.preferredHeight: 20
+                source: "image://icons/" + Theme.levelIcon(root.level)
+                sourceSize: Qt.size(20, 20)
+                color: root.levelColor
+            }
 
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 2
+                spacing: 0
 
                 Label {
                     Layout.fillWidth: true
-                    text: root.title || Labels.levelName(root.level)
+                    text: {
+                        const name = root.title || Labels.levelName(root.level);
+                        const number = Labels.levelNumber(root.level, root.numbered, root.number, root.chapterNumber);
+                        return number ? number + " " + name : name;
+                    }
                     elide: Text.ElideRight
                     font.weight: root.level === Collett.PartitionLevel || root.level === Collett.ChapterLevel ? Font.DemiBold : Font.Normal
                 }

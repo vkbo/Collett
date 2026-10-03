@@ -161,7 +161,7 @@ qt_add_qml_module(CollettCore
         qml/Main.qml
         qml/NewProject.qml
         qml/PreferencesDialog.qml
-        qml/ProjectCard.qml
+        qml/ProjectItem.qml
         qml/SceneEditor.qml
         qml/SettingsGroup.qml
         qml/SettingsLinkRow.qml

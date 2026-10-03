@@ -48,7 +48,6 @@ ApplicationWindow {
     palette.windowText: Material.foreground
     palette.base: Material.background
     palette.text: Material.foreground
-    palette.button: Material.buttonColor
     palette.buttonText: Material.foreground
     palette.highlight: Material.textSelectionColor
     palette.highlightedText: Material.foreground
@@ -125,15 +124,26 @@ ApplicationWindow {
         value: window.Material.theme === Material.Dark
     }
 
-    RowLayout {
+    // The side column can be resized, and its width is kept when the handle
+    // is released
+    SplitView {
+        objectName: "mainSplit"
+
         anchors.fill: parent
-        spacing: 0
         visible: window.project.isValid
+        onResizingChanged: {
+            if (resizing) return;
+            Settings.sideBarWidth = sideBar.width;
+            Settings.flushSettings();
+        }
 
         // Manuscript list: partitions, chapters and scenes in reading order
         Rectangle {
-            Layout.fillHeight: true
-            Layout.preferredWidth: 280
+            id: sideBar
+
+            SplitView.preferredWidth: Settings.sideBarWidth
+            SplitView.minimumWidth: 180
+            SplitView.maximumWidth: window.width / 2
             color: window.palette.window
 
             ListView {
@@ -141,7 +151,7 @@ ApplicationWindow {
 
                 objectName: "projectList"
 
-                // Dragging a card: the rows that move, the row they will be
+                // Dragging an item: the rows that move, the row they will be
                 // put before, and the height of the gap that opens there
                 property int dragRow: -1
                 property int dragCount: 0
@@ -150,16 +160,19 @@ ApplicationWindow {
                 property real pointerY: 0
                 readonly property bool reordering: dragRow >= 0
 
-                function startDrag(card: ProjectCard) {
-                    dragRow = card.index;
-                    dragCount = window.project.model.blockSize(card.index);
+                function startDrag(item: ProjectItem) {
+                    dragRow = item.index;
+                    dragCount = window.project.model.blockSize(item.index);
                     dropRow = dragRow + dragCount;
-                    dropGap = card.cardHeight + card.gap;
-                    dragProxy.title = card.title;
-                    dragProxy.level = card.level;
-                    dragProxy.words = card.words;
-                    dragProxy.expanded = card.expanded;
-                    dragProxy.foldable = card.foldable;
+                    dropGap = item.itemHeight + item.gap;
+                    dragProxy.title = item.title;
+                    dragProxy.level = item.level;
+                    dragProxy.words = item.words;
+                    dragProxy.number = item.number;
+                    dragProxy.numbered = item.numbered;
+                    dragProxy.chapterNumber = item.chapterNumber;
+                    dragProxy.expanded = item.expanded;
+                    dragProxy.foldable = item.foldable;
                 }
 
                 function moveDrag(scenePosition: point) {
@@ -167,9 +180,9 @@ ApplicationWindow {
                     updateDrop();
                 }
 
-                // The drop goes before the card under the pointer if it is in
+                // The drop goes before the item under the pointer if it is in
                 // the upper half of it, or else after it and any rows it
-                // hides. Away from the cards, it goes first or last.
+                // hides. Away from the items, it goes first or last.
                 function updateDrop() {
                     const y = pointerY + contentY;
                     const row = indexAt(width / 2, y);
@@ -177,9 +190,9 @@ ApplicationWindow {
                     if (row < 0) {
                         target = y < originY ? 0 : count;
                     } else if (row < dragRow || row >= dragRow + dragCount) {
-                        const card = itemAtIndex(row) as ProjectCard;
-                        const middle = (dropRow === row ? dropGap : 0) + card.cardHeight / 2;
-                        target = y - card.y < middle ? row : row + window.project.model.blockSize(row);
+                        const item = itemAtIndex(row) as ProjectItem;
+                        const middle = (dropRow === row ? dropGap : 0) + item.itemHeight / 2;
+                        target = y - item.y < middle ? row : row + window.project.model.blockSize(row);
                     }
                     if (target === dragRow) target = dragRow + dragCount;
                     if (target >= 0) dropRow = target;
@@ -202,25 +215,25 @@ ApplicationWindow {
                 boundsBehavior: Flickable.StopAtBounds
                 interactive: !reordering
 
-                // Mouse drags move cards, so only the wheel, touchpad and
+                // Mouse drags move items, so only the wheel, touchpad and
                 // touch scroll the list
                 acceptedButtons: Qt.NoButton
                 ScrollBar.vertical: ScrollBar {}
 
-                // The dragged card must not be destroyed while it holds the
-                // pointer, so all cards are kept while dragging
+                // The dragged item must not be destroyed while it holds the
+                // pointer, so all items are kept while dragging
                 cacheBuffer: reordering ? 100000 : 0
 
-                delegate: ProjectCard {
-                    id: projectCard
+                delegate: ProjectItem {
+                    id: projectItem
 
                     width: projectList.width
-                    selected: projectCard.handle === window.focusHandle
+                    selected: projectItem.handle === window.focusHandle
                     dragged: projectList.dragRow === index
                     dropGap: projectList.dropRow === index ? projectList.dropGap : 0
                     onOpenRequested: handle => editorView.showScene(handle)
                     onFoldRequested: index => window.project.model.toggleExpanded(index)
-                    onDragStarted: projectList.startDrag(projectCard)
+                    onDragStarted: projectList.startDrag(projectItem)
                     onDragMoved: scenePosition => projectList.moveDrag(scenePosition)
                     onDragFinished: projectList.finishDrag()
                 }
@@ -296,33 +309,42 @@ ApplicationWindow {
                 }
             }
 
-            // A copy of the dragged card that follows the pointer
-            ProjectCard {
-                id: dragProxy
-
-                index: -1
-                handle: ""
-                title: ""
-                level: 0
-                words: 0
-                expanded: true
-                foldable: false
-                hidden: false
-
+            // A copy of the dragged item that follows the pointer, lifted
+            // above the list
+            Pane {
                 x: projectList.x
                 y: projectList.y + projectList.pointerY - height / 2
                 width: projectList.width
+                padding: 0
                 visible: projectList.reordering
-                opacity: 0.85
-                enabled: false
+                Material.elevation: 6
+
+                ProjectItem {
+                    id: dragProxy
+
+                    index: -1
+                    handle: ""
+                    title: ""
+                    level: 0
+                    words: 0
+                    number: 0
+                    numbered: false
+                    chapterNumber: 0
+                    expanded: true
+                    foldable: false
+                    hidden: false
+                    selected: true
+
+                    width: parent.width
+                }
             }
         }
 
         // Editor: every document of the group, stacked in reading order.
         // Editors are only created near the visible part of the view.
         Rectangle {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
+            SplitView.fillWidth: true
+            SplitView.minimumWidth: 300
             color: window.palette.base
 
             ListView {

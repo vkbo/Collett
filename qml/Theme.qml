@@ -62,6 +62,20 @@ QtObject {
     // The line under misspelled words
     readonly property color spellErrorColor: Material.color(Material.Red, dark ? Material.Shade300 : Material.Shade600)
 
+    // The icon of a level, from the icon theme
+    function levelIcon(level: int): string {
+        switch (level) {
+        case Collett.PartitionLevel:
+            return "prj_title";
+        case Collett.ChapterLevel:
+            return "prj_chapter";
+        case Collett.PageLevel:
+            return "prj_document";
+        default:
+            return "prj_scene";
+        }
+    }
+
     function levelColor(level: int): color {
         switch (level) {
         case Collett.PartitionLevel:

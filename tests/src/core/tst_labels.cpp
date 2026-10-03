@@ -33,6 +33,7 @@ class TestLabels : public QObject
 private slots:
     void names();
     void wordCountPlurals();
+    void levelNumbers();
 };
 
 void TestLabels::names()
@@ -52,6 +53,19 @@ void TestLabels::wordCountPlurals()
     QCOMPARE(Labels::wordCount(0), QStringLiteral("0 words"));
     QCOMPARE(Labels::wordCount(1), QStringLiteral("1 word"));
     QCOMPARE(Labels::wordCount(1234), QStringLiteral("1,234 words"));
+}
+
+/**! @brief Numbered chapters and scenes have numbers, and the rest have
+ * none.
+ */
+void TestLabels::levelNumbers()
+{
+    QCOMPARE(Labels::levelNumber(ItemLevel::ChapterLevel, true, 3, 0), QStringLiteral("3"));
+    QCOMPARE(Labels::levelNumber(ItemLevel::ChapterLevel, false, 3, 0), QString());
+    QCOMPARE(Labels::levelNumber(ItemLevel::SceneLevel, false, 2, 3), QStringLiteral("3.2"));
+    QCOMPARE(Labels::levelNumber(ItemLevel::SceneLevel, false, 2, 0), QStringLiteral("2"));
+    QCOMPARE(Labels::levelNumber(ItemLevel::PartitionLevel, true, 1, 0), QString());
+    QCOMPARE(Labels::levelNumber(ItemLevel::PageLevel, true, 1, 0), QString());
 }
 
 QTEST_GUILESS_MAIN(TestLabels)

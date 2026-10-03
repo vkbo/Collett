@@ -49,6 +49,7 @@ class Settings : public QObject
     Q_PROPERTY(QString guiLanguage READ guiLanguage WRITE setGuiLanguage NOTIFY guiLanguageChanged)
     Q_PROPERTY(ThemeMode themeMode READ themeMode WRITE setThemeMode NOTIFY themeModeChanged)
     Q_PROPERTY(QSize prefsWindowSize READ prefsWindowSize WRITE setPrefsWindowSize NOTIFY prefsWindowSizeChanged)
+    Q_PROPERTY(int sideBarWidth READ sideBarWidth WRITE setSideBarWidth NOTIFY sideBarWidthChanged)
     Q_PROPERTY(int editorAutoSave READ editorAutoSave WRITE setEditorAutoSave NOTIFY editorAutoSaveChanged)
     Q_PROPERTY(QFont guiFont READ guiFont WRITE setGuiFont NOTIFY guiFontChanged)
     Q_PROPERTY(QFont textFont READ textFont WRITE setTextFont NOTIFY textFormatChanged)
@@ -101,6 +102,7 @@ public:
     void setGuiLanguage(const QString &language);
     void setThemeMode(const ThemeMode mode);
     void setPrefsWindowSize(const QSize &size);
+    void setSideBarWidth(const int width);
     void setEditorAutoSave(const int interval);
     void setGuiFont(const QFont &font);
     void setTextFont(const QFont &font);
@@ -113,6 +115,7 @@ public:
     QString guiLanguage() const { return m_guiLanguage; };
     ThemeMode themeMode() const { return m_themeMode; };
     QSize prefsWindowSize() const { return m_prefsWindowSize; };
+    int sideBarWidth() const { return m_sideBarWidth; };
     int editorAutoSave() const { return m_editorAutoSave; };
     QFont guiFont() const { return m_guiFont; };
     QFont textFont() const { return m_textFont; };
@@ -126,6 +129,7 @@ signals:
     void guiLanguageChanged();
     void themeModeChanged();
     void prefsWindowSizeChanged();
+    void sideBarWidthChanged();
     void editorAutoSaveChanged();
     void guiFontChanged();
     void textFormatChanged();
@@ -143,6 +147,7 @@ private:
     QString m_guiLanguage;
     ThemeMode m_themeMode;
     QSize m_prefsWindowSize;
+    int m_sideBarWidth;
 
     // Editor
     int m_editorAutoSave;

@@ -219,26 +219,15 @@ FocusScope {
         }
     }
 
-    // The number of the document in the margin. Chapters show their number,
-    // and scenes the number of their chapter and their own, like "3.2".
-    // Partitions, pages and unnumbered chapters have none. It lines up with
-    // the title, or with the first line of the text when the title is
+    // The number of the document in the margin, if it has one. It lines up
+    // with the title, or with the first line of the text when the title is
     // hidden.
     Text {
         id: marker
 
         x: root.textX - width - 16
         y: root.titleShown ? titleBox.y : bodyBox.y + (textMetrics.height * 1.15 - height) / 2
-        text: {
-            switch (root.level) {
-            case Collett.ChapterLevel:
-                return root.numbered ? root.number.toString() : "";
-            case Collett.SceneLevel:
-                return root.chapterNumber > 0 ? root.chapterNumber + "." + root.number : root.number.toString();
-            default:
-                return "";
-            }
-        }
+        text: Labels.levelNumber(root.level, root.numbered, root.number, root.chapterNumber)
         font: titleInput.font
         color: Theme.levelColor(root.level)
         horizontalAlignment: Text.AlignRight
