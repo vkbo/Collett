@@ -50,6 +50,13 @@ ICONS = {
     "cls_plot": "hat-glasses",
     "cls_trash": "trash",
 
+    # Style
+    "style_normal": "pilcrow",
+    "style_h1": "heading-1",
+    "style_h2": "heading-2",
+    "style_h3": "heading-3",
+    "style_h4": "heading-4",
+
     # Formatting
     "fmt_bold": "bold",
     "fmt_italic": "italic",

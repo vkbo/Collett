@@ -398,11 +398,12 @@ FocusScope {
                 if (activeFocus) root.cursorMoved(mapToItem(root, cursorRectangle));
             }
 
-            // Ctrl+Enter splits the document at the cursor
+            // Ctrl+Enter splits the document at the cursor, and Enter at the
+            // end of a heading starts a plain paragraph
             function handleEnter(event: KeyEvent) {
                 if (event.modifiers === Qt.ControlModifier && plainMove) {
                     root.splitRequested(cursorPosition);
-                } else {
+                } else if (event.modifiers !== Qt.NoModifier || !binder.newParagraphAfterHeading()) {
                     event.accepted = false;
                 }
             }

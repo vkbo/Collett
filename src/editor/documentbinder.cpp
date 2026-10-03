@@ -168,6 +168,18 @@ void DocumentBinder::setAlignment(int alignment)
     updateFormat();
 }
 
+/**! @brief Make the paragraphs in the selection, or the paragraph at the
+ * cursor, plain paragraphs (level 0) or headings (level 1 to 4).
+ */
+void DocumentBinder::setHeadingLevel(int level)
+{
+    QTextCursor cursor = targetCursor();
+    if (cursor.isNull()) return;
+
+    m_document->setHeadingLevel(cursor.selectionStart(), cursor.selectionEnd(), qBound(0, level, 4));
+    updateFormat();
+}
+
 // Formatting
 // ==========
 
@@ -183,6 +195,24 @@ void DocumentBinder::indent()
 void DocumentBinder::outdent()
 {
     changeIndent(-1);
+}
+
+/**! @brief Start a plain paragraph when Enter is pressed at the end of a
+ * heading.
+ *
+ * Returns false, and does nothing, if the cursor is not at the end of a
+ * heading, so the key can be handled as usual.
+ */
+bool DocumentBinder::newParagraphAfterHeading()
+{
+    QTextCursor cursor = targetCursor();
+    if (cursor.isNull() || cursor.hasSelection() || !cursor.atBlockEnd()) return false;
+    if (cursor.blockFormat().headingLevel() == 0) return false;
+
+    const Settings::TextFormat format = Settings::instance()->textFormat();
+    cursor.insertBlock(format.blockParagraph, format.charParagraph);
+    m_target->setProperty("cursorPosition", cursor.position());
+    return true;
 }
 
 // Spell Checking
@@ -413,7 +443,9 @@ void DocumentBinder::updateFormat()
     const QTextCursor cursor = targetCursor();
     QTextCharFormat format;
     int alignment = Qt::AlignLeft;
+    int headingLevel = 0;
     if (!cursor.isNull()) {
+        headingLevel = cursor.blockFormat().headingLevel();
         format = cursor.charFormat();
         alignment = int(cursor.blockFormat().alignment() & Qt::AlignHorizontal_Mask);
         if (alignment == Qt::AlignCenter) alignment = Qt::AlignHCenter;
@@ -424,9 +456,10 @@ void DocumentBinder::updateFormat()
     }
     format.merge(m_pending);
 
-    if (format == m_format && alignment == m_alignment) return;
+    if (format == m_format && alignment == m_alignment && headingLevel == m_headingLevel) return;
     m_format = format;
     m_alignment = alignment;
+    m_headingLevel = headingLevel;
     emit formatChanged();
 }
 

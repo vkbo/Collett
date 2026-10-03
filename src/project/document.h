@@ -41,6 +41,7 @@ public:
     // Methods
     void pack(QJsonObject &data);
     void unpack(const QJsonObject &data);
+    void setHeadingLevel(int first, int last, int level);
 
     // Getters
     QString handle() const { return m_handle; };

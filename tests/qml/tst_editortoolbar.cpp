@@ -20,7 +20,9 @@
 */
 
 #include "qmlfixture.h"
+#include "settings.h"
 
+#include <QQmlProperty>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QtTest>
@@ -39,6 +41,8 @@ private slots:
     void formatSelection();
     void formatTyping();
     void alignAndIndent();
+    void headingStyles();
+    void enterAfterHeading();
     void onlyInText();
 
 private:
@@ -196,6 +200,81 @@ void TestEditorToolBar::alignAndIndent()
     QTest::keyClick(f->window, Qt::Key_M, Qt::ControlModifier | Qt::ShiftModifier);
     QTRY_COMPARE(blockAt(2, 14).indent(), 1);
     QCOMPARE(blockAt(2, 0).indent(), 0);
+}
+
+/**! @brief The style menu turns the paragraph at the cursor into a heading
+ * and back, keeping its alignment and the italic text in it.
+ */
+void TestEditorToolBar::headingStyles()
+{
+    f->enterText(2, 14);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
+    QTest::keyClick(f->window, Qt::Key_E, Qt::ControlModifier);
+    QTest::keyClick(f->window, Qt::Key_I, Qt::ControlModifier);
+    QTRY_VERIFY(formatAt(2, 14).fontItalic());
+    QCOMPARE(QQmlProperty::read(button("styleButton"), "icon.source").toUrl(), QUrl("image://icons/style_normal"));
+
+    QObject *menu = f->window->findChild<QObject *>("styleMenu");
+    QVERIFY(menu);
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(button("styleButton")));
+    QTRY_VERIFY(menu->property("opened").toBool());
+    QQuickItem *item = f->window->findChild<QQuickItem *>("styleItem2");
+    QVERIFY(item);
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(item));
+    QTRY_VERIFY(!menu->property("visible").toBool());
+
+    const Settings::TextFormat format = Settings::instance()->textFormat();
+    QTRY_COMPARE(blockAt(2, 14).headingLevel(), 2);
+    QCOMPARE(blockAt(2, 0).headingLevel(), 0);
+    QCOMPARE(blockAt(2, 14).alignment(), Qt::AlignHCenter);
+    QCOMPARE(formatAt(2, 14).fontPointSize(), format.charHeader2.fontPointSize());
+    QVERIFY(formatAt(2, 14).fontItalic());
+    QTRY_COMPARE(QQmlProperty::read(button("styleButton"), "icon.source").toUrl(), QUrl("image://icons/style_h2"));
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
+
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(button("styleButton")));
+    QTRY_VERIFY(menu->property("opened").toBool());
+    item = f->window->findChild<QQuickItem *>("styleItem0");
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(item));
+    QTRY_COMPARE(blockAt(2, 14).headingLevel(), 0);
+    QCOMPARE(formatAt(2, 14).fontPointSize(), format.charParagraph.fontPointSize());
+    QCOMPARE(formatAt(2, 14).fontWeight(), int(QFont::Normal));
+    QVERIFY(formatAt(2, 14).fontItalic());
+}
+
+/**! @brief Enter at the end of a heading starts a plain paragraph, while
+ * Enter inside a heading splits it into two headings.
+ */
+void TestEditorToolBar::enterAfterHeading()
+{
+    const Settings::TextFormat format = Settings::instance()->textFormat();
+    f->enterText(2, 3);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
+    QQuickItem *binderOwner = f->scene(2);
+    QObject *binder = binderOwner->property("textBinder").value<QObject *>();
+    QVERIFY(binder);
+    binder->setProperty("headingLevel", 1);
+    QTRY_COMPARE(blockAt(2, 0).headingLevel(), 1);
+
+    // At the end
+    f->enterText(2, 11);
+    QTRY_COMPARE(f->focusCursor(), 11);
+    QTest::keyClick(f->window, Qt::Key_Return);
+    f->type("New");
+    QTRY_COMPARE(f->text(2), QStringLiteral("Alpha beta.\nNew\nGamma delta."));
+    QCOMPARE(blockAt(2, 0).headingLevel(), 1);
+    QCOMPARE(blockAt(2, 12).headingLevel(), 0);
+    QCOMPARE(formatAt(2, 12).fontPointSize(), format.charParagraph.fontPointSize());
+    QCOMPARE(formatAt(2, 12).fontWeight(), int(QFont::Normal));
+    QTRY_COMPARE(binder->property("headingLevel").toInt(), 0);
+
+    // In the middle
+    f->enterText(2, 6);
+    QTRY_COMPARE(f->focusCursor(), 6);
+    QTest::keyClick(f->window, Qt::Key_Return);
+    QTRY_COMPARE(f->text(2), QStringLiteral("Alpha \nbeta.\nNew\nGamma delta."));
+    QCOMPARE(blockAt(2, 0).headingLevel(), 1);
+    QCOMPARE(blockAt(2, 7).headingLevel(), 1);
 }
 
 /**! @brief The tool bar only works while the cursor is in the text.

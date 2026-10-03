@@ -60,10 +60,62 @@ ToolBar {
         enabled: root.ready
     }
 
+    component StyleItem: MenuItem {
+        required property int level
+
+        objectName: "styleItem" + level
+        text: root.styleNames[level]
+        icon.source: "image://icons/" + root.styleIcons[level]
+        onTriggered: root.binder.headingLevel = level
+    }
+
+    // Paragraph styles, by heading level
+    readonly property list<string> styleIcons: ["style_normal", "style_h1", "style_h2", "style_h3", "style_h4"]
+    readonly property list<string> styleNames: [qsTr("Paragraph"), qsTr("Heading 1"), qsTr("Heading 2"), qsTr("Heading 3"), qsTr("Heading 4")]
+    readonly property int headingLevel: binder?.headingLevel ?? 0
+
     // The text is centred in the editor, so the buttons are too
     RowLayout {
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 0
+
+        // Shows the style of the paragraph at the cursor, and opens a menu
+        // to change it
+        FormatButton {
+            id: styleButton
+
+            objectName: "styleButton"
+
+            enabled: root.ready
+            icon.source: "image://icons/" + root.styleIcons[root.headingLevel]
+            ToolTip.text: root.styleNames[root.headingLevel]
+            Accessible.name: qsTr("Paragraph Style")
+            onClicked: styleMenu.popup(styleButton, 0, styleButton.height)
+
+            Menu {
+                id: styleMenu
+
+                objectName: "styleMenu"
+
+                StyleItem {
+                    level: 0
+                }
+                StyleItem {
+                    level: 1
+                }
+                StyleItem {
+                    level: 2
+                }
+                StyleItem {
+                    level: 3
+                }
+                StyleItem {
+                    level: 4
+                }
+            }
+        }
+
+        ToolSeparator {}
 
         FormatButton {
             objectName: "boldButton"

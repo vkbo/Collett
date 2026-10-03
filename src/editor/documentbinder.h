@@ -57,6 +57,7 @@ class DocumentBinder : public QObject
     Q_PROPERTY(bool superscript READ superscript WRITE setSuperscript NOTIFY formatChanged)
     Q_PROPERTY(bool subscript READ subscript WRITE setSubscript NOTIFY formatChanged)
     Q_PROPERTY(int alignment READ alignment WRITE setAlignment NOTIFY formatChanged)
+    Q_PROPERTY(int headingLevel READ headingLevel WRITE setHeadingLevel NOTIFY formatChanged)
 
 public:
     explicit DocumentBinder(QObject *parent = nullptr);
@@ -76,6 +77,7 @@ public:
     bool superscript() const { return m_format.verticalAlignment() == QTextCharFormat::AlignSuperScript; };
     bool subscript() const { return m_format.verticalAlignment() == QTextCharFormat::AlignSubScript; };
     int alignment() const { return m_alignment; };
+    int headingLevel() const { return m_headingLevel; };
 
     // Setters
     void setTarget(QQuickItem *target);
@@ -89,10 +91,12 @@ public:
     void setSuperscript(bool superscript);
     void setSubscript(bool subscript);
     void setAlignment(int alignment);
+    void setHeadingLevel(int level);
 
     // Formatting
     Q_INVOKABLE void indent();
     Q_INVOKABLE void outdent();
+    Q_INVOKABLE bool newParagraphAfterHeading();
 
     // Spell Checking
     Q_INVOKABLE QVariantMap misspelledWordAt(int position) const;
@@ -120,6 +124,7 @@ private:
     // at a cursor that is not on a word
     QTextCharFormat m_format;
     int m_alignment = Qt::AlignLeft;
+    int m_headingLevel = 0;
     QTextCharFormat m_pending;
     int m_pendingPosition = -1;
     bool m_applying = false;
