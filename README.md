@@ -11,8 +11,7 @@ tracking notes and meta data.
 
 Note: This is an experimental repo for the time being. It is not a usable application yet.
 
-The user interface is being rebuilt with Qt Quick (QML). The previous Qt Widgets implementation is kept in the
-`widgets` folder as reference code only. It is not built, and parts of it are moved into `src` as they are needed.
+The user interface is built with Qt Quick (QML).
 
 ## Building
 
