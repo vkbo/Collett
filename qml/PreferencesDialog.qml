@@ -71,6 +71,7 @@ ApplicationWindow {
     function openDialog() {
         guiLanguage.model = Settings.guiLanguages();
         guiLanguage.currentIndex = guiLanguage.indexOfValue(Settings.guiLanguage);
+        themeMode.currentIndex = themeMode.indexOfValue(Settings.themeMode);
         guiFont = Settings.guiFont;
         textFont = Settings.textFont;
         headingFont = Settings.headingFont;
@@ -104,6 +105,7 @@ ApplicationWindow {
     function save() {
         if (guiLanguage.currentIndex >= 0)
             Settings.guiLanguage = guiLanguage.currentValue;
+        Settings.themeMode = themeMode.currentValue;
         Settings.guiFont = guiFont;
         Settings.textFont = textFont;
         Settings.headingFont = headingFont;
@@ -315,6 +317,40 @@ ApplicationWindow {
                                         textRole: "text"
                                         valueRole: "value"
                                         Accessible.name: qsTr("Interface language")
+                                    }
+                                }
+                            }
+
+                            SettingsGroup {
+                                title: qsTr("Appearance")
+
+                                SettingsRow {
+                                    title: qsTr("Colour theme")
+                                    help: qsTr("Use the light or dark theme, or follow the system. The button in the side bar also switches it.")
+
+                                    ComboBox {
+                                        id: themeMode
+
+                                        objectName: "themeMode"
+
+                                        implicitWidth: 220
+                                        textRole: "text"
+                                        valueRole: "value"
+                                        model: [
+                                            {
+                                                value: Settings.AutoTheme,
+                                                text: qsTr("Follow the system")
+                                            },
+                                            {
+                                                value: Settings.LightTheme,
+                                                text: qsTr("Light")
+                                            },
+                                            {
+                                                value: Settings.DarkTheme,
+                                                text: qsTr("Dark")
+                                            }
+                                        ]
+                                        Accessible.name: qsTr("Colour theme")
                                     }
                                 }
                             }

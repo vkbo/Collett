@@ -38,8 +38,8 @@ ApplicationWindow {
     // The document with the cursor
     property string focusHandle: ""
 
-    width: 1400
-    height: 900
+    width: Settings.mainWindowSize.width
+    height: Settings.mainWindowSize.height
     visible: true
     title: project.name ? project.name + " – Collett" : "Collett"
     // The controls take their font from the window, not the application
@@ -102,7 +102,7 @@ ApplicationWindow {
                 action: Action {
                     text: qsTr("E&xit")
                     shortcut: StandardKey.Quit
-                    onTriggered: Qt.quit()
+                    onTriggered: window.close()
                 }
             }
         }
@@ -195,7 +195,17 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
+        if (Settings.mainWindowMaximized) showMaximized();
         if (project.lastEditedHandle) showWhenReady(project.lastEditedHandle);
+    }
+
+    // The size is only kept for a window that is not maximised, so it opens
+    // at that size again when it is restored
+    onClosing: {
+        const maximized = visibility === Window.Maximized;
+        if (!maximized && visibility !== Window.FullScreen) Settings.mainWindowSize = Qt.size(width, height);
+        Settings.mainWindowMaximized = maximized;
+        Settings.flushSettings();
     }
 
     // An opened project shows the document last edited, and a new project

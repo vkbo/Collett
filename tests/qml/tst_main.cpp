@@ -48,6 +48,7 @@ private slots:
     void saveCloseOpen();
     void openErrors();
     void interfaceFont();
+    void windowSize();
 
 private:
     QmlFixture *f = nullptr;
@@ -66,6 +67,8 @@ void TestMain::init()
 {
     Settings::instance()->setThemeMode(Settings::AutoTheme);
     Settings::instance()->setSideBarWidth(280);
+    Settings::instance()->setMainWindowSize(QSize(1400, 900));
+    Settings::instance()->setMainWindowMaximized(false);
     f = new QmlFixture();
 }
 
@@ -379,6 +382,32 @@ void TestMain::interfaceFont()
     check(prefs->findChild<QQuickItem *>("spellLanguage"));
 
     settings->setGuiFont(saved);
+}
+
+/**! @brief The window opens at the saved size, and closing it saves its
+ * size. A maximised window keeps the size it had before.
+ */
+void TestMain::windowSize()
+{
+    Settings *settings = Settings::instance();
+    settings->setMainWindowSize(QSize(1100, 750));
+    build();
+    QCOMPARE(f->window->size(), QSize(1100, 750));
+
+    QGuiApplication::setQuitOnLastWindowClosed(false);
+    f->window->resize(1200, 800);
+    QTRY_COMPARE(f->window->width(), 1200);
+    f->window->close();
+    QCOMPARE(settings->mainWindowSize(), QSize(1200, 800));
+    QCOMPARE(settings->mainWindowMaximized(), false);
+
+    f->window->show();
+    f->window->showMaximized();
+    QTRY_COMPARE(f->window->visibility(), QWindow::Maximized);
+    f->window->close();
+    QCOMPARE(settings->mainWindowSize(), QSize(1200, 800));
+    QCOMPARE(settings->mainWindowMaximized(), true);
+    QGuiApplication::setQuitOnLastWindowClosed(true);
 }
 
 QTEST_MAIN(TestMain)

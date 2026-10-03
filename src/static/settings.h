@@ -48,6 +48,8 @@ class Settings : public QObject
 
     Q_PROPERTY(QString guiLanguage READ guiLanguage WRITE setGuiLanguage NOTIFY guiLanguageChanged)
     Q_PROPERTY(ThemeMode themeMode READ themeMode WRITE setThemeMode NOTIFY themeModeChanged)
+    Q_PROPERTY(QSize mainWindowSize READ mainWindowSize WRITE setMainWindowSize NOTIFY mainWindowSizeChanged)
+    Q_PROPERTY(bool mainWindowMaximized READ mainWindowMaximized WRITE setMainWindowMaximized NOTIFY mainWindowMaximizedChanged)
     Q_PROPERTY(QSize prefsWindowSize READ prefsWindowSize WRITE setPrefsWindowSize NOTIFY prefsWindowSizeChanged)
     Q_PROPERTY(int sideBarWidth READ sideBarWidth WRITE setSideBarWidth NOTIFY sideBarWidthChanged)
     Q_PROPERTY(int editorAutoSave READ editorAutoSave WRITE setEditorAutoSave NOTIFY editorAutoSaveChanged)
@@ -101,6 +103,8 @@ public:
     // Setters
     void setGuiLanguage(const QString &language);
     void setThemeMode(const ThemeMode mode);
+    void setMainWindowSize(const QSize &size);
+    void setMainWindowMaximized(const bool maximized);
     void setPrefsWindowSize(const QSize &size);
     void setSideBarWidth(const int width);
     void setEditorAutoSave(const int interval);
@@ -116,6 +120,8 @@ public:
     // Getters
     QString guiLanguage() const { return m_guiLanguage; };
     ThemeMode themeMode() const { return m_themeMode; };
+    QSize mainWindowSize() const { return m_mainWindowSize; };
+    bool mainWindowMaximized() const { return m_mainWindowMaximized; };
     QSize prefsWindowSize() const { return m_prefsWindowSize; };
     int sideBarWidth() const { return m_sideBarWidth; };
     int editorAutoSave() const { return m_editorAutoSave; };
@@ -132,6 +138,8 @@ public:
 signals:
     void guiLanguageChanged();
     void themeModeChanged();
+    void mainWindowSizeChanged();
+    void mainWindowMaximizedChanged();
     void prefsWindowSizeChanged();
     void sideBarWidthChanged();
     void editorAutoSaveChanged();
@@ -152,6 +160,8 @@ private:
     // GUI
     QString m_guiLanguage;
     ThemeMode m_themeMode;
+    QSize m_mainWindowSize;
+    bool m_mainWindowMaximized;
     QSize m_prefsWindowSize;
     int m_sideBarWidth;
 

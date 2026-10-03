@@ -35,6 +35,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
     void editorAutoSave();
+    void mainWindow();
     void spellLanguage();
     void tabWidth();
     void autoIndent();
@@ -67,6 +68,20 @@ void TestSettings::editorAutoSave()
 
     settings->setEditorAutoSave(60);
     QCOMPARE(settings->editorAutoSave(), 60);
+}
+
+/**! @brief The main window opens at a default size, and not maximised.
+ */
+void TestSettings::mainWindow()
+{
+    Settings *settings = Settings::instance();
+    QCOMPARE(settings->mainWindowSize(), QSize(1400, 900));
+    QCOMPARE(settings->mainWindowMaximized(), false);
+
+    settings->setMainWindowSize(QSize(1000, 700));
+    settings->setMainWindowMaximized(true);
+    QCOMPARE(settings->mainWindowSize(), QSize(1000, 700));
+    QCOMPARE(settings->mainWindowMaximized(), true);
 }
 
 /**! @brief Automatic indent is on by default, and can be turned off.

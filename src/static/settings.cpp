@@ -36,6 +36,8 @@ using namespace Qt::Literals::StringLiterals;
 
 #define CNF_GUI_LANGUAGE "Main/guiLanguage"_L1
 #define CNF_THEME_MODE "Main/themeMode"_L1
+#define CNF_MAIN_WINDOW_SIZE "Main/windowSize"_L1
+#define CNF_MAIN_WINDOW_MAXIMIZED "Main/windowMaximized"_L1
 #define CNF_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
 #define CNF_SIDE_BAR_WIDTH "Main/sideBarWidth"_L1
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
@@ -110,6 +112,8 @@ Settings::Settings(QObject *parent) : QObject(parent)
 
     m_guiLanguage = settings.value(CNF_GUI_LANGUAGE, QLocale::system().name()).toString();
     m_themeMode = ThemeMode(qBound(0, settings.value(CNF_THEME_MODE, 0).toInt(), 2));
+    m_mainWindowSize = settings.value(CNF_MAIN_WINDOW_SIZE, QSize(1400, 900)).toSize();
+    m_mainWindowMaximized = settings.value(CNF_MAIN_WINDOW_MAXIMIZED, false).toBool();
     m_prefsWindowSize = settings.value(CNF_PREFS_WINDOW_SIZE, QSize(900, 700)).toSize();
     m_sideBarWidth = qMax(settings.value(CNF_SIDE_BAR_WIDTH, 280).toInt(), 100);
 
@@ -165,6 +169,8 @@ void Settings::flushSettings()
 
     settings.setValue(CNF_GUI_LANGUAGE, m_guiLanguage);
     settings.setValue(CNF_THEME_MODE, int(m_themeMode));
+    settings.setValue(CNF_MAIN_WINDOW_SIZE, m_mainWindowSize);
+    settings.setValue(CNF_MAIN_WINDOW_MAXIMIZED, m_mainWindowMaximized);
     settings.setValue(CNF_PREFS_WINDOW_SIZE, m_prefsWindowSize);
     settings.setValue(CNF_SIDE_BAR_WIDTH, m_sideBarWidth);
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
@@ -233,6 +239,22 @@ void Settings::setThemeMode(const ThemeMode mode)
     if (mode == m_themeMode) return;
     m_themeMode = mode;
     emit themeModeChanged();
+}
+
+/**! @brief Set the size of the main window when it is not maximised.
+ */
+void Settings::setMainWindowSize(const QSize &size)
+{
+    if (size == m_mainWindowSize) return;
+    m_mainWindowSize = size;
+    emit mainWindowSizeChanged();
+}
+
+void Settings::setMainWindowMaximized(const bool maximized)
+{
+    if (maximized == m_mainWindowMaximized) return;
+    m_mainWindowMaximized = maximized;
+    emit mainWindowMaximizedChanged();
 }
 
 void Settings::setPrefsWindowSize(const QSize &size)

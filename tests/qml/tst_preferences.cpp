@@ -164,6 +164,7 @@ void TestPreferences::saveAndCancel()
     settings->setEditorAutoSave(30);
     settings->setTextAutoIndent(false);
     settings->setShowMultiSpaces(false);
+    settings->setThemeMode(Settings::AutoTheme);
 
     openDialog();
     QQuickItem *autoSave = dialogItem("autoSave");
@@ -176,18 +177,22 @@ void TestPreferences::saveAndCancel()
     autoSave->setProperty("value", 45);
     autoIndent->setProperty("checked", true);
     dialogItem("multiSpaces")->setProperty("checked", true);
+    dialogItem("themeMode")->setProperty("currentIndex", 2);
     QTest::keyClick(dialog, Qt::Key_Escape);
     QTRY_VERIFY(!dialog->isVisible());
     QCOMPARE(settings->editorAutoSave(), 30);
     QCOMPARE(settings->textAutoIndent(), false);
     QCOMPARE(settings->showMultiSpaces(), false);
+    QCOMPARE(settings->themeMode(), Settings::AutoTheme);
 
     openDialog();
+    QCOMPARE(dialogItem("themeMode")->property("currentIndex").toInt(), 0);
     QCOMPARE(autoSave->property("value").toInt(), 30);
     QCOMPARE(autoIndent->property("checked").toBool(), false);
     autoSave->setProperty("value", 45);
     autoIndent->setProperty("checked", true);
     dialogItem("multiSpaces")->setProperty("checked", true);
+    dialogItem("themeMode")->setProperty("currentIndex", 2);
     QQuickItem *save = dialogItem("saveButton");
     QVERIFY(save);
     QTest::mouseClick(dialog, Qt::LeftButton, Qt::NoModifier, save->mapToScene(QPointF(save->width() / 2, save->height() / 2)).toPoint());
@@ -195,6 +200,8 @@ void TestPreferences::saveAndCancel()
     QCOMPARE(settings->editorAutoSave(), 45);
     QCOMPARE(settings->textAutoIndent(), true);
     QCOMPARE(settings->showMultiSpaces(), true);
+    QCOMPARE(settings->themeMode(), Settings::DarkTheme);
+    settings->setThemeMode(Settings::AutoTheme);
     settings->setTextAutoIndent(false);
     settings->setShowMultiSpaces(false);
 }
