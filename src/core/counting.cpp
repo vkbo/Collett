@@ -50,8 +50,7 @@ CountBlockList TextCounter::snapshot(const QTextDocument *doc)
 
 /**! @brief Snapshot a single block for counting.
  *
- * Heading blocks are those with a heading level set, and comment blocks are
- * those with the comment block type property.
+ * Heading blocks are those with a heading level set.
  */
 CountBlock TextCounter::snapshotBlock(const QTextBlock &block)
 {
@@ -59,7 +58,6 @@ CountBlock TextCounter::snapshotBlock(const QTextBlock &block)
     CountBlock item;
     item.text = block.text();
     item.heading = format.headingLevel() > 0;
-    item.comment = format.intProperty(BlockTypeProperty) == CommentBlock;
     return item;
 }
 
@@ -68,17 +66,13 @@ CountBlock TextCounter::snapshotBlock(const QTextBlock &block)
 
 /**! @brief The standard count of characters, words and paragraphs.
  *
- * Comment blocks are skipped. Headings count towards the characters and
- * words, but are not paragraphs. Every other non-empty block is a paragraph.
+ * Headings count towards the characters and words, but are not paragraphs. Every other non-empty block is a paragraph.
  * Trailing whitespace on a block is not counted as characters.
  */
 TextCounts TextCounter::standardCount(const CountBlockList &blocks)
 {
     TextCounts counts;
     for (const CountBlock &block : blocks) {
-        if (block.comment) {
-            continue;
-        }
         qint32 characters = countCharacters(block.text);
         if (characters == 0) {
             continue;
@@ -100,7 +94,7 @@ TextCounts TextCounter::standardCount(const QString &text)
     const QStringList lines = text.split(u'\n');
     blocks.reserve(lines.size());
     for (const QString &line : lines) {
-        blocks.append({line, false, false});
+        blocks.append({line, false});
     }
     return standardCount(blocks);
 }

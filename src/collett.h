@@ -27,7 +27,6 @@
 
 #include <QDebug>
 #include <QObject>
-#include <QTextFormat>
 #include <QtQml/qqmlregistration.h>
 
 namespace Collett {
@@ -61,18 +60,6 @@ enum ItemLevel
     PageLevel = 3,
 };
 Q_ENUM_NS(ItemLevel)
-
-// Text Format Properties
-// Custom properties stored on the block formats of a document.
-enum TextProperty
-{
-    BlockTypeProperty = QTextFormat::UserProperty + 1,
-};
-enum BlockType
-{
-    TextBlock = 0,
-    CommentBlock = 1,
-};
 
 enum JsonUtilsError
 {

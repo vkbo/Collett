@@ -75,8 +75,6 @@ public:
         QTextCharFormat charDefault;
         QTextBlockFormat blockParagraph;
         QTextCharFormat charParagraph;
-        QTextBlockFormat blockComment;
-        QTextCharFormat charComment;
         QTextBlockFormat blockHeader1;
         QTextCharFormat charHeader1;
         QTextBlockFormat blockHeader2;

@@ -216,7 +216,7 @@ bool DocumentBinder::newParagraph()
     if (current.headingLevel() > 0) {
         if (!cursor.atBlockEnd()) return false;
         cursor.insertBlock(format.blockParagraph, format.charParagraph);
-    } else if (Settings::instance()->textAutoIndent() && current.intProperty(BlockTypeProperty) != CommentBlock) {
+    } else if (Settings::instance()->textAutoIndent()) {
         const Qt::Alignment align = current.alignment() & Qt::AlignHorizontal_Mask;
         if (align == Qt::AlignHCenter || align == Qt::AlignCenter || align == Qt::AlignRight) return false;
         QTextBlockFormat indented = current;

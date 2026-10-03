@@ -71,17 +71,16 @@ void TestCounting::countCharacters()
     QCOMPARE(TextCounter::countCharacters(QString::fromUtf8("blåbær")), 6);
 }
 
-/**! @brief The standard count skips comments and does not count headings as paragraphs.
+/**! @brief The standard count does not count headings as paragraphs.
  */
 void TestCounting::standardCountBlocks()
 {
     CountBlockList blocks;
-    blocks.append({"Chapter One", true, false});
-    blocks.append({"", false, false});
-    blocks.append({"The first paragraph has seven words.", false, false});
-    blocks.append({"A comment that is not counted", false, true});
-    blocks.append({"Second paragraph. ", false, false});
-    blocks.append({"   ", false, false});
+    blocks.append({"Chapter One", true});
+    blocks.append({"", false});
+    blocks.append({"The first paragraph has seven words.", false});
+    blocks.append({"Second paragraph. ", false});
+    blocks.append({"   ", false});
 
     TextCounts counts = TextCounter::standardCount(blocks);
     QCOMPARE(counts.words, 2 + 6 + 2);
@@ -119,22 +118,12 @@ void TestCounting::snapshotDocument()
     cursor.insertBlock(QTextBlockFormat());
     cursor.insertText("Body text here");
 
-    QTextBlockFormat comment;
-    comment.setProperty(BlockTypeProperty, CommentBlock);
-    cursor.insertBlock(comment);
-    cursor.insertText("A note");
-
     CountBlockList blocks = TextCounter::snapshot(&doc);
-    QCOMPARE(blocks.size(), 3);
+    QCOMPARE(blocks.size(), 2);
     QCOMPARE(blocks.at(0).text, QStringLiteral("Title"));
     QVERIFY(blocks.at(0).heading);
-    QVERIFY(!blocks.at(0).comment);
     QCOMPARE(blocks.at(1).text, QStringLiteral("Body text here"));
     QVERIFY(!blocks.at(1).heading);
-    QVERIFY(!blocks.at(1).comment);
-    QCOMPARE(blocks.at(2).text, QStringLiteral("A note"));
-    QVERIFY(!blocks.at(2).heading);
-    QVERIFY(blocks.at(2).comment);
 
     TextCounts counts = TextCounter::standardCount(blocks);
     QCOMPARE(counts.words, 4);
