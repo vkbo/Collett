@@ -92,6 +92,7 @@ qt_add_qml_module(Collett
         src/static/settings.h
     QML_FILES
         qml/Main.qml
+        qml/NewProject.qml
         qml/ProjectCard.qml
         qml/SceneEditor.qml
         qml/Theme.qml

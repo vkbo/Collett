@@ -48,6 +48,7 @@ public:
     bool isModified() const { return m_modified; };
 
     // Setters
+    void setName(const QString &name);
     void setLastEditedHandle(const QString &handle);
     void setSpellLanguage(const QString &language);
     void setModified(bool state) { m_modified = state; };

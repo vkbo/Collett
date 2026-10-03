@@ -101,6 +101,14 @@ void ProjectData::unpack(const QJsonObject &data)
 // Setters
 // =======
 
+void ProjectData::setName(const QString &name)
+{
+    const QString simplified = name.simplified();
+    if (simplified == m_projectName) return;
+    m_projectName = simplified;
+    m_modified = true;
+}
+
 void ProjectData::setLastEditedHandle(const QString &handle)
 {
     if (handle == m_lastEditedHandle) return;

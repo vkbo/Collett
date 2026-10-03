@@ -47,10 +47,6 @@ FocusScope {
     property ListView view
     property real textWidth: width
 
-    // How many times Enter has been pressed in a row to make this document,
-    // or 0 if it was not just made that way
-    property int breakStep: 0
-
     readonly property real textTop: divider.height
     readonly property bool titleShown: title !== "" || titleInput.activeFocus
     readonly property bool bodyShown: textEdit.length > 0 || textEdit.activeFocus
@@ -58,19 +54,14 @@ FocusScope {
 
     signal sceneFocused(string handle)
     signal cursorMoved(rect rect)
-    signal splitRequested(int position)
-    signal breakUpgraded
-    signal breakEnded
+    signal splitRequested(int position, int presses)
 
     implicitHeight: bodyBox.y + bodyBox.height
 
     // The view keeps its current item alive when it is scrolled out of view,
     // so the focused document keeps its cursor and selection
     onActiveFocusChanged: {
-        if (!activeFocus) {
-            if (breakStep > 0) breakEnded();
-            return;
-        }
+        if (!activeFocus) return;
         if (view) view.currentIndex = index;
         sceneFocused(handle);
     }
@@ -401,40 +392,56 @@ FocusScope {
                 if (activeFocus) root.cursorMoved(mapToItem(root, cursorRectangle));
             }
 
-            // Typing or moving the cursor ends a run of Enter presses
-            onCursorPositionChanged: {
-                if (root.breakStep > 0) root.breakEnded();
-            }
-            onTextChanged: {
-                if (root.breakStep > 0) root.breakEnded();
+            // A run of Enter presses: how many, and the cursor position and
+            // length of the text before the first of them
+            property int runCount: 0
+            property int runStart: -1
+            property int runLength: -1
+
+            // Whether the text is as the run left it, with only the paragraph
+            // breaks of the run added and the cursor after them
+            function runIntact(): bool {
+                return length === runLength + runCount && cursorPosition === runStart + runCount;
             }
 
-            // The length and cursor position before the last Enter that was
-            // passed on to the text, to recognise a second Enter in a row
-            property int enterLength: -1
-            property int enterPosition: -1
-
-            // Pressing Enter twice in a row splits the text at the cursor into
-            // a new scene. The second Enter is recognised by the text having
-            // grown by just the one paragraph break, with the cursor right
-            // after it. Pressing Enter again right away, at the start of the
-            // new scene, adds a hard break before it, and once more makes it
-            // a chapter.
+            // Each Enter inserts a paragraph break as usual. Enter presses
+            // close together form a run, and each one restarts the timer. When
+            // the timer runs out, a run of two or more is turned into a new
+            // document where it started: two make a scene, three a scene with
+            // a hard break, and four or more a chapter.
             function handleEnter(event: KeyEvent) {
-                const secondEnter = length === enterLength + 1 && cursorPosition === enterPosition + 1;
-                enterLength = -1;
-                enterPosition = -1;
+                event.accepted = false;
                 if (event.modifiers !== Qt.NoModifier || !plainMove) {
-                    event.accepted = false;
-                } else if (root.breakStep > 0 && cursorPosition === 0) {
-                    root.breakUpgraded();
-                } else if (secondEnter) {
-                    root.splitRequested(cursorPosition);
-                } else {
-                    enterLength = length;
-                    enterPosition = cursorPosition;
-                    event.accepted = false;
+                    runCount = 0;
+                    return;
                 }
+                if (!runTimer.running || runCount === 0 || !runIntact()) {
+                    runCount = 0;
+                    runStart = cursorPosition;
+                    runLength = length;
+                }
+                runCount++;
+                runTimer.restart();
+            }
+
+            // The run's paragraph breaks are removed, except for the first,
+            // which the split then removes as it moves the text after it. If
+            // the text was changed or the cursor moved after the run, the
+            // breaks are left as they are.
+            function finishRun() {
+                const count = runCount;
+                const intact = runIntact();
+                runCount = 0;
+                if (count < 2 || !intact) return;
+                remove(runStart + 1, runStart + count);
+                root.splitRequested(runStart + 1, count);
+            }
+
+            Timer {
+                id: runTimer
+
+                interval: 500
+                onTriggered: textEdit.finishRun()
             }
 
             Keys.onPressed: event => root.textBackspace(event)

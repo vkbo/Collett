@@ -41,6 +41,7 @@ class Project : public QObject
     QML_ELEMENT
     QML_UNCREATABLE("The project is created on launch")
 
+    Q_PROPERTY(bool isValid READ isValid NOTIFY projectChanged)
     Q_PROPERTY(QString name READ name NOTIFY projectChanged)
     Q_PROPERTY(Collett::ProjectModel *model READ model NOTIFY projectChanged)
     Q_PROPERTY(QString lastEditedHandle READ lastEditedHandle NOTIFY projectChanged)
@@ -51,6 +52,7 @@ public:
 
     // Methods
     bool openProject(const QString &path);
+    Q_INVOKABLE QString createProject(const QString &location, const QString &name);
     bool saveProject();
     bool saveProjectAs(const QString &path);
 

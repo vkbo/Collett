@@ -35,11 +35,6 @@ ApplicationWindow {
     // The document with the cursor
     property string focusHandle: ""
 
-    // The document just made by pressing Enter in an empty paragraph, and
-    // how many times Enter has been pressed in a row since
-    property string breakHandle: ""
-    property int breakStep: 0
-
     width: 1400
     height: 900
     visible: true
@@ -50,38 +45,43 @@ ApplicationWindow {
         if (project.lastEditedHandle) Qt.callLater(editorView.showScene, project.lastEditedHandle);
     }
 
-    // Split a document into a new scene where Enter was pressed twice, and
-    // put the cursor at its start. The view must lay itself out first, or it
-    // still has the editor that was at the new row before the insert.
-    function splitDocument(handle: string, position: int) {
-        const newHandle = project.splitDocument(handle, position);
-        if (!newHandle) return;
-        Qt.callLater(() => {
-            const row = project.model.rowOf(newHandle);
-            editorView.forceLayout();
-            if (!editorView.itemAtIndex(row)) editorView.positionViewAtIndex(row, ListView.Contain);
-            const scene = editorView.itemAtIndex(row) as SceneEditor;
-            if (!scene) return;
-            scene.enterAt(0);
-            breakHandle = newHandle;
-            breakStep = 1;
-        });
+    // A newly created project opens at its title page
+    Connections {
+        target: window.project
+
+        function onProjectChanged() {
+            if (window.project.lastEditedHandle) Qt.callLater(editorView.showScene, window.project.lastEditedHandle);
+        }
     }
 
-    // Each further Enter upgrades the new document: first a hard break
-    // before it, then a chapter, which ends the run
-    function upgradeBreak() {
-        const row = project.model.rowOf(breakHandle);
-        if (row < 0) {
-            breakHandle = "";
-        } else if (breakStep === 1) {
+    // Without a project, the window shows the form for creating one
+    NewProject {
+        anchors.fill: parent
+        project: window.project
+        visible: !window.project.isValid
+    }
+
+    // Split a document into a new one after a run of Enter presses. Two make
+    // a scene, three a scene with a hard break before it, and four or more a
+    // chapter. The cursor goes to the title of the new document. The view
+    // must lay itself out first, or it still has the editor that was at the
+    // new row before the insert.
+    function splitDocument(handle: string, position: int, presses: int) {
+        const newHandle = project.splitDocument(handle, position);
+        if (!newHandle) return;
+        const row = project.model.rowOf(newHandle);
+        if (presses === 3) {
             project.model.setHardBreak(row, true);
-            breakStep = 2;
-        } else {
-            project.model.setHardBreak(row, false);
+        } else if (presses >= 4) {
             project.model.setLevel(row, Collett.ChapterLevel);
-            breakHandle = "";
         }
+        Qt.callLater(() => {
+            const newRow = project.model.rowOf(newHandle);
+            editorView.forceLayout();
+            if (!editorView.itemAtIndex(newRow)) editorView.positionViewAtIndex(newRow, ListView.Contain);
+            const scene = editorView.itemAtIndex(newRow) as SceneEditor;
+            if (scene) scene.enterTitleAt(0);
+        });
     }
 
     Binding {
@@ -93,6 +93,7 @@ ApplicationWindow {
     RowLayout {
         anchors.fill: parent
         spacing: 0
+        visible: window.project.isValid
 
         // Manuscript list: partitions, chapters and scenes in reading order
         Rectangle {
@@ -197,11 +198,8 @@ ApplicationWindow {
                     textWidth: editorView.textWidth
                     project: window.project
                     view: editorView
-                    breakStep: sceneEditor.handle === window.breakHandle ? window.breakStep : 0
 
-                    onSplitRequested: position => window.splitDocument(sceneEditor.handle, position)
-                    onBreakUpgraded: window.upgradeBreak()
-                    onBreakEnded: window.breakHandle = ""
+                    onSplitRequested: (position, presses) => window.splitDocument(sceneEditor.handle, position, presses)
 
                     onSceneFocused: handle => {
                         window.focusHandle = handle;

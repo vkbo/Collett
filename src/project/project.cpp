@@ -24,11 +24,16 @@
 #include "storage.h"
 
 #include <QDateTime>
+#include <QDir>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QTextBlock>
 #include <QTextBlockFormat>
 #include <QTextCursor>
 #include <QTextDocumentFragment>
+#include <QUrl>
+
+using namespace Qt::Literals::StringLiterals;
 
 namespace Collett {
 
@@ -92,6 +97,78 @@ bool Project::openProject(const QString &path)
     emit projectChanged();
 
     return true;
+}
+
+/**!
+ * @brief Create a new project in a folder named after it.
+ *
+ * The project folder is made in the location, and the project starts with a
+ * single page with the project name as a centred title. A project cannot be
+ * created while another is open.
+ *
+ * @param location The folder to create the project folder in, as a path or
+ *                 a local file URL.
+ * @param name     The name of the project.
+ * @return QString An empty string if the project was created, or otherwise
+ *                 a message saying why not.
+ */
+QString Project::createProject(const QString &location, const QString &name)
+{
+    if (m_isValid) {
+        return tr("A project is already open.");
+    }
+
+    const QString title = name.simplified();
+    if (title.isEmpty()) {
+        return tr("The project needs a name.");
+    }
+
+    const QUrl url(location);
+    const QDir parent(url.isLocalFile() ? url.toLocalFile() : location);
+    if (location.isEmpty() || !parent.exists()) {
+        return tr("The location does not exist.");
+    }
+
+    // The folder is named after the project, without characters that are
+    // not allowed in folder names on all platforms
+    QString folder = title;
+    for (const QChar c : QStringLiteral("/\\:*?\"<>|")) {
+        folder.replace(c, u'_');
+    }
+    const QDir dir(parent.filePath(folder));
+    if (dir.exists() && !dir.isEmpty()) {
+        return tr("There is already a folder named \"%1\" in this location.").arg(folder);
+    }
+    if (!parent.mkpath(folder)) {
+        return tr("Could not create the folder \"%1\".").arg(folder);
+    }
+
+    if (!this->openProject(dir.filePath("CollettProject.collett"))) {
+        return m_lastError.isEmpty() ? tr("Could not create the project.") : m_lastError;
+    }
+    m_data->setName(title);
+
+    // The title page, in the same format as the document files
+    Node *node = m_tree->createNode(ItemLevel::PageLevel);
+    Document *doc = new Document(node->handle(), this);
+    QJsonObject meta;
+    meta["m:created"_L1] = QDateTime::currentDateTime().toString(Qt::ISODate);
+    QJsonObject heading;
+    heading["u:fmt"_L1] = "h1:ac";
+    heading["u:txt"_L1] = "t|" + title;
+    QJsonObject data;
+    data["c:meta"_L1] = meta;
+    data["x:content"_L1] = QJsonArray({heading});
+    doc->unpack(data);
+    doc->setModified(true);
+
+    m_documents.insert(node->handle(), doc);
+    this->model()->insertNode(0, node);
+    m_data->setLastEditedHandle(node->handle());
+
+    this->saveProject();
+    emit projectChanged();
+    return QString();
 }
 
 bool Project::saveProject()
