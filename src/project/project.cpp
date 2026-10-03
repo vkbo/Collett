@@ -276,37 +276,28 @@ Document *Project::openDocument(const QString &handle)
 }
 
 /**!
- * @brief Split a document into a new scene where Enter was pressed twice.
+ * @brief Move the text after a cursor position into a new scene.
  *
- * The position is the start of the paragraph the first Enter made, and the
- * split undoes that Enter. If the paragraph is empty, it is removed along
- * with the paragraph break before it, and the text after it is moved. If it
- * has text, only the paragraph break before it is removed, and it is moved
- * along with the text after it. An empty paragraph left at the end of the
- * document, as when Enter was pressed at the start of a paragraph, is also
- * removed. The text is moved with its formatting into a new scene document
- * inserted after this one. Undoing the move in only one of the documents
- * would leave the text in both or neither, so the undo history of both
- * documents is cleared.
+ * Empty paragraphs left at the split are dropped. The undo history of both
+ * documents is cleared, as undoing in only one would lose or duplicate text.
  *
  * @param handle    The handle of the document to split.
- * @param position  The start of the paragraph made by the first Enter.
- * @return QString  The handle of the new document, or an empty string if
- *                  the document could not be split there.
+ * @param position  The cursor position to split at.
+ * @return QString  The handle of the new document, or an empty string.
  */
 QString Project::splitDocument(const QString &handle, int position)
 {
     Document *doc = m_documents.value(handle, nullptr);
     ProjectModel *projectModel = this->model();
     const int row = projectModel ? projectModel->rowOf(handle) : -1;
-    if (!doc || row < 0) {
+    if (!doc || row < 0 || position < 0 || position >= doc->characterCount()) {
         return QString();
     }
 
-    const QTextBlock block = doc->findBlock(position);
-    if (!block.isValid() || block.position() != position || !block.previous().isValid()) {
-        return QString();
-    }
+    QTextCursor split(doc);
+    split.setPosition(position);
+    split.insertBlock();
+    const QTextBlock block = split.block();
 
     // Copy the text to move. The block format of the first paragraph is kept
     // separately, as inserting a fragment into an empty document does not

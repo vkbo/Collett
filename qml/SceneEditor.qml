@@ -54,7 +54,8 @@ FocusScope {
 
     signal sceneFocused(string handle)
     signal cursorMoved(rect rect)
-    signal splitRequested(int position, int presses)
+    signal splitRequested(int position)
+    signal upgradeRequested()
 
     implicitHeight: bodyBox.y + bodyBox.height
 
@@ -358,8 +359,17 @@ FocusScope {
                 }
             }
             Keys.onPressed: event => root.titleBackspace(event)
-            Keys.onReturnPressed: root.enterAt(0)
-            Keys.onEnterPressed: root.enterAt(0)
+            // Ctrl+Enter changes the type of a newly split document
+            function handleEnter(event: KeyEvent) {
+                if (event.modifiers === Qt.ControlModifier) {
+                    root.upgradeRequested();
+                } else {
+                    root.enterAt(0);
+                }
+            }
+
+            Keys.onReturnPressed: event => handleEnter(event)
+            Keys.onEnterPressed: event => handleEnter(event)
         }
     }
 
@@ -392,56 +402,13 @@ FocusScope {
                 if (activeFocus) root.cursorMoved(mapToItem(root, cursorRectangle));
             }
 
-            // A run of Enter presses: how many, and the cursor position and
-            // length of the text before the first of them
-            property int runCount: 0
-            property int runStart: -1
-            property int runLength: -1
-
-            // Whether the text is as the run left it, with only the paragraph
-            // breaks of the run added and the cursor after them
-            function runIntact(): bool {
-                return length === runLength + runCount && cursorPosition === runStart + runCount;
-            }
-
-            // Each Enter inserts a paragraph break as usual. Enter presses
-            // close together form a run, and each one restarts the timer. When
-            // the timer runs out, a run of two or more is turned into a new
-            // document where it started: two make a scene, three a scene with
-            // a hard break, and four or more a chapter.
+            // Ctrl+Enter splits the document at the cursor
             function handleEnter(event: KeyEvent) {
-                event.accepted = false;
-                if (event.modifiers !== Qt.NoModifier || !plainMove) {
-                    runCount = 0;
-                    return;
+                if (event.modifiers === Qt.ControlModifier && plainMove) {
+                    root.splitRequested(cursorPosition);
+                } else {
+                    event.accepted = false;
                 }
-                if (!runTimer.running || runCount === 0 || !runIntact()) {
-                    runCount = 0;
-                    runStart = cursorPosition;
-                    runLength = length;
-                }
-                runCount++;
-                runTimer.restart();
-            }
-
-            // The run's paragraph breaks are removed, except for the first,
-            // which the split then removes as it moves the text after it. If
-            // the text was changed or the cursor moved after the run, the
-            // breaks are left as they are.
-            function finishRun() {
-                const count = runCount;
-                const intact = runIntact();
-                runCount = 0;
-                if (count < 2 || !intact) return;
-                remove(runStart + 1, runStart + count);
-                root.splitRequested(runStart + 1, count);
-            }
-
-            Timer {
-                id: runTimer
-
-                interval: 500
-                onTriggered: textEdit.finishRun()
             }
 
             Keys.onPressed: event => root.textBackspace(event)

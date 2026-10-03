@@ -61,27 +61,39 @@ ApplicationWindow {
         visible: !window.project.isValid
     }
 
-    // Split a document into a new one after a run of Enter presses. Two make
-    // a scene, three a scene with a hard break before it, and four or more a
-    // chapter. The cursor goes to the title of the new document. The view
-    // must lay itself out first, or it still has the editor that was at the
-    // new row before the insert.
-    function splitDocument(handle: string, position: int, presses: int) {
+    // The document made by the last split, while the cursor stays in it
+    property string splitHandle: ""
+
+    // Split a document and put the cursor in the new title. The view must
+    // lay itself out first, or it still has the old editor at the new row.
+    function splitDocument(handle: string, position: int) {
         const newHandle = project.splitDocument(handle, position);
         if (!newHandle) return;
-        const row = project.model.rowOf(newHandle);
-        if (presses === 3) {
-            project.model.setHardBreak(row, true);
-        } else if (presses >= 4) {
-            project.model.setLevel(row, Collett.ChapterLevel);
-        }
         Qt.callLater(() => {
             const newRow = project.model.rowOf(newHandle);
             editorView.forceLayout();
             if (!editorView.itemAtIndex(newRow)) editorView.positionViewAtIndex(newRow, ListView.Contain);
             const scene = editorView.itemAtIndex(newRow) as SceneEditor;
             if (scene) scene.enterTitleAt(0);
+            splitHandle = newHandle;
         });
+    }
+
+    // Cycle a newly split document from scene, to scene with a hard break,
+    // to chapter, and back to scene
+    function upgradeDocument(handle: string) {
+        if (handle !== splitHandle) return;
+        const row = project.model.rowOf(handle);
+        const scene = editorView.itemAtIndex(row) as SceneEditor;
+        if (!scene) return;
+        if (scene.level === Collett.ChapterLevel) {
+            project.model.setLevel(row, Collett.SceneLevel);
+        } else if (scene.hardBreak) {
+            project.model.setHardBreak(row, false);
+            project.model.setLevel(row, Collett.ChapterLevel);
+        } else {
+            project.model.setHardBreak(row, true);
+        }
     }
 
     Binding {
@@ -199,9 +211,11 @@ ApplicationWindow {
                     project: window.project
                     view: editorView
 
-                    onSplitRequested: (position, presses) => window.splitDocument(sceneEditor.handle, position, presses)
+                    onSplitRequested: position => window.splitDocument(sceneEditor.handle, position)
+                    onUpgradeRequested: window.upgradeDocument(sceneEditor.handle)
 
                     onSceneFocused: handle => {
+                        if (handle !== window.splitHandle) window.splitHandle = "";
                         window.focusHandle = handle;
                         window.project.setLastEditedHandle(handle);
                     }
