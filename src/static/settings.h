@@ -49,7 +49,10 @@ class Settings : public QObject
     Q_PROPERTY(QString guiLanguage READ guiLanguage WRITE setGuiLanguage NOTIFY guiLanguageChanged)
     Q_PROPERTY(QSize prefsWindowSize READ prefsWindowSize WRITE setPrefsWindowSize NOTIFY prefsWindowSizeChanged)
     Q_PROPERTY(int editorAutoSave READ editorAutoSave WRITE setEditorAutoSave NOTIFY editorAutoSaveChanged)
+    Q_PROPERTY(QFont guiFont READ guiFont WRITE setGuiFont NOTIFY guiFontChanged)
     Q_PROPERTY(QFont textFont READ textFont WRITE setTextFont NOTIFY textFormatChanged)
+    Q_PROPERTY(QFont headingFont READ headingFont WRITE setHeadingFont NOTIFY textFormatChanged)
+    Q_PROPERTY(QFont monoFont READ monoFont WRITE setMonoFont NOTIFY monoFontChanged)
     Q_PROPERTY(qreal textTabWidth READ textTabWidth WRITE setTextTabWidth NOTIFY textFormatChanged)
     Q_PROPERTY(QString spellLanguage READ spellLanguage WRITE setSpellLanguage NOTIFY spellLanguageChanged)
 
@@ -88,7 +91,10 @@ public:
     void setGuiLanguage(const QString &language);
     void setPrefsWindowSize(const QSize &size);
     void setEditorAutoSave(const int interval);
+    void setGuiFont(const QFont &font);
     void setTextFont(const QFont &font);
+    void setHeadingFont(const QFont &font);
+    void setMonoFont(const QFont &font);
     void setTextTabWidth(const qreal width);
     void setSpellLanguage(const QString &language);
 
@@ -96,7 +102,10 @@ public:
     QString guiLanguage() const { return m_guiLanguage; };
     QSize prefsWindowSize() const { return m_prefsWindowSize; };
     int editorAutoSave() const { return m_editorAutoSave; };
+    QFont guiFont() const { return m_guiFont; };
     QFont textFont() const { return m_textFont; };
+    QFont headingFont() const { return m_headingFont; };
+    QFont monoFont() const { return m_monoFont; };
     qreal textTabWidth() const { return m_textTabWidth; };
     TextFormat textFormat() const { return m_textFormat; };
     QString spellLanguage() const { return m_spellLanguage; };
@@ -105,7 +114,9 @@ signals:
     void guiLanguageChanged();
     void prefsWindowSizeChanged();
     void editorAutoSaveChanged();
+    void guiFontChanged();
     void textFormatChanged();
+    void monoFontChanged();
     void spellLanguageChanged();
 
 private:
@@ -122,8 +133,13 @@ private:
     // Editor
     int m_editorAutoSave;
 
-    // Text Format
+    // Fonts
+    QFont m_guiFont;
     QFont m_textFont;
+    QFont m_headingFont;
+    QFont m_monoFont;
+
+    // Text Format
     qreal m_textFontSize;
     qreal m_textTabWidth;
     TextFormat m_textFormat;

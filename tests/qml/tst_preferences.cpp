@@ -195,7 +195,7 @@ void TestPreferences::pickFont()
     QVERIFY(!family.isEmpty());
 
     openDialog();
-    click(sideBarButton("Appearance"));
+    click(sideBarButton("Fonts"));
     QQuickItem *row = dialogItem("textFontRow");
     QVERIFY(row);
     QTRY_VERIFY(!dialogItem("preferencesFlow")->property("moving").toBool());

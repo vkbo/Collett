@@ -208,9 +208,7 @@ FocusScope {
         x: root.textX
         y: divider.height
         text: Labels.levelName(root.level)
-        font.family: binder.textFont.family
-        font.pointSize: binder.textFont.pointSize
-        font.bold: true
+        font: binder.headingFont
         color: Theme.levelColor(root.level)
 
         HoverHandler {
@@ -313,9 +311,7 @@ FocusScope {
             color: root.palette.text
             selectionColor: root.palette.highlight
             selectedTextColor: root.palette.highlightedText
-            font.family: binder.textFont.family
-            font.pointSize: binder.textFont.pointSize * (root.level === Collett.PartitionLevel ? 2.0 : root.level === Collett.ChapterLevel ? 1.7 : 1.4)
-            font.bold: true
+            font: Fonts.scaled(binder.headingFont, root.level === Collett.PartitionLevel ? 2.0 : root.level === Collett.ChapterLevel ? 1.7 : 1.4)
 
             readonly property bool plainMove: selectionStart === selectionEnd
 

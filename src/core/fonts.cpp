@@ -27,6 +27,17 @@
 
 namespace Collett {
 
+/**! @brief The installed font families, or only those with a fixed pitch.
+ */
+QStringList Fonts::families(bool fixedPitch)
+{
+    QStringList families = QFontDatabase::families();
+    if (fixedPitch) {
+        families.removeIf([](const QString &family) { return !QFontDatabase::isFixedPitch(family); });
+    }
+    return families;
+}
+
 /**! @brief The styles of a font family, like "Regular" and "Bold Italic".
  */
 QStringList Fonts::styles(const QString &family)
@@ -56,6 +67,15 @@ QFont Fonts::font(const QString &family, const QString &style, qreal pointSize)
     font.setStyleName(style);
     font.setPointSizeF(pointSize);
     return font;
+}
+
+/**! @brief A copy of a font with its size scaled.
+ */
+QFont Fonts::scaled(const QFont &font, qreal factor)
+{
+    QFont copy = font;
+    copy.setPointSizeF(font.pointSizeF() * factor);
+    return copy;
 }
 
 /**! @brief A short description of a font, like "12 pt Noto Serif".

@@ -37,7 +37,10 @@ using namespace Qt::Literals::StringLiterals;
 #define CNF_GUI_LANGUAGE "Main/guiLanguage"_L1
 #define CNF_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
-#define CNF_TEXT_FONT "TextFormat/textFont"_L1
+#define CNF_GUI_FONT "Fonts/guiFont"_L1
+#define CNF_TEXT_FONT "Fonts/textFont"_L1
+#define CNF_HEADING_FONT "Fonts/headingFont"_L1
+#define CNF_MONO_FONT "Fonts/monoFont"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
 #define CNF_SPELL_LANGUAGE "SpellCheck/language"_L1
 
@@ -112,11 +115,23 @@ Settings::Settings(QObject *parent) : QObject(parent)
     // Text Format
     // -----------
 
+    m_textTabWidth = qMax(settings.value(CNF_TEXT_TAB_WIDTH, (qreal)40.0).toReal(), 0.0);
+
+    // Fonts
+    // -----
+
+    // The text and headings use the system font at a reading size, with bold
+    // headings, until a font is picked
     QFont defaultTextFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
     defaultTextFont.setPointSizeF(13.0);
+    QFont defaultHeadingFont = defaultTextFont;
+    defaultHeadingFont.setBold(true);
+
+    m_guiFont = fontFromSettings(settings, CNF_GUI_FONT, QFontDatabase::systemFont(QFontDatabase::GeneralFont));
     m_textFont = fontFromSettings(settings, CNF_TEXT_FONT, defaultTextFont);
+    m_headingFont = fontFromSettings(settings, CNF_HEADING_FONT, defaultHeadingFont);
+    m_monoFont = fontFromSettings(settings, CNF_MONO_FONT, QFontDatabase::systemFont(QFontDatabase::FixedFont));
     m_textFontSize = qMax(m_textFont.pointSizeF(), 5.0);
-    m_textTabWidth = qMax(settings.value(CNF_TEXT_TAB_WIDTH, (qreal)40.0).toReal(), 0.0);
     recalculateTextFormats();
 
     // Spell Check
@@ -144,7 +159,10 @@ void Settings::flushSettings()
     settings.setValue(CNF_PREFS_WINDOW_SIZE, m_prefsWindowSize);
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
 
+    settings.setValue(CNF_GUI_FONT, m_guiFont.toString());
     settings.setValue(CNF_TEXT_FONT, m_textFont.toString());
+    settings.setValue(CNF_HEADING_FONT, m_headingFont.toString());
+    settings.setValue(CNF_MONO_FONT, m_monoFont.toString());
     settings.setValue(CNF_TEXT_TAB_WIDTH, m_textTabWidth);
     settings.setValue(CNF_SPELL_LANGUAGE, m_spellLanguage);
 
@@ -219,6 +237,33 @@ void Settings::setSpellLanguage(const QString &language)
     emit spellLanguageChanged();
 }
 
+/**! @brief Set the font of the user interface. The application font is
+ * updated by the main function.
+ */
+void Settings::setGuiFont(const QFont &font)
+{
+    if (font == m_guiFont) return;
+    m_guiFont = font;
+    emit guiFontChanged();
+}
+
+/**! @brief Set the heading font and rebuild the text formats from it.
+ */
+void Settings::setHeadingFont(const QFont &font)
+{
+    if (font == m_headingFont) return;
+    m_headingFont = font;
+    recalculateTextFormats();
+    emit textFormatChanged();
+}
+
+void Settings::setMonoFont(const QFont &font)
+{
+    if (font == m_monoFont) return;
+    m_monoFont = font;
+    emit monoFontChanged();
+}
+
 /**! @brief Set the document font and rebuild the text formats from it.
  */
 void Settings::setTextFont(const QFont &font)
@@ -255,10 +300,20 @@ void Settings::recalculateTextFormats()
     qreal defaultTopMargin = 0.5 * m_textFontSize;
     qreal defaultBottomMargin = 0.5 * m_textFontSize;
 
-    qreal header1FontSize = 2.0 * m_textFontSize;
-    qreal header2FontSize = 1.7 * m_textFontSize;
-    qreal header3FontSize = 1.4 * m_textFontSize;
-    qreal header4FontSize = 1.2 * m_textFontSize;
+    // Headings scale from the size of the heading font
+    const qreal headingSize = qMax(m_headingFont.pointSizeF(), 5.0);
+    qreal header1FontSize = 2.0 * headingSize;
+    qreal header2FontSize = 1.7 * headingSize;
+    qreal header3FontSize = 1.4 * headingSize;
+    qreal header4FontSize = 1.2 * headingSize;
+
+    auto headingFormat = [this, &defaultCharFmt](qreal size) {
+        QFont font = m_headingFont;
+        font.setPointSizeF(size);
+        QTextCharFormat format = defaultCharFmt;
+        format.setFont(font);
+        return format;
+    };
 
     qreal headerBottomMargin = 0.7 * m_textFontSize;
 
@@ -301,9 +356,7 @@ void Settings::recalculateTextFormats()
     m_textFormat.blockHeader1.setTopMargin(header1FontSize);
     m_textFormat.blockHeader1.setBottomMargin(headerBottomMargin);
 
-    m_textFormat.charHeader1 = defaultCharFmt;
-    m_textFormat.charHeader1.setFontPointSize(header1FontSize);
-    m_textFormat.charHeader1.setFontWeight(QFont::Bold);
+    m_textFormat.charHeader1 = headingFormat(header1FontSize);
 
     // Header 2 Formats
 
@@ -312,9 +365,7 @@ void Settings::recalculateTextFormats()
     m_textFormat.blockHeader2.setTopMargin(header2FontSize);
     m_textFormat.blockHeader2.setBottomMargin(headerBottomMargin);
 
-    m_textFormat.charHeader2 = defaultCharFmt;
-    m_textFormat.charHeader2.setFontPointSize(header2FontSize);
-    m_textFormat.charHeader2.setFontWeight(QFont::Bold);
+    m_textFormat.charHeader2 = headingFormat(header2FontSize);
 
     // Header 3 Formats
 
@@ -323,9 +374,7 @@ void Settings::recalculateTextFormats()
     m_textFormat.blockHeader3.setTopMargin(header3FontSize);
     m_textFormat.blockHeader3.setBottomMargin(headerBottomMargin);
 
-    m_textFormat.charHeader3 = defaultCharFmt;
-    m_textFormat.charHeader3.setFontPointSize(header3FontSize);
-    m_textFormat.charHeader3.setFontWeight(QFont::Bold);
+    m_textFormat.charHeader3 = headingFormat(header3FontSize);
 
     // Header 4 Formats
 
@@ -334,9 +383,7 @@ void Settings::recalculateTextFormats()
     m_textFormat.blockHeader4.setTopMargin(header4FontSize);
     m_textFormat.blockHeader4.setBottomMargin(headerBottomMargin);
 
-    m_textFormat.charHeader4 = defaultCharFmt;
-    m_textFormat.charHeader4.setFontPointSize(header4FontSize);
-    m_textFormat.charHeader4.setFontWeight(QFont::Bold);
+    m_textFormat.charHeader4 = headingFormat(header4FontSize);
 }
 
 } // namespace Collett

@@ -37,10 +37,13 @@ Window {
 
     // The index of the section at the top of the page
     property int currentIndex: 0
-    readonly property list<SettingsSection> sections: [generalSection, appearanceSection, editingSection, spellingSection]
+    readonly property list<SettingsSection> sections: [generalSection, fontsSection, editingSection, spellingSection]
 
-    // The font picked, until it is saved
+    // The fonts picked, until they are saved
+    property font guiFont
     property font textFont
+    property font headingFont
+    property font monoFont
 
     title: qsTr("Preferences")
     minimumWidth: 600
@@ -52,7 +55,10 @@ Window {
     function openDialog() {
         guiLanguage.model = Settings.guiLanguages();
         guiLanguage.currentIndex = guiLanguage.indexOfValue(Settings.guiLanguage);
+        guiFont = Settings.guiFont;
         textFont = Settings.textFont;
+        headingFont = Settings.headingFont;
+        monoFont = Settings.monoFont;
         autoSave.value = Settings.editorAutoSave;
         tabWidth.value = Math.round(Settings.textTabWidth);
         spellLanguage.model = Settings.spellLanguages();
@@ -72,11 +78,25 @@ Window {
      */
     function save() {
         if (guiLanguage.currentIndex >= 0) Settings.guiLanguage = guiLanguage.currentValue;
+        Settings.guiFont = guiFont;
         Settings.textFont = textFont;
+        Settings.headingFont = headingFont;
+        Settings.monoFont = monoFont;
         Settings.editorAutoSave = autoSave.value;
         Settings.textTabWidth = tabWidth.value;
         if (spellLanguage.currentIndex >= 0) Settings.spellLanguage = spellLanguage.currentValue;
         close();
+    }
+
+    /**! Open the font page for one of the fonts.
+     */
+    function editFont(key: string, title: string) {
+        stack.push(fontPage, {
+            key: key,
+            title: title,
+            initialFont: root[key],
+            fixedPitch: key === "monoFont"
+        });
     }
 
     /**! Scroll a section to the top of the page.
@@ -154,13 +174,13 @@ Window {
                 model: ListModel {
                     ListElement {
                         name: qsTr("General")
-                        group: qsTr("Application")
+                        group: qsTr("Appearance")
                         iconName: "settings"
                     }
                     ListElement {
-                        name: qsTr("Appearance")
-                        group: qsTr("Application")
-                        iconName: "theme_auto"
+                        name: qsTr("Fonts")
+                        group: qsTr("Appearance")
+                        iconName: "font"
                     }
                     ListElement {
                         name: qsTr("Editing")
@@ -265,12 +285,25 @@ Window {
                         }
 
                         SettingsSection {
-                            id: appearanceSection
+                            id: fontsSection
 
-                            title: qsTr("Appearance")
+                            title: qsTr("Fonts")
 
                             SettingsGroup {
-                                title: qsTr("Fonts")
+                                title: qsTr("Interface")
+
+                                SettingsLinkRow {
+                                    objectName: "guiFontRow"
+
+                                    title: qsTr("Interface font")
+                                    help: qsTr("The font used for menus, labels and buttons.")
+                                    value: Fonts.describe(root.guiFont)
+                                    onClicked: root.editFont("guiFont", title)
+                                }
+                            }
+
+                            SettingsGroup {
+                                title: qsTr("Editor")
 
                                 SettingsLinkRow {
                                     objectName: "textFontRow"
@@ -278,7 +311,23 @@ Window {
                                     title: qsTr("Text font")
                                     help: qsTr("The font used for document text in the editor.")
                                     value: Fonts.describe(root.textFont)
-                                    onClicked: stack.push(fontPage)
+                                    onClicked: root.editFont("textFont", title)
+                                }
+                                SettingsLinkRow {
+                                    objectName: "headingFontRow"
+
+                                    title: qsTr("Heading font")
+                                    help: qsTr("The font used for titles and headings in the editor. Larger headings are scaled from its size.")
+                                    value: Fonts.describe(root.headingFont)
+                                    onClicked: root.editFont("headingFont", title)
+                                }
+                                SettingsLinkRow {
+                                    objectName: "monoFontRow"
+
+                                    title: qsTr("Monospace font")
+                                    help: qsTr("The fixed width font used in the editor.")
+                                    value: Fonts.describe(root.monoFont)
+                                    onClicked: root.editFont("monoFont", title)
                                 }
                             }
                         }
@@ -368,9 +417,10 @@ Window {
         id: fontPage
 
         FontPage {
-            title: qsTr("Text font")
-            initialFont: root.textFont
-            onChosen: selected => root.textFont = selected
+            // The dialog property the page edits
+            property string key
+
+            onChosen: selected => root[key] = selected
             onBack: stack.pop()
         }
     }

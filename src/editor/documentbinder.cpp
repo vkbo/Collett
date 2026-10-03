@@ -53,6 +53,11 @@ QFont DocumentBinder::textFont() const
     return Settings::instance()->textFont();
 }
 
+QFont DocumentBinder::headingFont() const
+{
+    return Settings::instance()->headingFont();
+}
+
 // Setters
 // =======
 

@@ -34,11 +34,14 @@ Page {
 
     required property font initialFont
 
+    // Only offer families with a fixed pitch
+    property bool fixedPitch: false
+
     property string family: initialFont.family
     property string style: Fonts.styleOf(initialFont)
     property real size: initialFont.pointSize
 
-    readonly property list<string> families: Qt.fontFamilies()
+    readonly property list<string> families: Fonts.families(fixedPitch)
     readonly property font currentFont: Fonts.font(family, style, size)
 
     signal chosen(font selected)

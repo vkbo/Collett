@@ -156,7 +156,14 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Collett");
     QCoreApplication::setApplicationVersion(COL_VERSION_STR);
 
-    loadTranslations(app, Collett::Settings::instance()->guiLanguage());
+    Collett::Settings *settings = Collett::Settings::instance();
+    loadTranslations(app, settings->guiLanguage());
+
+    // The interface font follows the setting, also when it is changed
+    QGuiApplication::setFont(settings->guiFont());
+    QObject::connect(settings, &Collett::Settings::guiFontChanged, &app, [settings]() {
+        QGuiApplication::setFont(settings->guiFont());
+    });
 
     // Material, following the system's light or dark mode, with the denser
     // controls meant for desktop use

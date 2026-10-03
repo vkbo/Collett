@@ -201,7 +201,7 @@ void TestDocument::updatedTimestamp()
 
 /**! @brief Changing the text font restyles a loaded document in place.
  *
- * Headers scale with the base size, fragment flags like bold survive, the
+ * Headers scale with the heading font, fragment flags like bold survive, the
  * document takes the new family, and the modified state is untouched.
  */
 void TestDocument::refreshTextFormat()
@@ -210,6 +210,9 @@ void TestDocument::refreshTextFormat()
     QFont font = settings->textFont();
     font.setPointSizeF(13.0);
     settings->setTextFont(font);
+    QFont heading = settings->headingFont();
+    heading.setPointSizeF(13.0);
+    settings->setHeadingFont(heading);
 
     QJsonObject header;
     header["u:fmt"] = "h1";
@@ -229,6 +232,8 @@ void TestDocument::refreshTextFormat()
 
     font.setPointSizeF(20.0);
     settings->setTextFont(font);
+    heading.setPointSizeF(20.0);
+    settings->setHeadingFont(heading);
 
     const QTextBlock first = doc.firstBlock();
     const QTextBlock second = first.next();

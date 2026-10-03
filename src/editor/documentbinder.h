@@ -46,6 +46,7 @@ class DocumentBinder : public QObject
     Q_PROPERTY(Collett::Project *project READ project WRITE setProject NOTIFY projectChanged)
     Q_PROPERTY(QString handle READ handle WRITE setHandle NOTIFY handleChanged)
     Q_PROPERTY(QFont textFont READ textFont NOTIFY textFontChanged)
+    Q_PROPERTY(QFont headingFont READ headingFont NOTIFY textFontChanged)
     Q_PROPERTY(QColor spellErrorColor READ spellErrorColor WRITE setSpellErrorColor NOTIFY spellErrorColorChanged)
 
 public:
@@ -57,6 +58,7 @@ public:
     Project *project() const { return m_project; };
     QString handle() const { return m_handle; };
     QFont textFont() const;
+    QFont headingFont() const;
     QColor spellErrorColor() const { return m_spellErrorColor; };
 
     // Setters
