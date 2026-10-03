@@ -44,6 +44,7 @@ private slots:
     void spellingMenu();
     void tabIndent();
     void autoIndent();
+    void multiSpaces();
 
 private:
     QmlFixture *f = nullptr;
@@ -94,6 +95,7 @@ void TestSceneEditor::initTestCase()
 void TestSceneEditor::init()
 {
     Settings::instance()->setTextAutoIndent(false);
+    Settings::instance()->setShowMultiSpaces(false);
     f = new QmlFixture();
     QVERIFY(f->create());
     f->addDocument(ItemLevel::ChapterLevel, "One", "");
@@ -340,6 +342,42 @@ void TestSceneEditor::autoIndent()
     QCOMPARE(indentAt(2, 14), 0.0);
 
     Settings::instance()->setTextAutoIndent(false);
+}
+
+/**! @brief With the setting on, a space typed at the end of a paragraph is
+ * not underlined while the cursor is after it, but is once the cursor
+ * leaves. Runs of spaces are underlined straight away.
+ */
+void TestSceneEditor::multiSpaces()
+{
+    Settings::instance()->setShowMultiSpaces(true);
+    QTextBlock block = f->project.openDocument(f->handle(4))->firstBlock();
+    auto underlined = [&block]() {
+        QList<int> starts;
+        for (const QTextLayout::FormatRange &range : block.layout()->formats()) {
+            if (range.format.underlineStyle() == QTextCharFormat::SingleUnderline) starts.append(range.start);
+        }
+        return starts;
+    };
+
+    f->enterText(4, 8);
+    QTRY_COMPARE(f->focusCursor(), 8);
+    f->type(" ");
+    QTRY_COMPARE(f->text(4), QStringLiteral("Epsilon. "));
+    QCOMPARE(underlined(), QList<int>());
+
+    QTest::keyClick(f->window, Qt::Key_Left);
+    QTest::keyClick(f->window, Qt::Key_Left);
+    QTRY_COMPARE(underlined(), QList<int>({8}));
+
+    QTest::keyClick(f->window, Qt::Key_End);
+    QTRY_COMPARE(underlined(), QList<int>());
+    f->type(" x");
+    QTRY_COMPARE(f->text(4), QStringLiteral("Epsilon.  x"));
+    QCOMPARE(underlined(), QList<int>({8}));
+
+    Settings::instance()->setShowMultiSpaces(false);
+    QTRY_COMPARE(underlined(), QList<int>());
 }
 
 QTEST_MAIN(TestSceneEditor)

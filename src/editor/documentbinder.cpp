@@ -38,6 +38,11 @@ DocumentBinder::DocumentBinder(QObject *parent) : QObject(parent)
 {
     m_highlighter = new Highlighter(this);
     m_highlighter->setErrorColor(m_spellErrorColor);
+    m_highlighter->setFormatErrorColor(m_formatErrorColor);
+    m_highlighter->setCheckFormat(Settings::instance()->showMultiSpaces());
+    connect(Settings::instance(), &Settings::showMultiSpacesChanged, this, [this]() {
+        m_highlighter->setCheckFormat(Settings::instance()->showMultiSpaces());
+    });
     connect(Settings::instance(), &Settings::textFormatChanged, this, &DocumentBinder::textFontChanged);
 }
 
@@ -70,6 +75,7 @@ void DocumentBinder::setTarget(QQuickItem *target)
     m_target = target;
     if (m_target) {
         connect(m_target, SIGNAL(cursorPositionChanged()), this, SLOT(updateFormat()));
+        connect(m_target, SIGNAL(cursorPositionChanged()), this, SLOT(updateCursor()));
         connect(m_target, SIGNAL(selectionStartChanged()), this, SLOT(updateFormat()));
         connect(m_target, SIGNAL(selectionEndChanged()), this, SLOT(updateFormat()));
     }
@@ -108,6 +114,16 @@ void DocumentBinder::setSpellErrorColor(const QColor &color)
     m_spellErrorColor = color;
     m_highlighter->setErrorColor(color);
     emit spellErrorColorChanged();
+}
+
+/**! @brief Set the colour of the line under redundant spaces.
+ */
+void DocumentBinder::setFormatErrorColor(const QColor &color)
+{
+    if (m_formatErrorColor == color) return;
+    m_formatErrorColor = color;
+    m_highlighter->setFormatErrorColor(color);
+    emit formatErrorColorChanged();
 }
 
 /**! @brief Make the selection or the word at the cursor bold, or not.
@@ -385,6 +401,7 @@ void DocumentBinder::bindDocument(Document *document)
     connect(m_document, &QTextDocument::contentsChange, this, &DocumentBinder::applyPending);
     m_pendingPosition = -1;
     updateFormat();
+    updateCursor();
 }
 
 /**! @brief Swap the target over to an empty document when the shown
@@ -510,6 +527,13 @@ void DocumentBinder::updateFormat()
     m_alignment = alignment;
     m_headingLevel = headingLevel;
     emit formatChanged();
+}
+
+/**! @brief Tell the highlighter where the target's cursor is.
+ */
+void DocumentBinder::updateCursor()
+{
+    if (m_target && m_document) m_highlighter->setCursorPosition(m_target->property("cursorPosition").toInt());
 }
 
 /**! @brief Apply a held back format to text typed at its position.

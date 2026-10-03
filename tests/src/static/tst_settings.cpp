@@ -38,6 +38,7 @@ private slots:
     void spellLanguage();
     void tabWidth();
     void autoIndent();
+    void showMultiSpaces();
     void fonts();
 };
 
@@ -79,6 +80,20 @@ void TestSettings::autoIndent()
     settings->setTextAutoIndent(false);
     QCOMPARE(settings->textAutoIndent(), false);
     settings->setTextAutoIndent(false);
+    QCOMPARE(spy.count(), 1);
+}
+
+/**! @brief Highlighting multiple spaces is off by default.
+ */
+void TestSettings::showMultiSpaces()
+{
+    Settings *settings = Settings::instance();
+    QCOMPARE(settings->showMultiSpaces(), false);
+
+    QSignalSpy spy(settings, &Settings::showMultiSpacesChanged);
+    settings->setShowMultiSpaces(true);
+    QCOMPARE(settings->showMultiSpaces(), true);
+    settings->setShowMultiSpaces(true);
     QCOMPARE(spy.count(), 1);
 }
 

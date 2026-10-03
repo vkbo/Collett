@@ -522,5 +522,6 @@ FocusScope {
         project: root.project
         handle: root.handle
         spellErrorColor: Theme.spellErrorColor
+        formatErrorColor: Theme.formatErrorColor
     }
 }

@@ -50,6 +50,7 @@ class DocumentBinder : public QObject
     Q_PROPERTY(QFont textFont READ textFont NOTIFY textFontChanged)
     Q_PROPERTY(QFont headingFont READ headingFont NOTIFY textFontChanged)
     Q_PROPERTY(QColor spellErrorColor READ spellErrorColor WRITE setSpellErrorColor NOTIFY spellErrorColorChanged)
+    Q_PROPERTY(QColor formatErrorColor READ formatErrorColor WRITE setFormatErrorColor NOTIFY formatErrorColorChanged)
     Q_PROPERTY(bool bold READ bold WRITE setBold NOTIFY formatChanged)
     Q_PROPERTY(bool italic READ italic WRITE setItalic NOTIFY formatChanged)
     Q_PROPERTY(bool underline READ underline WRITE setUnderline NOTIFY formatChanged)
@@ -70,6 +71,7 @@ public:
     QFont textFont() const;
     QFont headingFont() const;
     QColor spellErrorColor() const { return m_spellErrorColor; };
+    QColor formatErrorColor() const { return m_formatErrorColor; };
     bool bold() const { return m_format.fontWeight() >= QFont::Bold; };
     bool italic() const { return m_format.fontItalic(); };
     bool underline() const { return m_format.fontUnderline(); };
@@ -84,6 +86,7 @@ public:
     void setProject(Project *project);
     void setHandle(const QString &handle);
     void setSpellErrorColor(const QColor &color);
+    void setFormatErrorColor(const QColor &color);
     void setBold(bool bold);
     void setItalic(bool italic);
     void setUnderline(bool underline);
@@ -110,6 +113,7 @@ signals:
     void projectChanged();
     void handleChanged();
     void spellErrorColorChanged();
+    void formatErrorColorChanged();
     void textFontChanged();
     void formatChanged();
 
@@ -121,6 +125,7 @@ private:
     Highlighter *m_highlighter = nullptr;
     QTextDocument *m_placeholder = nullptr;
     QColor m_spellErrorColor = Qt::red;
+    QColor m_formatErrorColor = QColor(255, 165, 0);
 
     // The format at the cursor, and a format waiting for text to be typed
     // at a cursor that is not on a word
@@ -140,6 +145,7 @@ private:
 
 private slots:
     void updateFormat();
+    void updateCursor();
     void applyPending(int position, int removed, int added);
 };
 } // namespace Collett

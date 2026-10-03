@@ -77,6 +77,7 @@ Window {
         autoSave.value = Settings.editorAutoSave;
         tabWidth.value = Math.round(Settings.textTabWidth);
         autoIndent.checked = Settings.textAutoIndent;
+        multiSpaces.checked = Settings.showMultiSpaces;
         spellLanguage.model = Settings.spellLanguages();
         spellLanguage.currentIndex = spellLanguage.indexOfValue(Settings.spellLanguage);
 
@@ -109,6 +110,7 @@ Window {
         Settings.editorAutoSave = autoSave.value;
         Settings.textTabWidth = tabWidth.value;
         Settings.textAutoIndent = autoIndent.checked;
+        Settings.showMultiSpaces = multiSpaces.checked;
         if (spellLanguage.currentIndex >= 0)
             Settings.spellLanguage = spellLanguage.currentValue;
         close();
@@ -417,6 +419,19 @@ Window {
                                         objectName: "autoIndent"
 
                                         Accessible.name: qsTr("Indent paragraphs automatically")
+                                    }
+                                }
+
+                                SettingsRow {
+                                    title: qsTr("Highlight multiple spaces between words")
+                                    help: qsTr("Underline runs of spaces, and spaces at the end of a paragraph.")
+
+                                    Switch {
+                                        id: multiSpaces
+
+                                        objectName: "multiSpaces"
+
+                                        Accessible.name: qsTr("Highlight multiple spaces between words")
                                     }
                                 }
                             }

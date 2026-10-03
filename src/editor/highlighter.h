@@ -28,11 +28,12 @@
 #include <QPointer>
 #include <QString>
 #include <QSyntaxHighlighter>
+#include <QTextBlock>
 #include <QTextCharFormat>
 
 namespace Collett {
 
-/**! @brief Marks misspelled words in a document.
+/**! @brief Marks misspelled words and redundant spaces in a document.
  *
  * The marks are layout overlays, so they are never stored with the document,
  * and do not mark it as modified or add to its undo history.
@@ -47,6 +48,9 @@ public:
     // Setters
     void setSpellChecker(SpellChecker *spell);
     void setErrorColor(const QColor &color);
+    void setFormatErrorColor(const QColor &color);
+    void setCheckFormat(bool enabled);
+    void setCursorPosition(int position);
 
 protected:
     void highlightBlock(const QString &text) override;
@@ -54,6 +58,11 @@ protected:
 private:
     QPointer<SpellChecker> m_spell;
     QTextCharFormat m_fmtSpellError;
+    QTextCharFormat m_fmtFormatError;
+    bool m_checkFormat = false;
+    int m_cursor = -1;
+
+    bool trailUnderCursor(const QTextBlock &block, int position) const;
 };
 
 } // namespace Collett

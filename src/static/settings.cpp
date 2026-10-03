@@ -39,6 +39,7 @@ using namespace Qt::Literals::StringLiterals;
 #define CNF_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
 #define CNF_SIDE_BAR_WIDTH "Main/sideBarWidth"_L1
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
+#define CNF_EDITOR_MULTI_SPACES "Editor/showMultiSpaces"_L1
 #define CNF_GUI_FONT "Fonts/guiFont"_L1
 #define CNF_TEXT_FONT "Fonts/textFont"_L1
 #define CNF_HEADING_FONT "Fonts/headingFont"_L1
@@ -121,7 +122,8 @@ Settings::Settings(QObject *parent) : QObject(parent)
     // -----------
 
     m_textTabWidth = qMax(settings.value(CNF_TEXT_TAB_WIDTH, (qreal)40.0).toReal(), 0.0);
-    m_textAutoIndent = settings.value(CNF_TEXT_AUTO_INDENT, __GCC_ATOMIC_TEST_AND_SET_TRUEVAL).toBool();
+    m_textAutoIndent = settings.value(CNF_TEXT_AUTO_INDENT, true).toBool();
+    m_showMultiSpaces = settings.value(CNF_EDITOR_MULTI_SPACES, false).toBool();
 
     // Fonts
     // -----
@@ -173,6 +175,7 @@ void Settings::flushSettings()
     settings.setValue(CNF_MONO_FONT, m_monoFont.toString());
     settings.setValue(CNF_TEXT_TAB_WIDTH, m_textTabWidth);
     settings.setValue(CNF_TEXT_AUTO_INDENT, m_textAutoIndent);
+    settings.setValue(CNF_EDITOR_MULTI_SPACES, m_showMultiSpaces);
     settings.setValue(CNF_SPELL_LANGUAGE, m_spellLanguage);
 
     qDebug() << "Settings values saved";
@@ -313,6 +316,16 @@ void Settings::setTextAutoIndent(const bool enabled)
     if (enabled == m_textAutoIndent) return;
     m_textAutoIndent = enabled;
     emit textAutoIndentChanged();
+}
+
+/**! @brief Set whether runs of spaces and trailing spaces are underlined in
+ * the editor.
+ */
+void Settings::setShowMultiSpaces(const bool enabled)
+{
+    if (enabled == m_showMultiSpaces) return;
+    m_showMultiSpaces = enabled;
+    emit showMultiSpacesChanged();
 }
 
 // Internal Functions

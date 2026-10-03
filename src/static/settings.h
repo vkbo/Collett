@@ -57,6 +57,7 @@ class Settings : public QObject
     Q_PROPERTY(QFont monoFont READ monoFont WRITE setMonoFont NOTIFY monoFontChanged)
     Q_PROPERTY(qreal textTabWidth READ textTabWidth WRITE setTextTabWidth NOTIFY textFormatChanged)
     Q_PROPERTY(bool textAutoIndent READ textAutoIndent WRITE setTextAutoIndent NOTIFY textAutoIndentChanged)
+    Q_PROPERTY(bool showMultiSpaces READ showMultiSpaces WRITE setShowMultiSpaces NOTIFY showMultiSpacesChanged)
     Q_PROPERTY(QString spellLanguage READ spellLanguage WRITE setSpellLanguage NOTIFY spellLanguageChanged)
 
 public:
@@ -109,6 +110,7 @@ public:
     void setMonoFont(const QFont &font);
     void setTextTabWidth(const qreal width);
     void setTextAutoIndent(const bool enabled);
+    void setShowMultiSpaces(const bool enabled);
     void setSpellLanguage(const QString &language);
 
     // Getters
@@ -123,6 +125,7 @@ public:
     QFont monoFont() const { return m_monoFont; };
     qreal textTabWidth() const { return m_textTabWidth; };
     bool textAutoIndent() const { return m_textAutoIndent; };
+    bool showMultiSpaces() const { return m_showMultiSpaces; };
     TextFormat textFormat() const { return m_textFormat; };
     QString spellLanguage() const { return m_spellLanguage; };
 
@@ -133,6 +136,7 @@ signals:
     void sideBarWidthChanged();
     void editorAutoSaveChanged();
     void textAutoIndentChanged();
+    void showMultiSpacesChanged();
     void guiFontChanged();
     void textFormatChanged();
     void monoFontChanged();
@@ -164,6 +168,7 @@ private:
     qreal m_textFontSize;
     qreal m_textTabWidth;
     bool m_textAutoIndent;
+    bool m_showMultiSpaces;
     TextFormat m_textFormat;
 
     // Spell Check

@@ -44,11 +44,14 @@ private slots:
     void followsEdits();
     void userDictionary();
     void errorColor();
+    void marksRedundantSpaces();
+    void trailingSpaceAtCursor();
 
 private:
     SpellChecker *m_spell = nullptr;
 
     QStringList marked(const QTextBlock &block) const;
+    QList<QPair<int, int>> spaceMarks(const QTextBlock &block) const;
 };
 
 void TestHighlighter::init()
@@ -80,6 +83,21 @@ QStringList TestHighlighter::marked(const QTextBlock &block) const
         }
     }
     return words;
+}
+
+/**! @brief The start and length of each range of a block with a plain
+ * underline, which marks redundant spaces.
+ */
+QList<QPair<int, int>> TestHighlighter::spaceMarks(const QTextBlock &block) const
+{
+    QList<QPair<int, int>> ranges;
+    const QList<QTextLayout::FormatRange> formats = block.layout()->formats();
+    for (const QTextLayout::FormatRange &range : formats) {
+        if (range.format.underlineStyle() == QTextCharFormat::SingleUnderline) {
+            ranges.append({range.start, range.length});
+        }
+    }
+    return ranges;
 }
 
 /**! @brief Misspelled words are underlined, and nothing is without a spell
@@ -172,6 +190,68 @@ void TestHighlighter::errorColor()
     const QList<QTextLayout::FormatRange> formats = doc.firstBlock().layout()->formats();
     QCOMPARE(formats.size(), 1);
     QCOMPARE(formats.first().format.underlineColor(), QColor("#0000ff"));
+}
+
+/**! @brief When turned on, runs of spaces and trailing spaces are underlined
+ * in their own colour, with or without a spell checker, alongside misspelled
+ * words.
+ */
+void TestHighlighter::marksRedundantSpaces()
+{
+    QTextDocument doc;
+    doc.setPlainText("hello  helo world \nwrld");
+    Highlighter highlighter;
+    highlighter.setFormatErrorColor(Qt::blue);
+    highlighter.setDocument(&doc);
+    QCoreApplication::processEvents();
+
+    using Ranges = QList<QPair<int, int>>;
+    QCOMPARE(spaceMarks(doc.firstBlock()), Ranges());
+
+    highlighter.setCheckFormat(true);
+    QCOMPARE(spaceMarks(doc.firstBlock()), Ranges({{5, 2}, {17, 1}}));
+    QCOMPARE(spaceMarks(doc.lastBlock()), Ranges());
+    for (const QTextLayout::FormatRange &range : doc.firstBlock().layout()->formats()) {
+        QCOMPARE(range.format.underlineColor(), QColor(Qt::blue));
+    }
+
+    highlighter.setSpellChecker(m_spell);
+    QCOMPARE(spaceMarks(doc.firstBlock()), Ranges({{5, 2}, {17, 1}}));
+    QCOMPARE(marked(doc.firstBlock()), QStringList({"helo"}));
+}
+
+/**! @brief A trailing space with the cursor in it, or right after it, is
+ * not underlined, as it is still being typed. Runs of spaces always are.
+ */
+void TestHighlighter::trailingSpaceAtCursor()
+{
+    QTextDocument doc;
+    doc.setPlainText("one  two \nthree ");
+    Highlighter highlighter;
+    highlighter.setCheckFormat(true);
+    highlighter.setDocument(&doc);
+    QCoreApplication::processEvents();
+
+    using Ranges = QList<QPair<int, int>>;
+    const QTextBlock first = doc.firstBlock();
+    const QTextBlock second = doc.lastBlock();
+    QCOMPARE(spaceMarks(first), Ranges({{3, 2}, {8, 1}}));
+    QCOMPARE(spaceMarks(second), Ranges({{5, 1}}));
+
+    highlighter.setCursorPosition(9);
+    QCOMPARE(spaceMarks(first), Ranges({{3, 2}}));
+    QCOMPARE(spaceMarks(second), Ranges({{5, 1}}));
+
+    highlighter.setCursorPosition(4);
+    QCOMPARE(spaceMarks(first), Ranges({{3, 2}, {8, 1}}));
+
+    highlighter.setCursorPosition(16);
+    QCOMPARE(spaceMarks(first), Ranges({{3, 2}, {8, 1}}));
+    QCOMPARE(spaceMarks(second), Ranges());
+
+    highlighter.setCursorPosition(8);
+    QCOMPARE(spaceMarks(first), Ranges({{3, 2}, {8, 1}}));
+    QCOMPARE(spaceMarks(second), Ranges({{5, 1}}));
 }
 
 QTEST_MAIN(TestHighlighter)

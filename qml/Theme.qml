@@ -61,6 +61,7 @@ QtObject {
 
     // The line under misspelled words
     readonly property color spellErrorColor: Material.color(Material.Red, dark ? Material.Shade300 : Material.Shade600)
+    readonly property color formatErrorColor: Material.color(Material.Orange, dark ? Material.Shade300 : Material.Shade600)
 
     // The icon of a level, from the icon theme
     function levelIcon(level: int): string {

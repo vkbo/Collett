@@ -163,6 +163,7 @@ void TestPreferences::saveAndCancel()
     Settings *settings = Settings::instance();
     settings->setEditorAutoSave(30);
     settings->setTextAutoIndent(false);
+    settings->setShowMultiSpaces(false);
 
     openDialog();
     QQuickItem *autoSave = dialogItem("autoSave");
@@ -174,23 +175,28 @@ void TestPreferences::saveAndCancel()
 
     autoSave->setProperty("value", 45);
     autoIndent->setProperty("checked", true);
+    dialogItem("multiSpaces")->setProperty("checked", true);
     QTest::keyClick(dialog, Qt::Key_Escape);
     QTRY_VERIFY(!dialog->isVisible());
     QCOMPARE(settings->editorAutoSave(), 30);
     QCOMPARE(settings->textAutoIndent(), false);
+    QCOMPARE(settings->showMultiSpaces(), false);
 
     openDialog();
     QCOMPARE(autoSave->property("value").toInt(), 30);
     QCOMPARE(autoIndent->property("checked").toBool(), false);
     autoSave->setProperty("value", 45);
     autoIndent->setProperty("checked", true);
+    dialogItem("multiSpaces")->setProperty("checked", true);
     QQuickItem *save = dialogItem("saveButton");
     QVERIFY(save);
     QTest::mouseClick(dialog, Qt::LeftButton, Qt::NoModifier, save->mapToScene(QPointF(save->width() / 2, save->height() / 2)).toPoint());
     QTRY_VERIFY(!dialog->isVisible());
     QCOMPARE(settings->editorAutoSave(), 45);
     QCOMPARE(settings->textAutoIndent(), true);
+    QCOMPARE(settings->showMultiSpaces(), true);
     settings->setTextAutoIndent(false);
+    settings->setShowMultiSpaces(false);
 }
 
 /**! @brief The font row opens the font page, where a family is found by
