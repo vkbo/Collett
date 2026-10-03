@@ -29,6 +29,7 @@
 
 #include <QHash>
 #include <QJsonObject>
+#include <QSet>
 #include <QString>
 #include <QTimer>
 #include <QtQml/qqmlregistration.h>
@@ -97,7 +98,15 @@ private:
     QHash<QString, Document *> m_documents;
     QTimer *m_autoSaveTimer = nullptr;
 
+    // Word Counts
+    QSet<QString> m_countQueue;
+    QTimer *m_countTimer = nullptr;
+
+    void trackDocument(Document *doc);
+    void queueCount(const QString &handle);
+
 private slots:
     void onAutoSave();
+    void countDocuments();
 };
 } // namespace Collett

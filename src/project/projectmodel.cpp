@@ -194,6 +194,19 @@ void ProjectModel::setNumbered(int row, bool state)
     refreshStructure();
 }
 
+/**! @brief Set the text counts of a document.
+ */
+void ProjectModel::setCounts(int row, const TextCounts &counts)
+{
+    Node *node = m_group ? m_group->item(row) : nullptr;
+    if (!node || node->counts() == counts) {
+        return;
+    }
+    node->setCounts(counts);
+    emit dataChanged(index(row), index(row), {WordsRole});
+    emit structureChanged();
+}
+
 /**! @brief The number of rows that move together with a row: the row, and
  * the hidden rows of a folded partition or chapter.
  */

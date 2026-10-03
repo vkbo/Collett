@@ -19,6 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "counting.h"
 #include "project.h"
 #include "settings.h"
 #include "storage.h"
@@ -44,6 +45,11 @@ Project::Project()
 {
     m_autoSaveTimer = new QTimer(this);
     connect(m_autoSaveTimer, &QTimer::timeout, this, &Project::onAutoSave);
+
+    m_countTimer = new QTimer(this);
+    m_countTimer->setSingleShot(true);
+    m_countTimer->setInterval(500);
+    connect(m_countTimer, &QTimer::timeout, this, &Project::countDocuments);
 }
 
 Project::~Project()
@@ -163,6 +169,8 @@ QString Project::createProject(const QString &location, const QString &name)
     doc->setModified(true);
 
     m_documents.insert(node->handle(), doc);
+    trackDocument(doc);
+    queueCount(node->handle());
     this->model()->insertNode(0, node);
     m_data->setLastEditedHandle(node->handle());
 
@@ -179,6 +187,7 @@ bool Project::saveProject()
         return false;
     }
 
+    countDocuments();
     qInfo() << "Saving Project:" << m_store->projectPath();
     if (!m_store->isValid()) {
         qWarning() << "Project storage invalid, cannot save";
@@ -271,6 +280,8 @@ Document *Project::openDocument(const QString &handle)
         doc->unpack(jDoc);
     }
     m_documents.insert(handle, doc);
+    trackDocument(doc);
+    queueCount(handle);
 
     return doc;
 }
@@ -343,6 +354,8 @@ QString Project::splitDocument(const QString &handle, int position)
     }
 
     m_documents.insert(node->handle(), newDoc);
+    trackDocument(newDoc);
+    queueCount(node->handle());
     projectModel->insertNode(row + 1, node);
     return node->handle();
 }
@@ -485,6 +498,47 @@ bool Project::saveOpenDocuments()
 void Project::onAutoSave()
 {
     this->saveProject();
+}
+
+/**! @brief Count the documents that changed since the last count, and
+ * update their counts in the project structure.
+ */
+void Project::countDocuments()
+{
+    m_countTimer->stop();
+    ProjectModel *projectModel = this->model();
+    if (!projectModel) {
+        m_countQueue.clear();
+        return;
+    }
+    for (const QString &handle : std::as_const(m_countQueue)) {
+        if (const Document *doc = m_documents.value(handle, nullptr)) {
+            projectModel->setCounts(projectModel->rowOf(handle), TextCounter::standardCount(TextCounter::snapshot(doc)));
+        }
+    }
+    m_countQueue.clear();
+}
+
+// Private Methods
+// ===============
+
+/**! @brief Recount a document whenever its text changes.
+ */
+void Project::trackDocument(Document *doc)
+{
+    const QString handle = doc->handle();
+    connect(doc, &QTextDocument::contentsChanged, this, [this, handle]() { queueCount(handle); });
+}
+
+/**! @brief Queue a document for counting. The timer is not restarted, so
+ * the counts keep up while typing.
+ */
+void Project::queueCount(const QString &handle)
+{
+    m_countQueue.insert(handle);
+    if (!m_countTimer->isActive()) {
+        m_countTimer->start();
+    }
 }
 
 } // namespace Collett

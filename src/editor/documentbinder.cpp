@@ -123,7 +123,18 @@ void DocumentBinder::bindDocument(Document *document)
 
     m_document = document;
     m_document->setPageSize(QSizeF(0, 0));
-    m_document->setDocumentMargin(m_target->property("textMargin").toReal());
+
+    // The margin is a format change on the document's root frame, so it would
+    // otherwise mark the text as modified and add an undo step
+    const qreal margin = m_target->property("textMargin").toReal();
+    if (m_document->documentMargin() != margin) {
+        const bool modified = m_document->isModified();
+        m_document->setUndoRedoEnabled(false);
+        m_document->setDocumentMargin(margin);
+        m_document->setUndoRedoEnabled(true);
+        m_document->setModified(modified);
+    }
+
     textDocument->setTextDocument(m_document);
 
     connect(m_document, SIGNAL(contentsChange(int, int, int)), m_target, SLOT(q_contentsChange(int, int, int)));
