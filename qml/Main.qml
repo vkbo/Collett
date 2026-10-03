@@ -42,6 +42,8 @@ ApplicationWindow {
     height: 900
     visible: true
     title: project.name ? project.name + " – Collett" : "Collett"
+    // The controls take their font from the window, not the application
+    font: Fonts.interfaceFont(Settings.guiFont)
     Material.theme: Theme.materialTheme
     // Material colours its own controls, but leaves the palette alone. The
     // palette is set from the Material colours, so the parts drawn here follow

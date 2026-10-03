@@ -22,6 +22,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.impl
+import QtQuick.Controls.Material
 import QtQuick.Layouts
 
 import Collett
@@ -136,7 +137,7 @@ Item {
                     text: Labels.wordCount(root.words)
                     elide: Text.ElideRight
                     font.pointSize: Application.font.pointSize * 0.85
-                    opacity: 0.7
+                    color: Material.secondaryTextColor
                 }
             }
 

@@ -50,6 +50,7 @@ public:
     Q_INVOKABLE static QFont font(const QString &family, const QString &style, qreal pointSize);
     Q_INVOKABLE static QFont scaled(const QFont &font, qreal factor);
     Q_INVOKABLE static QString describe(const QFont &font);
+    Q_INVOKABLE static QFont interfaceFont(const QFont &font);
 };
 
 } // namespace Collett

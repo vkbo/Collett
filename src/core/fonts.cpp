@@ -69,6 +69,24 @@ QFont Fonts::font(const QString &family, const QString &style, qreal pointSize)
     return font;
 }
 
+/**! @brief The parts of a font that the controls of a window inherit.
+ *
+ * Only the family, size, weight and slant are set, so each control keeps
+ * the rest of its own font, and text that sets its own weight keeps it. The
+ * weight and slant come from the font's style.
+ */
+QFont Fonts::interfaceFont(const QFont &font)
+{
+    QFont base;
+    base.setFamilies({font.family()});
+    base.setPointSizeF(font.pointSizeF());
+    const QString style = styleOf(font);
+    const int weight = QFontDatabase::weight(font.family(), style);
+    base.setWeight(weight > 0 ? QFont::Weight(weight) : font.weight());
+    base.setItalic(QFontDatabase::italic(font.family(), style) || font.italic());
+    return base;
+}
+
 /**! @brief A copy of a font with its size scaled.
  */
 QFont Fonts::scaled(const QFont &font, qreal factor)

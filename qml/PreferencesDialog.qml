@@ -31,7 +31,7 @@ import Collett
 // All settings in one scrolling page of sections. The side bar jumps to a
 // section, and follows the section at the top of the page. Changes are only
 // kept when saved.
-Window {
+ApplicationWindow {
     id: root
 
     objectName: "preferencesDialog"
@@ -50,6 +50,7 @@ Window {
     minimumWidth: 600
     minimumHeight: 500
     modality: Qt.ApplicationModal
+    font: Fonts.interfaceFont(Settings.guiFont)
     Material.theme: Theme.materialTheme
     // Material colours its own controls, but leaves the palette alone. The
     // palette is set from the Material colours, so the parts drawn here follow

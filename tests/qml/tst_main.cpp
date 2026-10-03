@@ -23,6 +23,7 @@
 #include "settings.h"
 
 #include <QQuickStyle>
+#include <QFontDatabase>
 #include <QtTest>
 
 using namespace Collett;
@@ -46,6 +47,7 @@ private slots:
     void newProject();
     void saveCloseOpen();
     void openErrors();
+    void interfaceFont();
 
 private:
     QmlFixture *f = nullptr;
@@ -344,6 +346,39 @@ void TestMain::openErrors()
     QTRY_VERIFY(dialog->property("opened").toBool());
     QVERIFY(f->project.isValid());
     QCOMPARE(f->rows(), 6);
+}
+
+/**! @brief Controls, menus and the preferences dialog take the family and
+ * size of the interface font, and controls with their own weight keep it.
+ */
+void TestMain::interfaceFont()
+{
+    build();
+    Settings *settings = Settings::instance();
+    const QFont saved = settings->guiFont();
+    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    font.setPointSizeF(17.0);
+    settings->setGuiFont(font);
+
+    auto check = [&font](QObject *item) {
+        QVERIFY(item);
+        const QFont used = item->property("font").value<QFont>();
+        QCOMPARE(used.family(), font.family());
+        QCOMPARE(used.pointSizeF(), 17.0);
+    };
+    QTRY_COMPARE(f->item("preferencesButton")->property("font").value<QFont>().pointSizeF(), 17.0);
+    check(f->item("preferencesButton"));
+    check(f->item("newProjectItem"));
+    check(f->item("styleButton"));
+
+    QObject *dialog = f->engine()->rootObjects().first()->findChild<QObject *>("preferencesDialog");
+    QVERIFY(dialog);
+    QQuickWindow *prefs = qobject_cast<QQuickWindow *>(dialog);
+    QVERIFY(prefs);
+    check(prefs->findChild<QQuickItem *>("autoSave"));
+    check(prefs->findChild<QQuickItem *>("spellLanguage"));
+
+    settings->setGuiFont(saved);
 }
 
 QTEST_MAIN(TestMain)
