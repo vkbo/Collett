@@ -48,6 +48,7 @@ private slots:
     void typingWord();
     void deleteFromTypeMenu();
     void emptyTextCursor();
+    void goalColumn();
 
 private:
     QmlFixture *f = nullptr;
@@ -477,6 +478,45 @@ void TestSceneEditor::emptyTextCursor()
     QCOMPARE(f->text(5), QString());
     QVERIFY(text->property("cursorVisible").toBool());
     QVERIFY(clearOfClip(text));
+}
+
+/**! @brief Moving down keeps the cursor at the same horizontal position,
+ * through short lines, titles, empty text and other documents. Moving the
+ * cursor sideways starts a new position.
+ */
+void TestSceneEditor::goalColumn()
+{
+    auto cursorX = [this]() {
+        QQuickItem *item = f->window->activeFocusItem();
+        return item->mapToScene(item->property("cursorRectangle").toRectF().topLeft()).x();
+    };
+    f->enterText(2, 20);
+    QTRY_COMPARE(f->focusCursor(), 20);
+    const qreal start = cursorX();
+
+    // Through the chapter title and its empty text, the short scene, and
+    // the empty title of the last scene
+    for (int i = 0; i < 6; ++i)
+        QTest::keyClick(f->window, Qt::Key_Down);
+    QTRY_COMPARE(f->focusHandle(), f->handle(5));
+    QCOMPARE(f->focusPart(), QStringLiteral("text"));
+    QVERIFY(qAbs(cursorX() - start) < 12);
+
+    // And back up again
+    for (int i = 0; i < 6; ++i)
+        QTest::keyClick(f->window, Qt::Key_Up);
+    QTRY_COMPARE(f->focusHandle(), f->handle(2));
+    QCOMPARE(f->focusCursor(), 20);
+
+    // A sideways move starts over from the new position
+    QTest::keyClick(f->window, Qt::Key_Home);
+    QTest::keyClick(f->window, Qt::Key_Up);
+    QTRY_COMPARE(f->focusCursor(), 0);
+    QTest::keyClick(f->window, Qt::Key_Up);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("title"));
+    QTest::keyClick(f->window, Qt::Key_Down);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
+    QCOMPARE(f->focusCursor(), 0);
 }
 
 QTEST_MAIN(TestSceneEditor)

@@ -80,6 +80,34 @@ FocusScope {
         sceneFocused(handle);
     }
 
+    // Goal Column
+    // Moving the cursor up or down keeps it at the same horizontal position,
+    // even across short lines, empty titles and other documents. The position
+    // is kept until the cursor is moved some other way.
+
+    property real goalX: -1
+    property Item goalItem: null
+    property int goalPosition: -1
+
+    // The horizontal position for moving up or down from an item
+    function verticalX(item: Item, cursorX: real, position: int): real {
+        return goalItem === item && goalPosition === position && goalX >= 0 ? goalX : cursorX;
+    }
+
+    function keepGoal(item: Item, x: real, position: int) {
+        goalX = x;
+        goalItem = item;
+        goalPosition = position;
+    }
+
+    // Move to the line above or below in the text, at the goal position
+    function moveInText(x: real, down: bool) {
+        const line = textEdit.cursorRectangle;
+        const position = textEdit.positionAt(x, down ? line.y + line.height + 1 : line.y - 1);
+        textEdit.cursorPosition = position;
+        keepGoal(textEdit, x, position);
+    }
+
     // Entry Points
     // Used by the neighbouring documents and the main window to move the
     // cursor into this document.
@@ -96,18 +124,30 @@ FocusScope {
 
     function enterTextFromAbove(x: real) {
         const first = textEdit.positionToRectangle(0);
-        enterAt(textEdit.positionAt(x, first.y + first.height / 2));
+        const position = textEdit.positionAt(x, first.y + first.height / 2);
+        enterAt(position);
+        keepGoal(textEdit, x, position);
     }
 
     // Entering from above goes to the title, even when it is empty, so a
     // title can be added
     function enterFromAbove(x: real) {
-        enterTitleAt(titleInput.positionAt(x, 0));
+        const position = titleInput.positionAt(x, 0);
+        enterTitleAt(position);
+        keepGoal(titleInput, x, position);
+    }
+
+    function enterTitleFromBelow(x: real) {
+        const position = titleInput.positionAt(x, 0);
+        enterTitleAt(position);
+        keepGoal(titleInput, x, position);
     }
 
     function enterFromBelow(x: real) {
         const last = textEdit.positionToRectangle(textEdit.length);
-        enterAt(textEdit.positionAt(x, last.y + last.height / 2));
+        const position = textEdit.positionAt(x, last.y + last.height / 2);
+        enterAt(position);
+        keepGoal(textEdit, x, position);
     }
 
     // Where the cursor goes when the document is opened from the project
@@ -348,14 +388,14 @@ FocusScope {
             Keys.onUpPressed: event => {
                 const target = root.neighbour(-1);
                 if (target && event.modifiers === Qt.NoModifier) {
-                    target.enterFromBelow(cursorRectangle.x);
+                    target.enterFromBelow(root.verticalX(titleInput, cursorRectangle.x, cursorPosition));
                 } else {
                     event.accepted = false;
                 }
             }
             Keys.onDownPressed: event => {
                 if (event.modifiers === Qt.NoModifier) {
-                    root.enterTextFromAbove(cursorRectangle.x);
+                    root.enterTextFromAbove(root.verticalX(titleInput, cursorRectangle.x, cursorPosition));
                 } else {
                     event.accepted = false;
                 }
@@ -445,12 +485,17 @@ FocusScope {
             }
             Keys.onEnterPressed: event => handleEnter(event)
 
-            // Each handler starts out accepted, so a key that stays within the
-            // document must be passed back to the TextEdit
+            // Each handler starts out accepted, so a key not handled here must
+            // be passed back to the TextEdit. Plain up and down moves are
+            // handled here, so they keep the goal column.
             Keys.onUpPressed: event => {
                 const onFirstLine = cursorRectangle.y <= positionToRectangle(0).y + 1;
-                if (onFirstLine && plainMove && event.modifiers === Qt.NoModifier) {
-                    root.enterTitleAt(titleInput.positionAt(cursorRectangle.x, 0));
+                const plainKey = plainMove && event.modifiers === Qt.NoModifier;
+                const x = root.verticalX(textEdit, cursorRectangle.x, cursorPosition);
+                if (onFirstLine && plainKey) {
+                    root.enterTitleFromBelow(x);
+                } else if (plainKey) {
+                    root.moveInText(x, false);
                 } else {
                     event.accepted = false;
                 }
@@ -458,8 +503,12 @@ FocusScope {
             Keys.onDownPressed: event => {
                 const target = root.neighbour(1);
                 const onLastLine = cursorRectangle.y >= positionToRectangle(length).y - 1;
-                if (target && onLastLine && plainMove && event.modifiers === Qt.NoModifier) {
-                    target.enterFromAbove(cursorRectangle.x);
+                const plainKey = plainMove && event.modifiers === Qt.NoModifier;
+                const x = root.verticalX(textEdit, cursorRectangle.x, cursorPosition);
+                if (target && onLastLine && plainKey) {
+                    target.enterFromAbove(x);
+                } else if (plainKey && !onLastLine) {
+                    root.moveInText(x, true);
                 } else {
                     event.accepted = false;
                 }
