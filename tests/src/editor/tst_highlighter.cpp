@@ -46,6 +46,7 @@ private slots:
     void errorColor();
     void marksRedundantSpaces();
     void trailingSpaceAtCursor();
+    void wordAtCursor();
 
 private:
     SpellChecker *m_spell = nullptr;
@@ -220,13 +221,15 @@ void TestHighlighter::marksRedundantSpaces()
     QCOMPARE(marked(doc.firstBlock()), QStringList({"helo"}));
 }
 
-/**! @brief A trailing space with the cursor in it, or right after it, is
- * not underlined, as it is still being typed. Runs of spaces always are.
+/**! @brief A trailing space typed at the cursor is not underlined while the
+ * cursor is right after it, and is once the cursor leaves. Moving the cursor
+ * to a trailing space does not hide it. Runs of spaces are always marked.
  */
 void TestHighlighter::trailingSpaceAtCursor()
 {
     QTextDocument doc;
-    doc.setPlainText("one  two \nthree ");
+    doc.documentLayout();
+    doc.setPlainText("one  two\nthree ");
     Highlighter highlighter;
     highlighter.setCheckFormat(true);
     highlighter.setDocument(&doc);
@@ -235,23 +238,58 @@ void TestHighlighter::trailingSpaceAtCursor()
     using Ranges = QList<QPair<int, int>>;
     const QTextBlock first = doc.firstBlock();
     const QTextBlock second = doc.lastBlock();
-    QCOMPARE(spaceMarks(first), Ranges({{3, 2}, {8, 1}}));
-    QCOMPARE(spaceMarks(second), Ranges({{5, 1}}));
-
-    highlighter.setCursorPosition(9);
     QCOMPARE(spaceMarks(first), Ranges({{3, 2}}));
     QCOMPARE(spaceMarks(second), Ranges({{5, 1}}));
 
+    // Moving to a trailing space does not hide it
+    highlighter.setCursorPosition(15);
+    QCOMPARE(spaceMarks(second), Ranges({{5, 1}}));
+
+    // Typing one does, until the cursor moves on
+    highlighter.setCursorPosition(8);
+    QTextCursor cursor(&doc);
+    cursor.setPosition(8);
+    cursor.insertText(" ");
+    highlighter.setCursorPosition(9);
+    QCOMPARE(spaceMarks(first), Ranges({{3, 2}}));
+
     highlighter.setCursorPosition(4);
     QCOMPARE(spaceMarks(first), Ranges({{3, 2}, {8, 1}}));
+}
 
+/**! @brief A misspelled word being typed at the cursor is not underlined
+ * until the cursor leaves it. Moving the cursor into a misspelled word does
+ * not hide it, so it can be found and corrected.
+ */
+void TestHighlighter::wordAtCursor()
+{
+    QTextDocument doc;
+    doc.documentLayout();
+    doc.setPlainText("helo world\nwrld");
+    Highlighter highlighter;
+    highlighter.setSpellChecker(m_spell);
+    highlighter.setDocument(&doc);
+    QCoreApplication::processEvents();
+    QCOMPARE(marked(doc.firstBlock()), QStringList({"helo"}));
+
+    // Moving into the word
+    highlighter.setCursorPosition(4);
+    QCOMPARE(marked(doc.firstBlock()), QStringList({"helo"}));
+    highlighter.setCursorPosition(2);
+    QCOMPARE(marked(doc.firstBlock()), QStringList({"helo"}));
+
+    // Typing in it
+    QTextCursor cursor(&doc);
+    cursor.setPosition(2);
+    cursor.insertText("x");
+    highlighter.setCursorPosition(3);
+    QCOMPARE(marked(doc.firstBlock()), QStringList());
+    QCOMPARE(marked(doc.lastBlock()), QStringList({"wrld"}));
+
+    // Leaving it, also for another block
     highlighter.setCursorPosition(16);
-    QCOMPARE(spaceMarks(first), Ranges({{3, 2}, {8, 1}}));
-    QCOMPARE(spaceMarks(second), Ranges());
-
-    highlighter.setCursorPosition(8);
-    QCOMPARE(spaceMarks(first), Ranges({{3, 2}, {8, 1}}));
-    QCOMPARE(spaceMarks(second), Ranges({{5, 1}}));
+    QCOMPARE(marked(doc.firstBlock()), QStringList({"hexlo"}));
+    QCOMPARE(marked(doc.lastBlock()), QStringList({"wrld"}));
 }
 
 QTEST_MAIN(TestHighlighter)

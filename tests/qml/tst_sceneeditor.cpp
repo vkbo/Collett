@@ -45,6 +45,7 @@ private slots:
     void tabIndent();
     void autoIndent();
     void multiSpaces();
+    void typingWord();
 
 private:
     QmlFixture *f = nullptr;
@@ -346,7 +347,8 @@ void TestSceneEditor::autoIndent()
 
 /**! @brief With the setting on, a space typed at the end of a paragraph is
  * not underlined while the cursor is after it, but is once the cursor
- * leaves. Runs of spaces are underlined straight away.
+ * leaves, and stays so when the cursor comes back. Runs of spaces are
+ * underlined straight away.
  */
 void TestSceneEditor::multiSpaces()
 {
@@ -370,14 +372,60 @@ void TestSceneEditor::multiSpaces()
     QTest::keyClick(f->window, Qt::Key_Left);
     QTRY_COMPARE(underlined(), QList<int>({8}));
 
+    // Moving back to it does not hide it
     QTest::keyClick(f->window, Qt::Key_End);
-    QTRY_COMPARE(underlined(), QList<int>());
+    QTRY_COMPARE(f->focusCursor(), 9);
+    QTest::qWait(20);
+    QCOMPARE(underlined(), QList<int>({8}));
     f->type(" x");
     QTRY_COMPARE(f->text(4), QStringLiteral("Epsilon.  x"));
     QCOMPARE(underlined(), QList<int>({8}));
 
     Settings::instance()->setShowMultiSpaces(false);
     QTRY_COMPARE(underlined(), QList<int>());
+}
+
+/**! @brief A misspelled word is not underlined while it is being typed,
+ * only once the cursor moves on. Moving back into it keeps the underline.
+ */
+void TestSceneEditor::typingWord()
+{
+    SpellChecker *spell = f->project.spellChecker();
+    spell->setDictionaryPaths({QStringLiteral(TEST_DATA_DIR)});
+    spell->setLanguage("xx_TEST");
+    QVERIFY(spell->isLoaded());
+
+    QTextBlock block = f->project.openDocument(f->handle(4))->firstBlock();
+    auto marked = [&block]() {
+        QStringList words;
+        for (const QTextLayout::FormatRange &range : block.layout()->formats()) {
+            if (range.format.underlineStyle() == QTextCharFormat::SpellCheckUnderline) {
+                words.append(block.text().mid(range.start, range.length));
+            }
+        }
+        return words;
+    };
+
+    f->enterText(4, 8);
+    QTRY_COMPARE(f->focusCursor(), 8);
+    f->type(" helo");
+    QTRY_COMPARE(f->text(4), QStringLiteral("Epsilon. helo"));
+    QVERIFY(!marked().contains("helo"));
+
+    f->type(" ");
+    QTRY_VERIFY(marked().contains("helo"));
+
+    // Moving back into the word to correct it keeps the underline
+    QTest::keyClick(f->window, Qt::Key_Left);
+    QTest::keyClick(f->window, Qt::Key_Left);
+    QTRY_COMPARE(f->focusCursor(), 12);
+    QTest::qWait(20);
+    QVERIFY(marked().contains("helo"));
+
+    // Until it is edited
+    f->type("l");
+    QTRY_COMPARE(f->text(4), QStringLiteral("Epsilon. hello "));
+    QVERIFY(!marked().contains("hello"));
 }
 
 QTEST_MAIN(TestSceneEditor)

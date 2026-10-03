@@ -25,6 +25,8 @@
 #include "spellchecker.h"
 
 #include <QColor>
+#include <QList>
+#include <QPair>
 #include <QPointer>
 #include <QString>
 #include <QSyntaxHighlighter>
@@ -44,6 +46,9 @@ class Highlighter : public QSyntaxHighlighter
 
 public:
     explicit Highlighter(QObject *parent = nullptr);
+    ~Highlighter();
+
+    void setDocument(QTextDocument *doc);
 
     // Setters
     void setSpellChecker(SpellChecker *spell);
@@ -61,8 +66,19 @@ private:
     QTextCharFormat m_fmtFormatError;
     bool m_checkFormat = false;
     int m_cursor = -1;
+    bool m_showAll = false;
 
-    bool trailUnderCursor(const QTextBlock &block, int position) const;
+    // The range of text changed by the last edit, as document positions
+    int m_editStart = -1;
+    int m_editEnd = -1;
+
+    // Marks left out because the cursor is in them, as document ranges
+    QList<QPair<int, int>> m_hidden;
+
+    void recheck();
+    void recheckBlock(const QTextBlock &block);
+    void recordEdit(int position, int removed, int added);
+    void showLeftMarks();
 };
 
 } // namespace Collett
