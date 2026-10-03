@@ -450,6 +450,7 @@ void TestMain::deleteFromSideBar()
     QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(item));
     QTRY_VERIFY(dialog->property("opened").toBool());
     QMetaObject::invokeMethod(dialog, "accept");
+    QTRY_VERIFY(!dialog->property("visible").toBool());
     QTRY_COMPARE(f->rows(), 5);
     QCOMPARE(f->model()->rowOf(scene), -1);
     QVERIFY(!QFileInfo::exists(file));

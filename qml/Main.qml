@@ -197,7 +197,11 @@ ApplicationWindow {
         modal: true
         title: qsTr("Delete Document")
         standardButtons: Dialog.Yes | Dialog.No
-        onAccepted: window.deleteDocument(handle)
+        // The dialog gives the focus back to where it was when it closes, so
+        // the document is deleted after that, and the cursor can move on
+        onClosed: {
+            if (result === Dialog.Accepted) window.deleteDocument(handle);
+        }
 
         Label {
             width: parent.width
