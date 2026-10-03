@@ -23,30 +23,61 @@
 
 #include "collett.h"
 
-#include <QDir>
 #include <QFont>
-#include <QList>
-#include <QScopedPointer>
+#include <QObject>
 #include <QSize>
-#include <QString>
+#include <QVariantList>
+#include <QtQml/qqmlregistration.h>
+
+class QQmlEngine;
+class QJSEngine;
 #include <QTextBlockFormat>
 #include <QTextCharFormat>
 
 namespace Collett {
 
+/**! @brief The application settings, shared by C++ and QML.
+ *
+ * QML gets the same instance as C++, as a singleton.
+ */
 class Settings : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
+
+    Q_PROPERTY(QString guiLanguage READ guiLanguage WRITE setGuiLanguage NOTIFY guiLanguageChanged)
+    Q_PROPERTY(ThemeMode themeMode READ themeMode WRITE setThemeMode NOTIFY themeModeChanged)
+    Q_PROPERTY(QSize mainWindowSize READ mainWindowSize WRITE setMainWindowSize NOTIFY mainWindowSizeChanged)
+    Q_PROPERTY(bool mainWindowMaximized READ mainWindowMaximized WRITE setMainWindowMaximized NOTIFY mainWindowMaximizedChanged)
+    Q_PROPERTY(QSize prefsWindowSize READ prefsWindowSize WRITE setPrefsWindowSize NOTIFY prefsWindowSizeChanged)
+    Q_PROPERTY(int sideBarWidth READ sideBarWidth WRITE setSideBarWidth NOTIFY sideBarWidthChanged)
+    Q_PROPERTY(int editorAutoSave READ editorAutoSave WRITE setEditorAutoSave NOTIFY editorAutoSaveChanged)
+    Q_PROPERTY(QFont guiFont READ guiFont WRITE setGuiFont NOTIFY guiFontChanged)
+    Q_PROPERTY(QFont textFont READ textFont WRITE setTextFont NOTIFY textFormatChanged)
+    Q_PROPERTY(QFont headingFont READ headingFont WRITE setHeadingFont NOTIFY textFormatChanged)
+    Q_PROPERTY(QFont monoFont READ monoFont WRITE setMonoFont NOTIFY monoFontChanged)
+    Q_PROPERTY(qreal textTabWidth READ textTabWidth WRITE setTextTabWidth NOTIFY textFormatChanged)
+    Q_PROPERTY(bool textAutoIndent READ textAutoIndent WRITE setTextAutoIndent NOTIFY textAutoIndentChanged)
+    Q_PROPERTY(bool showMultiSpaces READ showMultiSpaces WRITE setShowMultiSpaces NOTIFY showMultiSpacesChanged)
+    Q_PROPERTY(QString spellLanguage READ spellLanguage WRITE setSpellLanguage NOTIFY spellLanguageChanged)
 
 public:
+    // Whether the colours follow the system's light or dark mode
+    enum ThemeMode
+    {
+        AutoTheme = 0,
+        LightTheme = 1,
+        DarkTheme = 2,
+    };
+    Q_ENUM(ThemeMode)
+
     struct TextFormat
     {
         QTextBlockFormat blockDefault;
         QTextCharFormat charDefault;
         QTextBlockFormat blockParagraph;
         QTextCharFormat charParagraph;
-        QTextBlockFormat blockComment;
-        QTextCharFormat charComment;
         QTextBlockFormat blockHeader1;
         QTextCharFormat charHeader1;
         QTextBlockFormat blockHeader2;
@@ -62,78 +93,96 @@ public:
 
     static Settings *instance();
     static void destroy();
+    static Settings *create(QQmlEngine *, QJSEngine *);
 
+    // Methods
+    Q_INVOKABLE void flushSettings();
+    Q_INVOKABLE QVariantList guiLanguages() const;
+    Q_INVOKABLE QVariantList spellLanguages() const;
+
+    // Setters
+    void setGuiLanguage(const QString &language);
+    void setThemeMode(const ThemeMode mode);
+    void setMainWindowSize(const QSize &size);
+    void setMainWindowMaximized(const bool maximized);
+    void setPrefsWindowSize(const QSize &size);
+    void setSideBarWidth(const int width);
+    void setEditorAutoSave(const int interval);
+    void setGuiFont(const QFont &font);
+    void setTextFont(const QFont &font);
+    void setHeadingFont(const QFont &font);
+    void setMonoFont(const QFont &font);
+    void setTextTabWidth(const qreal width);
+    void setTextAutoIndent(const bool enabled);
+    void setShowMultiSpaces(const bool enabled);
+    void setSpellLanguage(const QString &language);
+
+    // Getters
+    QString guiLanguage() const { return m_guiLanguage; };
+    ThemeMode themeMode() const { return m_themeMode; };
+    QSize mainWindowSize() const { return m_mainWindowSize; };
+    bool mainWindowMaximized() const { return m_mainWindowMaximized; };
+    QSize prefsWindowSize() const { return m_prefsWindowSize; };
+    int sideBarWidth() const { return m_sideBarWidth; };
+    int editorAutoSave() const { return m_editorAutoSave; };
+    QFont guiFont() const { return m_guiFont; };
+    QFont textFont() const { return m_textFont; };
+    QFont headingFont() const { return m_headingFont; };
+    QFont monoFont() const { return m_monoFont; };
+    qreal textTabWidth() const { return m_textTabWidth; };
+    bool textAutoIndent() const { return m_textAutoIndent; };
+    bool showMultiSpaces() const { return m_showMultiSpaces; };
+    TextFormat textFormat() const { return m_textFormat; };
+    QString spellLanguage() const { return m_spellLanguage; };
+
+signals:
+    void guiLanguageChanged();
+    void themeModeChanged();
+    void mainWindowSizeChanged();
+    void mainWindowMaximizedChanged();
+    void prefsWindowSizeChanged();
+    void sideBarWidthChanged();
+    void editorAutoSaveChanged();
+    void textAutoIndentChanged();
+    void showMultiSpacesChanged();
+    void guiFontChanged();
+    void textFormatChanged();
+    void monoFontChanged();
+    void spellLanguageChanged();
+
+private:
+    // Private, so QML uses create() and shares the instance
     explicit Settings(QObject *parent = nullptr);
     ~Settings() noexcept;
 
-    // Methods
-    void flushSettings();
-    static QDir assetPath(QString asset);
-
-    // Setters
-    void setMainWindowSize(const QSize size) { m_mainWindowSize = size; };
-    void setMainSplitSizes(const QList<int> &sizes) { m_mainSplitSizes = sizes; };
-    void setPrefsWindowSize(const QSize size) { m_prefsWindowSize = size; };
-    void setFontWindowSize(const QSize size) { m_fontWindowSize = size; };
-    void setThemeMode(const ThemeMode mode) { m_themeMode = mode; };
-    void setLightTheme(const QString &theme) { m_lightTheme = theme; };
-    void setDarkTheme(const QString &theme) { m_darkTheme = theme; };
-    void setMainIconSet(const QString icons) { m_iconSet = icons; };
-    void setGuiFont(const QFont &font) { m_guiFont = font; };
-    void setNativeFontDialog(const bool native) { m_nativeFontDialog = native; };
-    void setEditorAutoSave(const int interval) { m_editorAutoSave = interval; };
-    void setSpellLanguage(const QString &language) { m_spellLanguage = language.trimmed(); };
-    void setTextFont(const QFont &font);
-    void setMonoFont(const QFont &font) { m_monoFont = font; };
-    void setTextTabWidth(const qreal width);
-
-    // Getters
-    QSize mainWindowSize() const { return m_mainWindowSize; };
-    QList<int> mainSplitSizes() const { return m_mainSplitSizes; };
-    QSize prefsWindowSize() const { return m_prefsWindowSize; };
-    QSize fontWindowSize() const { return m_fontWindowSize; };
-    ThemeMode themeMode() const { return m_themeMode; };
-    QString lightTheme() const { return m_lightTheme; };
-    QString darkTheme() const { return m_darkTheme; };
-    QString iconSet() const { return m_iconSet; };
-    QFont guiFont() const { return m_guiFont; };
-    bool nativeFontDialog() const { return m_nativeFontDialog; };
-    int editorAutoSave() const { return m_editorAutoSave; };
-    QString spellLanguage() const { return m_spellLanguage; };
-    QFont textFont() const { return m_textFont; };
-    QFont monoFont() const { return m_monoFont; };
-    TextFormat textFormat() const { return m_textFormat; };
-
-signals:
-    void textFormatChanged();
-
-private:
     static Settings *staticInstance;
 
-    // GUI Settings
-    QSize m_mainWindowSize;
-    QList<int> m_mainSplitSizes;
-    QSize m_prefsWindowSize;
-    QSize m_fontWindowSize;
+    // GUI
+    QString m_guiLanguage;
     ThemeMode m_themeMode;
-    QString m_lightTheme;
-    QString m_darkTheme;
-    QString m_iconSet;
-    QFont m_guiFont;
-    bool m_nativeFontDialog;
+    QSize m_mainWindowSize;
+    bool m_mainWindowMaximized;
+    QSize m_prefsWindowSize;
+    int m_sideBarWidth;
 
     // Editor
     int m_editorAutoSave;
 
-    // Spell Check
-    QString m_spellLanguage;
+    // Fonts
+    QFont m_guiFont;
+    QFont m_textFont;
+    QFont m_headingFont;
+    QFont m_monoFont;
 
     // Text Format
-    QFont m_textFont;
-    QFont m_monoFont;
     qreal m_textFontSize;
     qreal m_textTabWidth;
+    bool m_textAutoIndent;
+    bool m_showMultiSpaces;
     TextFormat m_textFormat;
+
+    // Spell Check
+    QString m_spellLanguage;
 
     // Internal Functions
     void recalculateTextFormats();

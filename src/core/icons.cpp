@@ -19,17 +19,12 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "collett.h"
 #include "icons.h"
-#include "settings.h"
-#include "theme.h"
 
-#include <QByteArray>
-#include <QFileInfo>
-#include <QIcon>
-#include <QPixmap>
-#include <QSize>
-#include <QString>
+#include <QBuffer>
+#include <QDebug>
+#include <QFile>
+#include <QImageReader>
 #include <QTextStream>
 
 namespace Collett {
@@ -37,159 +32,72 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Icons::Icons(Theme *parent) : QObject(parent), m_theme(parent)
+Icons::Icons(const QString &theme) : QQuickImageProvider(QQuickImageProvider::Image)
 {
-    m_settings = Settings::instance();
-}
-
-Icons::~Icons()
-{
-    qDebug() << "Destructor: Icons";
-}
-
-// Getters
-// =======
-
-QIcon Icons::getIcon(QString name, ThemeColor color, QSize size)
-{
-    QString key = name + QString::number(color) + "-" + QString::number(size.width()) + "x" + QString::number(size.height());
-    if (!m_icons.contains(key)) {
-        m_icons[key] = this->generateIcon(name, color, size);
-    }
-    qDebug() << "Requested Icon:" << key;
-    return m_icons[key];
-}
-
-QIcon Icons::getProjectIcon(ItemType itemType, ItemClass itemClass, ItemLevel itemLevel, QSize size)
-{
-    QString name = "none";
-    ThemeColor color = ThemeColor::DefaultColor;
-    switch (itemType) {
-    case ItemType::RootType:
-        switch (itemClass) {
-        case ItemClass::NovelClass:
-            name = "cls_novel";
-            break;
-        case ItemClass::CharacterClass:
-            name = "cls_character";
-            break;
-        case ItemClass::PlotClass:
-            name = "cls_plot";
-            break;
-        case ItemClass::LocationClass:
-            name = "cls_location";
-            break;
-        case ItemClass::ObjectClass:
-            name = "cls_object";
-            break;
-        case ItemClass::EntityClass:
-            name = "cls_entity";
-            break;
-        case ItemClass::CustomClass:
-            name = "cls_custom";
-            break;
-        case ItemClass::ArchiveClass:
-            name = "cls_archive";
-            break;
-        case ItemClass::TrashClass:
-            name = "cls_trash";
-            break;
-        }
-        color = ThemeColor::RootColor;
-        break;
-    case ItemType::FolderType:
-        name = "prj_folder";
-        color = ThemeColor::FolderColor;
-        break;
-    case ItemType::FileType:
-        switch (itemLevel) {
-        case ItemLevel::NoteLevel:
-            name = "prj_note";
-            color = ThemeColor::NoteColor;
-            break;
-        case ItemLevel::TitleLevel:
-            name = "prj_title";
-            color = ThemeColor::TitleColor;
-            break;
-        case ItemLevel::ChapterLevel:
-            name = "prj_chapter";
-            color = ThemeColor::ChapterColor;
-            break;
-        case ItemLevel::SceneLevel:
-            name = "prj_scene";
-            color = ThemeColor::SceneColor;
-            break;
-        default:
-            name = "prj_document";
-            color = ThemeColor::FileColor;
-            break;
-        }
-    default:
-        break;
-    }
-    if (name != "none") {
-        return this->getIcon(name, color, size);
-    } else {
-        return QIcon();
-    }
+    loadIcons(theme);
 }
 
 // Public Methods
 // ==============
 
-bool Icons::loadIcons(QString icons)
+/**! @brief Render an icon at the requested size, or at its own size.
+ */
+QImage Icons::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
-
-    QFileInfo iconsFile = QFileInfo(Settings::assetPath("icons").filePath(icons + ".icons"));
-    if (!iconsFile.exists()) return false;
-    qInfo() << "Loading Icons:" << icons;
-
-    QFile file(iconsFile.filePath());
-    if (!file.open(QIODevice::ReadOnly)) {
-        qCritical() << "Could not open file:" << iconsFile.filePath();
-        return false;
+    QByteArray svg = m_svg.value(id);
+    if (svg.isEmpty()) {
+        qWarning() << "Unknown icon:" << id;
+        return QImage();
     }
 
-    QTextStream input(&file);
-    while (!input.atEnd()) {
-        QString line = input.readLine();
-        qsizetype eqPos = line.indexOf("=");
-        if (eqPos > 5) {
-            if (line.startsWith("icon:")) {
-                QString key(line.first(eqPos).sliced(5).trimmed());
-                QByteArray svg(line.sliced(eqPos + 1).trimmed().toLatin1());
-                if (svg.startsWith("<svg")) m_svg[key] = svg;
-            } else if (line.startsWith("meta:name")) {
-                m_name = line.sliced(eqPos + 1).trimmed();
-                qDebug() << "IconSet Name:" << m_name;
-            } else if (line.startsWith("meta:author")) {
-                m_author = line.sliced(eqPos + 1).trimmed();
-                qDebug() << "IconSet Author:" << m_author;
-            } else if (line.startsWith("meta:license")) {
-                m_license = line.sliced(eqPos + 1).trimmed();
-                qDebug() << "IconSet License:" << m_license;
-            }
-        }
+    QBuffer buffer(&svg);
+    QImageReader reader(&buffer, "svg");
+    if (size) {
+        *size = reader.size();
     }
-    file.close();
-
-    return true;
+    if (requestedSize.width() > 0 && requestedSize.height() > 0) {
+        reader.setScaledSize(requestedSize);
+    }
+    return reader.read();
 }
 
 // Private Methods
 // ===============
 
-QIcon Icons::generateIcon(QString name, ThemeColor color, QSize size)
+/**! @brief Load an icon theme file from the application resources.
+ *
+ * The file has one "key = value" entry per line: "meta:" entries for the
+ * theme's details, and "icon:" entries with an SVG each.
+ */
+bool Icons::loadIcons(const QString &theme)
 {
-    if (m_svg.contains(name)) {
-        QByteArray svg(m_svg[name]);
-        svg.replace("#000000", QByteArray::fromStdString(m_theme->m_colors.at(color).name(QColor::HexRgb).toStdString()));
-        QPixmap pixmap(size);
-        pixmap.fill(Qt::transparent);
-        pixmap.loadFromData(svg, "svg");
-        return QIcon(pixmap);
+    QFile file(QString(":/qt/qml/Collett/assets/icons/%1.icons").arg(theme));
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCritical() << "Could not open icon theme:" << file.fileName();
+        return false;
     }
-    return QIcon();
+
+    QTextStream input(&file);
+    while (!input.atEnd()) {
+        const QString line = input.readLine();
+        const qsizetype eqPos = line.indexOf('=');
+        if (eqPos < 0) {
+            continue;
+        }
+        const QString key = line.first(eqPos).trimmed();
+        const QString value = line.sliced(eqPos + 1).trimmed();
+        if (key.startsWith("icon:")) {
+            if (value.startsWith("<svg")) m_svg.insert(key.sliced(5), value.toUtf8());
+        } else if (key == "meta:name") {
+            m_name = value;
+        } else if (key == "meta:author") {
+            m_author = value;
+        } else if (key == "meta:license") {
+            m_license = value;
+        }
+    }
+    qInfo() << "Loaded icon theme:" << m_name << "with" << m_svg.size() << "icons";
+    return true;
 }
 
 } // namespace Collett

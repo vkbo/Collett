@@ -24,18 +24,29 @@
 #include "collett.h"
 #include "document.h"
 #include "projectdata.h"
+#include "spellchecker.h"
 #include "storage.h"
 #include "tree.h"
 
 #include <QHash>
 #include <QJsonObject>
+#include <QSet>
+#include <QString>
 #include <QTimer>
+#include <QtQml/qqmlregistration.h>
 
 namespace Collett {
 
 class Project : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_UNCREATABLE("The project is created on launch")
+
+    Q_PROPERTY(bool isValid READ isValid NOTIFY projectChanged)
+    Q_PROPERTY(QString name READ name NOTIFY projectChanged)
+    Q_PROPERTY(Collett::ProjectModel *model READ model NOTIFY projectChanged)
+    Q_PROPERTY(QString lastEditedHandle READ lastEditedHandle NOTIFY projectChanged)
 
 public:
     explicit Project();
@@ -43,11 +54,17 @@ public:
 
     // Methods
     bool openProject(const QString &path);
-    bool saveProject();
+    Q_INVOKABLE QString openProjectAt(const QString &location);
+    Q_INVOKABLE QString createProject(const QString &location, const QString &name);
+    Q_INVOKABLE bool saveProject();
+    Q_INVOKABLE bool closeProject();
     bool saveProjectAs(const QString &path);
 
     // Document Methods
     Document *openDocument(const QString &handle);
+    Q_INVOKABLE QString splitDocument(const QString &handle, int position);
+    Q_INVOKABLE bool deleteDocument(const QString &handle);
+    Q_INVOKABLE int mergeDocument(const QString &handle);
     bool saveDocument(const QString &handle);
     bool saveOpenDocuments();
 
@@ -56,10 +73,23 @@ public:
     Storage *store() { return m_store; };
     ProjectData *data() { return m_data; };
     Tree *tree() { return m_tree; };
+    SpellChecker *spellChecker() { return m_spell; };
+
+    // Property Getters
+    QString name() const { return m_data ? m_data->name() : QString(); };
+    ProjectModel *model() const { return m_tree ? m_tree->model() : nullptr; };
+    QString lastEditedHandle() const { return m_data ? m_data->lastEditedHandle() : QString(); };
+
+    // Property Setters
+    Q_INVOKABLE void setLastEditedHandle(const QString &handle);
 
     // Error Handling
     bool hasError() const { return !m_lastError.isEmpty(); };
-    QString lastError() const { return m_lastError; };
+    Q_INVOKABLE QString lastError() const { return m_lastError; };
+
+signals:
+    void projectChanged();
+    void documentDeleting(Document *document);
 
 private:
     bool m_isValid = false;
@@ -68,13 +98,23 @@ private:
     Storage *m_store = nullptr;
     ProjectData *m_data = nullptr;
     Tree *m_tree = nullptr;
+    SpellChecker *m_spell = nullptr;
 
     // Document Cache
     QHash<QString, Document *> m_documents;
-    QString m_currentDocHandle;
     QTimer *m_autoSaveTimer = nullptr;
+
+    // Word Counts
+    QSet<QString> m_countQueue;
+    QTimer *m_countTimer = nullptr;
+
+    void setupSpelling();
+    void releaseProject();
+    void trackDocument(Document *doc);
+    void queueCount(const QString &handle);
 
 private slots:
     void onAutoSave();
+    void countDocuments();
 };
 } // namespace Collett

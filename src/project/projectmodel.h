@@ -22,73 +22,81 @@
 #pragma once
 
 #include "collett.h"
-#include "counting.h"
-#include "node.h"
+#include "group.h"
 
-#include <QAbstractItemModel>
-#include <QJsonObject>
+#include <QAbstractListModel>
+#include <QByteArray>
+#include <QHash>
 #include <QList>
-#include <QMimeData>
 #include <QModelIndex>
 #include <QString>
-#include <QStringList>
+#include <QVariant>
+#include <QtQml/qqmlregistration.h>
 
 namespace Collett {
 
-class Tree;
-class ProjectModel : public QAbstractItemModel
+/**! @brief A list model of the documents in one project group.
+ *
+ * The documents are listed in reading order. Folding a partition or chapter
+ * does not remove rows, it marks the rows it covers as hidden, so the view
+ * can animate them in and out.
+ */
+class ProjectModel : public QAbstractListModel
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_UNCREATABLE("The project model is provided by the project")
 
 public:
-    explicit ProjectModel(Tree *parent = nullptr);
+    enum Roles
+    {
+        HandleRole = Qt::UserRole + 1,
+        TitleRole,
+        LevelRole,
+        WordsRole,
+        ExpandedRole,
+        FoldableRole,
+        HiddenRole,
+        NumberRole,
+        HardBreakRole,
+        NumberedRole,
+        ChapterNumberRole,
+    };
+    Q_ENUM(Roles)
+
+    explicit ProjectModel(QObject *parent = nullptr);
     ~ProjectModel();
 
-    // Getters
-    Node *invisibleRoot() const { return m_root; };
-    Node *rootNode(Node *node);
+    // Model Interface
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
     // Methods
-    void pack(QJsonObject &data);
-    void unpack(const QJsonObject &data);
+    void setGroup(Group *group);
+    Q_INVOKABLE void toggleExpanded(int row);
+    Q_INVOKABLE int rowOf(const QString &handle) const;
+    Q_INVOKABLE void setTitle(int row, const QString &title);
+    Q_INVOKABLE void setLevel(int row, int level);
+    Q_INVOKABLE void setHardBreak(int row, bool state);
+    Q_INVOKABLE void setNumbered(int row, bool state);
+    Q_INVOKABLE int blockSize(int row) const;
+    Q_INVOKABLE bool moveBlock(int row, int count, int before);
+    void setCounts(int row, const TextCounts &counts);
+    void insertNode(int row, Node *node);
+    Node *takeNode(int row);
 
-    // Model Access
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-
-    QList<QModelIndex> allExpanded();
-    Node *nodeAtIndex(const QModelIndex &index);
-    QModelIndex indexFromHandle(const QString &handle);
-
-    // Model Edit
-    void insertChild(Node *child, const QModelIndex &parent, qsizetype pos = -1);
-    Node *removeChild(const QModelIndex &parent, qsizetype pos);
-    void multiMove(const QModelIndexList &indexes, const QModelIndex &parent, qsizetype pos = -1);
-
-    Node *addRoot(QString name, ItemClass itemClass, const QModelIndex &selected);
-    Node *addFolder(QString name, const QModelIndex &selected);
-    Node *addFile(QString name, ItemLevel itemLevel, const QModelIndex &selected);
-
-    bool updateCounts(const QString &handle, const TextCounts &counts);
-
-    // Drag and Drop
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
-    Qt::DropActions supportedDropActions() const;
-    bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const;
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
-
-    // Static Methods
-    static QList<QString> decodeMimeHandles(const QMimeData *mimeData);
+signals:
+    void structureChanged();
 
 private:
-    Node *m_root = nullptr;
-    Tree *m_tree = nullptr;
+    Group *m_group = nullptr;
+    QList<bool> m_hidden;
+    QList<bool> m_foldable;
+    QList<int> m_numbers;
+    QList<int> m_chapterNumbers;
 
-    void notifyCountsChanged(Node *node);
+    void updateStructure();
+    void refreshStructure();
 };
 } // namespace Collett

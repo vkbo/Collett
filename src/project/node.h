@@ -24,106 +24,57 @@
 #include "collett.h"
 #include "counting.h"
 
-#include <QIcon>
 #include <QJsonObject>
-#include <QList>
 #include <QString>
-#include <QVariant>
 
 namespace Collett {
 
-class Tree;
-class Node : public QObject
+/**! @brief A document entry in a project group.
+ *
+ * The documents of a group form a flat list in reading order. The structure
+ * comes from the level of each document, so a chapter covers the scenes that
+ * follow it, up to the next chapter or partition. The title is stored here,
+ * not in the document, and may be empty.
+ */
+class Node
 {
-    Q_OBJECT
-
 public:
-    Node(Tree *tree, ItemType itemType, QString handle, QString name);
+    Node(const QString &handle, const QString &title, ItemLevel level);
     ~Node();
 
     // Methods
-    void pack(QJsonObject &data);
-    void unpack(const QJsonObject &data, int &skipped, int &errors);
+    void pack(QJsonObject &data, int order) const;
+    static Node *unpack(const QJsonObject &data);
 
     // Getters
-    ItemType itemType() const { return m_type; };
-    ItemClass itemClass() const { return m_class; };
-    ItemLevel itemLevel() const { return m_level; };
     QString handle() const { return m_handle; };
-    QString name() const { return m_name; };
+    QString title() const { return m_title; };
+    ItemLevel itemLevel() const { return m_level; };
     TextCounts counts() const { return m_counts; };
-    TextCounts totals() const { return m_totals; };
-    bool isExpanded() { return m_expanded; };
+    bool isExpanded() const { return m_expanded; };
+    bool isFoldable() const { return m_level == ItemLevel::PartitionLevel || m_level == ItemLevel::ChapterLevel; };
+    bool hasHardBreak() const { return m_hardBreak && m_level == ItemLevel::SceneLevel; };
+    bool isNumbered() const { return m_numbered || m_level != ItemLevel::ChapterLevel; };
 
     // Setters
-    void setName(QString name) { m_name = name.simplified(); };
-    void setCounts(const TextCounts &counts);
+    void setTitle(const QString &title) { m_title = title; };
+    void setLevel(ItemLevel level) { m_level = level; };
+    void setCounts(const TextCounts &counts) { m_counts = counts; };
     void setExpanded(bool state) { m_expanded = state; };
-    void setActive(bool state);
-
-    // Checkers
-    bool isRootType() { return m_type == ItemType::RootType; };
-    bool isFolderType() { return m_type == ItemType::FolderType; };
-    bool isFileType() { return m_type == ItemType::FileType; };
-    bool isNote() { return m_level == ItemLevel::NoteLevel; };
-    bool isDocument() { return m_level != ItemLevel::NoteLevel; };
-    bool isDocumentAllowed();
-    bool isNoteAllowed();
-
-    // Model Access
-    int row() const;
-    int childCount() const { return m_children.count(); };
-    QVariant data(int column, int role) const;
-    Qt::ItemFlags flags() const { return m_flags; };
-    Node *child(int row);
-    Node *parent() { return m_parent; };
-
-    QList<Node *> allChildren();
-
-    // Model Edit
-    void addChild(Node *child, qsizetype pos = -1);
-    Node *takeChild(qsizetype pos);
-
-    Node *createRoot(QString handle, QString name, ItemClass itemClass);
-    Node *createFolder(QString handle, QString name);
-    Node *createFile(QString handle, QString name, ItemLevel itemLevel);
-
-    void updateIcon();
-    void updateValues();
-    void updateTotals(bool propagate = true);
+    void setHardBreak(bool state) { m_hardBreak = state; };
+    void setNumbered(bool state) { m_numbered = state; };
 
     // Static Methods
-    static bool typeFromString(QString value, ItemType &itemType);
-    static bool classFromString(QString value, ItemClass &itemClass);
-    static bool levelFromString(QString value, ItemLevel &itemLevel);
+    static bool levelFromString(const QString &value, ItemLevel &itemLevel);
+    static QString levelToString(ItemLevel itemLevel);
 
 private:
-    // Attributes
-    ItemType m_type;
-    ItemClass m_class;
-    ItemLevel m_level;
     QString m_handle;
-    QString m_name;
-    bool m_active = false;
-    Qt::ItemFlags m_flags = Qt::NoItemFlags;
-
-    // Meta
-    QIcon m_icon;
+    QString m_title;
+    ItemLevel m_level;
     TextCounts m_counts;
-    TextCounts m_totals;
-    bool m_expanded = false;
-    QIcon m_activeIcon;
-
-    // Accessibility
-    QString m_accWords = tr("Word Count: %1");
-    QString m_accActive = "";
-
-    // Structure
-    Tree *m_tree;
-    Node *m_parent = nullptr;
-    QList<Node *> m_children;
-
-    // Methods
-    void recursiveAppendChildren(QList<Node *> &children);
+    bool m_expanded = true;
+    bool m_hardBreak = false;
+    bool m_numbered = true;
 };
 } // namespace Collett

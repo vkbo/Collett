@@ -45,12 +45,18 @@ public:
     QString lastEditedHandle() const { return m_lastEditedHandle; };
     QString spellLanguage() const { return m_spellLanguage; };
     bool hasSpellLanguage() const { return !m_spellLanguage.isEmpty(); };
+    bool isModified() const { return m_modified; };
 
     // Setters
-    void setLastEditedHandle(const QString &handle) { m_lastEditedHandle = handle; };
-    void setSpellLanguage(const QString &language) { m_spellLanguage = language.trimmed(); };
+    void setName(const QString &name);
+    void setLastEditedHandle(const QString &handle);
+    void setSpellLanguage(const QString &language);
+    void setModified(bool state) { m_modified = state; };
 
 private:
+    // New data has not been saved yet, so it starts out modified
+    bool m_modified = true;
+
     QString m_createdTime = "";
     QString m_projectName = "";
     QString m_lastEditedHandle = "";

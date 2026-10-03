@@ -18,35 +18,35 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Register a Qt Test executable and its CTest entry. Tests run headless via the
-# "offscreen" QPA platform so no display server is required. The tests folder
-# mirrors the src folder, so the first argument is the src subfolder of the
-# code under test. Folders that do not mirror src are prefixed with "_".
+# "offscreen" QPA platform so no display server is required, and each test has
+# its own config folder. The tests folder mirrors the repository root, so the
+# first argument is the folder of the code under test, like src/core or qml.
+# Folders that do not mirror the root are prefixed with "_". Tests of the QML
+# also link the QML module's plugin.
 function(collett_add_test subdir name)
     qt_add_executable(${name} ${subdir}/${name}.cpp)
     target_link_libraries(${name} PRIVATE CollettCore Qt::Test)
-    target_compile_definitions(${name} PRIVATE
-        TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/_data"
-        ASSETS_DIR="${CMAKE_SOURCE_DIR}/assets"
-    )
+    target_compile_definitions(${name} PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/_data")
+    if(subdir STREQUAL "qml")
+        target_link_libraries(${name} PRIVATE CollettCoreplugin)
+    endif()
     add_test(NAME ${name} COMMAND ${name})
     set_tests_properties(${name} PROPERTIES
-        ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;XDG_CONFIG_HOME=${CMAKE_CURRENT_BINARY_DIR}/_config/${name}"
     )
 endfunction()
 
-collett_add_test(core tst_counting)
-collett_add_test(core tst_tools)
-collett_add_test(dialogs tst_fontdialog)
-collett_add_test(editor tst_highlighter)
-collett_add_test(editor tst_textcheck)
-collett_add_test(editor tst_texteditor)
-collett_add_test(layouts tst_scrollableform)
-collett_add_test(project tst_document)
-collett_add_test(project tst_projectdata)
-collett_add_test(project tst_projectmodel)
-collett_add_test(spellcheck tst_spellcheck)
-collett_add_test(static tst_settings)
-collett_add_test(static tst_theme)
-collett_add_test(widgets tst_mcombobox)
-collett_add_test(widgets tst_mpagedsidebar)
-collett_add_test(widgets tst_mswitch)
+collett_add_test(src/core tst_counting)
+collett_add_test(src/core tst_labels)
+collett_add_test(src/core tst_tools)
+collett_add_test(src/editor tst_highlighter)
+collett_add_test(src/project tst_document)
+collett_add_test(src/project tst_projectdata)
+collett_add_test(src/project tst_projectmodel)
+collett_add_test(src/spellcheck tst_spellcheck)
+collett_add_test(src/spellcheck tst_textcheck)
+collett_add_test(src/static tst_settings)
+collett_add_test(qml tst_editortoolbar)
+collett_add_test(qml tst_main)
+collett_add_test(qml tst_preferences)
+collett_add_test(qml tst_sceneeditor)

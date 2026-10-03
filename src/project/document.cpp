@@ -65,10 +65,7 @@ Document::Document(const QString &handle, QObject *parent) : Document(parent)
     m_handle = handle;
 }
 
-Document::~Document()
-{
-    qDebug() << "Destructor: Document";
-}
+Document::~Document() {}
 
 // Public Methods
 // ==============
@@ -93,8 +90,6 @@ void Document::pack(QJsonObject &data)
         // Block Type
         if (blockFormat.headingLevel() > 0) {
             jsonBlockFmt << QString().setNum(qBound(1, blockFormat.headingLevel(), 4)).prepend("h");
-        } else if (blockFormat.intProperty(BlockTypeProperty) == CommentBlock) {
-            jsonBlockFmt << "c";
         } else {
             jsonBlockFmt << "p";
         }
@@ -237,9 +232,6 @@ void Document::unpack(const QJsonObject &data)
             } else if (blockFmtType == "h4") {
                 charFormat = format.charHeader4;
                 blockFormat = format.blockHeader4;
-            } else if (blockFmtType == "c") {
-                charFormat = format.charComment;
-                blockFormat = format.blockComment;
             }
             jsonBlockFmt.removeFirst();
         }
@@ -321,6 +313,66 @@ void Document::unpack(const QJsonObject &data)
     qDebug() << "Document loaded in" << end - start << "ms";
 }
 
+/**! @brief Make the blocks from position first to last paragraphs, with
+ * level 0, or headings of level 1 to 4.
+ *
+ * The blocks keep their alignment and indent, and their text keeps its
+ * italic and other flags. The font family, size and weight come from the
+ * new type. Headings have no first-line indent.
+ */
+void Document::setHeadingLevel(int first, int last, int level)
+{
+    const Settings::TextFormat format = Settings::instance()->textFormat();
+    QTextBlockFormat baseBlock = format.blockParagraph;
+    QTextCharFormat baseChar = format.charParagraph;
+    switch (level) {
+    case 1:
+        baseBlock = format.blockHeader1;
+        baseChar = format.charHeader1;
+        break;
+    case 2:
+        baseBlock = format.blockHeader2;
+        baseChar = format.charHeader2;
+        break;
+    case 3:
+        baseBlock = format.blockHeader3;
+        baseChar = format.charHeader3;
+        break;
+    case 4:
+        baseBlock = format.blockHeader4;
+        baseChar = format.charHeader4;
+        break;
+    default:
+        break;
+    }
+
+    QTextCharFormat fontFormat;
+    fontFormat.setFontFamilies(baseChar.fontFamilies().toStringList());
+    fontFormat.setFontPointSize(baseChar.fontPointSize());
+    fontFormat.setFontWeight(baseChar.fontWeight());
+
+    QTextCursor cursor(this);
+    cursor.beginEditBlock();
+    const QTextBlock end = this->findBlock(last);
+    for (QTextBlock block = this->findBlock(first); block.isValid(); block = block.next()) {
+        const QTextBlockFormat oldFormat = block.blockFormat();
+        QTextBlockFormat blockFormat = baseBlock;
+        blockFormat.setAlignment(oldFormat.alignment());
+        blockFormat.setIndent(oldFormat.indent());
+        if (level == 0 && oldFormat.textIndent() > 0.0) {
+            blockFormat.setTextIndent(format.tabWidth);
+        }
+
+        cursor.setPosition(block.position());
+        cursor.setBlockFormat(blockFormat);
+        cursor.mergeBlockCharFormat(fontFormat);
+        cursor.setPosition(block.position() + block.length() - 1, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fontFormat);
+        if (block == end) break;
+    }
+    cursor.endEditBlock();
+}
+
 // Public Slots
 // ============
 
@@ -364,10 +416,6 @@ void Document::refreshTextFormat()
             baseChar = format.charHeader4;
             break;
         default:
-            if (blockFormat.intProperty(BlockTypeProperty) == CommentBlock) {
-                baseBlock = format.blockComment;
-                baseChar = format.charComment;
-            }
             break;
         }
 

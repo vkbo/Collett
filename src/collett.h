@@ -3,7 +3,7 @@
 ** =============================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -25,23 +25,16 @@
 #define COL_VERSION_NUM 0x000001a1
 #define COL_VERSION_DATE "2025-02-23"
 
-#define PROJECT_ITEM_MIME "text/vnd.collett.handle"
-
 #include <QDebug>
 #include <QObject>
-#include <QTextFormat>
+#include <QtQml/qqmlregistration.h>
 
 namespace Collett {
+Q_NAMESPACE
+QML_ELEMENT
 
 // Item Enums
-// Used for distinguishing between the roles of a project node.
-enum ItemType
-{
-    InvisibleRoot,
-    RootType,
-    FolderType,
-    FileType,
-};
+// The class of a project group, and the structure level of a document.
 enum ItemClass
 {
     NovelClass = 0,
@@ -54,102 +47,19 @@ enum ItemClass
     ArchiveClass = 7,
     TrashClass = 8,
 };
+Q_ENUM_NS(ItemClass)
+
 enum ItemLevel
 {
-    // The int order here matters and must not be changed
-    // See: ProjectModel::addFile()
-    PageLevel = 0,
-    TitleLevel = 1,
-    ChapterLevel = 2,
-    SceneLevel = 3,
-    NoteLevel = 4,
+    // The int order is the structure order, from the top. A page, like a
+    // title page, is not part of the structure, and sorts below a scene so
+    // it folds with the partition or chapter it is under.
+    PartitionLevel = 0,
+    ChapterLevel = 1,
+    SceneLevel = 2,
+    PageLevel = 3,
 };
-
-// Theme Colours
-// Used as index keys to look up colours from the Theme class.
-enum ThemeColor
-{
-    RootColor = 0,
-    FolderColor = 1,
-    FileColor = 2,
-    TitleColor = 3,
-    ChapterColor = 4,
-    SceneColor = 5,
-    NoteColor = 6,
-    DefaultColor = 7,
-    FadedColor = 8,
-    Red = 9,
-    Orange = 10,
-    Yellow = 11,
-    Green = 12,
-    Aqua = 13,
-    Blue = 14,
-    Purple = 15,
-
-    // Icons
-    ToolColor = 16,
-    AcceptColor = 17,
-    RejectColor = 18,
-    ActionColor = 19,
-    OptionColor = 20,
-    ApplyColor = 21,
-    CreateColor = 22,
-    DestroyColor = 23,
-    ResetColor = 24,
-    AddColor = 25,
-    ChangeColor = 26,
-    RemoveColor = 27,
-};
-
-// Syntax Colours
-// Used as index keys to look up editor highlighting colours from the Theme class.
-enum SyntaxColor
-{
-    SyntaxHeader = 0,
-    SyntaxEmphasis = 1,
-    SyntaxComment = 2,
-    SyntaxSpellLine = 3,
-    SyntaxErrorLine = 4,
-};
-
-// Theme Mode
-// Which of the light and dark themes is loaded.
-#define COL_DEFAULT_LIGHT_THEME "default_light"
-#define COL_DEFAULT_DARK_THEME "default_dark"
-enum ThemeMode
-{
-    AutoTheme = 0,
-    LightTheme = 1,
-    DarkTheme = 2,
-};
-
-// Tool Buttons
-// Icon-only buttons with a shared tool tip and icon, created by the Theme class.
-enum ToolButton
-{
-    FontButton = 0,
-};
-
-// Standard Buttons
-// Dialog buttons with a shared label and icon, created by the Theme class.
-enum StandardButton
-{
-    SaveButton = 0,
-    CancelButton = 1,
-    OkButton = 2,
-};
-
-// Text Format Properties
-// Custom properties stored on the block formats of a document.
-enum TextProperty
-{
-    BlockTypeProperty = QTextFormat::UserProperty + 1,
-};
-enum BlockType
-{
-    TextBlock = 0,
-    CommentBlock = 1,
-};
+Q_ENUM_NS(ItemLevel)
 
 enum JsonUtilsError
 {

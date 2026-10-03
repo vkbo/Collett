@@ -1,10 +1,12 @@
 # Build
 build/
-build_cov/
+build_*/
 _temp/
+sample*/
 
 # IDE
 .vscode/
+.qmlls.ini
 .pytest_cache/
 
 # No AI files
@@ -16,8 +18,16 @@ GEMINI.md
 .codex/
 .gemini/
 
+# Python
+__pycache__
+*.pyc
+.venv/
+.ruff_cache/
+.pytest_cache/
+
 # Other
 .config
+.env
 
 # Sandbox placeholders
 .bash_profile

@@ -21,5 +21,11 @@ if [[ "${1:-}" == "--check" ]]; then
     mode=(--dry-run --Werror)
 fi
 
-find src tests -regex '.*\.\(h\|cpp\)' -print0 \
+# Only search the source folders that exist
+dirs=()
+for dir in src tests; do
+    [[ -d "$dir" ]] && dirs+=("$dir")
+done
+
+find "${dirs[@]}" -regex '.*\.\(h\|cpp\)' -print0 \
     | xargs -0 clang-format "${mode[@]}"

@@ -24,8 +24,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             cmake ninja-build clang-format \
-            qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools \
-            libnuspell-dev
+            qt6-base-dev qt6-declarative-dev qt6-declarative-dev-tools \
+            qml6-module-qtcore qml6-module-qtquick qml6-module-qtquick-controls \
+            qml6-module-qtquick-dialogs qml6-module-qtquick-layouts \
+            qml6-module-qtquick-templates qml6-module-qtquick-window \
+            qt6-svg-plugins qt6-l10n-tools qt6-tools-dev libnuspell-dev
           pip install --break-system-packages gcovr
 
       - name: Check Formatting

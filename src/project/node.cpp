@@ -20,15 +20,11 @@
 */
 
 #include "node.h"
-#include "theme.h"
 #include "tools.h"
 #include "tree.h"
 
-#include <QIcon>
-#include <QJsonArray>
 #include <QJsonObject>
 #include <QString>
-#include <QVariant>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -37,525 +33,79 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Node::Node(Tree *tree, ItemType itemType, QString handle, QString name) : m_type(itemType), m_handle(handle), m_name(name), m_tree(tree)
-{
-    m_class = ItemClass::NovelClass;
-    m_level = ItemLevel::PageLevel;
-    m_icon = QIcon();
-    m_activeIcon = QIcon();
-    if (itemType == ItemType::RootType) {
-        m_flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled;
-    } else if (itemType == ItemType::FileType || itemType == ItemType::FolderType) {
-        m_flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
-    }
-}
+Node::Node(const QString &handle, const QString &title, ItemLevel level) : m_handle(handle), m_title(title), m_level(level) {}
 
-Node::~Node()
-{
-    qDebug() << "Destructor: Node" << m_name;
-    qDeleteAll(m_children); // Parent is tracked in m_parent, so we delete explicitly
-}
-
-// Setters
-// =======
-
-void Node::setActive(bool state)
-{
-    Theme *theme = Theme::instance();
-    if (m_type == ItemType::InvisibleRoot) {
-        m_activeIcon = QIcon();
-    } else {
-        m_active = state;
-        if (m_type == ItemType::FileType) {
-            if (m_active) {
-                m_accActive = tr("Active");
-                m_activeIcon = theme->icons()->getIcon("checked", ThemeColor::Green, theme->baseIconSize());
-            } else {
-                m_accActive = tr("Inactive");
-                m_activeIcon = theme->icons()->getIcon("unchecked", ThemeColor::Red, theme->baseIconSize());
-            }
-        } else {
-            m_accActive = "";
-            m_activeIcon = theme->icons()->getIcon("noncheckable", ThemeColor::FadedColor, theme->baseIconSize());
-        }
-    }
-}
-
-/**!
- * @brief Set the node's own text counts and update the totals up the tree.
- */
-void Node::setCounts(const TextCounts &counts)
-{
-    m_counts = counts;
-    this->updateTotals();
-}
-
-// Checkers
-// ========
-
-/**!
- * @brief Return true if the node is allowed to be a novel document.
- *
- * Novel documents are only allowed under the Novel root folder, and in
- * the Archive or Trash folder.
- *
- * @return Returns true if the node is of Novel, Archive or Trash class.
- */
-bool Node::isDocumentAllowed()
-{
-    switch (m_class) {
-    case ItemClass::NovelClass:
-    case ItemClass::ArchiveClass:
-    case ItemClass::TrashClass:
-        return true;
-    case ItemClass::CharacterClass:
-    case ItemClass::PlotClass:
-    case ItemClass::LocationClass:
-    case ItemClass::ObjectClass:
-    case ItemClass::EntityClass:
-    case ItemClass::CustomClass:
-        return false;
-    }
-    return false;
-}
-
-/**!
- * @brief Return true if the node is allowed to be a project note.
- *
- * Notes are allowed to exist anywhere in the project except under Novel root
- * folders.
- *
- * @return Returns true if the node is allowed to be a project note.
- */
-bool Node::isNoteAllowed()
-{
-    return m_class != ItemClass::NovelClass;
-}
+Node::~Node() {}
 
 // Public Methods
 // ==============
 
-void Node::pack(QJsonObject &data)
-{
-
-    QJsonArray children;
-
-    for (qsizetype i = 0; i < m_children.size(); ++i) {
-        QJsonObject child;
-        m_children.at(i)->pack(child);
-        children.append(child);
-    }
-
-    if (!m_parent) {
-        data["x:items"_L1] = children;
-    } else {
-        switch (m_type) {
-        case ItemType::RootType: data["m:type"_L1] = "Root"_L1; break;
-        case ItemType::FolderType: data["m:type"_L1] = "Folder"_L1; break;
-        case ItemType::FileType: data["m:type"_L1] = "File"_L1; break;
-        default: return;
-        }
-        if (m_type == ItemType::RootType) {
-            switch (m_class) {
-            case ItemClass::NovelClass: data["m:class"_L1] = "Novel"_L1; break;
-            case ItemClass::CharacterClass: data["m:class"_L1] = "Character"_L1; break;
-            case ItemClass::PlotClass: data["m:class"_L1] = "Plot"_L1; break;
-            case ItemClass::LocationClass: data["m:class"_L1] = "Location"_L1; break;
-            case ItemClass::ObjectClass: data["m:class"_L1] = "Object"_L1; break;
-            case ItemClass::EntityClass: data["m:class"_L1] = "Entity"_L1; break;
-            case ItemClass::CustomClass: data["m:class"_L1] = "Custom"_L1; break;
-            case ItemClass::ArchiveClass: data["m:class"_L1] = "Archive"_L1; break;
-            case ItemClass::TrashClass: data["m:class"_L1] = "Trash"_L1; break;
-            default: return;
-            }
-        }
-        if (m_type == ItemType::FileType) {
-            switch (m_level) {
-            case ItemLevel::PageLevel: data["m:level"_L1] = "Page"_L1; break;
-            case ItemLevel::NoteLevel: data["m:level"_L1] = "Note"_L1; break;
-            case ItemLevel::TitleLevel: data["m:level"_L1] = "Title"_L1; break;
-            case ItemLevel::ChapterLevel: data["m:level"_L1] = "Chapter"_L1; break;
-            case ItemLevel::SceneLevel: data["m:level"_L1] = "Scene"_L1; break;
-            default: return;
-            }
-            data["u:active"_L1] = m_active;
-        }
-        data["u:name"_L1] = m_name;
-        data["m:handle"_L1] = m_handle;
-        data["m:order"_L1] = row();
-        if (m_type == ItemType::FileType) {
-            // Only files have counts of their own, the rest are totals
-            data["m:characters"_L1] = m_counts.characters;
-            data["m:words"_L1] = m_counts.words;
-        }
-        if (children.size() > 0) {
-            // Only a node with children can be expanded
-            data["m:expanded"_L1] = m_expanded;
-            data["x:items"_L1] = children;
-        }
-    }
-}
-
-void Node::unpack(const QJsonObject &data, int &skipped, int &errors)
-{
-
-    if (data.isEmpty()) {
-        qWarning() << "Received a project node with no data";
-        skipped++;
-        errors++;
-        return;
-    }
-
-    bool error = false;
-
-    QString name = "";
-    QString handle = "";
-    ItemType itemType = ItemType::FileType;
-    ItemClass itemClass = ItemClass::NovelClass;
-    ItemLevel itemLevel = ItemLevel::PageLevel;
-    TextCounts counts;
-    bool expanded = false;
-    bool active = false;
-
-    // Name (Optional)
-    if (data.contains("u:name"_L1)) {
-        name = data["u:name"_L1].toString();
-    }
-    if (name.isEmpty()) {
-        name = tr("Unnamed");
-    }
-
-    // Handle (Required)
-    if (data.contains("m:handle"_L1)) {
-        handle = data["m:handle"_L1].toString();
-    }
-    if (!Tree::isHandle(handle)) {
-        qWarning() << "Received a project node with invalid handle";
-        error = true;
-        errors++;
-    }
-
-    // Item Type (Required)
-    if (!Node::typeFromString(JsonUtils::getJsonString(data, "m:type"_L1, "Error"), itemType)) {
-        qWarning() << "Received a project node with invalid type";
-        error = true;
-        errors++;
-    }
-
-    // Other Values
-    if (data.contains("u:active"_L1)) {
-        active = data["u:active"_L1].toBool();
-    }
-
-    // Meta Values
-    // Only files carry counts of their own. Anything stored on a root or a
-    // folder, as older project files may have, is ignored so the totals are
-    // rebuilt from the files alone.
-    if (itemType == ItemType::FileType) {
-        if (data.contains("m:words"_L1)) {
-            counts.words = qMax(data["m:words"_L1].toInt(), 0);
-        }
-        if (data.contains("m:characters"_L1)) {
-            counts.characters = qMax(data["m:characters"_L1].toInt(), 0);
-        }
-    }
-    if (data.contains("m:expanded"_L1)) {
-        expanded = data["m:expanded"_L1].toBool();
-    }
-
-    // Error Handling
-    if (error) {
-        qWarning() << "Skipping project node with name " << name << "due to errors";
-        skipped++;
-        return;
-    }
-
-    Node *node = nullptr;
-    switch (itemType) {
-    case ItemType::RootType:
-        if (!Node::classFromString(JsonUtils::getJsonString(data, "m:class"_L1, "Error"), itemClass)) {
-            qWarning() << "Received a project root node with invalid class";
-            errors++;
-        }
-        node = this->createRoot(handle, name, itemClass);
-        this->addChild(node);
-        break;
-    case ItemType::FolderType:
-        node = this->createFolder(handle, name);
-        this->addChild(node);
-        break;
-    case ItemType::FileType:
-        if (!Node::levelFromString(JsonUtils::getJsonString(data, "m:level"_L1, "Error"), itemLevel)) {
-            qWarning() << "Received a project node with invalid level";
-            errors++;
-        }
-        node = this->createFile(handle, name, itemLevel);
-        this->addChild(node);
-        break;
-    default:
-        break;
-    }
-
-    if (node) {
-        qDebug() << "Added node with handle" << handle;
-    } else {
-        qWarning() << "Failed to add node with handle" << handle;
-        skipped++;
-        return;
-    }
-
-    node->setCounts(counts);
-    node->setExpanded(expanded);
-    node->setActive(active);
-
-    if (data.contains("x:items"_L1)) {
-        if (data["x:items"_L1].isArray()) {
-            for (const QJsonValue &value : data["x:items"_L1].toArray()) {
-                if (value.isObject()) {
-                    node->unpack(value.toObject(), skipped, errors);
-                } else {
-                    qWarning() << "Item: Child item is not a JSON object";
-                }
-            }
-        }
-    }
-}
-
-// Model Access
-// ============
-
-int Node::row() const
-{
-    if (m_parent) {
-        return m_parent->m_children.indexOf(const_cast<Node *>(this));
-    } else {
-        return 0;
-    }
-}
-
-Node *Node::child(int row)
-{
-    if (row < 0 || row >= m_children.size()) {
-        return nullptr;
-    } else {
-        return m_children.at(row);
-    }
-}
-
-QVariant Node::data(int column, int role) const
-{
-    switch (column) {
-    case 0:
-        switch (role) {
-        case Qt::DisplayRole:
-        case Qt::ToolTipRole:
-        case Qt::AccessibleTextRole:
-            return QVariant::fromValue(m_name);
-        case Qt::DecorationRole:
-            return QVariant::fromValue(m_icon);
-        }
-        break;
-    case 1:
-        switch (role) {
-        case Qt::DisplayRole:
-            return QVariant::fromValue(m_totals.words);
-        case Qt::ToolTipRole:
-        case Qt::AccessibleTextRole:
-            return QVariant::fromValue(m_accWords.arg(m_totals.words));
-        case Qt::TextAlignmentRole:
-            return QVariant::fromValue(Qt::AlignRight);
-        }
-        break;
-    case 2:
-        switch (role) {
-        case Qt::DecorationRole:
-            return QVariant::fromValue(m_activeIcon);
-        case Qt::ToolTipRole:
-        case Qt::AccessibleTextRole:
-            return QVariant::fromValue(m_accActive);
-        }
-        break;
-    }
-    return QVariant();
-}
-
-QList<Node *> Node::allChildren()
-{
-    QList<Node *> children;
-    this->recursiveAppendChildren(children);
-    return children;
-}
-
-// Model Edit
-// ==========
-
-void Node::addChild(Node *child, qsizetype pos)
-{
-    m_tree->addNode(child);
-    child->m_parent = this;
-    if (pos >= 0 && pos < m_children.size()) {
-        m_children.insert(pos, child);
-    } else {
-        m_children.append(child);
-    }
-    child->updateIcon();
-    child->updateValues();
-    this->updateTotals();
-}
-
-Node *Node::takeChild(qsizetype pos)
-{
-    if (pos >= 0 && pos < m_children.count()) {
-        Node *child = m_children.takeAt(pos);
-        m_tree->removeNode(child->handle());
-        this->updateTotals();
-        return child;
-    }
-    return nullptr;
-}
-
-Node *Node::createRoot(QString handle, QString name, ItemClass itemClass)
-{
-    Node *node = new Node(m_tree, ItemType::RootType, handle, name);
-    node->m_class = itemClass;
-    return node;
-}
-
-Node *Node::createFolder(QString handle, QString name)
-{
-    Node *node = new Node(m_tree, ItemType::FolderType, handle, name);
-    node->m_class = m_class;
-    return node;
-}
-
-Node *Node::createFile(QString handle, QString name, ItemLevel itemLevel)
-{
-    Node *node = new Node(m_tree, ItemType::FileType, handle, name);
-    node->m_class = m_class;
-    node->m_level = itemLevel;
-    return node;
-}
-
-void Node::updateIcon()
-{
-    Theme *theme = Theme::instance();
-    if (m_type == ItemType::InvisibleRoot) {
-        m_icon = QIcon();
-    } else {
-        m_icon = theme->icons()->getProjectIcon(m_type, m_class, m_level, theme->baseIconSize());
-    }
-}
-
-void Node::updateValues()
-{
-    if (m_parent && m_parent->itemType() != ItemType::InvisibleRoot) {
-        m_class = m_parent->m_class;
-        if (this->isFileType()) {
-            if (this->isDocument() && !this->isDocumentAllowed()) {
-                m_level = ItemLevel::NoteLevel;
-                this->updateIcon();
-            }
-            if (this->isNote() && !this->isNoteAllowed()) {
-                m_level = ItemLevel::PageLevel;
-                this->updateIcon();
-            }
-        }
-    }
-}
-
-/**!
- * @brief Recompute the totals from the node's own counts and its children.
+/**! @brief Write the node to a JSON object.
  *
- * The totals are what the tree shows, so a folder or a chapter shows the sum
- * of everything under it. The change is propagated to the parent by default,
- * so the totals stay correct all the way up to the root.
- *
- * @param propagate Also update the ancestors.
+ * Only partitions and chapters can be folded, so only they store whether
+ * they are expanded, only a scene with a hard break before it stores the
+ * break, and only a chapter without a number stores that it is unnumbered. An empty title is stored as an empty string. The title
+ * is kept as typed while it is edited, and tidied up here.
  */
-void Node::updateTotals(bool propagate)
+void Node::pack(QJsonObject &data, int order) const
 {
-    m_totals = m_counts;
-    for (const Node *child : std::as_const(m_children)) {
-        m_totals += child->m_totals;
+    data["m:handle"_L1] = m_handle;
+    data["m:level"_L1] = levelToString(m_level);
+    data["m:order"_L1] = order;
+    data["m:characters"_L1] = m_counts.characters;
+    data["m:words"_L1] = m_counts.words;
+    if (isFoldable()) {
+        data["m:expanded"_L1] = m_expanded;
     }
-    if (propagate && m_parent) {
-        m_parent->updateTotals(true);
+    if (hasHardBreak()) {
+        data["m:break"_L1] = true;
     }
+    if (!isNumbered()) {
+        data["m:numbered"_L1] = false;
+    }
+    data["u:title"_L1] = m_title.simplified();
+}
+
+/**! @brief Create a node from a JSON object.
+ *
+ * A node needs a valid handle and level. If either is missing or invalid,
+ * the node is skipped and nullptr is returned.
+ */
+Node *Node::unpack(const QJsonObject &data)
+{
+    QString handle = JsonUtils::getJsonString(data, "m:handle"_L1, "");
+    if (!Tree::isHandle(handle)) {
+        qWarning() << "Skipping project item with invalid handle" << handle;
+        return nullptr;
+    }
+
+    ItemLevel level = ItemLevel::SceneLevel;
+    if (!levelFromString(JsonUtils::getJsonString(data, "m:level"_L1, ""), level)) {
+        qWarning() << "Skipping project item with invalid level" << handle;
+        return nullptr;
+    }
+
+    QString title = JsonUtils::getJsonString(data, "u:title"_L1, "").simplified();
+
+    TextCounts counts;
+    counts.words = qMax(data["m:words"_L1].toInt(), 0);
+    counts.characters = qMax(data["m:characters"_L1].toInt(), 0);
+
+    Node *node = new Node(handle, title, level);
+    node->setCounts(counts);
+    node->setExpanded(data["m:expanded"_L1].toBool(true));
+    node->setHardBreak(data["m:break"_L1].toBool(false));
+    node->setNumbered(data["m:numbered"_L1].toBool(true));
+    return node;
 }
 
 // Static Methods
 // ==============
 
-bool Node::typeFromString(QString value, ItemType &itemType)
+bool Node::levelFromString(const QString &value, ItemLevel &itemLevel)
 {
-    if (value == "File") {
-        itemType = ItemType::FileType;
-        return true;
-    }
-    if (value == "Folder") {
-        itemType = ItemType::FolderType;
-        return true;
-    }
-    if (value == "Root") {
-        itemType = ItemType::RootType;
-        return true;
-    }
-    return false;
-}
-
-bool Node::classFromString(QString value, ItemClass &itemClass)
-{
-    if (value == "Novel") {
-        itemClass = ItemClass::NovelClass;
-        return true;
-    }
-    if (value == "Character") {
-        itemClass = ItemClass::CharacterClass;
-        return true;
-    }
-    if (value == "Plot") {
-        itemClass = ItemClass::PlotClass;
-        return true;
-    }
-    if (value == "Location") {
-        itemClass = ItemClass::LocationClass;
-        return true;
-    }
-    if (value == "Object") {
-        itemClass = ItemClass::ObjectClass;
-        return true;
-    }
-    if (value == "Entity") {
-        itemClass = ItemClass::EntityClass;
-        return true;
-    }
-    if (value == "Custom") {
-        itemClass = ItemClass::CustomClass;
-        return true;
-    }
-    if (value == "Archive") {
-        itemClass = ItemClass::ArchiveClass;
-        return true;
-    }
-    if (value == "Trash") {
-        itemClass = ItemClass::TrashClass;
-        return true;
-    }
-    return false;
-}
-
-bool Node::levelFromString(QString value, ItemLevel &itemLevel)
-{
-    if (value == "Page") {
-        itemLevel = ItemLevel::PageLevel;
-        return true;
-    }
-    if (value == "Note") {
-        itemLevel = ItemLevel::NoteLevel;
-        return true;
-    }
-    if (value == "Title") {
-        itemLevel = ItemLevel::TitleLevel;
+    if (value == "Partition") {
+        itemLevel = ItemLevel::PartitionLevel;
         return true;
     }
     if (value == "Chapter") {
@@ -566,18 +116,22 @@ bool Node::levelFromString(QString value, ItemLevel &itemLevel)
         itemLevel = ItemLevel::SceneLevel;
         return true;
     }
+    if (value == "Page") {
+        itemLevel = ItemLevel::PageLevel;
+        return true;
+    }
     return false;
 }
 
-// Private Methods
-// ===============
-
-void Node::recursiveAppendChildren(QList<Node *> &children)
+QString Node::levelToString(ItemLevel itemLevel)
 {
-    for (Node *child : m_children) {
-        children.append(child);
-        child->recursiveAppendChildren(children);
+    switch (itemLevel) {
+    case ItemLevel::PartitionLevel: return "Partition"_L1;
+    case ItemLevel::ChapterLevel: return "Chapter"_L1;
+    case ItemLevel::SceneLevel: return "Scene"_L1;
+    case ItemLevel::PageLevel: return "Page"_L1;
     }
+    return "Scene"_L1;
 }
 
 } // namespace Collett

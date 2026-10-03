@@ -22,12 +22,14 @@
 #pragma once
 
 #include "collett.h"
+#include "group.h"
 #include "node.h"
 #include "projectmodel.h"
 
 #include <QHash>
 #include <QJsonObject>
-#include <QPointer>
+#include <QList>
+#include <QObject>
 #include <QString>
 
 namespace Collett {
@@ -42,22 +44,33 @@ public:
 
     // Getters
     ProjectModel *model() { return m_model; };
-    Node *node(const QString &handle) { return m_nodes.value(handle).data(); };
+    Node *node(const QString &handle) { return m_nodes.value(handle, nullptr); };
+    bool isModified() const { return m_modified; };
+
+    // Setters
+    void setModified(bool state) { m_modified = state; };
 
     // Methods
     void pack(QJsonObject &data);
     void unpack(const QJsonObject &data);
 
     // Data Methods
-    void addNode(Node *node);
-    void removeNode(const QString &handle);
     QString newHandle() const;
+    Node *createNode(ItemLevel level);
+    void forgetNode(const QString &handle) { m_nodes.remove(handle); };
 
     // Static Methods
     static bool isHandle(const QString &value);
 
 private:
+    // A new tree has not been saved yet, so it starts out modified
+    bool m_modified = true;
+
     ProjectModel *m_model;
-    QHash<QString, QPointer<Node>> m_nodes;
+    QList<Group *> m_groups;
+    QHash<QString, Node *> m_nodes;
+
+    void clear();
+    void ensureNovelGroup();
 };
 } // namespace Collett

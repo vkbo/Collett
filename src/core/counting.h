@@ -61,7 +61,6 @@ struct CountBlock
 {
     QString text;
     bool heading = false;
-    bool comment = false;
 };
 using CountBlockList = QList<CountBlock>;
 

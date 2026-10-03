@@ -3,7 +3,7 @@
 ** =======================
 **
 ** This file is a part of Collett
-** Copyright (C) 2025 Veronica Berglyd Olsen
+** Copyright (C) 2026 Veronica Berglyd Olsen
 **
 ** This program is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -23,14 +23,24 @@
 #include <iostream>
 
 #include "collett.h"
-#include "guimain.h"
+#include "icons.h"
+#include "project.h"
 #include "settings.h"
 
-#include <QApplication>
-#include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QGuiApplication>
+#include <QLibraryInfo>
+#include <QQmlApplicationEngine>
+#include <QQuickWindow>
+#include <QTranslator>
+#include <QtQml/QQmlExtensionPlugin>
+
+// The QML module is linked statically
+Q_IMPORT_QML_PLUGIN(CollettPlugin)
+
+using namespace Qt::Literals::StringLiterals;
 
 // ANSI colours for the log output
 namespace {
@@ -45,7 +55,7 @@ constexpr int LOG_LINE_WIDTH = 4;
 } // namespace
 
 /**!
- * @brief Log message handler&
+ * @brief Log message handler.
  *
  * Custom message handler that prints a timestamp, and if DEBUG is enabled the
  * source file name and line number aligned on the colon, followed by the log
@@ -113,25 +123,53 @@ void collettLogHandler(QtMsgType type, const QMessageLogContext &context, const 
     std::cout << msg.toStdString() << std::endl;
 }
 
+/**! @brief Install the translations for a GUI language. The source text is
+ * British English, so it has no translation.
+ */
+void loadTranslations(QCoreApplication &app, const QString &language)
+{
+    auto install = [&app](const QString &name, const QString &path) {
+        QTranslator *translator = new QTranslator(&app);
+        if (translator->load(name, path)) {
+            app.installTranslator(translator);
+            qInfo() << "Loaded translation:" << translator->filePath();
+        } else {
+            delete translator;
+        }
+    };
+
+    install(u"qt_"_s + language, QLibraryInfo::path(QLibraryInfo::TranslationsPath));
+    if (language != "en_GB"_L1) {
+        install(u"collett_"_s + language, u":/i18n"_s);
+    }
+}
+
 int main(int argc, char *argv[])
 {
 
     qInstallMessageHandler(collettLogHandler);
-    QApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName("Collett");
     QCoreApplication::setOrganizationDomain("saga-soft.io");
     QCoreApplication::setApplicationName("Collett");
     QCoreApplication::setApplicationVersion(COL_VERSION_STR);
 
-    // The settings need the application names above, and the font must be
-    // set before any widget measures itself
-    QApplication::setFont(Collett::Settings::instance()->guiFont());
+    Collett::Settings *settings = Collett::Settings::instance();
+    loadTranslations(app, settings->guiLanguage());
+
+    // The interface font follows the setting, also when it is changed
+    QGuiApplication::setFont(settings->guiFont());
+    QObject::connect(settings, &Collett::Settings::guiFontChanged, &app, [settings]() {
+        QGuiApplication::setFont(settings->guiFont());
+    });
+
+    // Native text rendering matches the font hinting of the rest of the desktop
+    QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
 
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();
-
     QCommandLineOption openPath(
         QStringList() << "o" << "open",
         QCoreApplication::translate("main", "Open the <path> project on launch."),
@@ -140,11 +178,34 @@ int main(int argc, char *argv[])
     parser.addOption(openPath);
     parser.process(app);
 
-    Collett::GuiMain mainGUI;
-    mainGUI.show();
+    // The project must outlive the engine, as the editor shows its documents.
+    // Without a path, the application starts with no project open.
+    Collett::Project project;
     if (parser.isSet(openPath)) {
-        mainGUI.openProject(parser.value(openPath));
+        const QString projectPath = parser.value(openPath);
+        if (!project.openProject(projectPath)) {
+            qCritical() << "Could not open project:" << projectPath << project.lastError();
+            return 1;
+        }
     }
 
-    return app.exec();
+    int result = 0;
+    {
+        QQmlApplicationEngine engine;
+        engine.addImageProvider("icons", new Collett::Icons("lucide"));
+        engine.setInitialProperties({{"project", QVariant::fromValue(&project)}});
+        QObject::connect(
+            &engine, &QQmlApplicationEngine::objectCreationFailed,
+            &app, []() { QCoreApplication::exit(1); },
+            Qt::QueuedConnection
+        );
+        engine.loadFromModule("Collett", "Main");
+        result = app.exec();
+    }
+
+    if (project.isValid()) {
+        project.saveProject();
+    }
+    Collett::Settings::destroy();
+    return result;
 }

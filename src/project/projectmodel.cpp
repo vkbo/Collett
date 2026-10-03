@@ -19,590 +19,380 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "collett.h"
 #include "projectmodel.h"
-#include "tree.h"
 
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonValue>
-#include <QList>
-#include <QMimeData>
 #include <QModelIndex>
-#include <QPointer>
 #include <QSet>
-#include <QString>
-#include <QStringList>
 #include <QVariant>
-
-using namespace Qt::Literals::StringLiterals;
 
 namespace Collett {
 
 // Constructor/Destructor
 // ======================
 
-ProjectModel::ProjectModel(Tree *parent) : QAbstractItemModel(parent), m_tree(parent)
-{
-    m_root = new Node(m_tree, ItemType::InvisibleRoot, m_tree->newHandle(), "InvisibleRoot");
-    m_root->setParent(this);
-}
+ProjectModel::ProjectModel(QObject *parent) : QAbstractListModel(parent) {}
 
 ProjectModel::~ProjectModel()
 {
     qDebug() << "Destructor: ProjectModel";
 }
 
-// Getters
-// =======
-
-/**!
- * @brief Get the root note of an item.
- *
- * @return Node* The root node or nullptr if invisible root.
- */
-Node *ProjectModel::rootNode(Node *node)
-{
-
-    Node *self = node;
-    Node *root = nullptr;
-    if (node) {
-        while (self->parent()) {
-            root = self;
-            self = self->parent();
-        }
-    }
-    return root;
-}
-
-// Public Methods
-// ==============
-
-/**!
- * @brief Pack all nodes into a JSON object.
- *
- * @param data The JSON object to populate.
- */
-void ProjectModel::pack(QJsonObject &data)
-{
-    if (m_root) m_root->pack(data);
-}
-
-/**!
- * @brief Unpack nodes from a JSON object.
- *
- * @param data The JSON object to unpack.
- */
-void ProjectModel::unpack(const QJsonObject &data)
-{
-    int skipped = 0;
-    int errors = 0;
-    if (data.contains("x:items"_L1) && data["x:items"_L1].isArray()) {
-        for (const QJsonValue &value : data["x:items"_L1].toArray()) {
-            if (value.isObject()) {
-                m_root->unpack(value.toObject(), skipped, errors);
-            } else {
-                qWarning() << "Project root node is not a JSON object";
-            }
-        }
-    } else {
-        qWarning() << "No root nodes in project";
-    }
-    if (skipped > 0 || errors > 0) {
-        qWarning() << "Project tree loaded with" << skipped << "node(s) skipped and" << errors << "error(s)";
-    }
-}
-
-// Model Access
-// ============
-
-QModelIndex ProjectModel::index(int row, int column, const QModelIndex &parent) const
-{
-
-    if (!hasIndex(row, column, parent)) {
-        return QModelIndex();
-    }
-
-    Node *parentNode;
-    if (!parent.isValid()) {
-        parentNode = m_root;
-    } else {
-        parentNode = static_cast<Node *>(parent.internalPointer());
-    }
-
-    Node *childNode = parentNode->child(row);
-    if (childNode) {
-        return createIndex(row, column, childNode);
-    } else {
-        return QModelIndex();
-    }
-}
-
-QModelIndex ProjectModel::parent(const QModelIndex &index) const
-{
-
-    if (!index.isValid()) {
-        return QModelIndex();
-    }
-
-    Node *childNode = static_cast<Node *>(index.internalPointer());
-    Node *parentNode = childNode->parent();
-
-    if (parentNode == m_root) {
-        return QModelIndex();
-    } else {
-        return createIndex(parentNode->row(), 0, parentNode);
-    }
-}
+// Model Interface
+// ===============
 
 int ProjectModel::rowCount(const QModelIndex &parent) const
 {
-
-    Node *parentNode;
-    if (!parent.isValid()) {
-        parentNode = m_root;
-    } else {
-        parentNode = static_cast<Node *>(parent.internalPointer());
+    if (parent.isValid() || !m_group) {
+        return 0;
     }
-    return parentNode->childCount();
-}
-
-int ProjectModel::columnCount(const QModelIndex &parent) const
-{
-    return 4;
+    return int(m_group->count());
 }
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
-
-    if (!index.isValid()) {
+    if (!index.isValid() || !m_group) {
         return QVariant();
     }
-    Node *node = static_cast<Node *>(index.internalPointer());
-    return node->data(index.column(), role);
-}
 
-Qt::ItemFlags ProjectModel::flags(const QModelIndex &index) const
-{
-
-    if (!index.isValid()) {
-        return Qt::NoItemFlags;
-    } else {
-        Node *node = static_cast<Node *>(index.internalPointer());
-        return node->flags();
+    const Node *node = m_group->item(index.row());
+    if (!node) {
+        return QVariant();
     }
+
+    switch (role) {
+    case Qt::DisplayRole:
+    case TitleRole: return node->title();
+    case HandleRole: return node->handle();
+    case LevelRole: return int(node->itemLevel());
+    case WordsRole: return node->counts().words;
+    case ExpandedRole: return node->isExpanded();
+    case FoldableRole: return m_foldable.value(index.row(), false);
+    case HiddenRole: return m_hidden.value(index.row(), false);
+    case NumberRole: return m_numbers.value(index.row(), 0);
+    case HardBreakRole: return node->hasHardBreak();
+    case NumberedRole: return node->isNumbered();
+    case ChapterNumberRole: return m_chapterNumbers.value(index.row(), 0);
+    }
+    return QVariant();
 }
 
-/**!
- * @brief Return a list of the index of all expanded nodes.
- *
- * @return QList<QModelIndex> The list of indexes.
+QHash<int, QByteArray> ProjectModel::roleNames() const
+{
+    return {
+        {HandleRole, "handle"},
+        {TitleRole, "title"},
+        {LevelRole, "level"},
+        {WordsRole, "words"},
+        {ExpandedRole, "expanded"},
+        {FoldableRole, "foldable"},
+        {HiddenRole, "hidden"},
+        {NumberRole, "number"},
+        {HardBreakRole, "hardBreak"},
+        {NumberedRole, "numbered"},
+        {ChapterNumberRole, "chapterNumber"},
+    };
+}
+
+// Methods
+// =======
+
+/**! @brief Show the documents of a group, or nothing if it is nullptr.
  */
-QList<QModelIndex> ProjectModel::allExpanded()
+void ProjectModel::setGroup(Group *group)
 {
-
-    QList<QModelIndex> expanded;
-    for (Node *node : m_root->allChildren()) {
-        if (node->isExpanded()) {
-            expanded.append(createIndex(node->row(), 0, node));
-        }
-    }
-    return expanded;
+    beginResetModel();
+    m_group = group;
+    updateStructure();
+    endResetModel();
 }
 
-/**!
- * @brief Return the node at a give index, if one exists.
+/**! @brief Fold or unfold a partition or chapter.
  *
- * @param index  The model index to look up.
- * @return Node* The node, or nullptr if it does not exist.
+ * Scenes cannot be folded, and neither can a partition or chapter with
+ * nothing under it.
  */
-Node *ProjectModel::nodeAtIndex(const QModelIndex &index)
+void ProjectModel::toggleExpanded(int row)
 {
-    if (index.isValid()) {
-        return static_cast<Node *>(index.internalPointer());
+    if (!m_group || !m_foldable.value(row, false)) {
+        return;
     }
-    return nullptr;
-}
 
-QModelIndex ProjectModel::indexFromHandle(const QString &handle)
-{
-    Node *node = m_tree->node(handle);
-    if (node) {
-        qDebug() << "Ping!" << node->name() << node->handle();
-        return createIndex(node->row(), 0, node);
-    }
-    return QModelIndex();
-}
+    Node *node = m_group->item(row);
+    node->setExpanded(!node->isExpanded());
 
-// Model Edit
-// ==========
+    const QList<bool> oldHidden = m_hidden;
+    updateStructure();
 
-/**!
- * @brief Insert a child node at a given position under a parent.
- *
- * @param child  The child node to insert.
- * @param parent The parent of the node.
- * @param pos    The position of the node under the parent.
- */
-void ProjectModel::insertChild(Node *child, const QModelIndex &parent, qsizetype pos)
-{
-
-    Node *node;
-    if (parent.isValid()) {
-        node = static_cast<Node *>(parent.internalPointer());
-    } else {
-        node = m_root;
-    }
-    int row = qMin(qMax(pos, 0), node->childCount());
-    emit beginInsertRows(parent, row, row);
-    node->addChild(child, row);
-    emit endInsertRows();
-    this->notifyCountsChanged(node);
-}
-
-/**!
- * @brief Remove a child from a node index.
- *
- * This removes the child from the parent and returns a pointer to it.
- * The node is also removed from the nodes record in the Tree class, which is
- * handled internall in the parent node.
- *
- * @param parent The parent index of the child.
- * @param pos    The position of the child in the parent node.
- * @return Node* The remmoved child node.
- */
-Node *ProjectModel::removeChild(const QModelIndex &parent, qsizetype pos)
-{
-
-    Node *node;
-    if (parent.isValid()) {
-        node = static_cast<Node *>(parent.internalPointer());
-    } else {
-        node = m_root;
-    }
-    if (pos >= 0 && pos < node->childCount()) {
-        emit beginRemoveRows(parent, pos, pos);
-        Node *child = node->takeChild(pos);
-        emit endRemoveRows();
-        this->notifyCountsChanged(node);
-        return child;
-    }
-    return nullptr;
-}
-
-/**!
- * @brief Move a list of indexes to a new parent node.
- *
- * The list of indexes are moved to the new location. If a child and a parent
- * are both selected, only the parent is moved and the child just follows
- * along. The internal meta data of the nodes are updated by the parent node
- * object so that its class and item level info is consistent with its new
- * location in the project.
- *
- * @param indexes A list of indexes to be moved.
- * @param parent  The parent index to move the indexes to.
- * @param pos     The position under the parent index to move the indexes to.
- */
-void ProjectModel::multiMove(const QModelIndexList &indexes, const QModelIndex &parent, qsizetype pos)
-{
-    if (!parent.isValid()) return;
-
-    // This is a two pass process. First we only select unique non-root items
-    // for move, then we do a second pass and only move those items that don't
-    // have a parent also scheduled for moving or have already been moved.
-    // Child items are moved with the parent.
-
-    QSet<QString> handles;
-    QList<Node *> pruned;
-    for (QModelIndex index : indexes) {
-        if (index.isValid()) {
-            Node *node = static_cast<Node *>(index.internalPointer());
-            if (node && !node->isRootType() && !handles.contains(node->handle())) {
-                pruned.prepend(node); // Built in reverse order
-                handles.insert(node->handle());
-            }
-        }
-    }
-    qDebug() << indexes;
-
-    for (Node *mNode : pruned) {
-        Node *pNode = mNode->parent();
-        if (pNode && !handles.contains(pNode->handle())) {
-            QModelIndex index = createIndex(mNode->row(), 0, mNode);
-            Node *tNode = this->removeChild(index.parent(), index.row());
-            qDebug() << tNode;
-            if (tNode) {
-                this->insertChild(tNode, parent, pos);
-                for (Node *cNode : mNode->allChildren()) {
-                    cNode->updateValues();
-                }
-            }
+    emit dataChanged(index(row), index(row), {ExpandedRole});
+    emit structureChanged();
+    for (int i = 0; i < m_hidden.size(); ++i) {
+        if (m_hidden.at(i) != oldHidden.value(i)) {
+            emit dataChanged(index(i), index(i), {HiddenRole});
         }
     }
 }
 
-/**!
- * @brief Add a root folder relative to the selected index.
+/**! @brief Set the title of a document.
  *
- * Root folders are always added after the root folder ancestor of the selected
- * index, or by default at the end of the project tree.
- *
- * @param name      The name of the new root folder.
- * @param itemClass The class of the new root folder.
- * @param selected  The selected index to add the root folder relative to.
- * @return Node*    The root folder node.
+ * The title is part of the project structure, so it is saved with the
+ * project, not with the document.
  */
-Node *ProjectModel::addRoot(QString name, ItemClass itemClass, const QModelIndex &selected)
+void ProjectModel::setTitle(int row, const QString &title)
 {
-
-    qsizetype pos = m_root->childCount();
-    if (selected.isValid()) {
-        Node *sNode = this->rootNode(static_cast<Node *>(selected.internalPointer()));
-        if (sNode) pos = sNode->row() + 1;
+    Node *node = m_group ? m_group->item(row) : nullptr;
+    if (!node || node->title() == title) {
+        return;
     }
-
-    Node *child = m_root->createRoot(m_tree->newHandle(), name, itemClass);
-    child->setActive(true);
-    this->insertChild(child, QModelIndex(), pos);
-    return child;
+    node->setTitle(title);
+    emit dataChanged(index(row), index(row), {Qt::DisplayRole, TitleRole});
+    emit structureChanged();
 }
 
-/**!
- * @brief Add a folder relative to the selected index.
+/**! @brief Change the level of a document.
  *
- * The folder is added as a child if the selected index is a root folder or an
- * expanded folder with other child items. Otherwise, the folder is added next
- * to the selected item as a sibling.
- *
- * @param name     The name of the new folder.
- * @param selected The selected index to add the folder relative to.
- * @return Node*   The folder node or nullptr if failed.
+ * Changing a level can change the numbering, and what can be folded or is
+ * hidden, for the documents that follow, so all rows are refreshed.
  */
-Node *ProjectModel::addFolder(QString name, const QModelIndex &selected)
+void ProjectModel::setLevel(int row, int level)
 {
-
-    if (!selected.isValid()) return nullptr;
-
-    Node *sNode = static_cast<Node *>(selected.internalPointer());
-    if (!sNode) return nullptr;
-
-    // The default behaviour is to make the new item a sibling of the selected item
-    QModelIndex parent = selected.parent();
-    qsizetype pos = selected.row() + 1;
-
-    if (sNode->isRootType()) {
-        // For root folders, it must be a child
-        parent = selected;
-        pos = sNode->childCount();
-    } else if (sNode->isFolderType() && sNode->isExpanded() && sNode->childCount() > 0) {
-        // If the node is an expanded folder with children, add the new folder as a child
-        parent = selected;
-        pos = sNode->childCount();
+    Node *node = m_group ? m_group->item(row) : nullptr;
+    if (!node || level < ItemLevel::PartitionLevel || level > ItemLevel::PageLevel || node->itemLevel() == level) {
+        return;
     }
-
-    if (parent.isValid()) {
-        Node *nNode = static_cast<Node *>(parent.internalPointer());
-        if (nNode) {
-            Node *child = nNode->createFolder(m_tree->newHandle(), name);
-            child->setActive(true);
-            this->insertChild(child, parent, pos);
-            return child;
-        }
-    }
-    return nullptr;
+    node->setLevel(ItemLevel(level));
+    node->setExpanded(true);
+    emit dataChanged(index(row), index(row), {LevelRole, ExpandedRole, HardBreakRole, NumberedRole});
+    refreshStructure();
 }
 
-/**!
- * @brief Add a file relative to the selected index.
- *
- * New files are by default added next to the selected item as a sibling, with
- * the following exceptions:
- *
- * 1. If the selected index is a root or folder, the file is added as a child
- *    at the end of the list of children.
- *
- * 2. If the parent of the selected index is of similar or higher structural
- *    level than the selected index, then the new file is added as a sibling of
- *    the parent instead of the selected.
- *
- * 3. If the selected index has children and the new file is of lower
- *    structural level or is a note, the new file is added as a child of the
- *    selected index.
- *
- * @param name      The name of the new file.
- * @param itemLevel The item level of the file.
- * @param selected  The selected index to add the file relative to.
- * @return Node*    The file node or nullptr if failed.
+/**! @brief Set whether a scene has a hard break before it.
  */
-Node *ProjectModel::addFile(QString name, ItemLevel itemLevel, const QModelIndex &selected)
+void ProjectModel::setHardBreak(int row, bool state)
 {
-
-    if (!selected.isValid()) return nullptr;
-
-    Node *sNode = static_cast<Node *>(selected.internalPointer());
-    if (!sNode) return nullptr;
-
-    // The default behaviour is to make the new item a sibling of the selected item
-    QModelIndex parent = selected.parent();
-    qsizetype pos = selected.row() + 1;
-
-    if (sNode->isRootType() || sNode->isFolderType()) {
-        // Always add as a direct child of any folder
-        parent = selected;
-        pos = sNode->childCount();
-
-    } else if (sNode->isFileType()) {
-        Node *pNode = sNode->parent();
-
-        int hLevel = static_cast<int>(itemLevel);
-        int sLevel = static_cast<int>(sNode->itemLevel());
-        int pLevel = static_cast<int>(pNode->itemLevel());
-
-        bool isNote = false;
-        if (itemLevel == ItemLevel::NoteLevel) {
-            isNote = true;
-            sLevel = 0; // Here we treat selected notes as level 0
-        }
-
-        if (pNode && pNode->isFileType() && pLevel >= hLevel && sLevel > hLevel) {
-            // If the selected item's is a higher level than the new item, and
-            // the parent level is equal or higher, we make it a sibling of the parent
-            parent = parent.parent();
-            pos = pNode->row() + 1;
-        }
-
-        if (sNode->childCount() > 0 && ((sLevel > 0 && sLevel < hLevel) || isNote)) {
-            // If the selected item already has child nodes and
-            // has a lower level or is a note, we make the new item a child
-            parent = selected;
-            pos = sNode->childCount();
-        }
+    Node *node = m_group ? m_group->item(row) : nullptr;
+    if (!node || node->itemLevel() != ItemLevel::SceneLevel || node->hasHardBreak() == state) {
+        return;
     }
-
-    if (parent.isValid()) {
-        Node *nNode = static_cast<Node *>(parent.internalPointer());
-        if (nNode) {
-            Node *child = nNode->createFile(m_tree->newHandle(), name, itemLevel);
-            child->setActive(true);
-            this->insertChild(child, parent, pos);
-            return child;
-        }
-    }
-    return nullptr;
+    node->setHardBreak(state);
+    emit dataChanged(index(row), index(row), {HardBreakRole});
+    emit structureChanged();
 }
 
-/**!
- * @brief Store new text counts on a node and refresh the count column.
+/**! @brief Set whether a chapter is numbered.
  *
- * The node's totals, and those of its ancestors, are updated too, and the
- * view is notified for all of them. Nothing happens if the counts are
- * unchanged.
- *
- * @param handle The handle of the node to update.
- * @param counts The new counts.
- * @return bool  True if the node exists and its counts changed.
+ * An unnumbered chapter is left out of the numbering, so the numbers of the
+ * chapters after it change too.
  */
-bool ProjectModel::updateCounts(const QString &handle, const TextCounts &counts)
+void ProjectModel::setNumbered(int row, bool state)
 {
-    Node *node = m_tree->node(handle);
-    if (node == nullptr || node->counts() == counts) {
-        return false;
+    Node *node = m_group ? m_group->item(row) : nullptr;
+    if (!node || node->itemLevel() != ItemLevel::ChapterLevel || node->isNumbered() == state) {
+        return;
+    }
+    node->setNumbered(state);
+    emit dataChanged(index(row), index(row), {NumberedRole});
+    refreshStructure();
+}
+
+/**! @brief Set the text counts of a document.
+ */
+void ProjectModel::setCounts(int row, const TextCounts &counts)
+{
+    Node *node = m_group ? m_group->item(row) : nullptr;
+    if (!node || node->counts() == counts) {
+        return;
     }
     node->setCounts(counts);
-    this->notifyCountsChanged(node);
+    emit dataChanged(index(row), index(row), {WordsRole});
+    emit structureChanged();
+}
+
+/**! @brief The number of rows that move together with a row: the row, and
+ * the hidden rows of a folded partition or chapter.
+ */
+int ProjectModel::blockSize(int row) const
+{
+    if (!m_group || row < 0 || row >= m_group->count()) {
+        return 0;
+    }
+    int end = row + 1;
+    while (end < m_hidden.size() && m_hidden.at(end)) {
+        ++end;
+    }
+    return end - row;
+}
+
+/**! @brief Move a block of rows to before another row.
+ *
+ * Documents that were in view and would end up hidden by a folded partition
+ * or chapter unfold it, so a move never hides anything.
+ */
+bool ProjectModel::moveBlock(int row, int count, int before)
+{
+    const int total = m_group ? int(m_group->count()) : 0;
+    if (count < 1 || row < 0 || row + count > total || before < 0 || before > total || (before >= row && before <= row + count)) {
+        return false;
+    }
+
+    QSet<const Node *> shown;
+    for (int i = 0; i < total; ++i) {
+        if (!m_hidden.value(i)) shown.insert(m_group->item(i));
+    }
+
+    beginMoveRows(QModelIndex(), row, row + count - 1, QModelIndex(), before);
+    const int target = before > row ? before - count : before;
+    QList<Node *> moved;
+    for (int i = 0; i < count; ++i) {
+        moved.append(m_group->takeItem(row));
+    }
+    for (int i = 0; i < count; ++i) {
+        m_group->insertItem(target + i, moved.at(i));
+    }
+    updateStructure();
+    endMoveRows();
+
+    for (int r = 0; r < total; ++r) {
+        if (!shown.contains(m_group->item(r))) continue;
+        for (int i = r - 1; i >= 0 && m_hidden.value(r); --i) {
+            Node *node = m_group->item(i);
+            if (m_foldable.value(i) && !node->isExpanded()) {
+                node->setExpanded(true);
+                updateStructure();
+            }
+        }
+    }
+    refreshStructure();
     return true;
 }
 
-// Drag and Drop
-// =============
-
-QStringList ProjectModel::mimeTypes() const
+/**! @brief Insert a new document at a row.
+ *
+ * The model takes the node into its group, which then owns it.
+ */
+void ProjectModel::insertNode(int row, Node *node)
 {
-    return QStringList{PROJECT_ITEM_MIME};
+    if (!m_group || !node) {
+        return;
+    }
+    row = qBound(0, row, int(m_group->count()));
+    beginInsertRows(QModelIndex(), row, row);
+    m_group->insertItem(row, node);
+    updateStructure();
+    endInsertRows();
+    refreshStructure();
 }
 
-QMimeData *ProjectModel::mimeData(const QModelIndexList &indexes) const
+/**! @brief Remove a document from the group, and return it.
+ *
+ * The caller owns the returned node.
+ */
+Node *ProjectModel::takeNode(int row)
 {
+    if (!m_group || row < 0 || row >= m_group->count()) {
+        return nullptr;
+    }
+    beginRemoveRows(QModelIndex(), row, row);
+    Node *node = m_group->takeItem(row);
+    updateStructure();
+    endRemoveRows();
+    refreshStructure();
+    return node;
+}
 
-    QMimeData *mimeData = new QMimeData;
-    QList<QByteArray> handles;
-
-    for (QModelIndex index : indexes) {
-        if (index.isValid() && index.column() == 0) {
-            Node *node = static_cast<Node *>(index.internalPointer());
-            handles << node->handle().toUtf8();
+/**! @brief The row of a document, or -1 if it is not in the group.
+ */
+int ProjectModel::rowOf(const QString &handle) const
+{
+    if (m_group) {
+        const QList<Node *> &items = m_group->items();
+        for (qsizetype i = 0; i < items.size(); ++i) {
+            if (items.at(i)->handle() == handle) return int(i);
         }
     }
-
-    mimeData->setData(PROJECT_ITEM_MIME, handles.join(";"));
-    return mimeData;
-}
-
-Qt::DropActions ProjectModel::supportedDropActions() const
-{
-    return Qt::DropAction::MoveAction;
-}
-
-bool ProjectModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
-{
-
-    if (parent.isValid() && parent.internalPointer() != m_root) {
-        return data->hasFormat(PROJECT_ITEM_MIME) && action == Qt::MoveAction;
-    }
-    return false;
-}
-
-bool ProjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
-{
-
-    if (this->canDropMimeData(data, action, row, column, parent)) {
-        QModelIndexList indexes;
-        for (const QString &handle : decodeMimeHandles(data)) {
-            indexes << this->indexFromHandle(handle);
-        }
-        this->multiMove(indexes, parent, row);
-        return true;
-    }
-    return false;
+    return -1;
 }
 
 // Private Methods
 // ===============
 
-/**!
- * @brief Emit dataChanged for the count column of a node and its ancestors.
+/**! @brief Work out which rows are hidden, which can be folded, and the
+ * numbering.
  *
- * Totals propagate upwards, so every node from the given one up to, but not
- * including, the invisible root may show a new value.
- *
- * @param node The lowest node whose totals changed.
+ * A folded partition hides everything up to the next partition, and a
+ * folded chapter hides the scenes up to the next chapter or partition. A
+ * partition or chapter can be folded if the next document is below it.
+ * Chapters are numbered through the whole group, except those set to be
+ * unnumbered, and scenes from 1 in each chapter or partition. Partitions
+ * and pages are not numbered. Each document also gets the number of the
+ * chapter it is in, which is 0 outside a chapter or in an unnumbered one.
  */
-void ProjectModel::notifyCountsChanged(Node *node)
+void ProjectModel::updateStructure()
 {
-    while (node && node != m_root) {
-        QModelIndex index = createIndex(node->row(), 1, node);
-        emit dataChanged(index, index, {Qt::DisplayRole, Qt::ToolTipRole, Qt::AccessibleTextRole});
-        node = node->parent();
+    m_hidden.clear();
+    m_foldable.clear();
+    m_numbers.clear();
+    m_chapterNumbers.clear();
+    if (!m_group) {
+        return;
+    }
+
+    const QList<Node *> &items = m_group->items();
+    m_hidden.reserve(items.size());
+    m_foldable.reserve(items.size());
+    m_numbers.reserve(items.size());
+    m_chapterNumbers.reserve(items.size());
+
+    bool partitionFolded = false;
+    bool chapterFolded = false;
+    int chapterCount = 0;
+    int sceneCount = 0;
+    int chapterNumber = 0;
+    for (qsizetype i = 0; i < items.size(); ++i) {
+        const Node *node = items.at(i);
+        const ItemLevel level = node->itemLevel();
+        switch (level) {
+        case ItemLevel::PartitionLevel:
+            m_hidden.append(false);
+            m_numbers.append(0);
+            partitionFolded = !node->isExpanded();
+            chapterFolded = false;
+            sceneCount = 0;
+            chapterNumber = 0;
+            break;
+        case ItemLevel::ChapterLevel:
+            m_hidden.append(partitionFolded);
+            m_numbers.append(node->isNumbered() ? ++chapterCount : 0);
+            chapterFolded = !node->isExpanded();
+            sceneCount = 0;
+            chapterNumber = m_numbers.last();
+            break;
+        case ItemLevel::SceneLevel:
+            m_hidden.append(partitionFolded || chapterFolded);
+            m_numbers.append(++sceneCount);
+            break;
+        case ItemLevel::PageLevel:
+            m_hidden.append(partitionFolded || chapterFolded);
+            m_numbers.append(0);
+            break;
+        }
+        m_chapterNumbers.append(chapterNumber);
+        const Node *next = (i + 1 < items.size()) ? items.at(i + 1) : nullptr;
+        m_foldable.append(node->isFoldable() && next && next->itemLevel() > level);
     }
 }
 
-// Static Methods
-// ==============
-
-/**!
- * @brief Static method to decode handles from mime data.
+/**! @brief Recompute the structure and notify the views of all rows.
  *
- * @param mimeData        The mimedata object.
- * @return QList<QString> A list of handles.
+ * Used after a change that can affect the documents that follow it. The
+ * views only update what has actually changed.
  */
-QList<QString> ProjectModel::decodeMimeHandles(const QMimeData *mimeData)
+void ProjectModel::refreshStructure()
 {
-
-    QList<QString> handles;
-    for (const QByteArray &handle : mimeData->data(PROJECT_ITEM_MIME).split(';')) {
-        handles << QString::fromUtf8(handle);
+    updateStructure();
+    if (m_group && m_group->count() > 0) {
+        emit dataChanged(index(0), index(int(m_group->count()) - 1), {ExpandedRole, FoldableRole, HiddenRole, NumberRole, ChapterNumberRole});
     }
-    return handles;
+    emit structureChanged();
 }
 
 } // namespace Collett

@@ -38,14 +38,16 @@ namespace Collett {
 
 /**! @brief Describe a font for display, like "12 pt Sans Serif Bold".
  *
- * The style words already contained in the family name are left out.
+ * The family and style are the ones asked for, as the system may resolve
+ * them to another font. Style words already in the family name are left out.
  */
 QString FontUtils::describeFont(const QFont &font)
 {
     const QFontInfo info(font);
-    const QString family = info.family();
-    QStringList parts = {QStringLiteral("%1 pt").arg(info.pointSize()), family};
-    for (const QString &word : info.styleName().split(u' ', Qt::SkipEmptyParts)) {
+    const QString family = font.family().isEmpty() ? info.family() : font.family();
+    const QString style = font.styleName().isEmpty() ? info.styleName() : font.styleName();
+    QStringList parts = {QStringLiteral("%1 pt").arg(qRound(font.pointSizeF() > 0.0 ? font.pointSizeF() : info.pointSizeF())), family};
+    for (const QString &word : style.split(u' ', Qt::SkipEmptyParts)) {
         if (!family.contains(word)) parts.append(word);
     }
     return parts.join(u' ');
