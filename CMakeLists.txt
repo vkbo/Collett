@@ -44,6 +44,13 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 find_package(Qt6 6.9 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Test)
 message(STATUS "Found Qt6 Version: ${Qt6_VERSION}")
 
+# Nuspell Library
+# ===============
+
+# Spell checking engine. Reads the same .aff/.dic dictionaries as Hunspell.
+find_package(Nuspell REQUIRED)
+message(STATUS "Found Nuspell Version: ${Nuspell_VERSION}")
+
 qt_standard_project_setup(REQUIRES 6.8)
 
 # Coverage
@@ -94,9 +101,10 @@ target_include_directories(CollettCore PUBLIC
     src/core
     src/editor
     src/project
+    src/spellcheck
     src/static
 )
-target_link_libraries(CollettCore PUBLIC Qt::Gui Qt::Qml Qt::Quick Qt::QuickControls2)
+target_link_libraries(CollettCore PUBLIC Qt::Gui Qt::Qml Qt::Quick Qt::QuickControls2 PRIVATE Nuspell::nuspell)
 target_compile_definitions(CollettCore PUBLIC "$<$<CONFIG:Debug>:DEBUG>")
 
 set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
@@ -116,6 +124,8 @@ qt_add_qml_module(CollettCore
         src/core/tools.h
         src/editor/documentbinder.cpp
         src/editor/documentbinder.h
+        src/editor/highlighter.cpp
+        src/editor/highlighter.h
         src/project/document.cpp
         src/project/document.h
         src/project/group.cpp
@@ -130,6 +140,16 @@ qt_add_qml_module(CollettCore
         src/project/projectmodel.h
         src/project/tree.cpp
         src/project/tree.h
+        src/spellcheck/nuspellengine.cpp
+        src/spellcheck/nuspellengine.h
+        src/spellcheck/spellchecker.cpp
+        src/spellcheck/spellchecker.h
+        src/spellcheck/spellengine.cpp
+        src/spellcheck/spellengine.h
+        src/spellcheck/textcheck.cpp
+        src/spellcheck/textcheck.h
+        src/spellcheck/userdictionary.cpp
+        src/spellcheck/userdictionary.h
         src/static/settings.cpp
         src/static/settings.h
     QML_FILES

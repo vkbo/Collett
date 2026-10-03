@@ -20,7 +20,7 @@
 */
 
 #include "spellchecker.h"
-#include "textblock.h"
+#include "textcheck.h"
 
 #include <QtTest>
 

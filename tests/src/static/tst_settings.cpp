@@ -21,6 +21,7 @@
 
 #include "settings.h"
 
+#include <QLocale>
 #include <QtTest>
 
 using namespace Collett;
@@ -33,6 +34,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
     void editorAutoSave();
+    void spellLanguage();
     void tabWidth();
     void fonts();
 };
@@ -62,6 +64,17 @@ void TestSettings::editorAutoSave()
 
     settings->setEditorAutoSave(60);
     QCOMPARE(settings->editorAutoSave(), 60);
+}
+
+/**! @brief The spell language defaults to the system locale and can be changed.
+ */
+void TestSettings::spellLanguage()
+{
+    Settings *settings = Settings::instance();
+    QCOMPARE(settings->spellLanguage(), QLocale::system().name());
+
+    settings->setSpellLanguage(" nb_NO ");
+    QCOMPARE(settings->spellLanguage(), QStringLiteral("nb_NO"));
 }
 
 /**! @brief The tab width has a default and drives the text format.

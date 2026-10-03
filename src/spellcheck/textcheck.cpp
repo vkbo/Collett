@@ -1,6 +1,6 @@
 /*
-** Collett - Text Block Data Class
-** ===============================
+** Collett - Text Checks
+** =====================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2026 Veronica Berglyd Olsen
@@ -19,7 +19,7 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "textblock.h"
+#include "textcheck.h"
 
 #include <QChar>
 #include <QRegularExpression>
@@ -64,33 +64,6 @@ static bool isUpper(const QString &word)
         }
     }
     return hasLetter;
-}
-
-// Public Methods
-// ==============
-
-/**! @brief Store a new snapshot of the block text.
- *
- * Cached errors are cleared and left for the background check to recompute,
- * and the revision is bumped so results from a check of the old text are
- * recognised as stale.
- */
-void TextBlockData::processText(const QString &text)
-{
-    m_text = text;
-    m_revision++;
-    m_spellErrors.clear();
-    m_formatErrors.clear();
-}
-
-/**! @brief Clear the snapshot and all cached errors.
- */
-void TextBlockData::clear()
-{
-    m_text.clear();
-    m_revision++;
-    m_spellErrors.clear();
-    m_formatErrors.clear();
 }
 
 // Text Check Functions

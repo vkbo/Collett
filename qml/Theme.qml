@@ -34,6 +34,9 @@ QtObject {
     readonly property color sceneColor: dark ? "#6699cc" : "#4271ae"
     readonly property color pageColor: dark ? "#949494" : "#6c6c6c"
 
+    // The line under misspelled words
+    readonly property color spellErrorColor: dark ? "#f2777a" : "#e0282a"
+
     function levelColor(level: int): color {
         switch (level) {
         case Collett.PartitionLevel:

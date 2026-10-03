@@ -19,6 +19,8 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls
 
@@ -454,6 +456,12 @@ FocusScope {
                 }
             }
 
+            // A right click on a misspelled word offers spelling suggestions
+            TapHandler {
+                acceptedButtons: Qt.RightButton
+                onTapped: eventPoint => spellMenu.openAt(eventPoint.position)
+            }
+
             Text {
                 text: qsTr("Body text")
                 font: binder.textFont
@@ -464,11 +472,53 @@ FocusScope {
         }
     }
 
+    // Spelling suggestions for a misspelled word, and adding it to the
+    // project's dictionary
+    Menu {
+        id: spellMenu
+
+        objectName: "spellMenu"
+
+        property var spelling: ({})
+        readonly property var suggestions: (spelling.suggestions ?? []).slice(0, 10)
+
+        function openAt(position: point) {
+            const found = binder.misspelledWordAt(textEdit.positionAt(position.x, position.y));
+            if (!found.word) return;
+            spelling = found;
+            popup(textEdit, position);
+        }
+
+        Instantiator {
+            model: spellMenu.suggestions
+            delegate: MenuItem {
+                required property string modelData
+
+                text: modelData
+                onTriggered: binder.replaceText(spellMenu.spelling.start, spellMenu.spelling.end, modelData)
+            }
+            onObjectAdded: (index, object) => spellMenu.insertItem(index, object as MenuItem)
+            onObjectRemoved: (index, object) => spellMenu.removeItem(object as MenuItem)
+        }
+        MenuItem {
+            text: qsTr("No Suggestions")
+            enabled: false
+            visible: spellMenu.suggestions.length === 0
+            height: visible ? implicitHeight : 0
+        }
+        MenuSeparator {}
+        MenuItem {
+            text: qsTr("Add to Dictionary")
+            onTriggered: binder.addWord(spellMenu.spelling.word)
+        }
+    }
+
     DocumentBinder {
         id: binder
 
         target: textEdit
         project: root.project
         handle: root.handle
+        spellErrorColor: Theme.spellErrorColor
     }
 }

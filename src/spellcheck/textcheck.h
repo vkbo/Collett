@@ -1,6 +1,6 @@
 /*
-** Collett - Text Block Data Class
-** ===============================
+** Collett - Text Checks
+** =====================
 **
 ** This file is a part of Collett
 ** Copyright (C) 2026 Veronica Berglyd Olsen
@@ -26,7 +26,6 @@
 
 #include <QList>
 #include <QString>
-#include <QTextBlockUserData>
 
 namespace Collett {
 
@@ -48,40 +47,6 @@ struct TextCheck
     bool operator!=(const TextCheck &other) const { return !(*this == other); }
 };
 using TextCheckList = QList<TextCheck>;
-
-/**! @brief Custom data attached to each text block by the highlighter.
- *
- * Holds a snapshot of the block's text for the background text checks, and
- * the errors those checks found. The revision counter goes up every time the
- * text is snapshotted, so a check result can be discarded if the block was
- * edited while the check was running.
- */
-class TextBlockData : public QTextBlockUserData
-{
-public:
-    TextBlockData() = default;
-    ~TextBlockData() override = default;
-
-    // Methods
-    void processText(const QString &text);
-    void clear();
-
-    // Setters
-    void setSpellErrors(const TextCheckList &errors) { m_spellErrors = errors; };
-    void setFormatErrors(const TextCheckList &errors) { m_formatErrors = errors; };
-
-    // Getters
-    QString text() const { return m_text; };
-    int revision() const { return m_revision; };
-    TextCheckList spellErrors() const { return m_spellErrors; };
-    TextCheckList formatErrors() const { return m_formatErrors; };
-
-private:
-    QString m_text;
-    int m_revision = 0;
-    TextCheckList m_spellErrors;
-    TextCheckList m_formatErrors;
-};
 
 // Text Check Functions
 // These only work on plain strings, so they are safe to call from a worker

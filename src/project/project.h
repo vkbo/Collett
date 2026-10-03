@@ -24,6 +24,7 @@
 #include "collett.h"
 #include "document.h"
 #include "projectdata.h"
+#include "spellchecker.h"
 #include "storage.h"
 #include "tree.h"
 
@@ -70,6 +71,7 @@ public:
     Storage *store() { return m_store; };
     ProjectData *data() { return m_data; };
     Tree *tree() { return m_tree; };
+    SpellChecker *spellChecker() { return m_spell; };
 
     // Property Getters
     QString name() const { return m_data ? m_data->name() : QString(); };
@@ -93,6 +95,7 @@ private:
     Storage *m_store = nullptr;
     ProjectData *m_data = nullptr;
     Tree *m_tree = nullptr;
+    SpellChecker *m_spell = nullptr;
 
     // Document Cache
     QHash<QString, Document *> m_documents;
@@ -102,6 +105,7 @@ private:
     QSet<QString> m_countQueue;
     QTimer *m_countTimer = nullptr;
 
+    void setupSpelling();
     void trackDocument(Document *doc);
     void queueCount(const QString &handle);
 

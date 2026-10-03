@@ -21,17 +21,24 @@
 
 #include "documentbinder.h"
 #include "settings.h"
+#include "textcheck.h"
 
 #include <QAbstractTextDocumentLayout>
 #include <QQuickTextDocument>
 #include <QSizeF>
+#include <QTextBlock>
+#include <QTextCursor>
 
 namespace Collett {
 
 // Constructor/Destructor
 // ======================
 
-DocumentBinder::DocumentBinder(QObject *parent) : QObject(parent) {}
+DocumentBinder::DocumentBinder(QObject *parent) : QObject(parent)
+{
+    m_highlighter = new Highlighter(this);
+    m_highlighter->setErrorColor(m_spellErrorColor);
+}
 
 DocumentBinder::~DocumentBinder() {}
 
@@ -64,6 +71,7 @@ void DocumentBinder::setProject(Project *project)
 {
     if (m_project == project) return;
     m_project = project;
+    m_highlighter->setSpellChecker(m_project ? m_project->spellChecker() : nullptr);
     emit projectChanged();
     openDocument();
 }
@@ -76,6 +84,68 @@ void DocumentBinder::setHandle(const QString &handle)
     m_handle = handle;
     emit handleChanged();
     openDocument();
+}
+
+/**! @brief Set the colour of the line under misspelled words.
+ */
+void DocumentBinder::setSpellErrorColor(const QColor &color)
+{
+    if (m_spellErrorColor == color) return;
+    m_spellErrorColor = color;
+    m_highlighter->setErrorColor(color);
+    emit spellErrorColorChanged();
+}
+
+// Spell Checking
+// ==============
+
+/**! @brief The misspelled word at a position in the document, if any.
+ *
+ * Returns the word, its start and end positions in the document, and the
+ * spelling suggestions for it, or an empty map if the position is not on a
+ * misspelled word.
+ */
+QVariantMap DocumentBinder::misspelledWordAt(int position) const
+{
+    if (!m_document || !m_project) return {};
+
+    const QTextBlock block = m_document->findBlock(position);
+    if (!block.isValid()) return {};
+
+    SpellChecker *spell = m_project->spellChecker();
+    const int offset = position - block.position();
+    const TextCheckList errors = spellCheckText(block.text(), spell);
+    for (const TextCheck &error : errors) {
+        if (offset >= error.start && offset <= error.end) {
+            return {
+                {"word", error.text},
+                {"start", block.position() + error.start},
+                {"end", block.position() + error.end},
+                {"suggestions", spell->suggestWords(error.text)},
+            };
+        }
+    }
+    return {};
+}
+
+/**! @brief Replace a range of the document text, as one undo step.
+ *
+ * The new text takes the format of the text it replaces.
+ */
+void DocumentBinder::replaceText(int start, int end, const QString &text)
+{
+    if (!m_document) return;
+    QTextCursor cursor(m_document);
+    cursor.setPosition(start);
+    cursor.setPosition(end, QTextCursor::KeepAnchor);
+    cursor.insertText(text);
+}
+
+/**! @brief Add a word to the project's user dictionary.
+ */
+bool DocumentBinder::addWord(const QString &word)
+{
+    return m_project && m_project->spellChecker()->addWord(word);
 }
 
 // Internal Functions
@@ -136,6 +206,7 @@ void DocumentBinder::bindDocument(Document *document)
     }
 
     textDocument->setTextDocument(m_document);
+    m_highlighter->setDocument(m_document);
 
     connect(m_document, SIGNAL(contentsChange(int, int, int)), m_target, SLOT(q_contentsChange(int, int, int)));
     connect(m_document->documentLayout(), SIGNAL(updateBlock(QTextBlock)), m_target, SLOT(invalidateBlock(QTextBlock)));

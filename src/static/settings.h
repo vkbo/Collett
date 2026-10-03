@@ -69,11 +69,13 @@ public:
     void setEditorAutoSave(const int interval) { m_editorAutoSave = interval; };
     void setTextFont(const QFont &font);
     void setTextTabWidth(const qreal width);
+    void setSpellLanguage(const QString &language) { m_spellLanguage = language.trimmed(); };
 
     // Getters
     int editorAutoSave() const { return m_editorAutoSave; };
     QFont textFont() const { return m_textFont; };
     TextFormat textFormat() const { return m_textFormat; };
+    QString spellLanguage() const { return m_spellLanguage; };
 
 signals:
     void textFormatChanged();
@@ -89,6 +91,9 @@ private:
     qreal m_textFontSize;
     qreal m_textTabWidth;
     TextFormat m_textFormat;
+
+    // Spell Check
+    QString m_spellLanguage;
 
     // Internal Functions
     void recalculateTextFormats();

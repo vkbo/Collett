@@ -50,6 +50,8 @@ Project::Project()
     m_countTimer->setSingleShot(true);
     m_countTimer->setInterval(500);
     connect(m_countTimer, &QTimer::timeout, this, &Project::countDocuments);
+
+    m_spell = new SpellChecker(this);
 }
 
 Project::~Project()
@@ -79,6 +81,7 @@ bool Project::openProject(const QString &path)
         m_isValid = true;
         m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
         m_autoSaveTimer->start();
+        this->setupSpelling();
         emit projectChanged();
         return this->saveProject();
     }
@@ -100,6 +103,7 @@ bool Project::openProject(const QString &path)
     m_isValid = true;
     m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
     m_autoSaveTimer->start();
+    this->setupSpelling();
     emit projectChanged();
 
     return true;
@@ -521,6 +525,15 @@ void Project::countDocuments()
 
 // Private Methods
 // ===============
+
+/**! @brief Load the project's user dictionary, and the dictionary for the
+ * project's language, or the default language if the project has none.
+ */
+void Project::setupSpelling()
+{
+    m_spell->setStorage(m_store);
+    m_spell->setLanguage(m_data->hasSpellLanguage() ? m_data->spellLanguage() : Settings::instance()->spellLanguage());
+}
 
 /**! @brief Recount a document whenever its text changes.
  */

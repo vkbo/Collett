@@ -24,6 +24,7 @@
 
 #include <QFont>
 #include <QFontDatabase>
+#include <QLocale>
 #include <QSettings>
 #include <QTextBlockFormat>
 #include <QTextCharFormat>
@@ -33,6 +34,7 @@ using namespace Qt::Literals::StringLiterals;
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
 #define CNF_TEXT_FONT "TextFormat/textFont"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
+#define CNF_SPELL_LANGUAGE "SpellCheck/language"_L1
 
 namespace Collett {
 
@@ -96,6 +98,13 @@ Settings::Settings(QObject *parent) : QObject(parent)
     m_textFontSize = qMax(m_textFont.pointSizeF(), 5.0);
     m_textTabWidth = qMax(settings.value(CNF_TEXT_TAB_WIDTH, (qreal)40.0).toReal(), 0.0);
     recalculateTextFormats();
+
+    // Spell Check
+    // -----------
+
+    // The system language is the default. If no dictionary is installed for
+    // it, the spell checker falls back to accepting all words.
+    m_spellLanguage = settings.value(CNF_SPELL_LANGUAGE, QLocale::system().name()).toString();
 }
 
 Settings::~Settings()
@@ -115,6 +124,7 @@ void Settings::flushSettings()
 
     settings.setValue(CNF_TEXT_FONT, m_textFont.toString());
     settings.setValue(CNF_TEXT_TAB_WIDTH, m_textTabWidth);
+    settings.setValue(CNF_SPELL_LANGUAGE, m_spellLanguage);
 
     qDebug() << "Settings values saved";
 

@@ -23,13 +23,16 @@
 
 #include "collett.h"
 #include "document.h"
+#include "highlighter.h"
 #include "project.h"
 
+#include <QColor>
 #include <QFont>
 #include <QObject>
 #include <QPointer>
 #include <QQuickItem>
 #include <QString>
+#include <QVariantMap>
 #include <QtQml/qqmlregistration.h>
 
 namespace Collett {
@@ -43,6 +46,7 @@ class DocumentBinder : public QObject
     Q_PROPERTY(Collett::Project *project READ project WRITE setProject NOTIFY projectChanged)
     Q_PROPERTY(QString handle READ handle WRITE setHandle NOTIFY handleChanged)
     Q_PROPERTY(QFont textFont READ textFont CONSTANT)
+    Q_PROPERTY(QColor spellErrorColor READ spellErrorColor WRITE setSpellErrorColor NOTIFY spellErrorColorChanged)
 
 public:
     explicit DocumentBinder(QObject *parent = nullptr);
@@ -53,22 +57,32 @@ public:
     Project *project() const { return m_project; };
     QString handle() const { return m_handle; };
     QFont textFont() const;
+    QColor spellErrorColor() const { return m_spellErrorColor; };
 
     // Setters
     void setTarget(QQuickItem *target);
     void setProject(Project *project);
     void setHandle(const QString &handle);
+    void setSpellErrorColor(const QColor &color);
+
+    // Spell Checking
+    Q_INVOKABLE QVariantMap misspelledWordAt(int position) const;
+    Q_INVOKABLE void replaceText(int start, int end, const QString &text);
+    Q_INVOKABLE bool addWord(const QString &word);
 
 signals:
     void targetChanged();
     void projectChanged();
     void handleChanged();
+    void spellErrorColorChanged();
 
 private:
     QPointer<QQuickItem> m_target;
     QPointer<Project> m_project;
     QString m_handle = "";
     QPointer<Document> m_document;
+    Highlighter *m_highlighter = nullptr;
+    QColor m_spellErrorColor = Qt::red;
 
     void openDocument();
     void bindDocument(Document *document);

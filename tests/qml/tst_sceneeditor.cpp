@@ -39,10 +39,37 @@ private slots:
     void backspaceRemovesEmpty();
     void arrowsCrossDocuments();
     void liveWordCount();
+    void spellingMenu();
 
 private:
     QmlFixture *f = nullptr;
+
+    QPoint pointInText(int row, int position) const;
+    QQuickItem *menuItem(QObject *menu, const QString &text) const;
 };
+
+/**! @brief The window position of a character in the text of a document.
+ */
+QPoint TestSceneEditor::pointInText(int row, int position) const
+{
+    QQuickItem *text = f->scene(row)->findChild<QQuickItem *>("textEdit");
+    QRectF rect;
+    QMetaObject::invokeMethod(text, "positionToRectangle", Q_RETURN_ARG(QRectF, rect), Q_ARG(int, position));
+    return text->mapToScene(rect.center()).toPoint();
+}
+
+/**! @brief The item of a menu with a given text.
+ */
+QQuickItem *TestSceneEditor::menuItem(QObject *menu, const QString &text) const
+{
+    const int count = menu->property("count").toInt();
+    for (int i = 0; i < count; ++i) {
+        QQuickItem *item = nullptr;
+        QMetaObject::invokeMethod(menu, "itemAt", Q_RETURN_ARG(QQuickItem *, item), Q_ARG(int, i));
+        if (item && item->property("text").toString() == text) return item;
+    }
+    return nullptr;
+}
 
 void TestSceneEditor::initTestCase()
 {
@@ -186,6 +213,49 @@ void TestSceneEditor::liveWordCount()
     f->type(" Iota kappa");
     QCOMPARE(f->text(5), QStringLiteral("Zeta eta theta. Iota kappa"));
     QTRY_COMPARE(f->value(5, ProjectModel::WordsRole).toInt(), 5);
+}
+
+/**! @brief A right click on a misspelled word offers suggestions, which
+ * replace the word, and adding the word to the dictionary.
+ */
+void TestSceneEditor::spellingMenu()
+{
+    SpellChecker *spell = f->project.spellChecker();
+    spell->setDictionaryPaths({QStringLiteral(TEST_DATA_DIR)});
+    spell->setLanguage("xx_TEST");
+    QVERIFY(spell->isLoaded());
+
+    QTextCursor cursor(f->project.openDocument(f->handle(5)));
+    cursor.select(QTextCursor::Document);
+    cursor.insertText("hello wrld");
+    QObject *menu = f->scene(5)->findChild<QObject *>("spellMenu");
+    QVERIFY(menu);
+
+    // A correct word has no menu
+    QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, pointInText(5, 2));
+    QTest::qWait(50);
+    QVERIFY(!menu->property("opened").toBool());
+
+    // Choosing a suggestion replaces the word
+    QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, pointInText(5, 8));
+    QTRY_VERIFY(menu->property("opened").toBool());
+    QQuickItem *suggestion = menuItem(menu, "world");
+    QVERIFY(suggestion);
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(suggestion));
+    QTRY_COMPARE(f->text(5), QStringLiteral("hello world"));
+    QTRY_VERIFY(!menu->property("opened").toBool());
+
+    // Adding a word to the dictionary accepts it from then on
+    cursor.select(QTextCursor::Document);
+    cursor.insertText("hello Gollum");
+    QVERIFY(!spell->checkWord("Gollum"));
+    QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, pointInText(5, 8));
+    QTRY_VERIFY(menu->property("opened").toBool());
+    QQuickItem *add = menuItem(menu, "Add to Dictionary");
+    QVERIFY(add);
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(add));
+    QTRY_VERIFY(spell->checkWord("Gollum"));
+    QCOMPARE(f->text(5), QStringLiteral("hello Gollum"));
 }
 
 QTEST_MAIN(TestSceneEditor)

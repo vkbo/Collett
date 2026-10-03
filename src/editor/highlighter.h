@@ -22,39 +22,38 @@
 #pragma once
 
 #include "collett.h"
+#include "spellchecker.h"
 
+#include <QColor>
+#include <QPointer>
 #include <QString>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 
 namespace Collett {
 
-/**! @brief Applies theme colours to the document as layout overlays.
+/**! @brief Marks misspelled words in a document.
  *
- * The document already holds the semantic formats, like heading levels and
- * bold or italic runs. This class only decides how they look, by setting
- * overlay formats that are never stored with the document. It also keeps a
- * snapshot of each block's text in the block's user data for the background
- * spell and format checks, which are run elsewhere.
+ * The marks are layout overlays, so they are never stored with the document,
+ * and do not mark it as modified or add to its undo history.
  */
-class GuiDocHighlighter : public QSyntaxHighlighter
+class Highlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 
 public:
-    explicit GuiDocHighlighter(QObject *parent = nullptr);
-    ~GuiDocHighlighter();
+    explicit Highlighter(QObject *parent = nullptr);
 
-    // Methods
-    void updateTheme();
+    // Setters
+    void setSpellChecker(SpellChecker *spell);
+    void setErrorColor(const QColor &color);
 
 protected:
     void highlightBlock(const QString &text) override;
 
 private:
-    QTextCharFormat m_fmtHeader;
-    QTextCharFormat m_fmtEmphasis;
-    QTextCharFormat m_fmtComment;
+    QPointer<SpellChecker> m_spell;
+    QTextCharFormat m_fmtSpellError;
 };
 
 } // namespace Collett
