@@ -51,12 +51,7 @@ ProjectData::~ProjectData()
 void ProjectData::pack(QJsonObject &data)
 {
 
-    QJsonObject jMeta, jProject, jSettings;
-
-    // Project Meta
-    jMeta["m:version"_L1] = QString(COL_VERSION_STR);
-    jMeta["m:created"_L1] = m_createdTime;
-    jMeta["m:updated"_L1] = QDateTime::currentDateTime().toString(Qt::ISODate);
+    QJsonObject jProject, jSettings;
 
     // Project Settings
     jProject["u:name"_L1] = m_projectName;
@@ -69,7 +64,7 @@ void ProjectData::pack(QJsonObject &data)
 
     // Root Object
     data["c:format"_L1] = "CollettProjectData:1.0";
-    data["c:meta"_L1] = jMeta;
+    data["c:meta"_L1] = JsonUtils::packMeta(m_createdTime);
     data["c:project"_L1] = jProject;
     data["c:settings"_L1] = jSettings;
 }
@@ -77,12 +72,11 @@ void ProjectData::pack(QJsonObject &data)
 void ProjectData::unpack(const QJsonObject &data)
 {
 
-    QJsonObject jMeta = data.value("c:meta"_L1).toObject();
     QJsonObject jProject = data.value("c:project"_L1).toObject();
     QJsonObject jSettings = data.value("c:settings"_L1).toObject();
 
     // Project Meta
-    m_createdTime = JsonUtils::getJsonString(jMeta, "m:created"_L1, "Unknown");
+    m_createdTime = JsonUtils::unpackCreated(data, "Unknown");
 
     // Project Settings
     m_projectName = JsonUtils::getJsonString(jProject, "u:name"_L1, tr("Unnamed Project"));

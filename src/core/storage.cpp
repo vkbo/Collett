@@ -101,25 +101,26 @@ bool Storage::writeStructure(const QJsonObject &fileData)
     return false;
 }
 
-/**! @brief Read a group's document file, like "document1.json".
+/**! @brief Read a group's content file, by its name without the extension,
+ * like "document1".
  *
  * A file that does not exist yet reads as an empty object.
  */
-bool Storage::readDocument(const QString &fileName, QJsonObject &fileData)
+bool Storage::readContent(const QString &name, QJsonObject &fileData)
 {
     if (m_isValid) {
-        return this->readJson(m_contentDir.filePath(fileName), fileData, false);
+        return this->readJson(m_contentDir.filePath(name + ".json"), fileData, false);
     }
     return false;
 }
 
-/**! @brief Write a group's document file. Each block of text is written on
+/**! @brief Write a group's content file. Each block of text is written on
  * a line of its own.
  */
-bool Storage::writeDocument(const QString &fileName, const QJsonObject &fileData)
+bool Storage::writeContent(const QString &name, const QJsonObject &fileData)
 {
     if (m_isValid) {
-        return this->writeJson(m_contentDir.filePath(fileName), fileData, 4);
+        return this->writeJson(m_contentDir.filePath(name + ".json"), fileData, 4);
     }
     return false;
 }

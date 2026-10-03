@@ -22,7 +22,9 @@
 #include "tree.h"
 #include "labels.h"
 #include "projectmodel.h"
+#include "tools.h"
 
+#include <QDateTime>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QPair>
@@ -41,6 +43,7 @@ namespace Collett {
 
 Tree::Tree(QObject *parent) : QObject(parent)
 {
+    m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
     m_model = new ProjectModel(this);
     connect(m_model, &ProjectModel::structureChanged, this, [this]() {
         if (Group *group = m_model->group()) group->setModified(true);
@@ -68,19 +71,21 @@ void Tree::pack(QJsonObject &data)
     }
 
     data["c:format"_L1] = "CollettProjectStructure:1.0";
+    data["c:meta"_L1] = JsonUtils::packMeta(m_createdTime);
     data["x:groups"_L1] = groups;
 }
 
 /**! @brief Read the project structure from a JSON object.
  *
  * Groups are sorted by their order values. Their documents are added from
- * the group files afterwards, with addNode. A group without a valid file
- * name, or with the same file as a group before it, gets a new one.
+ * the content files afterwards, with addNode. A group without a valid
+ * content name, or with the same one as a group before it, gets a new one.
  */
 void Tree::unpack(const QJsonObject &data)
 {
     qDebug() << "Unpacking project tree";
     this->clear();
+    m_createdTime = JsonUtils::unpackCreated(data, "Unknown");
 
     QList<QPair<int, Group *>> ordered;
     const QJsonArray groups = data["x:groups"_L1].toArray();
@@ -92,22 +97,22 @@ void Tree::unpack(const QJsonObject &data)
     std::stable_sort(ordered.begin(), ordered.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
 
     // What was read matches what is on disk, unless a group had to be added
-    // or given a file name
+    // or given a content name
     m_modified = false;
-    QSet<QString> fileNames;
+    QSet<QString> contentNames;
     for (const auto &entry : ordered) {
         Group *group = entry.second;
-        const QString fileName = group->fileName();
-        if (fileNames.contains(fileName)) {
-            qWarning() << "Duplicate project group file" << fileName;
-            group->setFileName(QString());
-        } else if (!fileName.isEmpty()) {
-            fileNames.insert(fileName);
+        const QString name = group->contentName();
+        if (contentNames.contains(name)) {
+            qWarning() << "Duplicate project group content" << name;
+            group->setContentName(QString());
+        } else if (!name.isEmpty()) {
+            contentNames.insert(name);
         }
         m_groups.append(group);
     }
     for (Group *group : std::as_const(m_groups)) {
-        assignFileName(group);
+        assignContentName(group);
     }
     showNovelGroup();
 }
@@ -130,7 +135,7 @@ void Tree::showNovelGroup()
     if (!novel) {
         novel = new Group(Labels::className(ItemClass::NovelClass), ItemClass::NovelClass);
         m_groups.prepend(novel);
-        assignFileName(novel);
+        assignContentName(novel);
         m_modified = true;
     }
     m_model->setGroup(novel);
@@ -220,23 +225,23 @@ void Tree::clear()
     m_groups.clear();
 }
 
-/**! @brief Give a group without a file name the first free one, counting
- * from "document1.json".
+/**! @brief Give a group without a content name the first free one,
+ * counting from "document1".
  */
-void Tree::assignFileName(Group *group)
+void Tree::assignContentName(Group *group)
 {
-    if (!group->fileName().isEmpty()) {
+    if (!group->contentName().isEmpty()) {
         return;
     }
     QSet<QString> used;
     for (const Group *other : std::as_const(m_groups)) {
-        used.insert(other->fileName());
+        used.insert(other->contentName());
     }
     int number = 1;
-    while (used.contains(u"document%1.json"_s.arg(number))) {
+    while (used.contains(u"document%1"_s.arg(number))) {
         ++number;
     }
-    group->setFileName(u"document%1.json"_s.arg(number));
+    group->setContentName(u"document%1"_s.arg(number));
     m_modified = true;
 }
 

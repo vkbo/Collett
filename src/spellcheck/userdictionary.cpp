@@ -19,8 +19,10 @@
 ** along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "tools.h"
 #include "userdictionary.h"
 
+#include <QDateTime>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
@@ -34,7 +36,10 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-UserDictionary::UserDictionary(Storage *store) : m_store(store) {}
+UserDictionary::UserDictionary(Storage *store) : m_store(store)
+{
+    m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
+}
 
 // Public Methods
 // ==============
@@ -121,6 +126,7 @@ bool UserDictionary::load()
         qWarning() << "Failed to load user dictionary";
         return false;
     }
+    m_createdTime = JsonUtils::unpackCreated(data, QDateTime::currentDateTime().toString(Qt::ISODate));
     const QJsonArray words = data.value("c:words"_L1).toArray();
     for (const QJsonValue &value : words) {
         this->add(value.toString());
@@ -138,6 +144,7 @@ bool UserDictionary::save() const
     }
     QJsonObject data;
     data["c:format"_L1] = "CollettUserDictionary:1.0";
+    data["c:meta"_L1] = JsonUtils::packMeta(m_createdTime);
     data["c:words"_L1] = QJsonArray::fromStringList(this->entries());
     if (!m_store->writeDictionary(data)) {
         qWarning() << "Failed to save user dictionary";

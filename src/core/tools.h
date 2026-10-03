@@ -38,6 +38,8 @@ public:
     static JsonUtilsError readJson(const QString &filePath, QJsonObject &fileData, bool required);
     static JsonUtilsError writeJson(const QString &filePath, const QJsonObject &fileData, bool compact, int nmax = 0);
     static QByteArray jsonEncode(const QJsonObject &data, int nmax = 0);
+    static QJsonObject packMeta(const QString &created);
+    static QString unpackCreated(const QJsonObject &data, const QString &def);
 };
 
 class FontUtils

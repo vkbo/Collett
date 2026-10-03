@@ -62,6 +62,7 @@ public:
 
 private:
     Storage *m_store = nullptr;
+    QString m_createdTime;
     QSet<QString> m_words;
     QStringList m_stems;
 };

@@ -23,6 +23,7 @@
 #include "project.h"
 #include "settings.h"
 #include "storage.h"
+#include "tools.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -533,7 +534,7 @@ void Project::countDocuments()
 // ===============
 
 /**! @brief Read the documents of a group, with their text, from the
- * group's file.
+ * group's content file.
  *
  * Entries that are not valid nodes are skipped, as are those with a handle
  * that is already in use. Returns false if the file could not be read.
@@ -541,9 +542,10 @@ void Project::countDocuments()
 bool Project::loadGroup(Group *group)
 {
     QJsonObject jGroup;
-    if (!m_store->readDocument(group->fileName(), jGroup)) {
+    if (!m_store->readContent(group->contentName(), jGroup)) {
         return false;
     }
+    group->setCreatedTime(JsonUtils::unpackCreated(jGroup, group->createdTime()));
 
     for (const QJsonValue &value : jGroup["x:items"_L1].toArray()) {
         const QJsonObject item = value.toObject();
@@ -562,7 +564,8 @@ bool Project::loadGroup(Group *group)
     return true;
 }
 
-/**! @brief Write a group's documents, with their text, to the group's file.
+/**! @brief Write a group's documents, with their text, to the group's
+ * content file.
  *
  * The file is only written if the group or the text of one of its
  * documents has changed since it was read or last saved.
@@ -590,8 +593,9 @@ bool Project::saveGroup(Group *group)
 
     QJsonObject jGroup;
     jGroup["c:format"_L1] = "CollettDocument:1.0";
+    jGroup["c:meta"_L1] = JsonUtils::packMeta(group->createdTime());
     jGroup["x:items"_L1] = items;
-    if (!m_store->writeDocument(group->fileName(), jGroup)) {
+    if (!m_store->writeContent(group->contentName(), jGroup)) {
         m_lastError = m_store->lastError();
         return false;
     }

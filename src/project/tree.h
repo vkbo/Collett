@@ -68,12 +68,13 @@ public:
 private:
     // The list of groups has not been saved yet, so it starts out modified
     bool m_modified = true;
+    QString m_createdTime;
 
     ProjectModel *m_model;
     QList<Group *> m_groups;
     QHash<QString, Node *> m_nodes;
 
     void clear();
-    void assignFileName(Group *group);
+    void assignContentName(Group *group);
 };
 } // namespace Collett

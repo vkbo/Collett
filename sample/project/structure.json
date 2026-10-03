@@ -1,55 +1,16 @@
 {
   "c:format": "CollettProjectStructure:1.0",
+  "c:meta": {
+    "m:created": "2026-10-03T20:16:43",
+    "m:updated": "2026-10-03T20:18:13",
+    "m:version": "0.0.1-alpha1"
+  },
   "x:groups": [
     {
       "m:class": "Novel",
+      "m:content": "document1",
       "m:order": 0,
-      "u:name": "Novel",
-      "x:items": [
-        {
-          "m:characters": 14,
-          "m:handle": "6003707832f9f",
-          "m:level": "Page",
-          "m:order": 0,
-          "m:words": 2,
-          "u:title": ""
-        },
-        {
-          "m:characters": 20,
-          "m:expanded": true,
-          "m:handle": "e72a5d3206939",
-          "m:level": "Chapter",
-          "m:numbered": false,
-          "m:order": 1,
-          "m:words": 4,
-          "u:title": "Prologue"
-        },
-        {
-          "m:characters": 206,
-          "m:expanded": true,
-          "m:handle": "61c57d0051114",
-          "m:level": "Chapter",
-          "m:order": 2,
-          "m:words": 36,
-          "u:title": "Lorem Ipsum"
-        },
-        {
-          "m:characters": 633,
-          "m:handle": "dd854b66d5a81",
-          "m:level": "Scene",
-          "m:order": 3,
-          "m:words": 99,
-          "u:title": "What is Lorem Ipsum?"
-        },
-        {
-          "m:characters": 1053,
-          "m:handle": "1c2847605dac2",
-          "m:level": "Scene",
-          "m:order": 4,
-          "m:words": 175,
-          "u:title": "Where does it come from?"
-        }
-      ]
+      "u:name": "Novel"
     }
   ]
 }

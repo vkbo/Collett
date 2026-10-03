@@ -22,6 +22,7 @@
 #include "tools.h"
 
 #include <QByteArray>
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -30,6 +31,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+
+using namespace Qt::Literals::StringLiterals;
 
 namespace Collett {
 
@@ -116,6 +119,26 @@ JsonUtilsError JsonUtils::writeJson(const QString &filePath, const QJsonObject &
     file.close();
     qDebug() << "Wrote:" << filePath;
     return JsonUtilsError::NoError;
+}
+
+/**! @brief The meta block of a file: the version that wrote it, when it
+ * was created, and when it was written, which is now.
+ */
+QJsonObject JsonUtils::packMeta(const QString &created)
+{
+    QJsonObject meta;
+    meta["m:version"_L1] = QString(COL_VERSION_STR);
+    meta["m:created"_L1] = created;
+    meta["m:updated"_L1] = QDateTime::currentDateTime().toString(Qt::ISODate);
+    return meta;
+}
+
+/**! @brief The created time from the meta block of a file, or def if there
+ * is none.
+ */
+QString JsonUtils::unpackCreated(const QJsonObject &data, const QString &def)
+{
+    return getJsonString(data.value("c:meta"_L1).toObject(), "m:created"_L1, def);
 }
 
 /**! @brief Encode a JSON object with two-space indentation up to level nmax.

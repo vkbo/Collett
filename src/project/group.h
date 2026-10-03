@@ -34,8 +34,8 @@ namespace Collett {
 /**! @brief A top level group of project documents, like the novel.
  *
  * The group owns its documents, which are kept in reading order. The
- * documents and their text are stored together in one file, which is named
- * in the project structure.
+ * documents and their text are stored together in one content file, which
+ * is named in the project structure.
  */
 class Group
 {
@@ -51,7 +51,8 @@ public:
 
     // Getters
     QString name() const { return m_name; };
-    QString fileName() const { return m_fileName; };
+    QString contentName() const { return m_contentName; };
+    QString createdTime() const { return m_createdTime; };
     ItemClass itemClass() const { return m_class; };
     bool isModified() const { return m_modified; };
     const QList<Node *> &items() const { return m_items; };
@@ -60,7 +61,8 @@ public:
 
     // Setters
     void setName(const QString &name) { m_name = name.simplified(); };
-    void setFileName(const QString &fileName) { m_fileName = fileName; };
+    void setContentName(const QString &name) { m_contentName = name; };
+    void setCreatedTime(const QString &time) { m_createdTime = time; };
     void setModified(bool state) { m_modified = state; };
 
     // Edit
@@ -71,11 +73,12 @@ public:
     // Static Methods
     static bool classFromString(const QString &value, ItemClass &itemClass);
     static QString classToString(ItemClass itemClass);
-    static bool isFileName(const QString &value);
+    static bool isContentName(const QString &value);
 
 private:
     QString m_name;
-    QString m_fileName;
+    QString m_contentName;
+    QString m_createdTime;
     ItemClass m_class;
 
     // A new group has not been saved yet, so it starts out modified

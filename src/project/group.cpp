@@ -22,6 +22,7 @@
 #include "group.h"
 #include "tools.h"
 
+#include <QDateTime>
 #include <QJsonObject>
 #include <QPair>
 #include <QRegularExpression>
@@ -34,7 +35,10 @@ namespace Collett {
 // Constructor/Destructor
 // ======================
 
-Group::Group(const QString &name, ItemClass itemClass) : m_name(name), m_class(itemClass) {}
+Group::Group(const QString &name, ItemClass itemClass) : m_name(name), m_class(itemClass)
+{
+    m_createdTime = QDateTime::currentDateTime().toString(Qt::ISODate);
+}
 
 Group::~Group()
 {
@@ -46,21 +50,22 @@ Group::~Group()
 
 /**! @brief Write the group's entry in the project structure.
  *
- * The documents are not included, as they are stored in the group's file.
+ * The documents are not included, as they are stored in the group's content
+ * file.
  */
 void Group::pack(QJsonObject &data, int order) const
 {
     data["m:class"_L1] = classToString(m_class);
     data["m:order"_L1] = order;
-    data["m:file"_L1] = m_fileName;
+    data["m:content"_L1] = m_contentName;
     data["u:name"_L1] = m_name;
 }
 
 /**! @brief Create a group from its entry in the project structure.
  *
- * The documents are added when the group's file is read. A group with an
- * invalid class is skipped, and nullptr is returned. A file name that is not
- * valid is left empty, so a new one can be given to the group.
+ * The documents are added when the group's content file is read. A group
+ * with an invalid class is skipped, and nullptr is returned. A content name
+ * that is not valid is left empty, so a new one can be given to the group.
  */
 Group *Group::unpack(const QJsonObject &data)
 {
@@ -75,10 +80,10 @@ Group *Group::unpack(const QJsonObject &data)
         name = tr("Unnamed");
     }
 
-    const QString fileName = JsonUtils::getJsonString(data, "m:file"_L1, "");
+    const QString contentName = JsonUtils::getJsonString(data, "m:content"_L1, "");
 
     Group *group = new Group(name, itemClass);
-    group->setFileName(isFileName(fileName) ? fileName : QString());
+    group->setContentName(isContentName(contentName) ? contentName : QString());
     group->setModified(false);
     return group;
 }
@@ -124,12 +129,12 @@ QString Group::classToString(ItemClass itemClass)
     return "Novel"_L1;
 }
 
-/**! @brief Check if a string is a valid group file name, like
- * "document1.json".
+/**! @brief Check if a string is a valid content name, like "document1".
+ * The content file is the name with ".json" added.
  */
-bool Group::isFileName(const QString &value)
+bool Group::isContentName(const QString &value)
 {
-    static const QRegularExpression pattern(u"^document[1-9][0-9]*\\.json$"_s);
+    static const QRegularExpression pattern(u"^document[1-9][0-9]*$"_s);
     return pattern.match(value).hasMatch();
 }
 

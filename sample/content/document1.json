@@ -1,0 +1,75 @@
+{
+  "c:format": "CollettDocument:1.0",
+  "c:meta": {
+    "m:created": "2026-10-03T20:16:43",
+    "m:updated": "2026-10-03T20:18:21",
+    "m:version": "0.0.1-alpha1"
+  },
+  "x:items": [
+    {
+      "m:characters": 14,
+      "m:created": "2026-10-03T20:16:43",
+      "m:handle": "6003707832f9f",
+      "m:level": "Page",
+      "m:updated": "2026-10-03T20:17:13",
+      "m:words": 2,
+      "u:title": "",
+      "x:content": [
+        {"u:fmt": "h1:ac", "u:txt": "t|Sample Project"}
+      ]
+    },
+    {
+      "m:characters": 20,
+      "m:created": "2026-10-03T20:16:53",
+      "m:expanded": true,
+      "m:handle": "e72a5d3206939",
+      "m:level": "Chapter",
+      "m:numbered": false,
+      "m:updated": "2026-10-03T20:17:13",
+      "m:words": 4,
+      "u:title": "Prologue",
+      "x:content": [
+        {"u:fmt": "p:al", "u:txt": "t|In the beginning ..."}
+      ]
+    },
+    {
+      "m:characters": 206,
+      "m:created": "2026-10-03T20:17:12",
+      "m:expanded": true,
+      "m:handle": "61c57d0051114",
+      "m:level": "Chapter",
+      "m:updated": "2026-10-03T20:17:43",
+      "m:words": 36,
+      "u:title": "Lorem Ipsum",
+      "x:content": [
+        {"u:fmt": "p:ac", "u:txt": "t|\"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...\""},
+        {"u:fmt": "p:ac", "u:txt": "t|\"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...\""}
+      ]
+    },
+    {
+      "m:characters": 633,
+      "m:created": "2026-10-03T20:17:33",
+      "m:handle": "dd854b66d5a81",
+      "m:level": "Scene",
+      "m:updated": "2026-10-03T20:18:13",
+      "m:words": 99,
+      "u:title": "What is Lorem Ipsum?",
+      "x:content": [
+        {"u:fmt": "p:al", "x:txt": ["t:b|Lorem Ipsum", "t| is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library in London, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets. It has survived not only many decades, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised thanks to these sheets and more recently with desktop publishing software like Aldus PageMaker and Microsoft Word including versions of Lorem Ipsum."]}
+      ]
+    },
+    {
+      "m:characters": 1053,
+      "m:created": "2026-10-03T20:17:52",
+      "m:handle": "1c2847605dac2",
+      "m:level": "Scene",
+      "m:updated": "2026-10-03T20:18:21",
+      "m:words": 175,
+      "u:title": "Where does it come from?",
+      "x:content": [
+        {"u:fmt": "p:al", "u:txt": "t|Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32."},
+        {"u:fmt": "p:al:ti", "u:txt": "t|The standard chunk of Lorem Ipsum used since 1966 is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from \"de Finibus Bonorum et Malorum\" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham."}
+      ]
+    }
+  ]
+}

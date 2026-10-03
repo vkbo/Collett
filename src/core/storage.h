@@ -42,8 +42,8 @@ public:
     bool writeProject(const QJsonObject &fileData);
     bool readStructure(QJsonObject &fileData);
     bool writeStructure(const QJsonObject &fileData);
-    bool readDocument(const QString &fileName, QJsonObject &fileData);
-    bool writeDocument(const QString &fileName, const QJsonObject &fileData);
+    bool readContent(const QString &name, QJsonObject &fileData);
+    bool writeContent(const QString &name, const QJsonObject &fileData);
     bool readDictionary(QJsonObject &fileData);
     bool writeDictionary(const QJsonObject &fileData);
 

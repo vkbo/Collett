@@ -43,7 +43,7 @@ private slots:
     void fileLayout();
     void reopen();
     void saveChangedOnly();
-    void groupFileNames();
+    void groupContentNames();
     void duplicateHandles();
 
 private:
@@ -85,9 +85,9 @@ QString TestProject::addScene(Project &project, const QString &title, const QStr
     return added;
 }
 
-/**! @brief The structure file lists the groups and their files, and the
- * group file holds the documents with their text. There is no file per
- * document.
+/**! @brief The structure file lists the groups and their content names,
+ * and the content file holds the documents with their text. There is no
+ * file per document. Every file has a meta block.
  */
 void TestProject::fileLayout()
 {
@@ -98,16 +98,24 @@ void TestProject::fileLayout()
     QVERIFY(project.saveProject());
 
     const QString root = dir.filePath("Novel");
+    for (const QString &file : {"project/project.json", "project/structure.json", "content/document1.json"}) {
+        const QJsonObject meta = readJson(root + "/" + file).value("c:meta").toObject();
+        QCOMPARE(meta.value("m:version").toString(), QStringLiteral(COL_VERSION_STR));
+        QVERIFY(!meta.value("m:created").toString().isEmpty());
+        QVERIFY(!meta.value("m:updated").toString().isEmpty());
+    }
+
     const QJsonArray groups = readJson(root + "/project/structure.json").value("x:groups").toArray();
     QCOMPARE(groups.size(), 1);
     const QJsonObject group = groups.at(0).toObject();
     QCOMPARE(group.value("m:class").toString(), QStringLiteral("Novel"));
-    QCOMPARE(group.value("m:file").toString(), QStringLiteral("document1.json"));
+    QCOMPARE(group.value("m:content").toString(), QStringLiteral("document1"));
     QVERIFY(!group.contains("x:items"));
 
     QCOMPARE(QDir(root + "/content").entryList(QDir::Files), QStringList({"document1.json"}));
     const QJsonObject content = readJson(root + "/content/document1.json");
     QCOMPARE(content.value("c:format").toString(), QStringLiteral("CollettDocument:1.0"));
+    QVERIFY(!content.value("c:meta").toObject().value("m:created").toString().isEmpty());
     const QJsonArray items = content.value("x:items").toArray();
     QCOMPARE(items.size(), 2);
 
@@ -126,7 +134,8 @@ void TestProject::fileLayout()
 }
 
 /**! @brief A saved project opens with the same documents, in the same
- * order, with the same text, and nothing is modified.
+ * order, with the same text, and nothing is modified. The files keep their
+ * created times when they are written again.
  */
 void TestProject::reopen()
 {
@@ -140,6 +149,17 @@ void TestProject::reopen()
         for (int i = 0; i < project.model()->rowCount(); ++i)
             handles.append(project.model()->data(project.model()->index(i), ProjectModel::HandleRole).toString());
         QVERIFY(project.closeProject());
+    }
+
+    // Give the files an older created time
+    const QString created = QStringLiteral("2020-01-01T00:00:00");
+    const QStringList files = {"project/structure.json", "content/document1.json"};
+    for (const QString &file : files) {
+        QJsonObject data = readJson(dir.filePath("Novel/" + file));
+        QJsonObject meta = data.value("c:meta").toObject();
+        meta["m:created"] = created;
+        data["c:meta"] = meta;
+        writeJson(dir.filePath("Novel/" + file), data);
     }
 
     Project project;
@@ -156,10 +176,15 @@ void TestProject::reopen()
     QVERIFY(!project.tree()->groups().at(0)->isModified());
     for (const QString &handle : std::as_const(handles))
         QVERIFY(!project.openDocument(handle)->isModified());
+
+    // Writing everything again keeps the created times
+    QVERIFY(project.saveProjectAs(dir.filePath("Novel/CollettProject.collett")));
+    for (const QString &file : files)
+        QCOMPARE(readJson(dir.filePath("Novel/" + file)).value("c:meta").toObject().value("m:created").toString(), created);
 }
 
-/**! @brief A group file is only written when the group or the text of one
- * of its documents has changed.
+/**! @brief A content file is only written when the group or the text of
+ * one of its documents has changed.
  */
 void TestProject::saveChangedOnly()
 {
@@ -186,31 +211,31 @@ void TestProject::saveChangedOnly()
     QCOMPARE(readJson(file).value("x:items").toArray().at(1).toObject().value("u:title").toString(), QStringLiteral("Renamed"));
 }
 
-/**! @brief Groups without a valid file name, or with one already taken,
+/**! @brief Groups without a valid content name, or with one already taken,
  * get the first free one, and the structure is then modified.
  */
-void TestProject::groupFileNames()
+void TestProject::groupContentNames()
 {
-    auto group = [](const QString &cls, const QString &file) {
-        return QJsonObject({{"m:class", cls}, {"u:name", cls}, {"m:file", file}});
+    auto group = [](const QString &cls, const QString &content) {
+        return QJsonObject({{"m:class", cls}, {"u:name", cls}, {"m:content", content}});
     };
 
     Tree tree;
-    tree.unpack({{"x:groups", QJsonArray({group("Novel", "document2.json"), group("Plot", "document2.json"), group("Character", "../other.json"), group("Location", "document1.json")})}});
+    tree.unpack({{"x:groups", QJsonArray({group("Novel", "document2"), group("Plot", "document2"), group("Character", "../other"), group("Location", "document1"), group("Object", "document5.json")})}});
     QStringList names;
     for (const Group *g : tree.groups())
-        names.append(g->fileName());
-    QCOMPARE(names, QStringList({"document2.json", "document3.json", "document4.json", "document1.json"}));
+        names.append(g->contentName());
+    QCOMPARE(names, QStringList({"document2", "document3", "document4", "document1", "document5"}));
     QVERIFY(tree.isModified());
 
-    tree.unpack({{"x:groups", QJsonArray({group("Novel", "document1.json")})}});
+    tree.unpack({{"x:groups", QJsonArray({group("Novel", "document1")})}});
     QVERIFY(!tree.isModified());
 
-    // A project without a novel group gets one, with a free file name
-    tree.unpack({{"x:groups", QJsonArray({group("Plot", "document1.json")})}});
+    // A project without a novel group gets one, with a free content name
+    tree.unpack({{"x:groups", QJsonArray({group("Plot", "document1")})}});
     QCOMPARE(tree.groups().size(), 2);
     QCOMPARE(tree.groups().at(0)->itemClass(), ItemClass::NovelClass);
-    QCOMPARE(tree.groups().at(0)->fileName(), QStringLiteral("document2.json"));
+    QCOMPARE(tree.groups().at(0)->contentName(), QStringLiteral("document2"));
     QVERIFY(tree.isModified());
 }
 
