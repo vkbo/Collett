@@ -23,7 +23,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Controls.Material
 import QtQuick.Layouts
 
 import Collett
@@ -40,9 +39,16 @@ ToolBar {
 
     readonly property bool ready: active && binder !== null
 
-    Material.background: palette.base
+    background: Rectangle {
+        implicitHeight: 40
+        color: root.palette.base
+    }
 
     component FormatButton: ToolButton {
+        implicitWidth: 36
+        implicitHeight: 36
+        icon.width: 20
+        icon.height: 20
         focusPolicy: Qt.NoFocus
         display: AbstractButton.IconOnly
         ToolTip.text: action ? action.text : ""
