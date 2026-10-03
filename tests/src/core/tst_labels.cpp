@@ -34,6 +34,7 @@ private slots:
     void names();
     void wordCountPlurals();
     void levelNumbers();
+    void itemNames();
 };
 
 void TestLabels::names()
@@ -66,6 +67,15 @@ void TestLabels::levelNumbers()
     QCOMPARE(Labels::levelNumber(ItemLevel::SceneLevel, false, 2, 0), QStringLiteral("2"));
     QCOMPARE(Labels::levelNumber(ItemLevel::PartitionLevel, true, 1, 0), QString());
     QCOMPARE(Labels::levelNumber(ItemLevel::PageLevel, true, 1, 0), QString());
+}
+
+/**! @brief A document is named by its title, or its type, after its number.
+ */
+void TestLabels::itemNames()
+{
+    QCOMPARE(Labels::itemName("Arrival", ItemLevel::ChapterLevel, true, 3, 0), QStringLiteral("3 Arrival"));
+    QCOMPARE(Labels::itemName("", ItemLevel::SceneLevel, false, 2, 3), QStringLiteral("3.2 Scene"));
+    QCOMPARE(Labels::itemName("", ItemLevel::PageLevel, false, 1, 0), QStringLiteral("Page"));
 }
 
 QTEST_GUILESS_MAIN(TestLabels)

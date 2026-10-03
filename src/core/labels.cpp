@@ -122,6 +122,16 @@ QString Labels::levelNumber(int level, bool numbered, int number, int chapterNum
     }
 }
 
+/**! @brief The name of a document: its title, or its type if it has none,
+ * after its number if it has one.
+ */
+QString Labels::itemName(const QString &title, int level, bool numbered, int number, int chapterNumber)
+{
+    const QString name = title.isEmpty() ? levelName(level) : title;
+    const QString prefix = levelNumber(level, numbered, number, chapterNumber);
+    return prefix.isEmpty() ? name : u"%1 %2"_s.arg(prefix, name);
+}
+
 /**! @brief A word count, like "1,234 words", in the plural form of the
  * language.
  */

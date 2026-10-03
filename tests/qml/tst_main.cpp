@@ -49,6 +49,7 @@ private slots:
     void openErrors();
     void interfaceFont();
     void windowSize();
+    void deleteFromSideBar();
 
 private:
     QmlFixture *f = nullptr;
@@ -408,6 +409,59 @@ void TestMain::windowSize()
     QCOMPARE(settings->mainWindowSize(), QSize(1200, 800));
     QCOMPARE(settings->mainWindowMaximized(), true);
     QGuiApplication::setQuitOnLastWindowClosed(true);
+}
+
+/**! @brief The sidebar menu deletes a document after asking, and the
+ * cursor moves from it to the end of the document before. Saying no keeps
+ * it, and the last document cannot be deleted.
+ */
+void TestMain::deleteFromSideBar()
+{
+    build();
+    const QString scene = f->handle(4);
+    const QString file = f->project.store()->projectPath() + "/content/" + scene + ".json";
+    QMetaObject::invokeMethod(f->scene(4), "enterAt", Q_ARG(int, 0));
+    QTRY_COMPARE(f->focusHandle(), scene);
+    f->project.saveProject();
+    QVERIFY(QFileInfo::exists(file));
+
+    QObject *dialog = f->window->findChild<QObject *>("deleteDialog");
+    QVERIFY(dialog);
+    auto openMenu = [this](int row) -> QQuickItem * {
+        QTest::mouseClick(f->window, Qt::RightButton, Qt::NoModifier, itemPoint(row, 0.5));
+        QQuickItem *item = f->listItem(row)->findChild<QQuickItem *>("deleteItem");
+        QTest::qWaitFor([item]() { return item && item->isVisible(); });
+        return item;
+    };
+
+    // No keeps it
+    QQuickItem *item = openMenu(4);
+    QVERIFY(item && item->isVisible());
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(item));
+    QTRY_VERIFY(dialog->property("opened").toBool());
+    QCOMPARE(dialog->property("name").toString(), QStringLiteral("2.1 Scene"));
+    QMetaObject::invokeMethod(dialog, "reject");
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    QCOMPARE(f->rows(), 6);
+
+    // Yes deletes it
+    item = openMenu(4);
+    QVERIFY(item && item->isVisible());
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(item));
+    QTRY_VERIFY(dialog->property("opened").toBool());
+    QMetaObject::invokeMethod(dialog, "accept");
+    QTRY_COMPARE(f->rows(), 5);
+    QCOMPARE(f->model()->rowOf(scene), -1);
+    QVERIFY(!QFileInfo::exists(file));
+    QTRY_COMPARE(f->focusHandle(), f->handle(3));
+    QCOMPARE(f->focusPart(), QStringLiteral("text"));
+
+    // Not the last one
+    while (f->rows() > 1)
+        f->project.deleteDocument(f->handle(f->rows() - 1));
+    item = openMenu(0);
+    QVERIFY(item && item->isVisible());
+    QVERIFY(!item->isEnabled());
 }
 
 QTEST_MAIN(TestMain)

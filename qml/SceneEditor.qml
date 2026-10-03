@@ -63,6 +63,7 @@ FocusScope {
     signal cursorMoved(rect rect)
     signal splitRequested(int position)
     signal upgradeRequested()
+    signal deleteRequested(string handle, string name)
 
     implicitHeight: bodyBox.y + bodyBox.height
 
@@ -215,6 +216,8 @@ FocusScope {
     Text {
         id: typeLabel
 
+        objectName: "typeLabel"
+
         x: root.textX
         y: divider.height
         text: Labels.levelName(root.level)
@@ -245,6 +248,8 @@ FocusScope {
 
     Menu {
         id: typeMenu
+
+        objectName: "typeMenu"
 
         MenuItem {
             text: Labels.levelName(Collett.PartitionLevel)
@@ -284,6 +289,13 @@ FocusScope {
             checked: root.hardBreak
             enabled: root.level === Collett.SceneLevel
             onTriggered: root.project.model.setHardBreak(root.index, !root.hardBreak)
+        }
+        MenuSeparator {}
+        MenuItem {
+            objectName: "deleteDocumentItem"
+            text: qsTr("Delete Document…")
+            enabled: root.view ? root.view.count > 1 : false
+            onTriggered: root.deleteRequested(root.handle, Labels.itemName(root.title, root.level, root.numbered, root.number, root.chapterNumber))
         }
     }
 

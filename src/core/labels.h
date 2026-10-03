@@ -58,6 +58,7 @@ public:
     Q_INVOKABLE static QString statName(Stat stat);
     Q_INVOKABLE static QString wordCount(int words);
     Q_INVOKABLE static QString levelNumber(int level, bool numbered, int number, int chapterNumber);
+    Q_INVOKABLE static QString itemName(const QString &title, int level, bool numbered, int number, int chapterNumber);
 };
 
 } // namespace Collett

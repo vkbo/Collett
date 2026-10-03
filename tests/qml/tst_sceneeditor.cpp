@@ -46,6 +46,7 @@ private slots:
     void autoIndent();
     void multiSpaces();
     void typingWord();
+    void deleteFromTypeMenu();
 
 private:
     QmlFixture *f = nullptr;
@@ -426,6 +427,28 @@ void TestSceneEditor::typingWord()
     f->type("l");
     QTRY_COMPARE(f->text(4), QStringLiteral("Epsilon. hello "));
     QVERIFY(!marked().contains("hello"));
+}
+
+/**! @brief The type menu deletes the document after asking.
+ */
+void TestSceneEditor::deleteFromTypeMenu()
+{
+    const QString scene = f->handle(4);
+    QQuickItem *label = f->scene(4)->findChild<QQuickItem *>("typeLabel");
+    QObject *menu = f->scene(4)->findChild<QObject *>("typeMenu");
+    QVERIFY(label && menu);
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(label));
+    QTRY_VERIFY(menu->property("opened").toBool());
+
+    QQuickItem *item = menuItem(menu, "Delete Document…");
+    QVERIFY(item && item->isEnabled());
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(item));
+    QObject *dialog = f->window->findChild<QObject *>("deleteDialog");
+    QTRY_VERIFY(dialog->property("opened").toBool());
+    QCOMPARE(dialog->property("name").toString(), QStringLiteral("2.1 Scene"));
+    QMetaObject::invokeMethod(dialog, "accept");
+    QTRY_COMPARE(f->rows(), 5);
+    QCOMPARE(f->model()->rowOf(scene), -1);
 }
 
 QTEST_MAIN(TestSceneEditor)

@@ -157,6 +157,55 @@ ApplicationWindow {
         onAccepted: window.openProject(selectedFile.toString())
     }
 
+    // Deleting a document removes its file, so it is confirmed first. If the
+    // cursor was in it, it moves to the end of the document before.
+    function confirmDelete(handle: string, name: string) {
+        deleteDialog.handle = handle;
+        deleteDialog.name = name;
+        deleteDialog.open();
+    }
+
+    function deleteDocument(handle: string) {
+        const row = project.model.rowOf(handle);
+        const hadCursor = handle === focusHandle;
+        if (row < 0 || !project.deleteDocument(handle)) return;
+        if (!hadCursor) return;
+        Qt.callLater(() => {
+            const target = Math.max(row - 1, 0);
+            editorView.forceLayout();
+            if (!editorView.itemAtIndex(target)) editorView.positionViewAtIndex(target, ListView.Contain);
+            const scene = editorView.itemAtIndex(target) as SceneEditor;
+            if (!scene) return;
+            if (row > 0) {
+                scene.enterAtEnd();
+            } else {
+                scene.enterStart();
+            }
+        });
+    }
+
+    Dialog {
+        id: deleteDialog
+
+        property string handle: ""
+        property string name: ""
+
+        objectName: "deleteDialog"
+
+        anchors.centerIn: parent
+        width: Math.min(window.width - 64, 480)
+        modal: true
+        title: qsTr("Delete Document")
+        standardButtons: Dialog.Yes | Dialog.No
+        onAccepted: window.deleteDocument(handle)
+
+        Label {
+            width: parent.width
+            text: qsTr("Delete \"%1\" and its text? This cannot be undone.").arg(deleteDialog.name)
+            wrapMode: Text.Wrap
+        }
+    }
+
     Dialog {
         id: errorDialog
 
@@ -387,7 +436,9 @@ ApplicationWindow {
                     selected: projectItem.handle === window.focusHandle
                     dragged: projectList.dragRow === index
                     dropGap: projectList.dropRow === index ? projectList.dropGap : 0
+                    deletable: projectList.count > 1
                     onOpenRequested: handle => editorView.showScene(handle)
+                    onDeleteRequested: (handle, name) => window.confirmDelete(handle, name)
                     onFoldRequested: index => window.project.model.toggleExpanded(index)
                     onDragStarted: projectList.startDrag(projectItem)
                     onDragMoved: scenePosition => projectList.moveDrag(scenePosition)
@@ -596,6 +647,7 @@ ApplicationWindow {
 
                     onSplitRequested: position => window.splitDocument(sceneEditor.handle, position)
                     onUpgradeRequested: window.upgradeDocument(sceneEditor.handle)
+                    onDeleteRequested: (handle, name) => window.confirmDelete(handle, name)
 
                     onSceneFocused: handle => {
                         if (handle !== window.splitHandle) window.splitHandle = "";

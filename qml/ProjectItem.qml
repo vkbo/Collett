@@ -49,7 +49,13 @@ Item {
     property bool dragged: false
     property real dropGap: 0
 
+    // Deleting the last document of a project is not allowed
+    property bool deletable: true
+
+    readonly property string name: Labels.itemName(title, level, numbered, number, chapterNumber)
+
     signal openRequested(string handle)
+    signal deleteRequested(string handle, string name)
     signal foldRequested(int index)
     signal dragStarted(int index)
     signal dragMoved(point scenePosition)
@@ -97,6 +103,25 @@ Item {
         highlighted: root.selected
         onClicked: root.openRequested(root.handle)
 
+        // A right click opens the menu of actions on the document
+        TapHandler {
+            acceptedButtons: Qt.RightButton
+            onTapped: eventPoint => itemMenu.popup(entry, eventPoint.position)
+        }
+
+        Menu {
+            id: itemMenu
+
+            objectName: "itemMenu"
+
+            MenuItem {
+                objectName: "deleteItem"
+                text: qsTr("Delete Document…")
+                enabled: root.deletable
+                onTriggered: root.deleteRequested(root.handle, root.name)
+            }
+        }
+
         DragHandler {
             target: null
             xAxis.enabled: false
@@ -124,11 +149,7 @@ Item {
 
                 Label {
                     Layout.fillWidth: true
-                    text: {
-                        const name = root.title || Labels.levelName(root.level);
-                        const number = Labels.levelNumber(root.level, root.numbered, root.number, root.chapterNumber);
-                        return number ? number + " " + name : name;
-                    }
+                    text: root.name
                     elide: Text.ElideRight
                     font.weight: root.level === Collett.PartitionLevel || root.level === Collett.ChapterLevel ? Font.DemiBold : Font.Normal
                 }
