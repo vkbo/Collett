@@ -115,7 +115,8 @@ void TestPreferences::click(QQuickItem *item) const
     QTest::mouseClick(dialog, Qt::LeftButton, Qt::NoModifier, item->mapToScene(QPointF(item->width() / 2, item->height() / 2)).toPoint());
 }
 
-/**! @brief The button under the project list opens the dialog.
+/**! @brief The button under the project list opens the dialog, centred on
+ * the main window.
  */
 void TestPreferences::opensFromButton()
 {
@@ -123,6 +124,12 @@ void TestPreferences::opensFromButton()
     openDialog();
     QVERIFY(dialog->isVisible());
     QCOMPARE(dialog->title(), QStringLiteral("Preferences"));
+
+    // Centred on the main window
+    QCOMPARE(dialog->transientParent(), f->window);
+    const QPoint centre = f->window->geometry().center();
+    QVERIFY(qAbs(dialog->geometry().center().x() - centre.x()) <= 1);
+    QVERIFY(qAbs(dialog->geometry().center().y() - centre.y()) <= 1);
 }
 
 /**! @brief Clicking the side bar scrolls to a section, and scrolling the

@@ -35,6 +35,7 @@
 using namespace Qt::Literals::StringLiterals;
 
 #define CNF_GUI_LANGUAGE "Main/guiLanguage"_L1
+#define CNF_THEME_MODE "Main/themeMode"_L1
 #define CNF_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
 #define CNF_GUI_FONT "Fonts/guiFont"_L1
@@ -105,6 +106,7 @@ Settings::Settings(QObject *parent) : QObject(parent)
     // ------------
 
     m_guiLanguage = settings.value(CNF_GUI_LANGUAGE, QLocale::system().name()).toString();
+    m_themeMode = ThemeMode(qBound(0, settings.value(CNF_THEME_MODE, 0).toInt(), 2));
     m_prefsWindowSize = settings.value(CNF_PREFS_WINDOW_SIZE, QSize(900, 700)).toSize();
 
     // Editor Settings
@@ -156,6 +158,7 @@ void Settings::flushSettings()
     QSettings settings;
 
     settings.setValue(CNF_GUI_LANGUAGE, m_guiLanguage);
+    settings.setValue(CNF_THEME_MODE, int(m_themeMode));
     settings.setValue(CNF_PREFS_WINDOW_SIZE, m_prefsWindowSize);
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
 
@@ -214,6 +217,13 @@ void Settings::setGuiLanguage(const QString &language)
     if (language.trimmed() == m_guiLanguage) return;
     m_guiLanguage = language.trimmed();
     emit guiLanguageChanged();
+}
+
+void Settings::setThemeMode(const ThemeMode mode)
+{
+    if (mode == m_themeMode) return;
+    m_themeMode = mode;
+    emit themeModeChanged();
 }
 
 void Settings::setPrefsWindowSize(const QSize &size)

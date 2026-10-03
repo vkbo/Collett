@@ -22,20 +22,45 @@
 pragma Singleton
 
 import QtQuick
+import QtQuick.Controls.Material
 
 import Collett
 
 QtObject {
-    // Set by the main window from its palette
+    // Set by the main window from the theme Material resolved
     property bool dark: false
 
-    readonly property color partitionColor: dark ? "#99cc99" : "#718c00"
-    readonly property color chapterColor: dark ? "#f2777a" : "#f02829"
-    readonly property color sceneColor: dark ? "#6699cc" : "#4271ae"
-    readonly property color pageColor: dark ? "#949494" : "#6c6c6c"
+    // The Material theme for the theme mode setting
+    readonly property int materialTheme: {
+        switch (Settings.themeMode) {
+        case Settings.LightTheme:
+            return Material.Light;
+        case Settings.DarkTheme:
+            return Material.Dark;
+        default:
+            return Material.System;
+        }
+    }
+
+    /**! Switch to the next theme mode: follow the system, light, then dark.
+     */
+    function nextThemeMode() {
+        Settings.themeMode = (Settings.themeMode + 1) % 3;
+        Settings.flushSettings();
+    }
+
+    // Colours from the Material palette: a darker shade on light backgrounds,
+    // and a lighter one on dark backgrounds
+    readonly property int strongShade: dark ? Material.Shade300 : Material.Shade700
+    readonly property int greyShade: dark ? Material.Shade400 : Material.Shade600
+
+    readonly property color partitionColor: Material.color(Material.Green, strongShade)
+    readonly property color chapterColor: Material.color(Material.Red, strongShade)
+    readonly property color sceneColor: Material.color(Material.Blue, strongShade)
+    readonly property color pageColor: Material.color(Material.Grey, greyShade)
 
     // The line under misspelled words
-    readonly property color spellErrorColor: dark ? "#f2777a" : "#e0282a"
+    readonly property color spellErrorColor: Material.color(Material.Red, dark ? Material.Shade300 : Material.Shade600)
 
     function levelColor(level: int): color {
         switch (level) {

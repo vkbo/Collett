@@ -33,7 +33,6 @@
 #include <QGuiApplication>
 #include <QLibraryInfo>
 #include <QQmlApplicationEngine>
-#include <QQuickStyle>
 #include <QQuickWindow>
 #include <QTranslator>
 #include <QtQml/QQmlExtensionPlugin>
@@ -164,12 +163,6 @@ int main(int argc, char *argv[])
     QObject::connect(settings, &Collett::Settings::guiFontChanged, &app, [settings]() {
         QGuiApplication::setFont(settings->guiFont());
     });
-
-    // Material, following the system's light or dark mode, with the denser
-    // controls meant for desktop use
-    QQuickStyle::setStyle("Material");
-    if (!qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_MATERIAL_THEME")) qputenv("QT_QUICK_CONTROLS_MATERIAL_THEME", "System");
-    if (!qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_MATERIAL_VARIANT")) qputenv("QT_QUICK_CONTROLS_MATERIAL_VARIANT", "Dense");
 
     // Native text rendering matches the font hinting of the rest of the desktop
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);

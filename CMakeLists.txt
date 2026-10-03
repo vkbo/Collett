@@ -173,6 +173,14 @@ qt_add_qml_module(CollettCore
 )
 
 # Executable
+# The style settings for Qt Quick Controls, which Qt reads from the root of
+# the resources. They are in the core library, so the tests use them too.
+qt_add_resources(CollettCore "controls"
+    PREFIX "/"
+    BASE assets
+    FILES assets/qtquickcontrols2.conf
+)
+
 qt_add_executable(Collett src/main.cpp)
 target_link_libraries(Collett PRIVATE CollettCore CollettCoreplugin)
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")

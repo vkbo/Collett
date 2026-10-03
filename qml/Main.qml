@@ -23,6 +23,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Material
 import QtQuick.Layouts
 
 import Collett
@@ -39,6 +40,19 @@ ApplicationWindow {
     height: 900
     visible: true
     title: project.name ? project.name + " – Collett" : "Collett"
+    Material.theme: Theme.materialTheme
+    // Material colours its own controls, but leaves the palette alone. The
+    // palette is set from the Material colours, so the parts drawn here follow
+    // the theme too.
+    palette.window: Material.dialogColor
+    palette.windowText: Material.foreground
+    palette.base: Material.background
+    palette.text: Material.foreground
+    palette.button: Material.buttonColor
+    palette.buttonText: Material.foreground
+    palette.highlight: Material.textSelectionColor
+    palette.highlightedText: Material.foreground
+    palette.placeholderText: Material.hintTextColor
 
     // The view needs a layout pass before it can scroll to a document
     Component.onCompleted: {
@@ -108,7 +122,7 @@ ApplicationWindow {
     Binding {
         target: Theme
         property: "dark"
-        value: window.palette.window.hslLightness < 0.5
+        value: window.Material.theme === Material.Dark
     }
 
     RowLayout {
@@ -247,6 +261,27 @@ ApplicationWindow {
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 anchors.margins: 8
+
+                // The buttons sit at the right, with the settings at the edge
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                // Cycles between following the system, light and dark
+                ToolButton {
+                    objectName: "themeButton"
+
+                    readonly property list<string> icons: ["theme_auto", "theme_light", "theme_dark"]
+                    readonly property list<string> labels: [qsTr("Colour theme: Follow the system"), qsTr("Colour theme: Light"), qsTr("Colour theme: Dark")]
+
+                    icon.source: "image://icons/" + icons[Settings.themeMode]
+                    icon.color: palette.buttonText
+                    ToolTip.text: labels[Settings.themeMode]
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 500
+                    Accessible.name: labels[Settings.themeMode]
+                    onClicked: Theme.nextThemeMode()
+                }
 
                 ToolButton {
                     objectName: "preferencesButton"

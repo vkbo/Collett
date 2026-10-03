@@ -29,7 +29,6 @@
 
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
-#include <QQuickStyle>
 #include <QQuickWindow>
 #include <QTemporaryDir>
 #include <QTextCursor>
@@ -48,8 +47,6 @@ inline void initQmlTests()
 {
     QCoreApplication::setOrganizationName("CollettTest");
     QCoreApplication::setApplicationName("tst_qml");
-    QQuickStyle::setStyle("Material");
-    qputenv("QT_QUICK_CONTROLS_MATERIAL_VARIANT", "Dense");
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
 }
 
@@ -114,6 +111,7 @@ public:
     }
 
     QQuickWindow *window = nullptr;
+    QQmlApplicationEngine *engine() const { return m_engine; }
 
     // Model
     ProjectModel *model() const { return project.model(); }

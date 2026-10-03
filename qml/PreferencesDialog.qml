@@ -23,6 +23,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Material
 import QtQuick.Layouts
 
 import Collett
@@ -49,6 +50,21 @@ Window {
     minimumWidth: 600
     minimumHeight: 500
     modality: Qt.ApplicationModal
+    Material.theme: Theme.materialTheme
+    // Material colours its own controls, but leaves the palette alone. The
+    // palette is set from the Material colours, so the parts drawn here follow
+    // the theme too.
+    palette.window: Material.dialogColor
+    palette.windowText: Material.foreground
+    palette.base: Material.background
+    palette.text: Material.foreground
+    palette.button: Material.buttonColor
+    palette.buttonText: Material.foreground
+    palette.highlight: Material.textSelectionColor
+    palette.highlightedText: Material.foreground
+    palette.placeholderText: Material.hintTextColor
+    flags: Qt.Dialog
+    color: palette.window
 
     /**! Show the dialog with the saved values, at the first section.
      */
@@ -66,6 +82,13 @@ Window {
 
         width = Settings.prefsWindowSize.width;
         height = Settings.prefsWindowSize.height;
+
+        // Centre on the main window, as not all window managers place it
+        const owner = transientParent;
+        if (owner) {
+            x = owner.x + Math.round((owner.width - width) / 2);
+            y = owner.y + Math.round((owner.height - height) / 2);
+        }
         stack.popToIndex(0, StackView.Immediate);
         flow.contentY = 0;
         currentIndex = 0;
@@ -143,8 +166,11 @@ Window {
             font.pointSize: Application.font.pointSize * 1.4
         }
 
+        // Material rounds the corners to fit in a popup, which a window does
+        // not have
         footer: DialogButtonBox {
             standardButtons: DialogButtonBox.Save | DialogButtonBox.Cancel
+            Material.roundedScale: Material.NotRounded
             onAccepted: root.save()
             onRejected: root.close()
 

@@ -47,6 +47,7 @@ class Settings : public QObject
     QML_SINGLETON
 
     Q_PROPERTY(QString guiLanguage READ guiLanguage WRITE setGuiLanguage NOTIFY guiLanguageChanged)
+    Q_PROPERTY(ThemeMode themeMode READ themeMode WRITE setThemeMode NOTIFY themeModeChanged)
     Q_PROPERTY(QSize prefsWindowSize READ prefsWindowSize WRITE setPrefsWindowSize NOTIFY prefsWindowSizeChanged)
     Q_PROPERTY(int editorAutoSave READ editorAutoSave WRITE setEditorAutoSave NOTIFY editorAutoSaveChanged)
     Q_PROPERTY(QFont guiFont READ guiFont WRITE setGuiFont NOTIFY guiFontChanged)
@@ -57,6 +58,15 @@ class Settings : public QObject
     Q_PROPERTY(QString spellLanguage READ spellLanguage WRITE setSpellLanguage NOTIFY spellLanguageChanged)
 
 public:
+    // Whether the colours follow the system's light or dark mode
+    enum ThemeMode
+    {
+        AutoTheme = 0,
+        LightTheme = 1,
+        DarkTheme = 2,
+    };
+    Q_ENUM(ThemeMode)
+
     struct TextFormat
     {
         QTextBlockFormat blockDefault;
@@ -89,6 +99,7 @@ public:
 
     // Setters
     void setGuiLanguage(const QString &language);
+    void setThemeMode(const ThemeMode mode);
     void setPrefsWindowSize(const QSize &size);
     void setEditorAutoSave(const int interval);
     void setGuiFont(const QFont &font);
@@ -100,6 +111,7 @@ public:
 
     // Getters
     QString guiLanguage() const { return m_guiLanguage; };
+    ThemeMode themeMode() const { return m_themeMode; };
     QSize prefsWindowSize() const { return m_prefsWindowSize; };
     int editorAutoSave() const { return m_editorAutoSave; };
     QFont guiFont() const { return m_guiFont; };
@@ -112,6 +124,7 @@ public:
 
 signals:
     void guiLanguageChanged();
+    void themeModeChanged();
     void prefsWindowSizeChanged();
     void editorAutoSaveChanged();
     void guiFontChanged();
@@ -128,6 +141,7 @@ private:
 
     // GUI
     QString m_guiLanguage;
+    ThemeMode m_themeMode;
     QSize m_prefsWindowSize;
 
     // Editor

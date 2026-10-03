@@ -20,7 +20,9 @@
 */
 
 #include "qmlfixture.h"
+#include "settings.h"
 
+#include <QQuickStyle>
 #include <QtTest>
 
 using namespace Collett;
@@ -33,6 +35,9 @@ private slots:
     void initTestCase();
     void init();
     void cleanup();
+    void styleFromConfig();
+    void levelColours();
+    void themeButton();
     void cardOpensDocument();
     void dragScene();
     void dragFoldedChapter();
@@ -54,6 +59,7 @@ void TestMain::initTestCase()
 
 void TestMain::init()
 {
+    Settings::instance()->setThemeMode(Settings::AutoTheme);
     f = new QmlFixture();
 }
 
@@ -106,6 +112,72 @@ void TestMain::drag(int from, int onto, qreal fraction)
         QTest::qWait(16);
     }
     QTest::mouseRelease(f->window, Qt::LeftButton, Qt::NoModifier, at);
+}
+
+/**! @brief The style comes from the controls config in the resources.
+ */
+void TestMain::styleFromConfig()
+{
+    build();
+    QCOMPARE(QQuickStyle::name(), QStringLiteral("Material"));
+}
+
+/**! @brief The level colours come from the Material palette, in the darker
+ * shades used on a light background.
+ */
+void TestMain::levelColours()
+{
+    build();
+    QObject *theme = f->engine()->singletonInstance<QObject *>("Collett", "Theme");
+    QVERIFY(theme);
+    QVERIFY(!theme->property("dark").toBool());
+    QCOMPARE(theme->property("partitionColor").value<QColor>(), QColor("#388e3c"));
+    QCOMPARE(theme->property("chapterColor").value<QColor>(), QColor("#d32f2f"));
+    QCOMPARE(theme->property("sceneColor").value<QColor>(), QColor("#1976d2"));
+    QCOMPARE(theme->property("pageColor").value<QColor>(), QColor("#757575"));
+}
+
+/**! @brief The theme button cycles from following the system, to light, to
+ * dark, and back. The parts drawn by the app follow along, not only the
+ * controls, and so does the preferences dialog.
+ */
+void TestMain::themeButton()
+{
+    build();
+    Settings *settings = Settings::instance();
+    QObject *theme = f->engine()->singletonInstance<QObject *>("Collett", "Theme");
+    QQuickItem *button = f->item("themeButton");
+    QVERIFY(theme && button);
+    QCOMPARE(settings->themeMode(), Settings::AutoTheme);
+
+    // The editor and side panel backgrounds, and the text of a scene
+    QQuickItem *editor = f->item("editorView")->parentItem();
+    QQuickItem *panel = f->item("projectList")->parentItem();
+    QQuickItem *text = f->scene(2)->findChild<QQuickItem *>("textEdit");
+    QQuickWindow *dialog = f->window->findChild<QQuickWindow *>("preferencesDialog");
+    QVERIFY(editor && panel && text && dialog);
+    auto lightness = [](QObject *object, const char *name) { return object->property(name).value<QColor>().lightness(); };
+    QVERIFY(lightness(editor, "color") > 128);
+    QVERIFY(lightness(text, "color") < 128);
+
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(button));
+    QTRY_COMPARE(settings->themeMode(), Settings::LightTheme);
+    QVERIFY(!theme->property("dark").toBool());
+
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(button));
+    QTRY_COMPARE(settings->themeMode(), Settings::DarkTheme);
+    QTRY_VERIFY(theme->property("dark").toBool());
+    QCOMPARE(theme->property("chapterColor").value<QColor>(), QColor("#e57373"));
+    QVERIFY(f->window->color().lightness() < 128);
+    QTRY_VERIFY(lightness(editor, "color") < 128);
+    QVERIFY(lightness(panel, "color") < 128);
+    QVERIFY(lightness(text, "color") > 128);
+    QVERIFY(dialog->color().lightness() < 128);
+
+    QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(button));
+    QTRY_COMPARE(settings->themeMode(), Settings::AutoTheme);
+    QTRY_VERIFY(!theme->property("dark").toBool());
+    QTRY_VERIFY(lightness(editor, "color") > 128);
 }
 
 /**! @brief Clicking a card puts the cursor in its document.
