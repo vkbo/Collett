@@ -22,12 +22,10 @@
 #include "group.h"
 #include "tools.h"
 
-#include <QJsonArray>
 #include <QJsonObject>
 #include <QPair>
+#include <QRegularExpression>
 #include <QString>
-
-#include <algorithm>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -46,26 +44,23 @@ Group::~Group()
 // Public Methods
 // ==============
 
+/**! @brief Write the group's entry in the project structure.
+ *
+ * The documents are not included, as they are stored in the group's file.
+ */
 void Group::pack(QJsonObject &data, int order) const
 {
-    QJsonArray items;
-    for (qsizetype i = 0; i < m_items.size(); ++i) {
-        QJsonObject item;
-        m_items.at(i)->pack(item, i);
-        items.append(item);
-    }
-
     data["m:class"_L1] = classToString(m_class);
     data["m:order"_L1] = order;
+    data["m:file"_L1] = m_fileName;
     data["u:name"_L1] = m_name;
-    data["x:items"_L1] = items;
 }
 
-/**! @brief Create a group and its documents from a JSON object.
+/**! @brief Create a group from its entry in the project structure.
  *
- * The documents are sorted by their order value. Documents without one keep
- * their position in the array. Invalid documents are skipped. A group with
- * an invalid class is skipped entirely, and nullptr is returned.
+ * The documents are added when the group's file is read. A group with an
+ * invalid class is skipped, and nullptr is returned. A file name that is not
+ * valid is left empty, so a new one can be given to the group.
  */
 Group *Group::unpack(const QJsonObject &data)
 {
@@ -80,19 +75,11 @@ Group *Group::unpack(const QJsonObject &data)
         name = tr("Unnamed");
     }
 
-    QList<QPair<int, Node *>> ordered;
-    const QJsonArray items = data["x:items"_L1].toArray();
-    for (qsizetype i = 0; i < items.size(); ++i) {
-        if (Node *node = Node::unpack(items.at(i).toObject())) {
-            ordered.append({items.at(i)["m:order"_L1].toInt(int(i)), node});
-        }
-    }
-    std::stable_sort(ordered.begin(), ordered.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
+    const QString fileName = JsonUtils::getJsonString(data, "m:file"_L1, "");
 
     Group *group = new Group(name, itemClass);
-    for (const auto &entry : ordered) {
-        group->appendItem(entry.second);
-    }
+    group->setFileName(isFileName(fileName) ? fileName : QString());
+    group->setModified(false);
     return group;
 }
 
@@ -135,6 +122,15 @@ QString Group::classToString(ItemClass itemClass)
     case ItemClass::TrashClass: return "Trash"_L1;
     }
     return "Novel"_L1;
+}
+
+/**! @brief Check if a string is a valid group file name, like
+ * "document1.json".
+ */
+bool Group::isFileName(const QString &value)
+{
+    static const QRegularExpression pattern(u"^document[1-9][0-9]*\\.json$"_s);
+    return pattern.match(value).hasMatch();
 }
 
 } // namespace Collett

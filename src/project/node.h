@@ -43,7 +43,7 @@ public:
     ~Node();
 
     // Methods
-    void pack(QJsonObject &data, int order) const;
+    void pack(QJsonObject &data) const;
     static Node *unpack(const QJsonObject &data);
 
     // Getters

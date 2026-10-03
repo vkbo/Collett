@@ -22,8 +22,12 @@
 #include "qmlfixture.h"
 #include "settings.h"
 
-#include <QQuickStyle>
+#include <QFile>
 #include <QFontDatabase>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QQuickStyle>
 #include <QtTest>
 
 using namespace Collett;
@@ -419,11 +423,18 @@ void TestMain::deleteFromSideBar()
 {
     build();
     const QString scene = f->handle(4);
-    const QString file = f->project.store()->projectPath() + "/content/" + scene + ".json";
+    auto savedHandles = [this]() {
+        QStringList handles;
+        QFile file(f->project.store()->projectPath() + "/content/document1.json");
+        if (!file.open(QIODevice::ReadOnly)) return handles;
+        for (const QJsonValue &item : QJsonDocument::fromJson(file.readAll()).object().value("x:items").toArray())
+            handles.append(item.toObject().value("m:handle").toString());
+        return handles;
+    };
     QMetaObject::invokeMethod(f->scene(4), "enterAt", Q_ARG(int, 0));
     QTRY_COMPARE(f->focusHandle(), scene);
     f->project.saveProject();
-    QVERIFY(QFileInfo::exists(file));
+    QVERIFY(savedHandles().contains(scene));
 
     QObject *dialog = f->window->findChild<QObject *>("deleteDialog");
     QVERIFY(dialog);
@@ -453,7 +464,8 @@ void TestMain::deleteFromSideBar()
     QTRY_VERIFY(!dialog->property("visible").toBool());
     QTRY_COMPARE(f->rows(), 5);
     QCOMPARE(f->model()->rowOf(scene), -1);
-    QVERIFY(!QFileInfo::exists(file));
+    f->project.saveProject();
+    QCOMPARE(savedHandles(), f->order());
     QTRY_COMPARE(f->focusHandle(), f->handle(3));
     QCOMPARE(f->focusPart(), QStringLiteral("text"));
 

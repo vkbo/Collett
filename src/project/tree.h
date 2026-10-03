@@ -44,6 +44,7 @@ public:
 
     // Getters
     ProjectModel *model() { return m_model; };
+    const QList<Group *> &groups() const { return m_groups; };
     Node *node(const QString &handle) { return m_nodes.value(handle, nullptr); };
     bool isModified() const { return m_modified; };
 
@@ -53,17 +54,19 @@ public:
     // Methods
     void pack(QJsonObject &data);
     void unpack(const QJsonObject &data);
+    void showNovelGroup();
 
     // Data Methods
     QString newHandle() const;
     Node *createNode(ItemLevel level);
+    bool addNode(Group *group, Node *node);
     void forgetNode(const QString &handle) { m_nodes.remove(handle); };
 
     // Static Methods
     static bool isHandle(const QString &value);
 
 private:
-    // A new tree has not been saved yet, so it starts out modified
+    // The list of groups has not been saved yet, so it starts out modified
     bool m_modified = true;
 
     ProjectModel *m_model;
@@ -71,6 +74,6 @@ private:
     QHash<QString, Node *> m_nodes;
 
     void clear();
-    void ensureNovelGroup();
+    void assignFileName(Group *group);
 };
 } // namespace Collett

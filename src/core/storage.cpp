@@ -101,40 +101,27 @@ bool Storage::writeStructure(const QJsonObject &fileData)
     return false;
 }
 
-bool Storage::readDocument(const QString &handle, QJsonObject &fileData)
-{
-    if (m_isValid) {
-        QString file = handle + ".json";
-        return this->readJson(m_contentDir.filePath(file), fileData, false);
-    }
-    return false;
-}
-
-bool Storage::writeDocument(const QString &handle, const QJsonObject &fileData)
-{
-    if (m_isValid) {
-        QString file = handle + ".json";
-        return this->writeJson(m_contentDir.filePath(file), fileData, 2);
-    }
-    return false;
-}
-
-/**! @brief Delete the file of a document, if there is one.
+/**! @brief Read a group's document file, like "document1.json".
  *
- * @return bool True if there is no file for the document afterwards.
+ * A file that does not exist yet reads as an empty object.
  */
-bool Storage::deleteDocument(const QString &handle)
+bool Storage::readDocument(const QString &fileName, QJsonObject &fileData)
 {
-    if (!m_isValid) {
-        return false;
+    if (m_isValid) {
+        return this->readJson(m_contentDir.filePath(fileName), fileData, false);
     }
-    QFile file(m_contentDir.filePath(handle + ".json"));
-    if (file.exists() && !file.remove()) {
-        m_lastError = tr("Could not delete file: %1").arg(file.fileName());
-        return false;
+    return false;
+}
+
+/**! @brief Write a group's document file. Each block of text is written on
+ * a line of its own.
+ */
+bool Storage::writeDocument(const QString &fileName, const QJsonObject &fileData)
+{
+    if (m_isValid) {
+        return this->writeJson(m_contentDir.filePath(fileName), fileData, 4);
     }
-    qDebug() << "Deleted:" << file.fileName();
-    return true;
+    return false;
 }
 
 bool Storage::readDictionary(QJsonObject &fileData)

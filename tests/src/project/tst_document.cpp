@@ -73,8 +73,6 @@ void TestDocument::packSimpleFormatting()
     QJsonObject data;
     doc.pack(data);
 
-    QCOMPARE(data.value("c:format").toString(), QStringLiteral("CollettDocument:1.0"));
-
     QJsonArray content = data.value("x:content").toArray();
     QCOMPARE(content.size(), 1);
 
@@ -139,12 +137,10 @@ void TestDocument::updatedTimestamp()
     cursor.insertText("Text");
     QJsonObject data;
     fresh.pack(data);
-    QVERIFY(!data.value("c:meta").toObject().value("m:updated").toString().isEmpty());
+    QVERIFY(!data.value("m:updated").toString().isEmpty());
 
     // Give the stored document an old timestamp
-    QJsonObject meta = data.value("c:meta").toObject();
-    meta["m:updated"] = oldTime;
-    data["c:meta"] = meta;
+    data["m:updated"] = oldTime;
 
     // Loading and saving without edits keeps it
     Document loaded;
@@ -153,7 +149,7 @@ void TestDocument::updatedTimestamp()
     QCOMPARE(loaded.updatedTime(), oldTime);
     QJsonObject saved;
     loaded.pack(saved);
-    QCOMPARE(saved.value("c:meta").toObject().value("m:updated").toString(), oldTime);
+    QCOMPARE(saved.value("m:updated").toString(), oldTime);
 
     // An edit moves it, and it stays put after the modified flag is cleared
     // the way Project does after writing to disk
@@ -162,11 +158,11 @@ void TestDocument::updatedTimestamp()
     edit.insertText("!");
     QVERIFY(loaded.isModified());
     loaded.pack(saved);
-    QString newTime = saved.value("c:meta").toObject().value("m:updated").toString();
+    QString newTime = saved.value("m:updated").toString();
     QVERIFY(newTime != oldTime);
     loaded.setModified(false);
     loaded.pack(saved);
-    QCOMPARE(saved.value("c:meta").toObject().value("m:updated").toString(), newTime);
+    QCOMPARE(saved.value("m:updated").toString(), newTime);
 }
 
 /**! @brief Changing the text font restyles a loaded document in place.
@@ -191,7 +187,6 @@ void TestDocument::refreshTextFormat()
     paragraph["u:fmt"] = "p";
     paragraph["x:txt"] = QJsonArray({"t|Plain ", "t:b|bold"});
     QJsonObject data;
-    data["c:format"] = "CollettDocument:1.0";
     data["x:content"] = QJsonArray({header, paragraph});
 
     Document doc;

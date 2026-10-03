@@ -27,6 +27,7 @@
 #include <QJsonObject>
 #include <QPair>
 #include <QRandomGenerator>
+#include <QSet>
 #include <QString>
 
 #include <algorithm>
@@ -41,8 +42,10 @@ namespace Collett {
 Tree::Tree(QObject *parent) : QObject(parent)
 {
     m_model = new ProjectModel(this);
-    connect(m_model, &ProjectModel::structureChanged, this, [this]() { m_modified = true; });
-    ensureNovelGroup();
+    connect(m_model, &ProjectModel::structureChanged, this, [this]() {
+        if (Group *group = m_model->group()) group->setModified(true);
+    });
+    showNovelGroup();
 }
 
 Tree::~Tree()
@@ -70,8 +73,9 @@ void Tree::pack(QJsonObject &data)
 
 /**! @brief Read the project structure from a JSON object.
  *
- * Groups and their documents are sorted by their order values. Documents
- * are registered by handle so they can be looked up directly.
+ * Groups are sorted by their order values. Their documents are added from
+ * the group files afterwards, with addNode. A group without a valid file
+ * name, or with the same file as a group before it, gets a new one.
  */
 void Tree::unpack(const QJsonObject &data)
 {
@@ -87,20 +91,49 @@ void Tree::unpack(const QJsonObject &data)
     }
     std::stable_sort(ordered.begin(), ordered.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
 
+    // What was read matches what is on disk, unless a group had to be added
+    // or given a file name
+    m_modified = false;
+    QSet<QString> fileNames;
     for (const auto &entry : ordered) {
         Group *group = entry.second;
-        for (Node *node : group->items()) {
-            if (m_nodes.contains(node->handle())) {
-                qWarning() << "Duplicate project item handle" << node->handle();
-            }
-            m_nodes.insert(node->handle(), node);
+        const QString fileName = group->fileName();
+        if (fileNames.contains(fileName)) {
+            qWarning() << "Duplicate project group file" << fileName;
+            group->setFileName(QString());
+        } else if (!fileName.isEmpty()) {
+            fileNames.insert(fileName);
         }
         m_groups.append(group);
     }
+    for (Group *group : std::as_const(m_groups)) {
+        assignFileName(group);
+    }
+    showNovelGroup();
+}
 
-    // What was read matches what is on disk, unless a group had to be added
-    m_modified = false;
-    ensureNovelGroup();
+/**! @brief Make sure there is a novel group, and show it in the model.
+ *
+ * Until there is a way to switch between groups, the model shows the first
+ * novel group. The model is reset, so it also picks up documents added to
+ * the group with addNode.
+ */
+void Tree::showNovelGroup()
+{
+    Group *novel = nullptr;
+    for (Group *group : std::as_const(m_groups)) {
+        if (group->itemClass() == ItemClass::NovelClass) {
+            novel = group;
+            break;
+        }
+    }
+    if (!novel) {
+        novel = new Group(Labels::className(ItemClass::NovelClass), ItemClass::NovelClass);
+        m_groups.prepend(novel);
+        assignFileName(novel);
+        m_modified = true;
+    }
+    m_model->setGroup(novel);
 }
 
 // Data Methods
@@ -137,6 +170,23 @@ Node *Tree::createNode(ItemLevel level)
     return node;
 }
 
+/**! @brief Add a node read from a file at the end of a group, and register
+ * it.
+ *
+ * A node with a handle that is already in use is not added, and the caller
+ * still owns it.
+ */
+bool Tree::addNode(Group *group, Node *node)
+{
+    if (m_nodes.contains(node->handle())) {
+        qWarning() << "Duplicate project item handle" << node->handle();
+        return false;
+    }
+    m_nodes.insert(node->handle(), node);
+    group->appendItem(node);
+    return true;
+}
+
 // Static Methods
 // ==============
 
@@ -170,26 +220,24 @@ void Tree::clear()
     m_groups.clear();
 }
 
-/**! @brief Make sure there is a novel group, and show it in the model.
- *
- * Until there is a way to switch between groups, the model shows the first
- * novel group.
+/**! @brief Give a group without a file name the first free one, counting
+ * from "document1.json".
  */
-void Tree::ensureNovelGroup()
+void Tree::assignFileName(Group *group)
 {
-    Group *novel = nullptr;
-    for (Group *group : std::as_const(m_groups)) {
-        if (group->itemClass() == ItemClass::NovelClass) {
-            novel = group;
-            break;
-        }
+    if (!group->fileName().isEmpty()) {
+        return;
     }
-    if (!novel) {
-        novel = new Group(Labels::className(ItemClass::NovelClass), ItemClass::NovelClass);
-        m_groups.prepend(novel);
-        m_modified = true;
+    QSet<QString> used;
+    for (const Group *other : std::as_const(m_groups)) {
+        used.insert(other->fileName());
     }
-    m_model->setGroup(novel);
+    int number = 1;
+    while (used.contains(u"document%1.json"_s.arg(number))) {
+        ++number;
+    }
+    group->setFileName(u"document%1.json"_s.arg(number));
+    m_modified = true;
 }
 
 } // namespace Collett

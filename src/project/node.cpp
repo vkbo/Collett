@@ -44,14 +44,15 @@ Node::~Node() {}
  *
  * Only partitions and chapters can be folded, so only they store whether
  * they are expanded, only a scene with a hard break before it stores the
- * break, and only a chapter without a number stores that it is unnumbered. An empty title is stored as an empty string. The title
- * is kept as typed while it is edited, and tidied up here.
+ * break, and only a chapter without a number stores that it is unnumbered.
+ * An empty title is stored as an empty string. The title is kept as typed
+ * while it is edited, and tidied up here. The order is not stored, as the
+ * nodes are written in reading order.
  */
-void Node::pack(QJsonObject &data, int order) const
+void Node::pack(QJsonObject &data) const
 {
     data["m:handle"_L1] = m_handle;
     data["m:level"_L1] = levelToString(m_level);
-    data["m:order"_L1] = order;
     data["m:characters"_L1] = m_counts.characters;
     data["m:words"_L1] = m_counts.words;
     if (isFoldable()) {

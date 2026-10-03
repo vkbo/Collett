@@ -65,8 +65,6 @@ public:
     Q_INVOKABLE QString splitDocument(const QString &handle, int position);
     Q_INVOKABLE bool deleteDocument(const QString &handle);
     Q_INVOKABLE int mergeDocument(const QString &handle);
-    bool saveDocument(const QString &handle);
-    bool saveOpenDocuments();
 
     // Getters
     bool isValid() const { return m_isValid; };
@@ -108,6 +106,8 @@ private:
     QSet<QString> m_countQueue;
     QTimer *m_countTimer = nullptr;
 
+    bool loadGroup(Group *group);
+    bool saveGroup(Group *group);
     void setupSpelling();
     void releaseProject();
     void trackDocument(Document *doc);

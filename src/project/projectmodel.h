@@ -73,6 +73,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     // Methods
+    Group *group() const { return m_group; };
     void setGroup(Group *group);
     Q_INVOKABLE void toggleExpanded(int row);
     Q_INVOKABLE int rowOf(const QString &handle) const;

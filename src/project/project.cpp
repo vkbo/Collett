@@ -111,6 +111,13 @@ bool Project::openProject(const QString &path)
         return false;
     }
     m_tree->unpack(jTree);
+    for (Group *group : m_tree->groups()) {
+        if (!this->loadGroup(group)) {
+            m_lastError = m_store->lastError();
+            return false;
+        }
+    }
+    m_tree->showNovelGroup();
 
     m_isValid = true;
     m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
@@ -193,16 +200,14 @@ QString Project::createProject(const QString &location, const QString &name)
     }
     m_data->setName(title);
 
-    // The title page, in the same format as the document files
+    // The title page, in the same format as the group files
     Node *node = m_tree->createNode(ItemLevel::PageLevel);
     Document *doc = new Document(node->handle(), this);
-    QJsonObject meta;
-    meta["m:created"_L1] = QDateTime::currentDateTime().toString(Qt::ISODate);
     QJsonObject heading;
     heading["u:fmt"_L1] = "h1:ac";
     heading["u:txt"_L1] = "t|" + title;
     QJsonObject data;
-    data["c:meta"_L1] = meta;
+    data["m:created"_L1] = QDateTime::currentDateTime().toString(Qt::ISODate);
     data["x:content"_L1] = QJsonArray({heading});
     doc->unpack(data);
     doc->setModified(true);
@@ -255,7 +260,11 @@ bool Project::saveProject()
         m_tree->setModified(false);
     }
 
-    return this->saveOpenDocuments();
+    bool result = true;
+    for (Group *group : m_tree->groups()) {
+        result &= this->saveGroup(group);
+    }
+    return result;
 }
 
 /**! @brief Save and close the project.
@@ -283,9 +292,11 @@ bool Project::saveProjectAs(const QString &path)
     m_store = new Storage(path, false, this);
     m_isValid = true;
     if (m_data) m_data->setModified(true);
-    if (m_tree) m_tree->setModified(true);
-    for (Document *doc : std::as_const(m_documents)) {
-        doc->setModified(true);
+    if (m_tree) {
+        m_tree->setModified(true);
+        for (Group *group : m_tree->groups()) {
+            group->setModified(true);
+        }
     }
     return this->saveProject();
 }
@@ -307,12 +318,10 @@ void Project::setLastEditedHandle(const QString &handle)
 // ================
 
 /**!
- * @brief Open a document by its handle, loading or creating it as needed.
+ * @brief Get a document by its handle, creating it if needed.
  *
- * Several documents are open at the same time when the editor shows a stack
- * of scenes. Documents are cached for the lifetime of the project so that
- * switching back to a previously opened document does not require a
- * round-trip to disk.
+ * The documents of a group are read along with the group, so a document is
+ * only created here for a node that has no text yet.
  *
  * @param handle     The handle of the document to open.
  * @return Document* The document, or nullptr if the project has no storage.
@@ -328,10 +337,6 @@ Document *Project::openDocument(const QString &handle)
     }
 
     Document *doc = new Document(handle, this);
-    QJsonObject jDoc;
-    if (m_store->readDocument(handle, jDoc) && !jDoc.isEmpty()) {
-        doc->unpack(jDoc);
-    }
     m_documents.insert(handle, doc);
     trackDocument(doc);
     queueCount(handle);
@@ -414,7 +419,7 @@ QString Project::splitDocument(const QString &handle, int position)
 }
 
 /**!
- * @brief Delete a document from the project, along with its file.
+ * @brief Delete a document from the project.
  *
  * The last document in the group cannot be deleted. Editors showing the
  * document are told before it is deleted, so they can let go of it.
@@ -435,9 +440,6 @@ bool Project::deleteDocument(const QString &handle)
     if (Document *doc = m_documents.take(handle)) {
         emit documentDeleting(doc);
         doc->deleteLater();
-    }
-    if (m_store) {
-        m_store->deleteDocument(handle);
     }
     return true;
 }
@@ -495,51 +497,6 @@ int Project::mergeDocument(const QString &handle)
     return position;
 }
 
-/**!
- * @brief Save a single open document to storage.
- *
- * @param handle The handle of the document to save.
- * @return bool  True if the document was saved, or there was nothing to save.
- */
-bool Project::saveDocument(const QString &handle)
-{
-    if (!m_store || handle.isEmpty() || !m_documents.contains(handle)) {
-        return false;
-    }
-
-    Document *doc = m_documents.value(handle);
-    QJsonObject jDoc;
-    doc->pack(jDoc);
-
-    if (!m_store->writeDocument(handle, jDoc)) {
-        return false;
-    }
-
-    // What is on disk now matches the document, so further saves keep its
-    // updated timestamp until it is edited again
-    doc->setModified(false);
-    return true;
-}
-
-/**!
- * @brief Save the open (cached) documents that have changed to storage.
- *
- * A document is modified when its text has changed since it was read or
- * last saved, so unchanged documents are not written.
- *
- * @return bool True if all changed documents were saved successfully.
- */
-bool Project::saveOpenDocuments()
-{
-    bool result = true;
-    for (auto it = m_documents.cbegin(); it != m_documents.cend(); ++it) {
-        if (it.value()->isModified()) {
-            result &= this->saveDocument(it.key());
-        }
-    }
-    return result;
-}
-
 // Private Slots
 // =============
 
@@ -574,6 +531,79 @@ void Project::countDocuments()
 
 // Private Methods
 // ===============
+
+/**! @brief Read the documents of a group, with their text, from the
+ * group's file.
+ *
+ * Entries that are not valid nodes are skipped, as are those with a handle
+ * that is already in use. Returns false if the file could not be read.
+ */
+bool Project::loadGroup(Group *group)
+{
+    QJsonObject jGroup;
+    if (!m_store->readDocument(group->fileName(), jGroup)) {
+        return false;
+    }
+
+    for (const QJsonValue &value : jGroup["x:items"_L1].toArray()) {
+        const QJsonObject item = value.toObject();
+        Node *node = Node::unpack(item);
+        if (!node) continue;
+        if (!m_tree->addNode(group, node)) {
+            delete node;
+            continue;
+        }
+        Document *doc = new Document(node->handle(), this);
+        doc->unpack(item);
+        m_documents.insert(node->handle(), doc);
+        trackDocument(doc);
+    }
+    group->setModified(false);
+    return true;
+}
+
+/**! @brief Write a group's documents, with their text, to the group's file.
+ *
+ * The file is only written if the group or the text of one of its
+ * documents has changed since it was read or last saved.
+ */
+bool Project::saveGroup(Group *group)
+{
+    bool modified = group->isModified();
+    for (const Node *node : group->items()) {
+        const Document *doc = m_documents.value(node->handle(), nullptr);
+        modified |= doc && doc->isModified();
+    }
+    if (!modified) {
+        return true;
+    }
+
+    QJsonArray items;
+    for (const Node *node : group->items()) {
+        QJsonObject item;
+        node->pack(item);
+        if (Document *doc = this->openDocument(node->handle())) {
+            doc->pack(item);
+        }
+        items.append(item);
+    }
+
+    QJsonObject jGroup;
+    jGroup["c:format"_L1] = "CollettDocument:1.0";
+    jGroup["x:items"_L1] = items;
+    if (!m_store->writeDocument(group->fileName(), jGroup)) {
+        m_lastError = m_store->lastError();
+        return false;
+    }
+
+    // What is on disk now matches the documents, so further saves keep
+    // their updated timestamps until they are edited again
+    group->setModified(false);
+    for (const Node *node : group->items()) {
+        m_documents.value(node->handle())->setModified(false);
+    }
+    return true;
+}
 
 /**! @brief Load the project's user dictionary, and the dictionary for the
  * project's language, or the default language if the project has none.

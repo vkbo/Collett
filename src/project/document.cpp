@@ -70,6 +70,10 @@ Document::~Document() {}
 // Public Methods
 // ==============
 
+/**! @brief Write the text and its timestamps into a group file entry.
+ *
+ * The entry also holds the node's values, which are written by the node.
+ */
 void Document::pack(QJsonObject &data)
 {
 
@@ -163,15 +167,13 @@ void Document::pack(QJsonObject &data)
         m_updatedTime = QDateTime::currentDateTime().toString(Qt::ISODate);
     }
 
-    QJsonObject jMeta;
-    jMeta["m:created"_L1] = m_createdTime;
-    jMeta["m:updated"_L1] = m_updatedTime;
-
-    data["c:format"_L1] = "CollettDocument:1.0";
-    data["c:meta"_L1] = jMeta;
+    data["m:created"_L1] = m_createdTime;
+    data["m:updated"_L1] = m_updatedTime;
     data["x:content"_L1] = jDoc;
 }
 
+/**! @brief Read the text and its timestamps from a group file entry.
+ */
 void Document::unpack(const QJsonObject &data)
 {
 
@@ -182,11 +184,10 @@ void Document::unpack(const QJsonObject &data)
     Settings::TextFormat format = settings->textFormat();
 
     // Meta
-    QJsonObject jMeta = data.value("c:meta"_L1).toObject();
     QJsonArray jDoc = data.value("x:content"_L1).toArray();
 
-    m_createdTime = JsonUtils::getJsonString(jMeta, "m:created"_L1, "Unknown");
-    m_updatedTime = JsonUtils::getJsonString(jMeta, "m:updated"_L1, "");
+    m_createdTime = JsonUtils::getJsonString(data, "m:created"_L1, "Unknown");
+    m_updatedTime = JsonUtils::getJsonString(data, "m:updated"_L1, "");
 
     // Unpack Text
     QTextCursor cursor = QTextCursor(this);
