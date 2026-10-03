@@ -243,7 +243,7 @@ void TestSceneEditor::spellingMenu()
     QVERIFY(suggestion);
     QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(suggestion));
     QTRY_COMPARE(f->text(5), QStringLiteral("hello world"));
-    QTRY_VERIFY(!menu->property("opened").toBool());
+    QTRY_VERIFY(!menu->property("visible").toBool());
 
     // Adding a word to the dictionary accepts it from then on
     cursor.select(QTextCursor::Document);

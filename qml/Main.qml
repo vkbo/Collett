@@ -96,6 +96,15 @@ ApplicationWindow {
         }
     }
 
+    PreferencesDialog {
+        id: preferences
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+,"]
+        onActivated: preferences.openDialog()
+    }
+
     Binding {
         target: Theme
         property: "dark"
@@ -169,7 +178,10 @@ ApplicationWindow {
                     dropRow = -1;
                 }
 
-                anchors.fill: parent
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: sideBarFooter.top
                 anchors.margins: 8
                 clip: true
                 model: window.project.model
@@ -225,6 +237,27 @@ ApplicationWindow {
                         projectList.contentY = Math.max(top, Math.min(projectList.contentY + step, bottom));
                         projectList.updateDrop();
                     }
+                }
+            }
+
+            RowLayout {
+                id: sideBarFooter
+
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 8
+
+                ToolButton {
+                    objectName: "preferencesButton"
+
+                    icon.source: "image://icons/settings"
+                    icon.color: palette.buttonText
+                    ToolTip.text: qsTr("Preferences")
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 500
+                    Accessible.name: qsTr("Preferences")
+                    onClicked: preferences.openDialog()
                 }
             }
 

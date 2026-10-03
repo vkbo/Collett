@@ -157,8 +157,12 @@ qt_add_qml_module(CollettCore
     QML_FILES
         qml/Main.qml
         qml/NewProject.qml
+        qml/PreferencesDialog.qml
         qml/ProjectCard.qml
         qml/SceneEditor.qml
+        qml/SettingsGroup.qml
+        qml/SettingsRow.qml
+        qml/SettingsSection.qml
         qml/Theme.qml
     RESOURCES
         assets/icons/lucide.icons

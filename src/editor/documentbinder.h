@@ -45,7 +45,7 @@ class DocumentBinder : public QObject
     Q_PROPERTY(QQuickItem *target READ target WRITE setTarget NOTIFY targetChanged)
     Q_PROPERTY(Collett::Project *project READ project WRITE setProject NOTIFY projectChanged)
     Q_PROPERTY(QString handle READ handle WRITE setHandle NOTIFY handleChanged)
-    Q_PROPERTY(QFont textFont READ textFont CONSTANT)
+    Q_PROPERTY(QFont textFont READ textFont NOTIFY textFontChanged)
     Q_PROPERTY(QColor spellErrorColor READ spellErrorColor WRITE setSpellErrorColor NOTIFY spellErrorColorChanged)
 
 public:
@@ -75,6 +75,7 @@ signals:
     void projectChanged();
     void handleChanged();
     void spellErrorColorChanged();
+    void textFontChanged();
 
 private:
     QPointer<QQuickItem> m_target;

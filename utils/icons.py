@@ -91,6 +91,7 @@ ICONS = {
     "bookmarks": "bookmark",
     "checked": "circle-check-big",
     "font": "type",
+    "language": "languages",
     "noncheckable": "circle",
     "settings": "settings",
     "theme_auto": "contrast",

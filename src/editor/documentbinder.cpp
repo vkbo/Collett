@@ -38,6 +38,7 @@ DocumentBinder::DocumentBinder(QObject *parent) : QObject(parent)
 {
     m_highlighter = new Highlighter(this);
     m_highlighter->setErrorColor(m_spellErrorColor);
+    connect(Settings::instance(), &Settings::textFormatChanged, this, &DocumentBinder::textFontChanged);
 }
 
 DocumentBinder::~DocumentBinder() {}

@@ -158,8 +158,11 @@ int main(int argc, char *argv[])
 
     loadTranslations(app, Collett::Settings::instance()->guiLanguage());
 
-    // The Basic style is the least opinionated base for a custom design
-    QQuickStyle::setStyle("Basic");
+    // Material, following the system's light or dark mode, with the denser
+    // controls meant for desktop use
+    QQuickStyle::setStyle("Material");
+    if (!qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_MATERIAL_THEME")) qputenv("QT_QUICK_CONTROLS_MATERIAL_THEME", "System");
+    if (!qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_MATERIAL_VARIANT")) qputenv("QT_QUICK_CONTROLS_MATERIAL_VARIANT", "Dense");
 
     // Native text rendering matches the font hinting of the rest of the desktop
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);

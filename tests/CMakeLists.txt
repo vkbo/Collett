@@ -18,10 +18,11 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Register a Qt Test executable and its CTest entry. Tests run headless via the
-# "offscreen" QPA platform so no display server is required. The tests folder
-# mirrors the repository root, so the first argument is the folder of the code
-# under test, like src/core or qml. Folders that do not mirror the root are
-# prefixed with "_". Tests of the QML also link the QML module's plugin.
+# "offscreen" QPA platform so no display server is required, and each test has
+# its own config folder. The tests folder mirrors the repository root, so the
+# first argument is the folder of the code under test, like src/core or qml.
+# Folders that do not mirror the root are prefixed with "_". Tests of the QML
+# also link the QML module's plugin.
 function(collett_add_test subdir name)
     qt_add_executable(${name} ${subdir}/${name}.cpp)
     target_link_libraries(${name} PRIVATE CollettCore Qt::Test)
@@ -31,7 +32,7 @@ function(collett_add_test subdir name)
     endif()
     add_test(NAME ${name} COMMAND ${name})
     set_tests_properties(${name} PROPERTIES
-        ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;XDG_CONFIG_HOME=${CMAKE_CURRENT_BINARY_DIR}/_config/${name}"
     )
 endfunction()
 
@@ -46,4 +47,5 @@ collett_add_test(src/spellcheck tst_spellcheck)
 collett_add_test(src/spellcheck tst_textcheck)
 collett_add_test(src/static tst_settings)
 collett_add_test(qml tst_main)
+collett_add_test(qml tst_preferences)
 collett_add_test(qml tst_sceneeditor)

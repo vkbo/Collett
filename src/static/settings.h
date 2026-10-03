@@ -25,14 +25,34 @@
 
 #include <QFont>
 #include <QObject>
+#include <QSize>
+#include <QVariantList>
+#include <QtQml/qqmlregistration.h>
+
+class QQmlEngine;
+class QJSEngine;
 #include <QTextBlockFormat>
 #include <QTextCharFormat>
 
 namespace Collett {
 
+/**! @brief The application settings, shared by C++ and QML.
+ *
+ * QML gets the same instance as C++, as a singleton.
+ */
 class Settings : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
+
+    Q_PROPERTY(QString guiLanguage READ guiLanguage WRITE setGuiLanguage NOTIFY guiLanguageChanged)
+    Q_PROPERTY(QSize prefsWindowSize READ prefsWindowSize WRITE setPrefsWindowSize NOTIFY prefsWindowSizeChanged)
+    Q_PROPERTY(int editorAutoSave READ editorAutoSave WRITE setEditorAutoSave NOTIFY editorAutoSaveChanged)
+    Q_PROPERTY(QFont textFont READ textFont WRITE setTextFont NOTIFY textFormatChanged)
+    Q_PROPERTY(qreal textTabWidth READ textTabWidth WRITE setTextTabWidth NOTIFY textFormatChanged)
+    Q_PROPERTY(bool nativeFontDialog READ nativeFontDialog WRITE setNativeFontDialog NOTIFY nativeFontDialogChanged)
+    Q_PROPERTY(QString spellLanguage READ spellLanguage WRITE setSpellLanguage NOTIFY spellLanguageChanged)
 
 public:
     struct TextFormat
@@ -58,35 +78,52 @@ public:
 
     static Settings *instance();
     static void destroy();
-
-    explicit Settings(QObject *parent = nullptr);
-    ~Settings() noexcept;
+    static Settings *create(QQmlEngine *, QJSEngine *);
 
     // Methods
-    void flushSettings();
+    Q_INVOKABLE void flushSettings();
+    Q_INVOKABLE QVariantList guiLanguages() const;
+    Q_INVOKABLE QVariantList spellLanguages() const;
+    Q_INVOKABLE static QString fontDescription(const QFont &font);
 
     // Setters
-    void setGuiLanguage(const QString &language) { m_guiLanguage = language.trimmed(); };
-    void setEditorAutoSave(const int interval) { m_editorAutoSave = interval; };
+    void setGuiLanguage(const QString &language);
+    void setPrefsWindowSize(const QSize &size);
+    void setEditorAutoSave(const int interval);
     void setTextFont(const QFont &font);
     void setTextTabWidth(const qreal width);
-    void setSpellLanguage(const QString &language) { m_spellLanguage = language.trimmed(); };
+    void setNativeFontDialog(const bool state);
+    void setSpellLanguage(const QString &language);
 
     // Getters
     QString guiLanguage() const { return m_guiLanguage; };
+    QSize prefsWindowSize() const { return m_prefsWindowSize; };
     int editorAutoSave() const { return m_editorAutoSave; };
     QFont textFont() const { return m_textFont; };
+    qreal textTabWidth() const { return m_textTabWidth; };
     TextFormat textFormat() const { return m_textFormat; };
+    bool nativeFontDialog() const { return m_nativeFontDialog; };
     QString spellLanguage() const { return m_spellLanguage; };
 
 signals:
+    void guiLanguageChanged();
+    void prefsWindowSizeChanged();
+    void editorAutoSaveChanged();
     void textFormatChanged();
+    void nativeFontDialogChanged();
+    void spellLanguageChanged();
 
 private:
+    // Private, so QML uses create() and shares the instance
+    explicit Settings(QObject *parent = nullptr);
+    ~Settings() noexcept;
+
     static Settings *staticInstance;
 
     // GUI
     QString m_guiLanguage;
+    QSize m_prefsWindowSize;
+    bool m_nativeFontDialog;
 
     // Editor
     int m_editorAutoSave;

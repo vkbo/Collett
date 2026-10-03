@@ -21,9 +21,13 @@
 
 #include "collett.h"
 #include "settings.h"
+#include "spellchecker.h"
+#include "tools.h"
 
 #include <QFont>
+#include <QDir>
 #include <QFontDatabase>
+#include <QJSEngine>
 #include <QLocale>
 #include <QSettings>
 #include <QTextBlockFormat>
@@ -32,6 +36,8 @@
 using namespace Qt::Literals::StringLiterals;
 
 #define CNF_GUI_LANGUAGE "Main/guiLanguage"_L1
+#define CNF_PREFS_WINDOW_SIZE "Main/prefsWindowSize"_L1
+#define CNF_NATIVE_FONT_DIALOG "Main/nativeFontDialog"_L1
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
 #define CNF_TEXT_FONT "TextFormat/textFont"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
@@ -70,6 +76,15 @@ Settings *Settings::instance()
     return staticInstance;
 }
 
+/**! @brief The instance for QML, which C++ keeps ownership of.
+ */
+Settings *Settings::create(QQmlEngine *, QJSEngine *)
+{
+    Settings *settings = instance();
+    QJSEngine::setObjectOwnership(settings, QJSEngine::CppOwnership);
+    return settings;
+}
+
 void Settings::destroy()
 {
     if (staticInstance != nullptr) {
@@ -89,6 +104,8 @@ Settings::Settings(QObject *parent) : QObject(parent)
     // ------------
 
     m_guiLanguage = settings.value(CNF_GUI_LANGUAGE, QLocale::system().name()).toString();
+    m_prefsWindowSize = settings.value(CNF_PREFS_WINDOW_SIZE, QSize(900, 700)).toSize();
+    m_nativeFontDialog = settings.value(CNF_NATIVE_FONT_DIALOG, true).toBool();
 
     // Editor Settings
     // ---------------
@@ -127,6 +144,8 @@ void Settings::flushSettings()
     QSettings settings;
 
     settings.setValue(CNF_GUI_LANGUAGE, m_guiLanguage);
+    settings.setValue(CNF_PREFS_WINDOW_SIZE, m_prefsWindowSize);
+    settings.setValue(CNF_NATIVE_FONT_DIALOG, m_nativeFontDialog);
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
 
     settings.setValue(CNF_TEXT_FONT, m_textFont.toString());
@@ -138,13 +157,91 @@ void Settings::flushSettings()
     return;
 }
 
+/**! @brief The languages the GUI can be shown in, as value and text pairs.
+ *
+ * The source text is British English, and the others are the translations
+ * built into the app.
+ */
+QVariantList Settings::guiLanguages() const
+{
+    QStringList tags = {u"en_GB"_s};
+    const QStringList files = QDir(u":/i18n"_s).entryList({u"collett_*.qm"_s}, QDir::Files);
+    for (const QString &file : files) {
+        tags.append(file.sliced(8).chopped(3));
+    }
+
+    QVariantList languages;
+    for (const QString &tag : std::as_const(tags)) {
+        QString name = QLocale(tag).nativeLanguageName();
+        if (!name.isEmpty()) name[0] = name[0].toUpper();
+        languages.append(QVariantMap{{u"value"_s, tag}, {u"text"_s, name.isEmpty() ? tag : name}});
+    }
+    return languages;
+}
+
+/**! @brief The installed spell checking dictionaries, as value and text
+ * pairs.
+ */
+QVariantList Settings::spellLanguages() const
+{
+    QVariantList languages;
+    const SpellChecker checker;
+    for (const SpellChecker::Language &language : checker.listDictionaries()) {
+        languages.append(QVariantMap{{u"value"_s, language.tag}, {u"text"_s, language.name}});
+    }
+    return languages;
+}
+
+/**! @brief A short description of a font, like "12 pt Noto Serif".
+ */
+QString Settings::fontDescription(const QFont &font)
+{
+    return FontUtils::describeFont(font);
+}
+
 // Setters
 // =======
+
+void Settings::setGuiLanguage(const QString &language)
+{
+    if (language.trimmed() == m_guiLanguage) return;
+    m_guiLanguage = language.trimmed();
+    emit guiLanguageChanged();
+}
+
+void Settings::setPrefsWindowSize(const QSize &size)
+{
+    if (size == m_prefsWindowSize) return;
+    m_prefsWindowSize = size;
+    emit prefsWindowSizeChanged();
+}
+
+void Settings::setEditorAutoSave(const int interval)
+{
+    if (qMax(interval, 5) == m_editorAutoSave) return;
+    m_editorAutoSave = qMax(interval, 5);
+    emit editorAutoSaveChanged();
+}
+
+void Settings::setNativeFontDialog(const bool state)
+{
+    if (state == m_nativeFontDialog) return;
+    m_nativeFontDialog = state;
+    emit nativeFontDialogChanged();
+}
+
+void Settings::setSpellLanguage(const QString &language)
+{
+    if (language.trimmed() == m_spellLanguage) return;
+    m_spellLanguage = language.trimmed();
+    emit spellLanguageChanged();
+}
 
 /**! @brief Set the document font and rebuild the text formats from it.
  */
 void Settings::setTextFont(const QFont &font)
 {
+    if (font == m_textFont) return;
     m_textFont = font;
     m_textFontSize = qMax(font.pointSizeF(), 5.0);
     recalculateTextFormats();
@@ -153,6 +250,7 @@ void Settings::setTextFont(const QFont &font)
 
 void Settings::setTextTabWidth(const qreal width)
 {
+    if (width == m_textTabWidth) return;
     m_textTabWidth = width;
     recalculateTextFormats();
     emit textFormatChanged();

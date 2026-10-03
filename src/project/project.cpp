@@ -52,6 +52,15 @@ Project::Project()
     connect(m_countTimer, &QTimer::timeout, this, &Project::countDocuments);
 
     m_spell = new SpellChecker(this);
+
+    // A project without its own spelling language follows the global one
+    Settings *settings = Settings::instance();
+    connect(settings, &Settings::spellLanguageChanged, this, [this]() {
+        if (m_data && !m_data->hasSpellLanguage()) m_spell->setLanguage(Settings::instance()->spellLanguage());
+    });
+    connect(settings, &Settings::editorAutoSaveChanged, this, [this]() {
+        m_autoSaveTimer->setInterval(Settings::instance()->editorAutoSave() * 1000);
+    });
 }
 
 Project::~Project()
