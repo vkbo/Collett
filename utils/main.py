@@ -82,6 +82,11 @@ def main() -> None:
     # Test
     cmdTest = parsers.add_parser("test", help="Run the unit tests.")
     cmdTest.add_argument("--build", action="store_true", help="Build the app and tests before running the tests.")
+    cmdTest.add_argument(
+        "--coverage",
+        action="store_true",
+        help="Build with coverage in build_cov and write a coverage report, also as lcov.info.",
+    )
     cmdTest.set_defaults(func=utils.build.test)
 
     # Additional Builds

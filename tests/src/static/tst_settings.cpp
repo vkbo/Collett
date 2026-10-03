@@ -22,6 +22,7 @@
 #include "settings.h"
 
 #include <QLocale>
+#include <QSignalSpy>
 #include <QtTest>
 
 using namespace Collett;
@@ -36,6 +37,7 @@ private slots:
     void editorAutoSave();
     void spellLanguage();
     void tabWidth();
+    void autoIndent();
     void fonts();
 };
 
@@ -64,6 +66,20 @@ void TestSettings::editorAutoSave()
 
     settings->setEditorAutoSave(60);
     QCOMPARE(settings->editorAutoSave(), 60);
+}
+
+/**! @brief Automatic indent is on by default, and can be turned off.
+ */
+void TestSettings::autoIndent()
+{
+    Settings *settings = Settings::instance();
+    QCOMPARE(settings->textAutoIndent(), true);
+
+    QSignalSpy spy(settings, &Settings::textAutoIndentChanged);
+    settings->setTextAutoIndent(false);
+    QCOMPARE(settings->textAutoIndent(), false);
+    settings->setTextAutoIndent(false);
+    QCOMPARE(spy.count(), 1);
 }
 
 /**! @brief The spell language defaults to the system locale and can be changed.

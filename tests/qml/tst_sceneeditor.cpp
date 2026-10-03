@@ -20,7 +20,9 @@
 */
 
 #include "qmlfixture.h"
+#include "settings.h"
 
+#include <QTextBlock>
 #include <QtTest>
 
 using namespace Collett;
@@ -40,11 +42,14 @@ private slots:
     void arrowsCrossDocuments();
     void liveWordCount();
     void spellingMenu();
+    void tabIndent();
+    void autoIndent();
 
 private:
     QmlFixture *f = nullptr;
 
     QPoint pointInText(int row, int position) const;
+    qreal indentAt(int row, int position) const;
     QQuickItem *menuItem(QObject *menu, const QString &text) const;
 };
 
@@ -56,6 +61,13 @@ QPoint TestSceneEditor::pointInText(int row, int position) const
     QRectF rect;
     QMetaObject::invokeMethod(text, "positionToRectangle", Q_RETURN_ARG(QRectF, rect), Q_ARG(int, position));
     return text->mapToScene(rect.center()).toPoint();
+}
+
+/**! @brief The first-line indent of the paragraph at a position.
+ */
+qreal TestSceneEditor::indentAt(int row, int position) const
+{
+    return f->project.openDocument(f->handle(row))->findBlock(position).blockFormat().textIndent();
 }
 
 /**! @brief The item of a menu with a given text.
@@ -81,6 +93,7 @@ void TestSceneEditor::initTestCase()
  */
 void TestSceneEditor::init()
 {
+    Settings::instance()->setTextAutoIndent(false);
     f = new QmlFixture();
     QVERIFY(f->create());
     f->addDocument(ItemLevel::ChapterLevel, "One", "");
@@ -256,6 +269,77 @@ void TestSceneEditor::spellingMenu()
     QTest::mouseClick(f->window, Qt::LeftButton, Qt::NoModifier, f->pointIn(add));
     QTRY_VERIFY(spell->checkWord("Gollum"));
     QCOMPARE(f->text(5), QStringLiteral("hello Gollum"));
+}
+
+/**! @brief Tab at the start of a paragraph adds a first-line indent, and
+ * Backspace there removes it. Elsewhere, and in headings, Tab is a tab.
+ */
+void TestSceneEditor::tabIndent()
+{
+    const qreal width = Settings::instance()->textFormat().tabWidth;
+    f->enterText(2, 12);
+    QTRY_COMPARE(f->focusPart(), QStringLiteral("text"));
+
+    QTest::keyClick(f->window, Qt::Key_Tab);
+    QTRY_COMPARE(indentAt(2, 12), width);
+    QCOMPARE(indentAt(2, 0), 0.0);
+    QCOMPARE(f->text(2), QStringLiteral("Alpha beta.\nGamma delta."));
+
+    QTest::keyClick(f->window, Qt::Key_Backspace);
+    QTRY_COMPARE(indentAt(2, 12), 0.0);
+    QCOMPARE(f->text(2), QStringLiteral("Alpha beta.\nGamma delta."));
+    QCOMPARE(f->focusCursor(), 12);
+
+    // Not at the start of a paragraph
+    f->enterText(2, 5);
+    QTRY_COMPARE(f->focusCursor(), 5);
+    QTest::keyClick(f->window, Qt::Key_Tab);
+    QTRY_COMPARE(f->text(2), QStringLiteral("Alpha\t beta.\nGamma delta."));
+    QCOMPARE(indentAt(2, 0), 0.0);
+}
+
+/**! @brief With automatic indent on, Enter indents the new paragraph after
+ * a text paragraph, but not after a heading or a centred paragraph.
+ */
+void TestSceneEditor::autoIndent()
+{
+    const qreal width = Settings::instance()->textFormat().tabWidth;
+    QObject *binder = f->scene(2)->property("textBinder").value<QObject *>();
+    QVERIFY(binder);
+
+    // Off: the new paragraph copies the current one
+    f->enterText(2, 11);
+    QTRY_COMPARE(f->focusCursor(), 11);
+    QTest::keyClick(f->window, Qt::Key_Return);
+    QTRY_COMPARE(f->text(2), QStringLiteral("Alpha beta.\n\nGamma delta."));
+    QCOMPARE(indentAt(2, 12), 0.0);
+
+    // On: after a text paragraph
+    Settings::instance()->setTextAutoIndent(true);
+    QTest::keyClick(f->window, Qt::Key_Return);
+    QTRY_COMPARE(f->text(2), QStringLiteral("Alpha beta.\n\n\nGamma delta."));
+    QCOMPARE(indentAt(2, 13), width);
+    QCOMPARE(indentAt(2, 12), 0.0);
+
+    // After a heading
+    f->enterText(2, 0);
+    QTRY_COMPARE(f->focusCursor(), 0);
+    binder->setProperty("headingLevel", 2);
+    f->enterText(2, 11);
+    QTRY_COMPARE(f->focusCursor(), 11);
+    QTest::keyClick(f->window, Qt::Key_Return);
+    f->type("x");
+    QTRY_COMPARE(f->text(2), QStringLiteral("Alpha beta.\nx\n\n\nGamma delta."));
+    QCOMPARE(indentAt(2, 12), 0.0);
+
+    // After a centred paragraph
+    binder->setProperty("alignment", int(Qt::AlignHCenter));
+    QTest::keyClick(f->window, Qt::Key_Return);
+    f->type("y");
+    QTRY_COMPARE(f->text(2), QStringLiteral("Alpha beta.\nx\ny\n\n\nGamma delta."));
+    QCOMPARE(indentAt(2, 14), 0.0);
+
+    Settings::instance()->setTextAutoIndent(false);
 }
 
 QTEST_MAIN(TestSceneEditor)

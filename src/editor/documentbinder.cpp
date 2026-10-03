@@ -197,21 +197,70 @@ void DocumentBinder::outdent()
     changeIndent(-1);
 }
 
-/**! @brief Start a plain paragraph when Enter is pressed at the end of a
- * heading.
+/**! @brief Start a new paragraph when Enter is pressed, if the new one
+ * should not just copy the format of the current one.
  *
- * Returns false, and does nothing, if the cursor is not at the end of a
- * heading, so the key can be handled as usual.
+ * Enter at the end of a heading starts a plain paragraph. With automatic
+ * indent on, a new paragraph after a text paragraph gets a first-line
+ * indent, unless the text is centred or right-aligned. The first paragraph
+ * after a heading is not indented. Returns false, and does nothing, in all
+ * other cases, so the key can be handled as usual.
  */
-bool DocumentBinder::newParagraphAfterHeading()
+bool DocumentBinder::newParagraph()
 {
     QTextCursor cursor = targetCursor();
-    if (cursor.isNull() || cursor.hasSelection() || !cursor.atBlockEnd()) return false;
-    if (cursor.blockFormat().headingLevel() == 0) return false;
+    if (cursor.isNull() || cursor.hasSelection()) return false;
 
     const Settings::TextFormat format = Settings::instance()->textFormat();
-    cursor.insertBlock(format.blockParagraph, format.charParagraph);
+    const QTextBlockFormat current = cursor.blockFormat();
+    if (current.headingLevel() > 0) {
+        if (!cursor.atBlockEnd()) return false;
+        cursor.insertBlock(format.blockParagraph, format.charParagraph);
+    } else if (Settings::instance()->textAutoIndent() && current.intProperty(BlockTypeProperty) != CommentBlock) {
+        const Qt::Alignment align = current.alignment() & Qt::AlignHorizontal_Mask;
+        if (align == Qt::AlignHCenter || align == Qt::AlignCenter || align == Qt::AlignRight) return false;
+        QTextBlockFormat indented = current;
+        indented.setTextIndent(format.tabWidth);
+        cursor.insertBlock(indented);
+    } else {
+        return false;
+    }
     m_target->setProperty("cursorPosition", cursor.position());
+    return true;
+}
+
+/**! @brief Give the paragraph at the cursor a first-line indent, if the
+ * cursor is at its start and it has none.
+ *
+ * Headings are never indented. Returns false, and does nothing, if the
+ * indent was not added.
+ */
+bool DocumentBinder::addFirstLineIndent()
+{
+    QTextCursor cursor = targetCursor();
+    if (cursor.isNull() || cursor.hasSelection() || !cursor.atBlockStart()) return false;
+
+    QTextBlockFormat format = cursor.blockFormat();
+    if (format.headingLevel() > 0 || format.textIndent() > 0.0) return false;
+    format.setTextIndent(Settings::instance()->textFormat().tabWidth);
+    cursor.setBlockFormat(format);
+    return true;
+}
+
+/**! @brief Remove the first-line indent of the paragraph at the cursor, if
+ * the cursor is at its start and it has one.
+ *
+ * Returns false, and does nothing, if there was no indent to remove.
+ */
+bool DocumentBinder::removeFirstLineIndent()
+{
+    QTextCursor cursor = targetCursor();
+    if (cursor.isNull() || cursor.hasSelection() || !cursor.atBlockStart()) return false;
+
+    QTextBlockFormat format = cursor.blockFormat();
+    if (format.textIndent() <= 0.0) return false;
+    format.setTextIndent(0.0);
+    cursor.setBlockFormat(format);
     return true;
 }
 

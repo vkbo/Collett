@@ -44,6 +44,7 @@ using namespace Qt::Literals::StringLiterals;
 #define CNF_HEADING_FONT "Fonts/headingFont"_L1
 #define CNF_MONO_FONT "Fonts/monoFont"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
+#define CNF_TEXT_AUTO_INDENT "TextFormat/autoIndent"_L1
 #define CNF_SPELL_LANGUAGE "SpellCheck/language"_L1
 
 namespace Collett {
@@ -120,6 +121,7 @@ Settings::Settings(QObject *parent) : QObject(parent)
     // -----------
 
     m_textTabWidth = qMax(settings.value(CNF_TEXT_TAB_WIDTH, (qreal)40.0).toReal(), 0.0);
+    m_textAutoIndent = settings.value(CNF_TEXT_AUTO_INDENT, __GCC_ATOMIC_TEST_AND_SET_TRUEVAL).toBool();
 
     // Fonts
     // -----
@@ -170,6 +172,7 @@ void Settings::flushSettings()
     settings.setValue(CNF_HEADING_FONT, m_headingFont.toString());
     settings.setValue(CNF_MONO_FONT, m_monoFont.toString());
     settings.setValue(CNF_TEXT_TAB_WIDTH, m_textTabWidth);
+    settings.setValue(CNF_TEXT_AUTO_INDENT, m_textAutoIndent);
     settings.setValue(CNF_SPELL_LANGUAGE, m_spellLanguage);
 
     qDebug() << "Settings values saved";
@@ -301,6 +304,15 @@ void Settings::setTextTabWidth(const qreal width)
     m_textTabWidth = width;
     recalculateTextFormats();
     emit textFormatChanged();
+}
+
+/**! @brief Set whether new paragraphs get a first-line indent on their own.
+ */
+void Settings::setTextAutoIndent(const bool enabled)
+{
+    if (enabled == m_textAutoIndent) return;
+    m_textAutoIndent = enabled;
+    emit textAutoIndentChanged();
 }
 
 // Internal Functions

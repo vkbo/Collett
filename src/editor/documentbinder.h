@@ -96,7 +96,9 @@ public:
     // Formatting
     Q_INVOKABLE void indent();
     Q_INVOKABLE void outdent();
-    Q_INVOKABLE bool newParagraphAfterHeading();
+    Q_INVOKABLE bool newParagraph();
+    Q_INVOKABLE bool addFirstLineIndent();
+    Q_INVOKABLE bool removeFirstLineIndent();
 
     // Spell Checking
     Q_INVOKABLE QVariantMap misspelledWordAt(int position) const;

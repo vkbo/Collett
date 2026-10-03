@@ -76,6 +76,7 @@ Window {
         monoFont = Settings.monoFont;
         autoSave.value = Settings.editorAutoSave;
         tabWidth.value = Math.round(Settings.textTabWidth);
+        autoIndent.checked = Settings.textAutoIndent;
         spellLanguage.model = Settings.spellLanguages();
         spellLanguage.currentIndex = spellLanguage.indexOfValue(Settings.spellLanguage);
 
@@ -99,14 +100,17 @@ Window {
     /**! Save the values in the form and close the dialog.
      */
     function save() {
-        if (guiLanguage.currentIndex >= 0) Settings.guiLanguage = guiLanguage.currentValue;
+        if (guiLanguage.currentIndex >= 0)
+            Settings.guiLanguage = guiLanguage.currentValue;
         Settings.guiFont = guiFont;
         Settings.textFont = textFont;
         Settings.headingFont = headingFont;
         Settings.monoFont = monoFont;
         Settings.editorAutoSave = autoSave.value;
         Settings.textTabWidth = tabWidth.value;
-        if (spellLanguage.currentIndex >= 0) Settings.spellLanguage = spellLanguage.currentValue;
+        Settings.textAutoIndent = autoIndent.checked;
+        if (spellLanguage.currentIndex >= 0)
+            Settings.spellLanguage = spellLanguage.currentValue;
         close();
     }
 
@@ -124,7 +128,8 @@ Window {
     /**! Scroll a section to the top of the page.
      */
     function showSection(index: int) {
-        if (stack.depth > 1) stack.popToIndex(0);
+        if (stack.depth > 1)
+            stack.popToIndex(0);
         currentIndex = index;
         scrollAnimation.to = Math.min(sections[index].y, flow.contentHeight - flow.height);
         scrollAnimation.restart();
@@ -133,17 +138,20 @@ Window {
     // The side bar follows the scrolling, but not while it is scrolling to
     // the section that was clicked
     function updateCurrent() {
-        if (scrollAnimation.running) return;
+        if (scrollAnimation.running)
+            return;
         let found = 0;
         for (let i = 0; i < sections.length; ++i) {
-            if (sections[i].y <= flow.contentY + 1) found = i;
+            if (sections[i].y <= flow.contentY + 1)
+                found = i;
         }
         currentIndex = found;
     }
 
     // The window size is kept however the dialog is closed
     onVisibleChanged: {
-        if (visible) return;
+        if (visible)
+            return;
         Settings.prefsWindowSize = Qt.size(width, height);
         Settings.flushSettings();
     }
@@ -396,6 +404,19 @@ Window {
                                         to: 200
                                         editable: true
                                         Accessible.name: qsTr("First line indent")
+                                    }
+                                }
+
+                                SettingsRow {
+                                    title: qsTr("Indent paragraphs automatically")
+                                    help: qsTr("New paragraphs get a first line indent, except after a heading, or when centred or right-aligned.")
+
+                                    Switch {
+                                        id: autoIndent
+
+                                        objectName: "autoIndent"
+
+                                        Accessible.name: qsTr("Indent paragraphs automatically")
                                     }
                                 }
                             }

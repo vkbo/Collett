@@ -144,12 +144,17 @@ FocusScope {
         if (titleInput.text === "") event.accepted = mergeUp();
     }
 
+    // Backspace at the start of an indented paragraph removes the indent.
     // Backspace at the start of the text moves the cursor to the end of the
     // title if there is one, and otherwise merges the document into the
     // previous one. A run of Backspace presses from the text therefore clears
     // the title, and then merges.
     function textBackspace(event: KeyEvent) {
         if (event.key !== Qt.Key_Backspace || event.modifiers !== Qt.NoModifier) return;
+        if (binder.removeFirstLineIndent()) {
+            event.accepted = true;
+            return;
+        }
         if (textEdit.cursorPosition !== 0 || textEdit.selectionStart !== textEdit.selectionEnd) return;
         if (titleInput.text !== "") {
             enterTitleAt(titleInput.length);
@@ -398,18 +403,24 @@ FocusScope {
                 if (activeFocus) root.cursorMoved(mapToItem(root, cursorRectangle));
             }
 
-            // Ctrl+Enter splits the document at the cursor, and Enter at the
-            // end of a heading starts a plain paragraph
+            // Ctrl+Enter splits the document at the cursor. The binder decides
+            // the format of a paragraph started with Enter.
             function handleEnter(event: KeyEvent) {
                 if (event.modifiers === Qt.ControlModifier && plainMove) {
                     root.splitRequested(cursorPosition);
-                } else if (event.modifiers !== Qt.NoModifier || !binder.newParagraphAfterHeading()) {
+                } else if (event.modifiers !== Qt.NoModifier || !binder.newParagraph()) {
                     event.accepted = false;
                 }
             }
 
             Keys.onPressed: event => root.textBackspace(event)
             Keys.onReturnPressed: event => handleEnter(event)
+
+            // Tab at the start of a paragraph adds a first-line indent, and
+            // elsewhere inserts a tab
+            Keys.onTabPressed: event => {
+                if (event.modifiers !== Qt.NoModifier || !binder.addFirstLineIndent()) event.accepted = false;
+            }
             Keys.onEnterPressed: event => handleEnter(event)
 
             // Each handler starts out accepted, so a key that stays within the

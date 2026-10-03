@@ -27,9 +27,12 @@ import shutil
 import subprocess
 import sys
 
+from pathlib import Path
+
 from utils.common import ROOT_DIR, envValue, log
 
 BUILD_DIR = ROOT_DIR / "build"
+COVERAGE_DIR = ROOT_DIR / "build_cov"
 BUILD_OPTIONS = ["debug", "release", "tests", "coverage", "clean"]
 
 
@@ -42,9 +45,9 @@ def _run(cmd: list[str]) -> None:
     log("")
 
 
-def _cacheValue(key: str) -> str | None:
-    """Look up a value in the build folder's CMake cache."""
-    cache = BUILD_DIR / "CMakeCache.txt"
+def _cacheValue(key: str, buildDir: Path = BUILD_DIR) -> str | None:
+    """Look up a value in a build folder's CMake cache."""
+    cache = buildDir / "CMakeCache.txt"
     if cache.is_file():
         for line in cache.read_text(encoding="utf-8").splitlines():
             name, _, value = line.partition("=")
@@ -53,7 +56,7 @@ def _cacheValue(key: str) -> str | None:
     return None
 
 
-def buildCollett(options: list[str]) -> None:
+def buildCollett(options: list[str], buildDir: Path = BUILD_DIR) -> None:
     """Configure and build Collett.
 
     The options are words from BUILD_OPTIONS. "clean" deletes the build
@@ -73,25 +76,28 @@ def buildCollett(options: list[str]) -> None:
     log("[b]=============[e]")
     log("")
 
-    if "clean" in options and BUILD_DIR.is_dir():
-        log(f"[b]Deleting:[e] {BUILD_DIR}")
-        shutil.rmtree(BUILD_DIR)
+    if "clean" in options and buildDir.is_dir():
+        log(f"[b]Deleting:[e] {buildDir}")
+        shutil.rmtree(buildDir)
         log("")
 
-    cmd = ["cmake", "-S", ".", "-B", str(BUILD_DIR), "-G", "Unix Makefiles"]
+    cmd = ["cmake", "-S", ".", "-B", str(buildDir), "-G", "Unix Makefiles"]
     if "release" in options:
         cmd.append("-DCMAKE_BUILD_TYPE=Release")
-    elif "debug" in options or _cacheValue("CMAKE_BUILD_TYPE") is None:
+    elif "debug" in options or _cacheValue("CMAKE_BUILD_TYPE", buildDir) is None:
         cmd.append("-DCMAKE_BUILD_TYPE=Debug")
     coverage = "coverage" in options
     cmd.append(f"-DCOLLETT_BUILD_TESTS={'ON' if coverage or 'tests' in options else 'OFF'}")
     cmd.append(f"-DCOLLETT_COVERAGE={'ON' if coverage else 'OFF'}")
+    if coverage and (gcovr := ROOT_DIR / ".venv" / "bin" / "gcovr").is_file():
+        # The system's gcovr may be too old for the report options
+        cmd.append(f"-DGCOVR_EXECUTABLE={gcovr}")
     if toolchain := envValue("QT_TOOLCHAIN_FILE"):
         cmd.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchain}")
     _run(cmd)
 
-    _run(["cmake", "--build", str(BUILD_DIR), "--parallel", str(os.cpu_count() or 1)])
-    log(f"[cg]Build Done:[e] {_cacheValue('CMAKE_BUILD_TYPE')}")
+    _run(["cmake", "--build", str(buildDir), "--parallel", str(os.cpu_count() or 1)])
+    log(f"[cg]Build Done:[e] {_cacheValue('CMAKE_BUILD_TYPE', buildDir)}")
     log("")
 
 
@@ -104,34 +110,41 @@ def test(args: argparse.Namespace) -> None:
     """Run the unit tests, building them first if asked to.
 
     A build with coverage runs the tests through the coverage target, which
-    also writes the coverage report.
+    also writes the coverage report. With the coverage flag, the tests are
+    built with coverage in their own folder, so the main build is left as it
+    is. The counts from earlier runs are cleared first, so the report only
+    covers this run. The report folder is where the editor's coverage view
+    looks for it.
     """
-    coverage = _cacheValue("COLLETT_COVERAGE") == "ON"
-    if args.build:
-        buildCollett(["coverage"] if coverage else ["tests"])
+    buildDir = COVERAGE_DIR if args.coverage else BUILD_DIR
+    coverage = args.coverage or _cacheValue("COLLETT_COVERAGE") == "ON"
+    if args.build or args.coverage:
+        buildCollett(["coverage"] if coverage else ["tests"], buildDir)
 
     log("")
     log("[b]Test Collett[e]")
     log("[b]============[e]")
     log("")
 
-    if _cacheValue("COLLETT_BUILD_TESTS") != "ON":
+    if _cacheValue("COLLETT_BUILD_TESTS", buildDir) != "ON":
         log("[cr]Error:[e] The tests are not built. Run 'build tests' first, or add '--build'.")
         sys.exit(1)
 
     if coverage:
-        _run(["cmake", "--build", str(BUILD_DIR), "--target", "coverage"])
-        log(f"[b]Coverage:[e] {BUILD_DIR / 'coverage' / 'index.html'}")
-        log(f"[b]Total:[e] {_coverageTotal()}")
+        for counts in buildDir.rglob("*.gcda"):
+            counts.unlink()
+        _run(["cmake", "--build", str(buildDir), "--target", "coverage"])
+        log(f"[b]Coverage:[e] {buildDir / 'coverage' / 'index.html'}")
+        log(f"[b]Total:[e] {_coverageTotal(buildDir)}")
     else:
-        _run(["ctest", "--test-dir", str(BUILD_DIR), "--output-on-failure"])
+        _run(["ctest", "--test-dir", str(buildDir), "--output-on-failure"])
     log("[cg]Tests Done[e]")
     log("")
 
 
-def _coverageTotal() -> str:
+def _coverageTotal(buildDir: Path) -> str:
     """Return the total line coverage from the text report."""
-    report = BUILD_DIR / "coverage" / "coverage.txt"
+    report = buildDir / "coverage" / "coverage.txt"
     if report.is_file():
         for line in report.read_text(encoding="utf-8").splitlines():
             if line.startswith("TOTAL"):
