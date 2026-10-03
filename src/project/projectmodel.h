@@ -80,6 +80,8 @@ public:
     Q_INVOKABLE void setLevel(int row, int level);
     Q_INVOKABLE void setHardBreak(int row, bool state);
     Q_INVOKABLE void setNumbered(int row, bool state);
+    Q_INVOKABLE int blockSize(int row) const;
+    Q_INVOKABLE bool moveBlock(int row, int count, int before);
     void insertNode(int row, Node *node);
     Node *takeNode(int row);
 

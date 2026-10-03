@@ -22,6 +22,7 @@
 #include "projectmodel.h"
 
 #include <QModelIndex>
+#include <QSet>
 #include <QVariant>
 
 namespace Collett {
@@ -193,6 +194,64 @@ void ProjectModel::setNumbered(int row, bool state)
     refreshStructure();
 }
 
+/**! @brief The number of rows that move together with a row: the row, and
+ * the hidden rows of a folded partition or chapter.
+ */
+int ProjectModel::blockSize(int row) const
+{
+    if (!m_group || row < 0 || row >= m_group->count()) {
+        return 0;
+    }
+    int end = row + 1;
+    while (end < m_hidden.size() && m_hidden.at(end)) {
+        ++end;
+    }
+    return end - row;
+}
+
+/**! @brief Move a block of rows to before another row.
+ *
+ * Documents that were in view and would end up hidden by a folded partition
+ * or chapter unfold it, so a move never hides anything.
+ */
+bool ProjectModel::moveBlock(int row, int count, int before)
+{
+    const int total = m_group ? int(m_group->count()) : 0;
+    if (count < 1 || row < 0 || row + count > total || before < 0 || before > total || (before >= row && before <= row + count)) {
+        return false;
+    }
+
+    QSet<const Node *> shown;
+    for (int i = 0; i < total; ++i) {
+        if (!m_hidden.value(i)) shown.insert(m_group->item(i));
+    }
+
+    beginMoveRows(QModelIndex(), row, row + count - 1, QModelIndex(), before);
+    const int target = before > row ? before - count : before;
+    QList<Node *> moved;
+    for (int i = 0; i < count; ++i) {
+        moved.append(m_group->takeItem(row));
+    }
+    for (int i = 0; i < count; ++i) {
+        m_group->insertItem(target + i, moved.at(i));
+    }
+    updateStructure();
+    endMoveRows();
+
+    for (int r = 0; r < total; ++r) {
+        if (!shown.contains(m_group->item(r))) continue;
+        for (int i = r - 1; i >= 0 && m_hidden.value(r); --i) {
+            Node *node = m_group->item(i);
+            if (m_foldable.value(i) && !node->isExpanded()) {
+                node->setExpanded(true);
+                updateStructure();
+            }
+        }
+    }
+    refreshStructure();
+    return true;
+}
+
 /**! @brief Insert a new document at a row.
  *
  * The model takes the node into its group, which then owns it.
@@ -318,7 +377,7 @@ void ProjectModel::refreshStructure()
 {
     updateStructure();
     if (m_group && m_group->count() > 0) {
-        emit dataChanged(index(0), index(int(m_group->count()) - 1), {FoldableRole, HiddenRole, NumberRole, ChapterNumberRole});
+        emit dataChanged(index(0), index(int(m_group->count()) - 1), {ExpandedRole, FoldableRole, HiddenRole, NumberRole, ChapterNumberRole});
     }
     emit structureChanged();
 }

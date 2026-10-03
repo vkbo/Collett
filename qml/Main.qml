@@ -116,21 +116,134 @@ ApplicationWindow {
             ListView {
                 id: projectList
 
+                // Dragging a card: the rows that move, the row they will be
+                // put before, and the height of the gap that opens there
+                property int dragRow: -1
+                property int dragCount: 0
+                property int dropRow: -1
+                property real dropGap: 0
+                property real pointerY: 0
+                readonly property bool reordering: dragRow >= 0
+
+                function startDrag(card: ProjectCard) {
+                    dragRow = card.index;
+                    dragCount = window.project.model.blockSize(card.index);
+                    dropRow = dragRow + dragCount;
+                    dropGap = card.cardHeight + card.gap;
+                    dragProxy.title = card.title;
+                    dragProxy.level = card.level;
+                    dragProxy.words = card.words;
+                    dragProxy.expanded = card.expanded;
+                    dragProxy.foldable = card.foldable;
+                }
+
+                function moveDrag(scenePosition: point) {
+                    pointerY = mapFromItem(null, scenePosition).y;
+                    updateDrop();
+                }
+
+                // The drop goes before the card under the pointer if it is in
+                // the upper half of it, or else after it and any rows it hides
+                function updateDrop() {
+                    const y = pointerY + contentY;
+                    const row = indexAt(width / 2, y);
+                    let target = -1;
+                    if (row < 0) {
+                        target = pointerY < height / 2 ? 0 : count;
+                    } else if (row < dragRow || row >= dragRow + dragCount) {
+                        const card = itemAtIndex(row) as ProjectCard;
+                        const middle = (dropRow === row ? dropGap : 0) + card.cardHeight / 2;
+                        target = y - card.y < middle ? row : row + window.project.model.blockSize(row);
+                    }
+                    if (target === dragRow) target = dragRow + dragCount;
+                    if (target >= 0) dropRow = target;
+                }
+
+                function finishDrag() {
+                    if (!reordering) return;
+                    if (dropRow !== dragRow + dragCount) window.project.model.moveBlock(dragRow, dragCount, dropRow);
+                    dragRow = -1;
+                    dropRow = -1;
+                }
+
                 anchors.fill: parent
                 anchors.margins: 8
                 clip: true
                 model: window.project.model
                 boundsBehavior: Flickable.StopAtBounds
+                interactive: !reordering
+
+                // Mouse drags move cards, so only the wheel, touchpad and
+                // touch scroll the list
+                acceptedButtons: Qt.NoButton
                 ScrollBar.vertical: ScrollBar {}
+
+                // The dragged card must not be destroyed while it holds the
+                // pointer, so all cards are kept while dragging
+                cacheBuffer: reordering ? 100000 : 0
 
                 delegate: ProjectCard {
                     id: projectCard
 
                     width: projectList.width
                     selected: projectCard.handle === window.focusHandle
+                    dragged: projectList.dragRow === index
+                    dropGap: projectList.dropRow === index ? projectList.dropGap : 0
                     onOpenRequested: handle => editorView.showScene(handle)
                     onFoldRequested: index => window.project.model.toggleExpanded(index)
+                    onDragStarted: projectList.startDrag(projectCard)
+                    onDragMoved: scenePosition => projectList.moveDrag(scenePosition)
+                    onDragFinished: projectList.finishDrag()
                 }
+
+                footer: Item {
+                    width: projectList.width
+                    height: projectList.dropRow === projectList.count ? projectList.dropGap : 0
+
+                    Behavior on height {
+                        NumberAnimation {
+                            duration: 180
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                }
+
+                // Scroll while the pointer is near the top or bottom edge
+                Timer {
+                    readonly property real edge: 32
+                    readonly property real step: projectList.pointerY < edge ? -8 : 8
+
+                    interval: 16
+                    repeat: true
+                    running: projectList.reordering && (projectList.pointerY < edge || projectList.pointerY > projectList.height - edge)
+                    onTriggered: {
+                        const top = projectList.originY;
+                        const bottom = projectList.originY + projectList.contentHeight - projectList.height;
+                        projectList.contentY = Math.max(top, Math.min(projectList.contentY + step, bottom));
+                        projectList.updateDrop();
+                    }
+                }
+            }
+
+            // A copy of the dragged card that follows the pointer
+            ProjectCard {
+                id: dragProxy
+
+                index: -1
+                handle: ""
+                title: ""
+                level: 0
+                words: 0
+                expanded: true
+                foldable: false
+                hidden: false
+
+                x: projectList.x
+                y: projectList.y + projectList.pointerY - height / 2
+                width: projectList.width
+                visible: projectList.reordering
+                opacity: 0.85
+                enabled: false
             }
         }
 

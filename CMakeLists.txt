@@ -41,7 +41,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 # Qt6 Library
 # ===========
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
+find_package(Qt6 6.9 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
 message(STATUS "Found Qt6 Version: ${Qt6_VERSION}")
 
 qt_standard_project_setup(REQUIRES 6.8)

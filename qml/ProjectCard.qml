@@ -26,7 +26,8 @@ import QtQuick.Layouts
 import Collett
 
 // A document in the project list. Cards hidden by a folded partition or
-// chapter collapse to zero height, so the cards below slide up.
+// chapter collapse to zero height, so the cards below slide up. A card being
+// dragged also collapses, but stays visible so it keeps the pointer grab.
 Item {
     id: root
 
@@ -40,17 +41,30 @@ Item {
     required property bool hidden
 
     property bool selected: false
+    property bool dragged: false
+    property real dropGap: 0
 
     signal openRequested(string handle)
     signal foldRequested(int index)
+    signal dragStarted(int index)
+    signal dragMoved(point scenePosition)
+    signal dragFinished()
 
     readonly property color levelColor: Theme.levelColor(level)
     readonly property real gap: 6
+    readonly property real cardHeight: card.height
 
-    implicitHeight: hidden ? 0 : card.height + gap
-    opacity: hidden ? 0 : 1
-    visible: implicitHeight > 0
+    implicitHeight: hidden || dragged ? 0 : dropGap + card.height + gap
+    opacity: hidden || dragged ? 0 : 1
+    visible: implicitHeight > 0 || dragged
     clip: true
+
+    Behavior on dropGap {
+        NumberAnimation {
+            duration: 180
+            easing.type: Easing.OutCubic
+        }
+    }
 
     Behavior on implicitHeight {
         NumberAnimation {
@@ -67,6 +81,7 @@ Item {
     Rectangle {
         id: card
 
+        y: root.dropGap
         width: root.width
         height: content.implicitHeight + 16
         radius: 6
@@ -76,6 +91,16 @@ Item {
 
         TapHandler {
             onTapped: root.openRequested(root.handle)
+        }
+
+        DragHandler {
+            target: null
+            xAxis.enabled: false
+            grabPermissions: PointerHandler.CanTakeOverFromAnything
+            onActiveChanged: active ? root.dragStarted(root.index) : root.dragFinished()
+            onCentroidChanged: {
+                if (active) root.dragMoved(centroid.scenePosition);
+            }
         }
 
         RowLayout {
