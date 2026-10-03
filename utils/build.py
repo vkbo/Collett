@@ -27,7 +27,7 @@ import shutil
 import subprocess
 import sys
 
-from utils.common import ROOT_DIR, log, readEnvFile
+from utils.common import ROOT_DIR, envValue, log
 
 BUILD_DIR = ROOT_DIR / "build"
 BUILD_OPTIONS = ["debug", "release", "tests", "coverage", "clean"]
@@ -86,7 +86,7 @@ def buildCollett(options: list[str]) -> None:
     coverage = "coverage" in options
     cmd.append(f"-DCOLLETT_BUILD_TESTS={'ON' if coverage or 'tests' in options else 'OFF'}")
     cmd.append(f"-DCOLLETT_COVERAGE={'ON' if coverage else 'OFF'}")
-    if toolchain := os.environ.get("QT_TOOLCHAIN_FILE") or readEnvFile().get("QT_TOOLCHAIN_FILE"):
+    if toolchain := envValue("QT_TOOLCHAIN_FILE"):
         cmd.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchain}")
     _run(cmd)
 

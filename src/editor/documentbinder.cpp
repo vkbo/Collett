@@ -70,7 +70,9 @@ void DocumentBinder::setTarget(QQuickItem *target)
 void DocumentBinder::setProject(Project *project)
 {
     if (m_project == project) return;
+    if (m_project) m_project->disconnect(this);
     m_project = project;
+    if (m_project) connect(m_project, &Project::documentDeleting, this, &DocumentBinder::releaseDocument);
     m_highlighter->setSpellChecker(m_project ? m_project->spellChecker() : nullptr);
     emit projectChanged();
     openDocument();
@@ -212,6 +214,29 @@ void DocumentBinder::bindDocument(Document *document)
     connect(m_document->documentLayout(), SIGNAL(updateBlock(QTextBlock)), m_target, SLOT(invalidateBlock(QTextBlock)));
     connect(m_document, SIGNAL(undoAvailable(bool)), m_target, SIGNAL(canUndoChanged()));
     connect(m_document, SIGNAL(redoAvailable(bool)), m_target, SIGNAL(canRedoChanged()));
+}
+
+/**! @brief Swap the target over to an empty document when the shown
+ * document is about to be deleted.
+ *
+ * The TextEdit cannot be without a document, and it may outlive the one it
+ * shows, as delegates are destroyed or reused later.
+ */
+void DocumentBinder::releaseDocument(Document *document)
+{
+    if (!m_document || document != m_document) return;
+
+    m_document->disconnect(m_target);
+    m_document->documentLayout()->disconnect(m_target);
+    m_highlighter->setDocument(nullptr);
+    m_document = nullptr;
+
+    if (!m_placeholder) m_placeholder = new QTextDocument(this);
+    if (m_target) {
+        if (auto *textDocument = m_target->property("textDocument").value<QQuickTextDocument *>()) {
+            textDocument->setTextDocument(m_placeholder);
+        }
+    }
 }
 
 } // namespace Collett

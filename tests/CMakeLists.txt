@@ -36,6 +36,7 @@ function(collett_add_test subdir name)
 endfunction()
 
 collett_add_test(src/core tst_counting)
+collett_add_test(src/core tst_labels)
 collett_add_test(src/core tst_tools)
 collett_add_test(src/editor tst_highlighter)
 collett_add_test(src/project tst_document)

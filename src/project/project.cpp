@@ -367,9 +367,8 @@ QString Project::splitDocument(const QString &handle, int position)
 /**!
  * @brief Delete a document from the project, along with its file.
  *
- * The last document in the group cannot be deleted. The document object is
- * deleted on the next pass of the event loop, as the editor showing it is
- * only destroyed then.
+ * The last document in the group cannot be deleted. Editors showing the
+ * document are told before it is deleted, so they can let go of it.
  *
  * @param handle The handle of the document to delete.
  * @return bool  True if the document was deleted.
@@ -385,6 +384,7 @@ bool Project::deleteDocument(const QString &handle)
     delete projectModel->takeNode(row);
     m_tree->forgetNode(handle);
     if (Document *doc = m_documents.take(handle)) {
+        emit documentDeleting(doc);
         doc->deleteLater();
     }
     if (m_store) {

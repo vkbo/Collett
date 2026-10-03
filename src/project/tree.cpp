@@ -20,6 +20,7 @@
 */
 
 #include "tree.h"
+#include "labels.h"
 #include "projectmodel.h"
 
 #include <QJsonArray>
@@ -184,7 +185,7 @@ void Tree::ensureNovelGroup()
         }
     }
     if (!novel) {
-        novel = new Group(tr("Novel"), ItemClass::NovelClass);
+        novel = new Group(Labels::className(ItemClass::NovelClass), ItemClass::NovelClass);
         m_groups.prepend(novel);
         m_modified = true;
     }

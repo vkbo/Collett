@@ -31,13 +31,17 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QGuiApplication>
+#include <QLibraryInfo>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
 #include <QQuickWindow>
+#include <QTranslator>
 #include <QtQml/QQmlExtensionPlugin>
 
 // The QML module is linked statically
 Q_IMPORT_QML_PLUGIN(CollettPlugin)
+
+using namespace Qt::Literals::StringLiterals;
 
 // ANSI colours for the log output
 namespace {
@@ -120,6 +124,27 @@ void collettLogHandler(QtMsgType type, const QMessageLogContext &context, const 
     std::cout << msg.toStdString() << std::endl;
 }
 
+/**! @brief Install the translations for a GUI language. The source text is
+ * British English, so it has no translation.
+ */
+void loadTranslations(QCoreApplication &app, const QString &language)
+{
+    auto install = [&app](const QString &name, const QString &path) {
+        QTranslator *translator = new QTranslator(&app);
+        if (translator->load(name, path)) {
+            app.installTranslator(translator);
+            qInfo() << "Loaded translation:" << translator->filePath();
+        } else {
+            delete translator;
+        }
+    };
+
+    install(u"qt_"_s + language, QLibraryInfo::path(QLibraryInfo::TranslationsPath));
+    if (language != "en_GB"_L1) {
+        install(u"collett_"_s + language, u":/i18n"_s);
+    }
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -130,6 +155,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("saga-soft.io");
     QCoreApplication::setApplicationName("Collett");
     QCoreApplication::setApplicationVersion(COL_VERSION_STR);
+
+    loadTranslations(app, Collett::Settings::instance()->guiLanguage());
 
     // The Basic style is the least opinionated base for a custom design
     QQuickStyle::setStyle("Basic");

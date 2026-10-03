@@ -82,9 +82,11 @@ private:
     QString m_handle = "";
     QPointer<Document> m_document;
     Highlighter *m_highlighter = nullptr;
+    QTextDocument *m_placeholder = nullptr;
     QColor m_spellErrorColor = Qt::red;
 
     void openDocument();
     void bindDocument(Document *document);
+    void releaseDocument(Document *document);
 };
 } // namespace Collett

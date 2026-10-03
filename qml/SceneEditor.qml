@@ -207,7 +207,7 @@ FocusScope {
 
         x: root.textX
         y: divider.height
-        text: Theme.levelName(root.level)
+        text: Labels.levelName(root.level)
         font.family: binder.textFont.family
         font.pointSize: binder.textFont.pointSize
         font.bold: true
@@ -250,25 +250,25 @@ FocusScope {
         id: typeMenu
 
         MenuItem {
-            text: qsTr("Partition")
+            text: Labels.levelName(Collett.PartitionLevel)
             checkable: true
             checked: root.level === Collett.PartitionLevel
             onTriggered: root.project.model.setLevel(root.index, Collett.PartitionLevel)
         }
         MenuItem {
-            text: qsTr("Chapter")
+            text: Labels.levelName(Collett.ChapterLevel)
             checkable: true
             checked: root.level === Collett.ChapterLevel
             onTriggered: root.project.model.setLevel(root.index, Collett.ChapterLevel)
         }
         MenuItem {
-            text: qsTr("Scene")
+            text: Labels.levelName(Collett.SceneLevel)
             checkable: true
             checked: root.level === Collett.SceneLevel
             onTriggered: root.project.model.setLevel(root.index, Collett.SceneLevel)
         }
         MenuItem {
-            text: qsTr("Page")
+            text: Labels.levelName(Collett.PageLevel)
             checkable: true
             checked: root.level === Collett.PageLevel
             onTriggered: root.project.model.setLevel(root.index, Collett.PageLevel)
@@ -325,7 +325,7 @@ FocusScope {
             }
 
             Text {
-                text: qsTr("%1 title").arg(Theme.levelName(root.level))
+                text: qsTr("%1 title").arg(Labels.levelName(root.level))
                 font: titleInput.font
                 color: titleInput.color
                 opacity: 0.4

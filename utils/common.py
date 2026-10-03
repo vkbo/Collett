@@ -101,3 +101,8 @@ def readEnvFile() -> dict[str, str]:
             key, _, value = line.partition("=")
             values[key.strip()] = value.strip()
     return values
+
+
+def envValue(key: str) -> str | None:
+    """Look up a value in the environment, then in the .env file."""
+    return os.environ.get(key) or readEnvFile().get(key)

@@ -31,6 +31,7 @@
 
 using namespace Qt::Literals::StringLiterals;
 
+#define CNF_GUI_LANGUAGE "Main/guiLanguage"_L1
 #define CNF_EDITOR_AUTO_SAVE "Editor/autoSave"_L1
 #define CNF_TEXT_FONT "TextFormat/textFont"_L1
 #define CNF_TEXT_TAB_WIDTH "TextFormat/tabWidth"_L1
@@ -84,6 +85,11 @@ Settings::Settings(QObject *parent) : QObject(parent)
     // Load Settings
     QSettings settings;
 
+    // GUI Settings
+    // ------------
+
+    m_guiLanguage = settings.value(CNF_GUI_LANGUAGE, QLocale::system().name()).toString();
+
     // Editor Settings
     // ---------------
 
@@ -120,6 +126,7 @@ void Settings::flushSettings()
 
     QSettings settings;
 
+    settings.setValue(CNF_GUI_LANGUAGE, m_guiLanguage);
     settings.setValue(CNF_EDITOR_AUTO_SAVE, m_editorAutoSave);
 
     settings.setValue(CNF_TEXT_FONT, m_textFont.toString());

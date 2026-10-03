@@ -41,7 +41,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 # Qt6 Library
 # ===========
 
-find_package(Qt6 6.9 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Test)
+find_package(Qt6 6.9 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Test LinguistTools)
 message(STATUS "Found Qt6 Version: ${Qt6_VERSION}")
 
 # Nuspell Library
@@ -118,6 +118,8 @@ qt_add_qml_module(CollettCore
         src/core/counting.h
         src/core/icons.cpp
         src/core/icons.h
+        src/core/labels.cpp
+        src/core/labels.h
         src/core/storage.cpp
         src/core/storage.h
         src/core/tools.cpp
@@ -166,6 +168,25 @@ qt_add_qml_module(CollettCore
 qt_add_executable(Collett src/main.cpp)
 target_link_libraries(Collett PRIVATE CollettCore CollettCoreplugin)
 set_target_properties(Collett PROPERTIES OUTPUT_NAME "collett")
+
+# Translations
+# ============
+# The translation sources are updated with "pkgutils.py qtlupdate", and built
+# into the app at :/i18n. The base file is only for the translation platform.
+
+file(GLOB COLLETT_TS_FILES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/i18n/collett_*.ts)
+list(FILTER COLLETT_TS_FILES EXCLUDE REGEX "collett_base\\.ts$")
+if(COLLETT_TS_FILES)
+    qt_add_lrelease(
+        TS_FILES ${COLLETT_TS_FILES}
+        QM_FILES_OUTPUT_VARIABLE COLLETT_QM_FILES
+    )
+    qt_add_resources(Collett "translations"
+        PREFIX "/i18n"
+        BASE ${CMAKE_CURRENT_BINARY_DIR}
+        FILES ${COLLETT_QM_FILES}
+    )
+endif()
 
 # Tests
 # =====

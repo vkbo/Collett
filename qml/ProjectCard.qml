@@ -119,13 +119,13 @@ Item {
 
                 Label {
                     Layout.fillWidth: true
-                    text: root.title || Theme.levelName(root.level)
+                    text: root.title || Labels.levelName(root.level)
                     elide: Text.ElideRight
                     font.weight: root.level === Collett.PartitionLevel || root.level === Collett.ChapterLevel ? Font.DemiBold : Font.Normal
                 }
                 Label {
                     Layout.fillWidth: true
-                    text: qsTr("%1 words").arg(root.words.toLocaleString(Qt.locale(), "f", 0))
+                    text: Labels.wordCount(root.words)
                     elide: Text.ElideRight
                     font.pointSize: Application.font.pointSize * 0.85
                     opacity: 0.7

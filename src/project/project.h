@@ -87,6 +87,7 @@ public:
 
 signals:
     void projectChanged();
+    void documentDeleting(Document *document);
 
 private:
     bool m_isValid = false;

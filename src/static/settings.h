@@ -66,12 +66,14 @@ public:
     void flushSettings();
 
     // Setters
+    void setGuiLanguage(const QString &language) { m_guiLanguage = language.trimmed(); };
     void setEditorAutoSave(const int interval) { m_editorAutoSave = interval; };
     void setTextFont(const QFont &font);
     void setTextTabWidth(const qreal width);
     void setSpellLanguage(const QString &language) { m_spellLanguage = language.trimmed(); };
 
     // Getters
+    QString guiLanguage() const { return m_guiLanguage; };
     int editorAutoSave() const { return m_editorAutoSave; };
     QFont textFont() const { return m_textFont; };
     TextFormat textFormat() const { return m_textFormat; };
@@ -82,6 +84,9 @@ signals:
 
 private:
     static Settings *staticInstance;
+
+    // GUI
+    QString m_guiLanguage;
 
     // Editor
     int m_editorAutoSave;

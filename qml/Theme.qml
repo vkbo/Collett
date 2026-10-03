@@ -49,18 +49,4 @@ QtObject {
             return sceneColor;
         }
     }
-
-    // The name of a level, shown in place of an empty title
-    function levelName(level: int): string {
-        switch (level) {
-        case Collett.PartitionLevel:
-            return qsTr("Partition");
-        case Collett.ChapterLevel:
-            return qsTr("Chapter");
-        case Collett.PageLevel:
-            return qsTr("Page");
-        default:
-            return qsTr("Scene");
-        }
-    }
 }

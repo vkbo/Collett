@@ -25,6 +25,7 @@ import argparse
 
 import utils.build
 import utils.gutenberg
+import utils.i18n
 import utils.icons
 
 from utils.common import extractVersion, isStableVersion
@@ -90,6 +91,11 @@ def main() -> None:
     cmdIcons = parsers.add_parser("icons", help="Build icon theme files from upstream sources.")
     cmdIcons.add_argument("--work-dir", help="Working directory.")
     cmdIcons.set_defaults(func=utils.icons.main)
+
+    # Update i18n Sources
+    cmdUpdateTS = parsers.add_parser("qtlupdate", help="Create or update translation files for internationalisation.")
+    cmdUpdateTS.add_argument("files", nargs="+", help="Translation files, like i18n/collett_nb_NO.ts.")
+    cmdUpdateTS.set_defaults(func=utils.i18n.updateTranslationSources)
 
     # Build Sample
     cmdBuildSample = parsers.add_parser("sample", help="Build a sample project from a Project Gutenberg HTML file.")
